@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -32,7 +33,8 @@
             background-color: var(--bg); color: var(--text);
             transition: background var(--transition), color var(--transition);
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         /* ATMÓSFERA SUTIL */
@@ -100,8 +102,8 @@
         }
 
         .btn-icon {
-            background: none; border: none; color: var(--text); font-size: 1.1rem;
-            cursor: pointer; opacity: 0.25; transition: 0.3s;
+            background: none; border: none; color: var(--text); font-size: 1.15rem;
+            cursor: pointer; opacity: 0.5; transition: 0.3s;
             display: flex; align-items: center; gap: 10px;
         }
         .btn-icon:hover { opacity: 1; }
@@ -162,15 +164,15 @@
             </div>
         </main>
 
-        <footer>
-            <div style="font-size: 0.6rem; opacity:0.1; letter-spacing:3px;">PALABRAS POÉTICAS v4.0</div>
+        <!-- PIE DE PÁGINA (Sutil y Discreto) -->
+        <footer style="margin-top: 120px; width: 100%; max-width: 1100px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(128,128,128,0.1); padding-top: 50px; padding-bottom: 80px;">
+            <div style="font-size: 0.6rem; opacity:0.1; letter-spacing:4px; font-weight:300;">OBRA POÉTICA v5.5</div>
             <div style="display: flex; gap: 40px;">
-                <button class="btn-icon btn-share" onclick="shareWord()" title="Compartir">
-                    <i class="fas fa-share-nodes"></i>
-                    <span style="font-size: 0.7rem; letter-spacing: 2px;">SHARE</span>
+                <button class="btn-icon" onclick="shareWord()" title="Compartir">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                 </button>
                 <button class="btn-icon" onclick="toggleSettings()" title="Ajustes">
-                    <i class="fas fa-sliders"></i>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 </button>
             </div>
         </footer>
@@ -216,12 +218,19 @@
                 if (data.ejemplo1) addEx(data.ejemplo1);
                 if (data.ejemplo2) addEx(data.ejemplo2);
                 
+                document.getElementById('main-ui').classList.add('loaded');
+                if(data.palabra) { /* ok */ }
+            } catch (err) { 
+                console.error(err);
+                document.getElementById('word-title').innerText = "Vuelve Pronto";
+                document.getElementById('word-def').innerText = "La belleza está cargando... Revisa tu conexión o vuelve en unos minutos.";
+            } finally {
                 document.getElementById('loader').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('loader').classList.add('hidden');
                     document.getElementById('main-ui').classList.add('loaded');
-                }, 1000);
-            } catch (err) { console.error(err); }
+                }, 800);
+            }
         }
 
         function addEx(t) {
@@ -274,6 +283,7 @@
         }
 
         function updateNotifStatusUI() {
+            if (!("Notification" in window)) return;
             const status = document.getElementById('notif-status');
             const btn = document.getElementById('btn-permission');
             if (Notification.permission === "granted") {
@@ -305,10 +315,21 @@
                 navigator.serviceWorker.register('sw.js');
             }
             
-            if (localStorage.getItem('theme') === 'dark') {
-                document.getElementById('dark-check').checked = true;
-                document.body.setAttribute('data-theme', 'dark');
+            // Auto-Theme: Si no hay preferencia guardada, usar la hora actual
+            const savedTheme = localStorage.getItem('theme');
+            if (!savedTheme) {
+                const hour = new Date().getHours();
+                const isNight = (hour >= 20 || hour <= 6); // Noche de 8pm a 6am
+                const targetTheme = isNight ? 'dark' : 'light';
+                document.body.setAttribute('data-theme', targetTheme);
+                document.getElementById('dark-check').checked = isNight;
+            } else {
+                if (savedTheme === 'dark') {
+                    document.getElementById('dark-check').checked = true;
+                    document.body.setAttribute('data-theme', 'dark');
+                }
             }
+
             if (localStorage.getItem('time')) document.getElementById('time-input').value = localStorage.getItem('time');
             const opt = { weekday: 'long', day: 'numeric', month: 'long' };
             const ds = new Date().toLocaleDateString('es-ES', opt);
