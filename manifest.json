@@ -2,9 +2,11 @@
   "name": "Palabras Bonitas y Poéticas",
   "short_name": "Poesía",
   "description": "Una palabra poética cada día para alimentar el alma.",
+  "id": "com.palabras.poeticas",
   "start_url": "./index.html",
   "scope": ".",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f5f1e8",
   "theme_color": "#1a1a1a",
   "categories": ["lifestyle", "education", "books"],
@@ -20,6 +22,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Vista de Escritorio"
+    },
+    {
+      "src": "screenshot2.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Vista Móvil"
     }
   ]
 }
