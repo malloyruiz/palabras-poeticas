@@ -1,8 +1,8 @@
 {
-  "name": "Palabras Bonitas y Poéticas",
-  "short_name": "Poesía",
-  "description": "Una palabra poética cada día para alimentar el alma.",
-  "id": "com.palabras.poeticas",
+  "name": "Lúmina: Palabras y Sabiduría",
+  "short_name": "Lúmina",
+  "description": "Inspiración diaria con palabras bellas, sabiduría y crecimiento personal para alimentar el alma.",
+  "id": "com.lumina.app",
   "start_url": "./index.html",
   "scope": ".",
   "display": "standalone",
@@ -58,8 +58,8 @@
   "shortcuts": [
     {
       "name": "Palabra de Hoy",
-      "url": "index.html",
-      "description": "Ver la palabra poética del día"
+      "url": "./index.html",
+      "description": "Tu dosis diaria de sabiduría e inspiración"
     }
   ]
 }
