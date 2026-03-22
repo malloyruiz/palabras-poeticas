@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palabras Bonitas — Experiencia Poética</title>
+    <!-- Configuración PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3504/3504622.png">
+    
+    <!-- FontAwesome para iconos premium -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f1e8;
+            --text: #1a1a1a;
+            --accent: #b5833a;
+            --text-dim: rgba(26, 26, 26, 0.4);
+            --transition: 1s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg: #0b1120;
+            --text: #e2e8f0;
+            --accent: #38bdf8;
+            --text-dim: rgba(226, 232, 240, 0.3);
+        }
+
+        html, body {
+            margin: 0; padding: 0; min-height: 100vh;
+            background-color: var(--bg); color: var(--text);
+            transition: background var(--transition), color var(--transition);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        /* ATMÓSFERA SUTIL */
+        .atm-motes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+        .mote { position: absolute; background: var(--accent); border-radius: 50%; opacity: 0.1; animation: float 20s infinite linear; }
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 0.2; }
+            90% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) translateX(30px); opacity: 0; }
+        }
+
+        .wrapper {
+            width: 100%; min-height: 100vh;
+            display: flex; flex-direction: column;
+            padding: 50px; box-sizing: border-box;
+            justify-content: center; align-items: center;
+            position: relative; z-index: 10;
+        }
+
+        main {
+            width: 100%; max-width: 1100px;
+            display: grid; grid-template-columns: 1fr; gap: 80px;
+            opacity: 0; transform: translateY(40px);
+            transition: 1.5s ease;
+        }
+        main.loaded { opacity: 1; transform: translateY(0); }
+
+        @media (min-width: 1024px) {
+            main { grid-template-columns: 1.5fr 1fr; align-items: center; }
+            .side-panel { border-left: 1px solid rgba(128,128,128,0.1); padding-left: 80px; }
+            .word-display { font-size: 7.5rem !important; }
+            .btn-share { display: none; }
+        }
+
+        .meta {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 7px;
+            margin-bottom: 3.5rem; color: var(--accent); font-weight: 600;
+        }
+
+        .word-display {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.8rem; font-weight: 700; font-style: italic;
+            line-height: 0.85; margin: 0 0 3rem 0;
+            letter-spacing: -3px;
+        }
+
+        .definition {
+            font-size: 1.5rem; line-height: 1.8; font-weight: 200;
+            max-width: 650px; opacity: 0.9;
+        }
+
+        .example-list { display: flex; flex-direction: column; gap: 3.5rem; }
+        .example-item {
+            font-size: 1.1rem; font-style: italic; line-height: 1.8;
+            color: var(--text-dim); position: relative; padding-left: 30px;
+            border-left: 2px solid var(--accent);
+        }
+
+        /* Footer y Controles */
+        footer {
+            margin-top: 100px; width: 100%; max-width: 1100px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid rgba(128,128,128,0.1); padding-top: 40px;
+        }
+
+        .btn-icon {
+            background: none; border: none; color: var(--text); font-size: 1.1rem;
+            cursor: pointer; opacity: 0.25; transition: 0.3s;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .btn-icon:hover { opacity: 1; }
+
+        /* Modal Ajustes */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 1000; padding: 60px;
+            box-sizing: border-box; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .modal.active { display: flex; animation: fadeIn 0.8s ease-in-out; }
+
+        .setting-row { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 350px; margin-bottom: 3rem; }
+        .btn-save { margin-top: 4rem; background: var(--text); color: var(--bg); border: none; padding: 20px 60px; border-radius: 40px; cursor: pointer; font-weight: 700; letter-spacing: 2px; }
+
+        /* Loader */
+        #loader {
+            position: fixed; inset: 0; background: var(--bg);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000;
+        }
+        .spinner { width: 35px; height: 35px; border: 1px solid rgba(0,0,0,0.05); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s infinite linear; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+
+        /* Custom UI */
+        .switch { position: relative; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.1); transition: .4s; border-radius: 34px; }
+        [data-theme="dark"] .slider { background-color: rgba(255,255,255,0.1); }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        .notif-status { font-size: 0.65rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="atm-motes" id="atm-motes"></div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 25px; letter-spacing: 6px; font-size: 0.6rem; opacity: 0.3;">ALMA...</p>
+    </div>
+
+    <div class="wrapper">
+        <main id="main-ui">
+            <div>
+                <div class="meta" id="date-label">DOMINGO, 22 MARZO</div>
+                <h1 class="word-display" id="word-title">---</h1>
+                <p class="definition" id="word-def">---</p>
+            </div>
+            
+            <div class="side-panel">
+                <div class="example-list" id="example-list">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div style="font-size: 0.6rem; opacity:0.1; letter-spacing:3px;">PALABRAS POÉTICAS v4.0</div>
+            <div style="display: flex; gap: 40px;">
+                <button class="btn-icon btn-share" onclick="shareWord()" title="Compartir">
+                    <i class="fas fa-share-nodes"></i>
+                    <span style="font-size: 0.7rem; letter-spacing: 2px;">SHARE</span>
+                </button>
+                <button class="btn-icon" onclick="toggleSettings()" title="Ajustes">
+                    <i class="fas fa-sliders"></i>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal Ajustes -->
+    <div id="settings-modal" class="modal">
+        <h2 style="font-family:'Playfair Display', serif; font-size: 3rem; font-style:italic; margin-bottom:4rem; opacity: 0.8;">Inmersión</h2>
+        <div class="setting-row">
+            <span>Modo Noche</span>
+            <label class="switch">
+                <input type="checkbox" id="dark-check" onchange="applyMode()">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="setting-row" style="flex-direction: column; align-items: flex-start;">
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                <span>Notificaciones</span>
+                <button onclick="requestNotifPermission()" id="btn-permission" style="font-size:0.7rem; background:var(--accent); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer;">Activar</button>
+            </div>
+            <div id="notif-status" class="notif-status">Estado: Desactivado</div>
+        </div>
+        <div class="setting-row" id="time-row">
+            <span>Hora Alerta</span>
+            <input type="time" id="time-input" value="09:00" style="background:none; border:none; border-bottom:1px solid var(--accent); color:inherit; font-size:1.1rem; padding: 5px;" onchange="savePrefs()">
+        </div>
+        <button class="btn-save" onclick="toggleSettings()">VOLVER</button>
+    </div>
+
+    <script>
+        const API = "https://script.google.com/macros/s/AKfycbxbRRgJouLeOLDBSq9r7x9jg84jDhk3ez-zVWBr8KalfI4Bxj77z0vjFtMhf0pkiiM6/exec";
+
+        async function init() {
+            try {
+                const res = await fetch(API);
+                const data = await res.json();
+                document.getElementById('word-title').innerText = data.palabra;
+                document.getElementById('word-def').innerText = data.definicion;
+                window.todayWord = data.palabra; // Guardar para notif
+
+                const box = document.getElementById('example-list');
+                box.innerHTML = '';
+                if (data.ejemplo1) addEx(data.ejemplo1);
+                if (data.ejemplo2) addEx(data.ejemplo2);
+                
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loader').classList.add('hidden');
+                    document.getElementById('main-ui').classList.add('loaded');
+                }, 1000);
+            } catch (err) { console.error(err); }
+        }
+
+        function addEx(t) {
+            const d = document.createElement('div');
+            d.className = 'example-item';
+            d.innerText = t;
+            document.getElementById('example-list').appendChild(d);
+        }
+
+        function toggleSettings() { 
+            updateNotifStatusUI();
+            document.getElementById('settings-modal').classList.toggle('active'); 
+        }
+
+        function applyMode() {
+            const dark = document.getElementById('dark-check').checked;
+            document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+            savePrefs();
+        }
+
+        function savePrefs() {
+            localStorage.setItem('theme', document.getElementById('dark-check').checked ? 'dark' : 'light');
+            localStorage.setItem('time', document.getElementById('time-input').value);
+        }
+
+        function shareWord() {
+            const text = `Palabra del día: ${document.getElementById('word-title').innerText}. ${document.getElementById('word-def').innerText}`;
+            if (navigator.share) {
+                navigator.share({ title: 'Palabra Poética', text: text, url: window.location.href });
+            } else {
+                navigator.clipboard.writeText(text).then(() => alert("Copiado al portapapeles."));
+            }
+        }
+
+        // --- LÓGICA DE NOTIFICACIONES ---
+        function requestNotifPermission() {
+            if (!("Notification" in window)) {
+                alert("Este navegador no soporta notificaciones.");
+                return;
+            }
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    new Notification("¡Buscador de belleza!", {
+                        body: "Te avisaré cada día con una nueva palabra.",
+                        icon: "https://cdn-icons-png.flaticon.com/512/3504/3504622.png"
+                    });
+                }
+                updateNotifStatusUI();
+            });
+        }
+
+        function updateNotifStatusUI() {
+            const status = document.getElementById('notif-status');
+            const btn = document.getElementById('btn-permission');
+            if (Notification.permission === "granted") {
+                status.innerText = "Estado: Activado ✔";
+                btn.style.display = "none";
+            } else if (Notification.permission === "denied") {
+                status.innerText = "Estado: Bloqueado (ve a ajustes del navegador)";
+                status.style.color = "#ff6b6b";
+            }
+        }
+
+        function createMotes() {
+            const container = document.getElementById('atm-motes');
+            for(let i=0; i<15; i++) {
+                const mote = document.createElement('div');
+                mote.className = 'mote';
+                const size = Math.random() * 3 + 1 + 'px';
+                mote.style.width = size; mote.style.height = size;
+                mote.style.left = Math.random() * 100 + 'vw';
+                mote.style.animationDelay = Math.random() * 20 + 's';
+                mote.style.animationDuration = Math.random() * 10 + 20 + 's';
+                container.appendChild(mote);
+            }
+        }
+
+        window.onload = () => {
+            // Registro de PWA (Service Worker)
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js');
+            }
+            
+            if (localStorage.getItem('theme') === 'dark') {
+                document.getElementById('dark-check').checked = true;
+                document.body.setAttribute('data-theme', 'dark');
+            }
+            if (localStorage.getItem('time')) document.getElementById('time-input').value = localStorage.getItem('time');
+            const opt = { weekday: 'long', day: 'numeric', month: 'long' };
+            const ds = new Date().toLocaleDateString('es-ES', opt);
+            document.getElementById('date-label').innerText = ds.toUpperCase();
+            createMotes();
+            init();
+            updateNotifStatusUI();
+        };
+    </script>
+</body>
+</html>
