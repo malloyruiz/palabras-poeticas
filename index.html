@@ -17,11 +17,15 @@
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
-          appId: "6a0df359-5798-42a3-9583-30ea6c825d4c", // APP ID REAL APLICADO
+          appId: "6a0df359-5798-42a3-9583-30ea6c825d4c",
           notifyButton: {
             enable: false, 
           },
         });
+        // Auto-solicitar permiso al abrir por primera vez
+        if (OneSignal.Notifications.permission !== true) {
+            OneSignal.Slidedown.promptDefault();
+        }
       });
     </script>
     <style>
