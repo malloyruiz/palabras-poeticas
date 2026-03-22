@@ -15,15 +15,15 @@
   "categories": ["lifestyle", "education", "books"],
   "icons": [
     {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "icon.jpg",
+      "sizes": "640x640",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "icon.jpg",
+      "sizes": "640x640",
+      "type": "image/jpeg",
       "purpose": "maskable"
     }
   ],
