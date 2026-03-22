@@ -9,9 +9,22 @@
     <meta name="theme-color" content="#1a1a1a">
     <link rel="apple-touch-icon" href="icon-640.png">
     
-    <!-- FontAwesome para iconos premium -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "6a0df359-5798-42a3-9583-30ea6c825d4c", // APP ID REAL APLICADO
+          notifyButton: {
+            enable: false, 
+          },
+        });
+      });
+    </script>
     <style>
         :root {
             --bg: #f5f1e8;
@@ -170,11 +183,11 @@
             <div style="font-size: 0.6rem; opacity:0.1; letter-spacing:3px;">LÚMINA v1.0</div>
             <div style="display: flex; gap: 40px;">
                 <button class="btn-icon btn-share" onclick="shareWord()" title="Compartir">
-                    <i class="fas fa-share-nodes"></i>
+                    <i class="fa-solid fa-share-nodes"></i>
                     <span style="font-size: 0.7rem; letter-spacing: 2px;">SHARE</span>
                 </button>
                 <button class="btn-icon" onclick="toggleSettings()" title="Ajustes">
-                    <i class="fas fa-sliders"></i>
+                    <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
         </footer>
@@ -261,39 +274,37 @@
             }
         }
 
-        // --- LÓGICA DE NOTIFICACIONES ---
+        // --- LÓGICA DE NOTIFICACIONES (OneSignal) ---
         async function requestNotifPermission() {
-            if (!("Notification" in window)) {
-                alert("Este navegador no soporta notificaciones.");
-                return;
-            }
-            const permission = await Notification.requestPermission();
-            if (permission === "granted") {
-                new Notification("¡Buscador de belleza!", {
-                    body: "Te avisaré cada día con una nueva palabra.",
-                    icon: "icon-192.png"
-                });
-                scheduleDailyNotification();
-            }
-            updateNotifStatusUI();
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function(OneSignal) {
+                try {
+                    await OneSignal.Notifications.requestPermission();
+                    updateNotifStatusUI();
+                } catch (err) {
+                    console.error("Error al solicitar permiso:", err);
+                }
+            });
         }
 
         async function scheduleDailyNotification() {
-            // Nota: Para notificaciones programadas fiables con la app cerrada (APK), 
-            // se recomienda integrar un servicio como OneSignal o Firebase.
-            console.log("Sistema de notificaciones listo para integración externa.");
+            // Con OneSignal, la programación se hace desde su Dashboard
+            // para que funcione con la app CERRADA (ideal para el APK).
+            console.log("OneSignal listo. Programa tus alertas en el Dashboard.");
         }
 
         function updateNotifStatusUI() {
             const status = document.getElementById('notif-status');
             const btn = document.getElementById('btn-permission');
-            if (Notification.permission === "granted") {
-                status.innerText = "Estado: Activado ✔";
-                btn.style.display = "none";
-            } else if (Notification.permission === "denied") {
-                status.innerText = "Estado: Bloqueado (ve a ajustes del navegador)";
-                status.style.color = "#ff6b6b";
-            }
+            
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function(OneSignal) {
+                const permission = OneSignal.Notifications.permission;
+                if (permission) {
+                    status.innerText = "Estado: Activado ✔";
+                    btn.style.display = "none";
+                }
+            });
         }
 
         function createMotes() {
