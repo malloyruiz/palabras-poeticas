@@ -10,6 +10,7 @@
     <link rel="apple-touch-icon" href="icon-640.png">
     
     <!-- FontAwesome para iconos premium -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -32,7 +33,7 @@
             background-color: var(--bg); color: var(--text);
             transition: background var(--transition), color var(--transition);
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         /* ATMÓSFERA SUTIL */
@@ -75,11 +76,12 @@
 
         .word-display {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(2.5rem, 12vw, 4.8rem); font-weight: 700; font-style: italic;
+            font-size: clamp(2rem, 10vw, 4.8rem); font-weight: 700; font-style: italic;
             line-height: 0.85; margin: 0 0 3rem 0;
             letter-spacing: -3px;
             overflow-wrap: break-word;
-            word-break: break-word;
+            word-break: break-all;
+            hyphens: auto;
         }
 
         .definition {
@@ -277,40 +279,9 @@
         }
 
         async function scheduleDailyNotification() {
-            const registration = await navigator.serviceWorker.getRegistration();
-            if (!registration) return;
-
-            const timeValue = document.getElementById('time-input').value;
-            const [hours, minutes] = timeValue.split(':').map(Number);
-            
-            const now = new Date();
-            const scheduledTime = new Date();
-            scheduledTime.setHours(hours, minutes, 0, 0);
-            
-            if (scheduledTime <= now) {
-                scheduledTime.setDate(scheduledTime.getDate() + 1);
-            }
-
-            // --- API MODERNA (Notification Triggers) ---
-            if ('showTrigger' in Notification.prototype) {
-                registration.showNotification("Tu palabra de hoy ya está lista", {
-                    body: "Entra para descubrir la belleza del lenguaje.",
-                    icon: "icon-192.png",
-                    showTrigger: new TimestampTrigger(scheduledTime.getTime())
-                });
-                console.log("Notificación programada con Triggers para:", scheduledTime);
-            } else {
-                // --- FALLBACK (Solo si la app está abierta) ---
-                const delay = scheduledTime.getTime() - now.getTime();
-                setTimeout(() => {
-                    registration.showNotification("Tu palabra de hoy ya está lista", {
-                        body: "Entra para descubrir la belleza del lenguaje.",
-                        icon: "icon-192.png"
-                    });
-                    scheduleDailyNotification(); // Re-programar para mañana
-                }, delay);
-                console.log("Fathers fallback: Notificación programada en memoria para:", scheduledTime);
-            }
+            // Nota: Para notificaciones programadas fiables con la app cerrada (APK), 
+            // se recomienda integrar un servicio como OneSignal o Firebase.
+            console.log("Sistema de notificaciones listo para integración externa.");
         }
 
         function updateNotifStatusUI() {
