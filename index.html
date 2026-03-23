@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -79,9 +80,9 @@
         main.loaded { opacity: 1; transform: translateY(0); }
 
         @media (min-width: 1024px) {
-            main { grid-template-columns: 1.5fr 1fr; align-items: center; }
+            main { grid-template-columns: 2fr 1.2fr; align-items: center; }
             .side-panel { border-left: 1px solid rgba(128,128,128,0.1); padding-left: 80px; }
-            .word-display { font-size: 7.5rem !important; }
+            .word-display { font-size: clamp(3rem, 4.3vw, 5.8rem) !important; }
             .btn-share { display: none; }
         }
 
@@ -92,12 +93,19 @@
 
         .word-display {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(2rem, 10vw, 4.8rem); font-weight: 700; font-style: italic;
-            line-height: 0.85; margin: 0 0 3rem 0;
-            letter-spacing: -3px;
+            font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 700; font-style: italic;
+            line-height: 1.15; margin: 0 0 3rem 0;
+            letter-spacing: -1px;
             overflow-wrap: break-word;
-            word-break: break-all;
-            hyphens: auto;
+            word-break: normal;
+            white-space: normal;
+        }
+
+        /* AJUSTE PARA CATEGORÍAS LARGAS */
+        body.cat-afirmaciones .word-display, 
+        body.cat-frases .word-display {
+            font-size: clamp(1.8rem, 6vw, 3rem);
+            letter-spacing: -0.5px;
         }
 
         .definition {
@@ -119,59 +127,154 @@
             border-top: 1px solid rgba(128,128,128,0.1); padding-top: 40px;
         }
 
-        .btn-icon {
-            background: none; border: none; color: var(--text); font-size: 1.1rem;
-            cursor: pointer; opacity: 0.25; transition: 0.3s;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .btn-icon:hover { opacity: 1; }
-        .btn-icon svg { width: 24px; height: 24px; stroke: var(--text); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .btn-icon svg { width: 24px; height: 24px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: 0.3s; pointer-events: none; }
+        .btn-icon:hover svg { stroke: var(--accent); transform: scale(1.1); }
+        
+        /* FIX: Forzado de transparencia para evitar rectángulos blancos */
+        .btn-icon { background: transparent !important; border: none !important; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none !important; -webkit-tap-highlight-color: transparent; }
 
-        /* Modal Ajustes */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 1000; padding: 60px;
-            box-sizing: border-box; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .modal.active { display: flex; animation: fadeIn 0.8s ease-in-out; }
-
-        .setting-row { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 350px; margin-bottom: 3rem; }
-        .btn-save { margin-top: 4rem; background: var(--text); color: var(--bg); border: none; padding: 20px 60px; border-radius: 40px; cursor: pointer; font-weight: 700; letter-spacing: 2px; }
-
-        /* Loader */
-        #loader {
+        /* Hub de Selección */
+        #hub {
             position: fixed; inset: 0; background: var(--bg);
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 1500; padding: 20px; transition: 0.8s ease;
         }
-        .spinner { width: 35px; height: 35px; border: 1px solid rgba(0,0,0,0.05); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s infinite linear; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .hidden { display: none !important; }
+        .hub-cards {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px; width: 100%; max-width: 1000px; margin-top: 40px;
+        }
+        .card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(128,128,128,0.08);
+            border-radius: 24px; padding: 50px 30px; cursor: pointer; transition: 0.4s cubic-bezier(0.2, 0, 0, 1);
+            text-align: center; backdrop-filter: blur(15px);
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .card:hover { transform: translateY(-12px); background: rgba(255,255,255,0.06); border-color: var(--accent); }
+        .card h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 25px 0 12px 0; letter-spacing: -0.5px; }
+        .card p { font-size: 0.85rem; opacity: 0.5; letter-spacing: 0.5px; line-height: 1.6; max-width: 220px; }
+        .card .icon-svg { width: 42px; height: 42px; stroke: var(--accent); stroke-width: 1.5; fill: none; opacity: 0.8; }
+        
+        /* Header Labels */
+        .date-full { font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 500; }
+        .cat-label { font-size: 0.8rem; letter-spacing: 5px; opacity: 0.4; text-transform: uppercase; margin-bottom: 25px; font-weight: 300; }
+        
+        /* Pro Badge */
+        .pro-locked { position: absolute; top: 20px; right: 20px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.6; display: flex; align-items: center; gap: 5px; }
+        .pro-locked svg { width: 14px; height: 14px; stroke: var(--accent); }
+        .card.locked { opacity: 0.7; }
+        
+        /* Utility: Force Hide */
+        .hidden, [hidden] { 
+            display: none !important; 
+            visibility: hidden !important; 
+            opacity: 0 !important; 
+            pointer-events: none !important; 
+        }
+        
+        #btn-back-hub { position: fixed; top: 30px; left: 30px; z-index: 1550; padding: 12px; border-radius: 50%; border: 1px solid rgba(128,128,128,0.1); background: transparent !important; }
 
-        /* Custom UI */
-        .switch { position: relative; width: 50px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.1); transition: .4s; border-radius: 34px; }
-        [data-theme="dark"] .slider { background-color: rgba(255,255,255,0.1); }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(24px); }
+        /* Side Panel Logic */
+        .side-panel { display: none; }
+        main.has-examples { grid-template-columns: 1.5fr 1fr; }
+        main.has-examples .side-panel { display: block; border-left: 1px solid rgba(128,128,128,0.1); padding-left: 80px; }
+        @media (max-width: 1023px) {
+            main.has-examples { grid-template-columns: 1fr; }
+            main.has-examples .side-panel { border-left: none; padding-left: 0; padding-top: 40px; border-top: 1px solid rgba(128,128,128,0.1); }
+        }
 
-        .notif-status { font-size: 0.65rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
+        /* Modal Ajustes - Suscripciones */
+        .sub-option {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 0; border-bottom: 1px solid rgba(128,128,128,0.1);
+            width: 100%; text-align: left;
+        }
+        .toggle-sub {
+            width: 48px; height: 24px; background: rgba(128,128,128,0.2);
+            border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s;
+            border: 1px solid rgba(128,128,128,0.1);
+        }
+        .toggle-sub.active { background: var(--accent); border-color: var(--accent); }
+        .toggle-sub::after {
+            content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px;
+            background: white; border-radius: 50%; transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-sub.active::after { transform: translateX(24px); }
+
+        /* Refactored Modal */
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            display: none; align-items: center; justify-content: center;
+            z-index: 4000; padding: 20px;
+        }
+        .modal.active { display: flex; animation: fadeIn 0.4s ease; }
+        .modal-content {
+            background: var(--bg); padding: 40px; border-radius: 30px;
+            width: 100%; max-width: 400px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .btn-save {
+            background: var(--text); color: var(--bg); border: none;
+            padding: 18px 45px; border-radius: 40px; cursor: pointer;
+            font-weight: 700; letter-spacing: 2px; margin-top: 30px;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Success Modal */
+        #success-modal .modal-content {
+            background: linear-gradient(135deg, var(--bg) 0%, #ffffff 100%);
+            border: 2px solid var(--accent);
+            max-width: 450px;
+        }
+        [data-theme="dark"] #success-modal .modal-content {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .confetti-svg { width: 80px; height: 80px; margin-bottom: 20px; stroke: #4ade80; stroke-width: 1.5; fill: none; }
     </style>
 </head>
 <body>
 
     <div class="atm-motes" id="atm-motes"></div>
 
+    <!-- HUB DE SELECCIÓN -->
+    <div id="hub">
+        <div class="meta" style="margin-bottom: 20px;">BIENVENIDO A</div>
+        <h1 style="font-family: 'Playfair Display', serif; font-size: 3.5rem; margin: 0; font-style: italic;">Lúmina</h1>
+        <p style="letter-spacing: 6px; opacity: 0.3; margin-bottom: 50px; font-size: 0.7rem;">SABIDURÍA Y PRESENCIA</p>
+        
+        <div class="hub-cards" id="hub-cards">
+            <div class="card" onclick="openCategory('palabras')">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <h3>Palabras</h3>
+                <p>Léxico sofisticado para alimentar el alma y el intelecto.</p>
+            </div>
+            <div class="card" id="card-afirmaciones" onclick="openCategory('afirmaciones', true)">
+                <div class="pro-locked">PRO <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+                <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <h3>Afirmaciones</h3>
+                <p>Pensamientos positivos para transformar tu realidad.</p>
+            </div>
+            <div class="card" id="card-frases" onclick="openCategory('frases', true)">
+                <div class="pro-locked">PRO <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <h3>Frases</h3>
+                <p>Sabiduría atemporal de los grandes pensadores.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back button will be injected/managed by script -->
+
     <div id="loader">
         <div class="spinner"></div>
-        <p style="margin-top: 25px; letter-spacing: 6px; font-size: 0.6rem; opacity: 0.3;">LÚMINA...</p>
+        <p style="margin-top: 25px; letter-spacing: 6px; font-size: 0.6rem; opacity: 0.3;">CARGANDO...</p>
     </div>
 
     <div class="wrapper">
         <main id="main-ui">
-            <div>
-                <div class="meta" id="date-label">DOMINGO, 22 MARZO</div>
+            <div style="text-align: left; margin-bottom: 40px; padding-left: 60px;">
+                <div class="date-full" id="header-date">LUNES, 22 DE MARZO DE 2026</div>
+                <div class="cat-label" id="header-cat">PALABRA DE HOY</div>
                 <h1 class="word-display" id="word-title">---</h1>
                 <p class="definition" id="word-def">---</p>
             </div>
@@ -188,6 +291,7 @@
             <div style="display: flex; gap: 40px;">
                 <button class="btn-icon btn-share" onclick="shareWord()" title="Compartir">
                     <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                    <span style="font-size: 0.7rem; letter-spacing: 2px;">SHARE</span>
                 </button>
                 <button class="btn-icon" onclick="toggleSettings()" title="Ajustes">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -198,50 +302,268 @@
 
     <!-- Modal Ajustes -->
     <div id="settings-modal" class="modal">
-        <h2 style="font-family:'Playfair Display', serif; font-size: 3rem; font-style:italic; margin-bottom:4rem; opacity: 0.8;">Inmersión</h2>
-        <div class="setting-row">
-            <span>Modo Noche</span>
-            <label class="switch">
-                <input type="checkbox" id="dark-check" onchange="applyMode()">
-                <span class="slider"></span>
-            </label>
-        </div>
-        <div class="setting-row" style="flex-direction: column; align-items: flex-start;">
-            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                <span>Notificaciones</span>
-                <button onclick="requestNotifPermission()" id="btn-permission" style="font-size:0.7rem; background:var(--accent); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer;">Activar</button>
+        <div class="modal-content">
+            <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem;">Inmersión</h2>
+            
+            <div class="sub-option" style="border-bottom:none; margin-bottom: 20px;">
+                <span>Modo Noche</span>
+                <div class="toggle-sub" id="theme-toggle" onclick="toggleTheme()"></div>
             </div>
-            <div id="notif-status" class="notif-status">Estado: Desactivado</div>
+
+            <div style="text-align: left; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">NOTIFICACIONES</div>
+            
+            <div class="sub-option">
+                <span>Palabras de Hoy</span>
+                <div class="toggle-sub" id="sub-palabras" onclick="toggleTag('palabras')"></div>
+            </div>
+            <div class="sub-option">
+                <span>Afirmaciones</span>
+                <div class="toggle-sub" id="sub-afirmaciones" onclick="toggleTag('afirmaciones')"></div>
+            </div>
+            <div class="sub-option">
+                <span>Frases Célebres</span>
+                <div class="toggle-sub" id="sub-frases" onclick="toggleTag('frases')"></div>
+            </div>
+
+            <div style="margin-top: 30px; text-align: left;">
+                <div style="font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 10px;">LÚMINA PRO</div>
+                <div id="premium-status-msg" style="font-size: 0.8rem; margin-bottom: 15px; color: var(--accent);">Accede a todo el ecosistema.</div>
+                <input type="text" id="pro-key-input" placeholder="Introduce código..." 
+                    style="width:100%; padding:12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(0,0,0,0.1); color:var(--text); margin-bottom: 10px;">
+                <button class="btn-save" onclick="activatePro()" id="btn-activate-pro" style="padding: 12px 25px; margin-top:0; width:100%;">ACTIVAR AHORA</button>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.1); font-size: 0.7rem; opacity: 0.6;">
+                ¿Necesitas ayuda con tu clave? <br>
+                <a href="mailto:dscarteleriadigital@gmail.com" style="color: var(--accent); text-decoration: none; font-weight: 600;">dscarteleriadigital@gmail.com</a>
+            </div>
+
+            <button class="btn-save" onclick="toggleSettings()" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text);">CERRAR</button>
         </div>
-        <div class="setting-row" id="time-row">
-            <span>Hora Alerta</span>
-            <input type="time" id="time-input" value="09:00" style="background:none; border:none; border-bottom:1px solid var(--accent); color:inherit; font-size:1.1rem; padding: 5px;" onchange="savePrefs()">
+    </div>
+
+    <!-- Modal Go Pro -->
+    <div id="pro-modal" class="modal">
+        <div class="modal-content">
+            <div style="margin-bottom: 30px;">
+                <svg viewBox="0 0 24 24" style="width: 50px; height: 50px; stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round;">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </div>
+            <h2 style="font-family:'Playfair Display', serif; margin-bottom: 15px;">Sección Premium</h2>
+            <p style="font-size: 0.9rem; opacity: 0.7; line-height: 1.6; margin-bottom: 30px;">
+                Desbloquea las <strong>Afirmaciones Diarias</strong> y las <strong>Frases Célebres</strong> con una suscripción única.
+            </p>
+            <button class="btn-save" onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')">OBTENER ACCESO</button>
+            <button class="btn-save" onclick="document.getElementById('pro-modal').classList.remove('active')" 
+                style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); margin-top:10px;">LUEGO</button>
         </div>
-        <button class="btn-save" onclick="toggleSettings()">VOLVER</button>
+    </div>
+
+    <!-- Modal Éxito Pro -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <svg class="confetti-svg" viewBox="0 0 24 24">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h2 style="font-family:'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 10px;">¡Bienvenido al Ecosistema!</h2>
+            <p style="font-size: 1rem; opacity: 0.8; margin-bottom: 30px; line-height: 1.6;">
+                Has desbloqueado todo el potencial de <strong>Lúmina Pro</strong>. Disfruta de la sabiduría ilimitada.
+            </p>
+            <button class="btn-save" onclick="closeSuccessModal()" style="width: 100%; background: var(--accent); color: white;">COMENZAR AHORA</button>
+        </div>
     </div>
 
     <script>
-        const API = "https://script.google.com/macros/s/AKfycbxbRRgJouLeOLDBSq9r7x9jg84jDhk3ez-zVWBr8KalfI4Bxj77z0vjFtMhf0pkiiM6/exec";
+        const API = "https://script.google.com/macros/s/AKfycbxH7lP92TiRom-3bTiYnwfE6Z-sfDR5wcfaO4gTN0TD6EwuBYMtdCs4b06RFbqqnyw/exec";
+        let currentCategory = 'palabras';
+        let isPro = localStorage.getItem('lumina_pro') === 'true';
 
         async function init() {
-            try {
-                const res = await fetch(API);
-                const data = await res.json();
-                document.getElementById('word-title').innerText = data.palabra;
-                document.getElementById('word-def').innerText = data.definicion;
-                window.todayWord = data.palabra; // Guardar para notif
+            loadTheme();
+            await loadProState(); // Cambiamos a await para que el estado pro sea robusto
+            updateHeaderDate();
+            createMotes();
+            if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+            
+            // Re-verificación silenciosa en segundo plano cada vez que se abre
+            if (isPro) verifyKeySilently();
+            
+            // Check for PayPal return status
+            if (window.location.hash === '#status=success') {
+                alert("¡Gracias por tu compra! Tu código Pro ha sido enviado a tu email. Revisa tu bandeja de entrada (y spam) para activarlo.");
+                window.location.hash = ''; // Clean URL
+            }
+        }
 
-                const box = document.getElementById('example-list');
-                box.innerHTML = '';
-                if (data.ejemplo1) addEx(data.ejemplo1);
-                if (data.ejemplo2) addEx(data.ejemplo2);
+        async function verifyKeySilently() {
+            const key = localStorage.getItem('lumina_pro_key');
+            if (!key) return;
+            try {
+                const response = await fetch(`${API}?action=val&code=${key}`);
+                const data = await response.json();
+                if (!data.success) {
+                    isPro = false;
+                    localStorage.setItem('lumina_pro', 'false');
+                    localStorage.removeItem('lumina_pro_key');
+                    window.location.reload(); // Recargar para volver a bloquear todo
+                }
+            } catch (e) { console.warn("Re-vulación offline"); }
+        }
+
+        function updateHeaderDate() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const formatted = now.toLocaleDateString('es-ES', options).toUpperCase();
+            document.getElementById('header-date').innerText = formatted;
+        }
+
+        function loadProState() {
+            isPro = localStorage.getItem('lumina_pro') === 'true'; // Refrescar valor
+            if (isPro) {
+                document.body.classList.add('pro-unlocked');
+                document.getElementById('premium-status-msg').innerText = "✨ ¡Eres Miembro Pro!";
+                document.getElementById('premium-status-msg').style.color = "#4ade80";
+                document.getElementById('btn-activate-pro').style.display = 'none';
+                document.getElementById('pro-key-input').style.display = 'none';
                 
-                document.getElementById('loader').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loader').classList.add('hidden');
-                    document.getElementById('main-ui').classList.add('loaded');
-                }, 1000);
-            } catch (err) { console.error(err); }
+                // Quitar candados visuales
+                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.card').forEach(el => el.classList.remove('locked'));
+            } else {
+                document.body.classList.remove('pro-unlocked');
+                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'flex');
+                document.querySelectorAll('.card').forEach((el, index) => { if(index > 0) el.classList.add('locked'); });
+            }
+        }
+
+        async function activatePro() {
+            const codeInput = document.getElementById('pro-key-input');
+            const key = codeInput.value.trim().toUpperCase();
+            const btn = document.getElementById('btn-activate-pro');
+
+            if (!key) return;
+
+            btn.innerText = "VERIFICANDO...";
+            btn.disabled = true;
+
+            try {
+                // Llamamos a tu Google Script con la acción 'val'
+                const response = await fetch(`${API}?action=val&code=${key}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    isPro = true;
+                    localStorage.setItem('lumina_pro', 'true');
+                    localStorage.setItem('lumina_pro_key', key); 
+                    loadProState();
+                    document.getElementById('pro-modal').classList.remove('active');
+                    setTimeout(() => {
+                        document.getElementById('success-modal').classList.add('active');
+                    }, 500);
+                } else {
+                    alert("Código no válido. Por favor, verifica tu clave.");
+                    btn.innerText = "ACTIVAR AHORA";
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error("Error validación:", e);
+                alert("Error de conexión. Asegúrate de tener internet.");
+                btn.innerText = "ACTIVAR AHORA";
+                btn.disabled = false;
+            }
+        }
+
+        async function openCategory(cat, isLocked = false) {
+            if (isLocked && !isPro) {
+                document.getElementById('pro-modal').classList.add('active');
+                return;
+            }
+            
+            currentCategory = cat;
+            document.body.className = 'cat-' + cat;
+            if (isPro) document.body.classList.add('pro-unlocked');
+            if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
+            
+            const hub = document.getElementById('hub');
+            hub.style.opacity = '0';
+            hub.style.pointerEvents = 'none'; 
+            
+            // Etiqueta dinámica según categoría
+            const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY' };
+            document.getElementById('header-cat').innerText = labels[cat];
+
+            setTimeout(() => {
+                hub.classList.add('hidden');
+                let btn = document.getElementById('btn-back-hub');
+                if (!btn) {
+                    btn = document.createElement('button');
+                    btn.id = 'btn-back-hub';
+                    btn.className = 'btn-icon';
+                    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+                    btn.onclick = showHub;
+                    document.body.appendChild(btn);
+                }
+                btn.style.setProperty('display', 'flex', 'important');
+            }, 400);
+
+            await fetchContent();
+        }
+
+        function showHub() {
+            const hub = document.getElementById('hub');
+            hub.classList.remove('hidden');
+            hub.style.pointerEvents = 'auto'; // Re-activar clicks
+            setTimeout(() => hub.style.opacity = '1', 10);
+            const btn = document.getElementById('btn-back-hub');
+            if (btn) btn.style.setProperty('display', 'none', 'important');
+            document.getElementById('main-ui').classList.remove('loaded');
+        }
+
+        async function fetchContent() {
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('loader').style.opacity = '1';
+            
+            try {
+                // Pasamos la categoría como parámetro
+                const response = await fetch(`${API}?cat=${currentCategory}`);
+                const data = await response.json();
+                
+                // Adaptamos según el formato que devuelva el script
+                document.getElementById('word-title').innerText = data.palabra || data.word || data.afirmacion || data.frase;
+                document.getElementById('word-def').innerText = data.definicion || data.meaning || data.autor || "";
+                
+                // Si hay ejemplos, los limpiamos y añadimos
+                const box = document.getElementById('example-list');
+                const mainUi = document.getElementById('main-ui');
+                box.innerHTML = '';
+                
+                if (data.ejemplo1 || data.ejemplo2) {
+                    mainUi.classList.add('has-examples');
+                    if (data.ejemplo1) addEx(data.ejemplo1);
+                    if (data.ejemplo2) addEx(data.ejemplo2);
+                } else {
+                    mainUi.classList.remove('has-examples');
+                }
+            } catch (e) {
+                console.warn("Error API, usando fallback:", e);
+                const fallbacks = {
+                    'palabras': { p: 'Serendipia', d: 'Un hallazgo afortunado e inesperado.' },
+                    'afirmaciones': { p: 'Soy suficiente', d: 'Hoy elijo confiar en mi capacidad y valor.' },
+                    'frases': { p: 'Conócete a ti mismo', d: 'Sócrates' }
+                };
+                document.getElementById('word-title').innerText = fallbacks[currentCategory].p;
+                document.getElementById('word-def').innerText = fallbacks[currentCategory].d;
+                document.getElementById('example-list').innerHTML = '';
+            }
+
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('main-ui').classList.add('loaded');
+            }, 800);
         }
 
         function addEx(t) {
@@ -251,63 +573,91 @@
             document.getElementById('example-list').appendChild(d);
         }
 
-        function toggleSettings() { 
-            updateNotifStatusUI();
-            document.getElementById('settings-modal').classList.toggle('active'); 
+        function toggleSettings() {
+            try {
+                // Alerta para confirmar que el botón funciona
+                console.log("Toggle Settings pulsado");
+                const modal = document.getElementById('settings-modal');
+                if (!modal) {
+                    console.error("No se encontró el modal #settings-modal");
+                    return;
+                }
+                modal.classList.toggle('active');
+                if (modal.classList.contains('active')) {
+                    updateSubscriptionUI().catch(e => console.warn("Sync error:", e));
+                }
+            } catch (err) {
+                alert("Error técnico al abrir ajustes: " + err.message);
+            }
         }
 
-        function applyMode() {
-            const dark = document.getElementById('dark-check').checked;
-            document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
-            savePrefs();
+        async function updateSubscriptionUI() {
+            try {
+                if (window.OneSignal && OneSignal.User) {
+                    const tags = await OneSignal.User.getTags();
+                    ['palabras', 'afirmaciones', 'frases'].forEach(cat => {
+                        const btn = document.getElementById(`sub-${cat}`);
+                        if (btn && tags && tags[cat] === 'true') btn.classList.add('active');
+                        else if (btn) btn.classList.remove('active');
+                    });
+                }
+            } catch (e) {
+                console.warn("OneSignal (UI sync) no disponible.");
+            }
+            
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                if (isDark) themeBtn.classList.add('active');
+                else themeBtn.classList.remove('active');
+            }
         }
 
-        function savePrefs() {
-            localStorage.setItem('theme', document.getElementById('dark-check').checked ? 'dark' : 'light');
-            localStorage.setItem('time', document.getElementById('time-input').value);
-            if (Notification.permission === "granted") scheduleDailyNotification();
+        async function toggleTag(cat) {
+            try {
+                if (!window.OneSignal) return;
+                
+                const btn = document.getElementById(`sub-${cat}`);
+                const isSubscribed = btn.classList.contains('active');
+                
+                if (OneSignal.Notifications.permission !== true) {
+                    await OneSignal.Notifications.requestPermission();
+                }
+
+                if (isSubscribed) {
+                    await OneSignal.User.removeTag(cat);
+                    btn.classList.remove('active');
+                } else {
+                    await OneSignal.User.addTag(cat, "true");
+                    btn.classList.add('active');
+                }
+            } catch (e) {
+                alert("Las notificaciones requieren que la app esté publicada en HTTPS.");
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.body.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            const btn = document.getElementById('theme-toggle');
+            if (newTheme === 'dark') btn.classList.add('active');
+            else btn.classList.remove('active');
         }
 
         function shareWord() {
-            const text = `Palabra del día: ${document.getElementById('word-title').innerText}. ${document.getElementById('word-def').innerText}`;
+            const text = `"${document.getElementById('word-title').innerText}" - De Lúmina (${currentCategory})`;
             if (navigator.share) {
-                navigator.share({ title: 'Palabra Poética', text: text, url: window.location.href });
+                navigator.share({ title: 'Lúmina', text: text, url: window.location.href });
             } else {
                 navigator.clipboard.writeText(text).then(() => alert("Copiado al portapapeles."));
             }
         }
 
-        // --- LÓGICA DE NOTIFICACIONES (OneSignal) ---
-        async function requestNotifPermission() {
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            OneSignalDeferred.push(async function(OneSignal) {
-                try {
-                    await OneSignal.Notifications.requestPermission();
-                    updateNotifStatusUI();
-                } catch (err) {
-                    console.error("Error al solicitar permiso:", err);
-                }
-            });
-        }
-
-        async function scheduleDailyNotification() {
-            // Con OneSignal, la programación se hace desde su Dashboard
-            // para que funcione con la app CERRADA (ideal para el APK).
-            console.log("OneSignal listo. Programa tus alertas en el Dashboard.");
-        }
-
-        function updateNotifStatusUI() {
-            const status = document.getElementById('notif-status');
-            const btn = document.getElementById('btn-permission');
-            
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            OneSignalDeferred.push(async function(OneSignal) {
-                const permission = OneSignal.Notifications.permission;
-                if (permission) {
-                    status.innerText = "Estado: Activado ✔";
-                    btn.style.display = "none";
-                }
-            });
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
         }
 
         function createMotes() {
@@ -324,25 +674,12 @@
             }
         }
 
-        window.onload = () => {
-            // Registro de PWA (Service Worker)
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js');
-            }
-            
-            if (localStorage.getItem('theme') === 'dark') {
-                document.getElementById('dark-check').checked = true;
-                document.body.setAttribute('data-theme', 'dark');
-            }
-            if (localStorage.getItem('time')) document.getElementById('time-input').value = localStorage.getItem('time');
-            const opt = { weekday: 'long', day: 'numeric', month: 'long' };
-            const ds = new Date().toLocaleDateString('es-ES', opt);
-            document.getElementById('date-label').innerText = ds.toUpperCase();
-            createMotes();
-            init();
-            updateNotifStatusUI();
-            if (Notification.permission === "granted") scheduleDailyNotification();
-        };
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.remove('active');
+            showHub(); // Volver al hub para que vea todo desbloqueado
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
