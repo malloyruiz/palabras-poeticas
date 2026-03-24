@@ -138,6 +138,7 @@
         .btn-icon { background: transparent !important; border: none !important; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none !important; -webkit-tap-highlight-color: transparent; }
 
         /* Hub Editorial Redesign */
+        #cat-view { position: relative; width: 100%; height: 100%; }
         #hub {
             position: fixed; inset: 0; background: var(--bg);
             display: grid; grid-template-columns: 1.2fr 1fr;
@@ -172,7 +173,7 @@
         .hub-item:last-child { border-bottom: none; }
         .hub-item .item-num { font-size: 0.7rem; letter-spacing: 2px; opacity: 0.3; margin-right: 40px; font-weight: 600; margin-top: 15px; }
         .hub-item .item-content { flex: 1; padding-right: 40px; }
-        .hub-item .item-content h3 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 0; transition: 0.5s; font-weight: 400; color: var(--text); display: block; }
+        .hub-item .item-content h3 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 0; transition: 0.5s; font-weight: 400; color: var(--text); display: block; font-style: italic; }
         .hub-item .item-content .hub-desc { font-size: 0.85rem; opacity: 0.8 !important; visibility: visible !important; color: var(--text) !important; display: block !important; margin-top: 10px; max-width: 400px; line-height: 1.6; transition: 0.5s; }
         .hub-item .item-icon { position: absolute; right: 20px; top: 40px; width: 32px; height: 32px; stroke: var(--accent); stroke-width: 1.5; fill: none; opacity: 0.4; transition: 0.5s; }
 
@@ -330,6 +331,54 @@
         #loader.hidden { opacity: 0; pointer-events: none; }
         .spinner { width: 40px; height: 40px; border: 3px solid rgba(128,128,128,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .hub-controls {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+        .notif-btn { position: relative; }
+        .notif-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff4d4d;
+            color: white;
+            font-size: 0.6rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid var(--bg);
+        }
+        @media (max-width: 1024px) {
+            .hub-controls {
+                top: 25px;
+                right: 25px;
+            }
+        }
+
+        /* Notificaciones Items */
+        .notif-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 20px 0;
+            background: transparent;
+            border-bottom: 1px solid rgba(128,128,128,0.1);
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: left;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { opacity: 0.7; }
+        .notif-item .notif-info h4 { margin: 0; font-size: 1rem; font-weight: 600; font-family: 'Playfair Display', serif; font-style: italic; }
+        .notif-item .notif-info p { margin: 0; font-size: 0.85rem; opacity: 0.6; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -340,6 +389,18 @@
     <div id="hub">
         <div class="hub-hero">
             <div class="hero-bg-blur" id="hero-blur"></div>
+            <div class="hub-controls">
+                <button class="btn-icon" onclick="toggleInfo()" title="Sobre Lúmina">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </button>
+                <button class="btn-icon notif-btn" onclick="toggleNotifications()" title="Novedades">
+                    <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span class="notif-badge" id="notif-badge">0</span>
+                </button>
+                <button class="btn-icon" onclick="toggleSettings()" title="Ajustes">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
+            </div>
             <div class="hub-hero-inner" id="hero-container">
                 <div class="meta" style="margin-bottom: 20px;">BIENVENIDO A</div>
                 <h1 id="hero-title">Lúmina</h1>
@@ -437,16 +498,69 @@
 
         <footer>
             <div style="font-size: 0.6rem; opacity:0.1; letter-spacing:3px;">LÚMINA v1.0</div>
-            <div style="display: flex; gap: 40px;">
-                <button class="btn-icon btn-share" onclick="shareWord()" title="Compartir">
-                    <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
-                    <span style="font-size: 0.7rem; letter-spacing: 2px;">SHARE</span>
-                </button>
-                <button class="btn-icon" onclick="toggleSettings()" title="Ajustes">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                </button>
-            </div>
         </footer>
+    </div>
+
+    <!-- Modal Novedades -->
+    <div id="notif-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div style="margin-bottom: 20px;">
+                <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </div>
+            <h2 style="font-family:'Playfair Display', serif; margin-bottom: 25px; font-style: italic; font-size: 2.2rem;">Actualizaciones</h2>
+            
+            <div id="notif-list" style="margin-bottom: 25px;">
+                <!-- Dinámico -->
+                <p style="opacity: 0.5; font-size: 0.9rem;">Cargando novedades...</p>
+            </div>
+
+            <button class="btn-save" onclick="toggleNotifications()" style="width: 100%; padding: 15px;">CERRAR</button>
+        </div>
+    </div>
+
+    <!-- Modal Info -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content" style="max-width: 550px;">
+            <div style="margin-bottom: 25px;">
+                <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+            </div>
+            <h2 style="font-family:'Playfair Display', serif; margin-bottom: 20px; font-style: italic; font-size: 2.2rem;">Sobre Lúmina</h2>
+            
+            <p style="font-size: 0.95rem; opacity: 0.9; line-height: 1.7; text-align: left; margin-bottom: 25px;">
+                Lúmina es la plataforma de microaprendizaje ideada para el hombre y la mujer de espíritu estoico y mente moderna. Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria.
+            </p>
+
+            <div style="text-align: left; font-size: 0.8rem; line-height: 1.6; opacity: 0.85;">
+                <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; color: var(--accent);">NUESTROS PILARES DE CRECIMIENTO</p>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                        <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Palabras</strong>
+                        Precisión verbal para claridad mental. Eleva tu léxico y expande los límites de tu conciencia.
+                    </div>
+                    <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                        <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Afirmaciones</strong>
+                        Reprogramación consciente. Diálogo interno diseñado para la fortaleza y la resiliencia ante el caos.
+                    </div>
+                    <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                        <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Frases</strong>
+                        El consejo de los gigantes. Sabiduría atemporal para navegar los desafíos de la vida contemporánea.
+                    </div>
+                    <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                        <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Libros</strong>
+                        Inmersión profunda en las mentes universales, destilada en lecciones prácticas y accionables para tu día a día.
+                    </div>
+                </div>
+                <p style="margin-top: 30px; font-style: italic; opacity: 0.6; text-align: center; font-size: 0.85rem;">
+                    "Un refugio para quienes buscan la maestría personal, honrando la brevedad del tiempo con la profundidad del conocimiento."
+                </p>
+            </div>
+
+            <button class="btn-save" onclick="toggleInfo()" style="width: 100%; margin-top: 30px; padding: 15px;">ENTENDIDO</button>
+        </div>
     </div>
 
     <!-- Modal Ajustes -->
@@ -454,28 +568,28 @@
         <div class="modal-content">
             <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem;">Inmersión</h2>
             
-            <div class="sub-option" style="border-bottom:none; margin-bottom: 20px;">
+            <div class="sub-option" style="border-bottom:none; margin-bottom: 20px; cursor:pointer;" onclick="toggleTheme()">
                 <span>Modo Noche</span>
-                <div class="toggle-sub" id="theme-toggle" onclick="toggleTheme()"></div>
+                <div class="toggle-sub" id="theme-toggle"></div>
             </div>
 
             <div style="text-align: left; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">NOTIFICACIONES</div>
             
-            <div class="sub-option">
+            <div class="sub-option" onclick="toggleTag('palabras')" style="cursor:pointer;">
                 <span>Palabras de Hoy</span>
-                <div class="toggle-sub" id="sub-palabras" onclick="toggleTag('palabras')"></div>
+                <div class="toggle-sub" id="sub-palabras"></div>
             </div>
-            <div class="sub-option">
+            <div class="sub-option" onclick="toggleTag('afirmaciones')" style="cursor:pointer;">
                 <span>Afirmaciones</span>
-                <div class="toggle-sub" id="sub-afirmaciones" onclick="toggleTag('afirmaciones')"></div>
+                <div class="toggle-sub" id="sub-afirmaciones"></div>
             </div>
-            <div class="sub-option">
+            <div class="sub-option" onclick="toggleTag('frases')" style="cursor:pointer;">
                 <span>Frases Célebres</span>
-                <div class="toggle-sub" id="sub-frases" onclick="toggleTag('frases')"></div>
+                <div class="toggle-sub" id="sub-frases"></div>
             </div>
-            <div class="sub-option">
+            <div class="sub-option" onclick="toggleTag('libros')" style="cursor:pointer;">
                 <span>Lecciones del Club</span>
-                <div class="toggle-sub" id="sub-libros" onclick="toggleTag('libros')"></div>
+                <div class="toggle-sub" id="sub-libros"></div>
             </div>
 
             <div style="margin-top: 30px; text-align: left;">
@@ -506,7 +620,7 @@
             </div>
             <h2 style="font-family:'Playfair Display', serif; margin-bottom: 15px;">Sección Premium</h2>
             <p style="font-size: 0.9rem; opacity: 0.7; line-height: 1.6; margin-bottom: 30px;">
-                Desbloquea las <strong>Afirmaciones Diarias</strong> y las <strong>Frases Célebres</strong> con una suscripción única.
+                Desbloquea las <strong>Afirmaciones</strong>, las <strong>Frases Célebres</strong> y las <strong>Lecciones de Libros</strong> con una suscripción única.
             </p>
             <button class="btn-save" onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')">OBTENER ACCESO</button>
             <button class="btn-save" onclick="document.getElementById('pro-modal').classList.remove('active')" 
@@ -547,6 +661,7 @@
             
             // Actualizar info del Hub (Título del libro actual)
             updateHubInfo();
+            checkNotifications();
             
             // Ocultar loader inicial
             setTimeout(() => {
@@ -700,8 +815,6 @@
                     document.getElementById('lesson-app-prof').innerText = data.app_profesional;
                     document.getElementById('lesson-app-pers').innerText = data.app_personal;
                     document.getElementById('lesson-refl').innerText = data.reflexion;
-                    
-                    // Mostrar también el libro en el header
                     document.getElementById('header-cat').innerText = data.libro;
                 } else {
                     document.getElementById('word-title').innerText = data.palabra || data.word || data.afirmacion || data.frase;
@@ -749,40 +862,188 @@
         }
 
         function toggleSettings() {
+            const modal = document.getElementById('settings-modal');
+            const wasActive = modal.classList.contains('active');
+            closeModals();
+            if (!wasActive) {
+                modal.classList.add('active');
+                updateSubscriptionUI().catch(e => console.warn("Sync error:", e));
+            }
+        }
+
+        function toggleInfo() {
+            const modal = document.getElementById('info-modal');
+            const wasActive = modal.classList.contains('active');
+            closeModals();
+            if (!wasActive) modal.classList.add('active');
+        }
+
+        function toggleNotifications() {
+            const modal = document.getElementById('notif-modal');
+            const wasActive = modal.classList.contains('active');
+            closeModals();
+            if (!wasActive) {
+                modal.classList.add('active');
+                document.getElementById('notif-badge').style.display = 'none';
+                localStorage.setItem('lumina_last_notif_read', new Date().toDateString());
+                localStorage.setItem('lumina_last_notif_count', document.getElementById('notif-badge').innerText || 0);
+            }
+        }
+
+        function closeModals() {
+            ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal'].forEach(id => {
+                const m = document.getElementById(id);
+                if (m) m.classList.remove('active');
+            });
+        }
+
+        // Cerrar modales al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModals();
+            }
+        };
+
+        async function checkNotifications() {
+            const badge = document.getElementById('notif-badge');
+            const list = document.getElementById('notif-list');
+            if (!badge || !list) return;
+
             try {
-                // Alerta para confirmar que el botón funciona
-                console.log("Toggle Settings pulsado");
-                const modal = document.getElementById('settings-modal');
-                if (!modal) {
-                    console.error("No se encontró el modal #settings-modal");
-                    return;
+                // Intentamos obtener extras y contenido básico en paralelo
+                const endpoints = [
+                    fetch(`${API}?action=notifs`).then(r => r.json()).catch(() => []),
+                    fetch(`${API}?cat=palabras`).then(r => r.json()).catch(() => null),
+                    fetch(`${API}?cat=afirmaciones`).then(r => r.json()).catch(() => null),
+                    fetch(`${API}?cat=frases`).then(r => r.json()).catch(() => null),
+                    fetch(`${API}?cat=libros`).then(r => r.json()).catch(() => null)
+                ];
+
+                const [extras, palabraData, afirmData, fraseData, libroData] = await Promise.all(endpoints);
+                
+                list.innerHTML = '';
+                let count = 0;
+                
+                const addNotif = (cat, tit, msg, link, isExtra = false) => {
+                    const item = document.createElement('div');
+                    item.className = 'notif-item';
+                    
+                    let displayMsg = msg;
+                    // Truncar si no es pro (Solo para categorías automáticas premium seleccionadas)
+                    if (!isPro && !isExtra && (cat === 'afirmaciones' || cat === 'frases')) {
+                        displayMsg = msg.length > 25 ? msg.substring(0, 22) + "..." : msg;
+                    }
+
+                    item.innerHTML = `
+                        <div class="notif-info">
+                            <h4>${tit}</h4>
+                            <p>${displayMsg}</p>
+                        </div>
+                    `;
+                    item.onclick = () => {
+                        toggleNotifications();
+                        if (link) {
+                            window.open(link, '_blank');
+                        } else {
+                            // Palabras y Novedades (extra) son libres. Afirmaciones, Frases y Libros son Pro.
+                            const isPremiumCat = (cat === 'afirmaciones' || cat === 'frases' || cat === 'libros');
+                            openCategory(cat, isPremiumCat); 
+                        }
+                    };
+                    list.appendChild(item);
+                    count++;
+                };
+
+                // Comprobamos qué temas están activos (local o OneSignal)
+                const isSub = (c) => localStorage.getItem(`lumina_sub_${c}`) === 'true';
+                const hasAnySub = ['palabras', 'afirmaciones', 'frases', 'libros'].some(c => isSub(c));
+
+                
+                // 1. Extras GAS (Prioridad: Arriba siempre)
+                if (Array.isArray(extras)) {
+                    extras.forEach(n => addNotif(n.cat || 'extra', n.titulo || 'Aviso', n.mensaje || '', n.link, true));
                 }
-                modal.classList.toggle('active');
-                if (modal.classList.contains('active')) {
-                    updateSubscriptionUI().catch(e => console.warn("Sync error:", e));
+
+                if (hasAnySub) {
+                    if (isSub('palabras') && palabraData && (palabraData.palabra || palabraData.word)) {
+                        addNotif('palabras', 'Palabra de Hoy', `La palabra de hoy es "${palabraData.palabra || palabraData.word}". Descúbrela.`);
+                    }
+                    if (isSub('afirmaciones') && afirmData && (afirmData.afirmacion || afirmData.word)) {
+                        addNotif('afirmaciones', 'Afirmación de Hoy', `"${afirmData.afirmacion || afirmData.word}"`);
+                    }
+                    if (isSub('frases') && fraseData && (fraseData.frase || fraseData.word)) {
+                        addNotif('frases', 'Frase de Hoy', `"${fraseData.frase || fraseData.word}"`);
+                    }
+                    if (isSub('libros') && libroData && libroData.titulo) {
+                        addNotif('libros', 'Lección del Día', `Hoy: "${libroData.titulo}" (${libroData.libro || 'Libros'})`);
+                    }
                 }
-            } catch (err) {
-                alert("Error técnico al abrir ajustes: " + err.message);
+
+                if (count === 0 && !hasAnySub) {
+                    list.innerHTML = `
+                        <div style="padding: 25px 0; text-align: left;">
+                            <p style="opacity: 0.9; margin-bottom: 10px; font-weight: 500; font-family:'Playfair Display', serif; font-size: 1.4rem;">Mantente al día</p>
+                            <p style="opacity: 0.6; font-size: 0.85rem; margin-bottom: 25px; line-height: 1.6;">Activa tus temas favoritos en ajustes para recibir novedades diarias aquí.</p>
+                            <button class="btn-save" onclick="toggleSettings()" style="background: var(--accent); color: var(--bg); width: 100%;">ACTIVAR TEMAS</button>
+                        </div>
+                    `;
+                } else if (!hasAnySub && count > 0) {
+                     const tip = document.createElement('p');
+                     tip.style.cssText = "opacity: 0.4; font-size: 0.7rem; letter-spacing: 1px; margin-top: 30px; text-transform: uppercase;";
+                     tip.innerText = "Activa más temas en ajustes";
+                     list.appendChild(tip);
+                } else if (count === 0) {
+                     list.innerHTML = '<p style="opacity: 0.5; font-size: 0.9rem; padding: 20px 0;">No hay novedades por ahora.</p>';
+                }
+
+                // Gestión de Badge (Circulito rojo)
+                const lastRead = localStorage.getItem('lumina_last_notif_read');
+                const lastCount = parseInt(localStorage.getItem('lumina_last_notif_count') || 0);
+                const today = new Date().toDateString();
+                
+                if (count > 0 && (lastRead !== today || count > lastCount)) {
+                    badge.innerText = count;
+                    badge.style.display = 'flex'; 
+                    badge.style.setProperty('display', 'flex', 'important');
+                } else {
+                    badge.style.display = 'none';
+                    badge.style.setProperty('display', 'none', 'important');
+                }
+
+            } catch (e) { 
+                console.warn("Error cargando novedades:", e);
+                list.innerHTML = '<p style="opacity: 0.5; font-size: 0.9rem;">Hubo un problema al cargar las novedades.</p>';
             }
         }
 
         async function updateSubscriptionUI() {
             try {
+                // Sincronizar UI con localStorage como base (funciona sin OneSignal)
+                ['palabras', 'afirmaciones', 'frases', 'libros'].forEach(cat => {
+                    const btn = document.getElementById(`sub-${cat}`);
+                    if (!btn) return;
+                    const isSub = localStorage.getItem(`lumina_sub_${cat}`) === 'true';
+                    if (isSub) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+
                 if (window.OneSignal && OneSignal.User) {
                     const tags = await OneSignal.User.getTags();
-                    ['palabras', 'afirmaciones', 'frases'].forEach(cat => {
-                        const btn = document.getElementById(`sub-${cat}`);
-                        if (btn && tags && tags[cat] === 'true') btn.classList.add('active');
-                        else if (btn) btn.classList.remove('active');
-                    });
+                    if (tags) {
+                        for (let cat in tags) {
+                            const btn = document.getElementById(`sub-${cat}`);
+                            if (btn && tags[cat] === 'true') {
+                                btn.classList.add('active');
+                                localStorage.setItem(`lumina_sub_${cat}`, 'true');
+                            }
+                        }
+                    }
                 }
-            } catch (e) {
-                console.warn("OneSignal (UI sync) no disponible.");
-            }
-            
+            } catch (e) { console.warn("Sync error:", e); }
+
             const themeBtn = document.getElementById('theme-toggle');
             if (themeBtn) {
-                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                const isDark = (document.body.getAttribute('data-theme') || localStorage.getItem('theme')) === 'dark';
                 if (isDark) themeBtn.classList.add('active');
                 else themeBtn.classList.remove('active');
             }
@@ -790,35 +1051,40 @@
 
         async function toggleTag(cat) {
             try {
-                if (!window.OneSignal) return;
-                
                 const btn = document.getElementById(`sub-${cat}`);
                 const isSubscribed = btn.classList.contains('active');
                 
-                if (OneSignal.Notifications.permission !== true) {
-                    await OneSignal.Notifications.requestPermission();
+                // 1. FEEDBACK INSTANTÁNEO (UI LOCAL)
+                localStorage.setItem(`lumina_sub_${cat}`, isSubscribed ? 'false' : 'true');
+                updateSubscriptionUI();
+                
+                // 2. SYNC ASYNC (ONESIGNAL)
+                if (window.OneSignal && OneSignal.User) {
+                    if (OneSignal.Notifications.permission !== true) {
+                        await OneSignal.Notifications.requestPermission();
+                    }
+                    if (isSubscribed) await OneSignal.User.removeTag(cat);
+                    else await OneSignal.User.addTag(cat, "true");
                 }
-
-                if (isSubscribed) {
-                    await OneSignal.User.removeTag(cat);
-                    btn.classList.remove('active');
-                } else {
-                    await OneSignal.User.addTag(cat, "true");
-                    btn.classList.add('active');
-                }
+                
+                checkNotifications(); // Refrescar panel de noticias (sin esperar)
+                
             } catch (e) {
-                alert("Las notificaciones requieren que la app esté publicada en HTTPS.");
+                console.warn("Sync OneSignal error:", e);
+                checkNotifications();
             }
         }
 
         function toggleTheme() {
-            const current = document.body.getAttribute('data-theme');
+            const current = document.body.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
             const newTheme = current === 'dark' ? 'light' : 'dark';
+            
+            // FEEDBACK INSTANTÁNEO
             document.body.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            const btn = document.getElementById('theme-toggle');
-            if (newTheme === 'dark') btn.classList.add('active');
-            else btn.classList.remove('active');
+            updateSubscriptionUI(); 
+            
+            console.log("Tema cambiado a:", newTheme);
         }
 
         function shareWord() {
@@ -833,6 +1099,7 @@
         function loadTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
+            updateSubscriptionUI();
         }
 
         function createMotes() {
