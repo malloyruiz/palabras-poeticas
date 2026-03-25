@@ -1276,7 +1276,7 @@
         function shareWord() {
             const text = `"${document.getElementById('word-title').innerText}" - De Lúmina (${currentCategory})`;
             if (navigator.share) {
-                navigator.share({ title: 'Lúmina', text: text, url: window.location.href });
+                navigator.share({ title: 'Lúmina App', text: text, url: window.location.href });
             } else {
                 navigator.clipboard.writeText(text).then(() => alert("Copiado al portapapeles."));
             }
