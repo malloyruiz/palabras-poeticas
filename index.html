@@ -397,6 +397,20 @@
         .cap-ex-item { font-size: 1.3rem; font-style: italic; color: rgba(26,26,26,0.5); border-left: 3px solid #b5833a; padding-left: 25px; }
         .cap-footer { margin-top: 80px; padding-top: 40px; border-top: 1px solid rgba(0,0,0,0.05); font-size: 0.8rem; opacity: 0.2; letter-spacing: 4px; }
 
+        /* Captura específica para Libros */
+        #capture-area-libros {
+            position: fixed; top: -5005px; left: -5005px;
+            width: 800px; background: #f5f1e8; color: #1a1a1a;
+            padding: 80px; box-sizing: border-box; display: flex; flex-direction: column;
+            font-family: 'Inter', sans-serif; text-align: left;
+        }
+        .cap-lib-head { font-family: 'Playfair Display', serif; font-size: 8rem; font-weight: 700; font-style: italic; line-height: 0.9; margin-bottom: 25px; letter-spacing: -4px; }
+        .cap-lib-tag { font-size: 1rem; letter-spacing: 5px; opacity: 0.4; line-height: 1.6; margin-bottom: 35px; text-transform: uppercase; max-width: 600px; }
+        .cap-lib-sep { height: 1px; background: rgba(0,0,0,0.1); margin-bottom: 45px; }
+        .cap-lib-label { color: #b5833a; font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-bottom: 25px; }
+        .cap-lib-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 400; font-style: italic; line-height: 1.2; margin-bottom: 12px; }
+        .cap-lib-meta { font-size: 0.9rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase; }
+
         .btn-share-main { margin-top: 20px; opacity: 0.6; transition: 0.3s; }
         .btn-share-main:hover { opacity: 1; transform: scale(1.05); }
     </style>
@@ -531,6 +545,16 @@
             <div class="cap-def" id="cap-def"></div>
             <div class="cap-ex-list" id="cap-ex-list"></div>
             <div class="cap-footer">LÚMINA v1.0</div>
+        </div>
+
+        <div id="capture-area-libros">
+            <div class="cap-lib-head">Libros</div>
+            <div class="cap-lib-tag">Viajes literarios hacia la maestría y el autoconocimiento.</div>
+            <div class="cap-lib-sep"></div>
+            <div class="cap-lib-label">SABIDURÍA EN CURSO</div>
+            <div class="cap-lib-title" id="cap-lib-title"></div>
+            <div class="cap-lib-meta" id="cap-lib-meta"></div>
+            <div class="cap-footer" style="margin-top: 60px;">LÚMINA v1.0</div>
         </div>
     </div>
 
@@ -823,7 +847,7 @@
             // Mostrar botón de compartir solo en categorías permitidas
             const shareBtn = document.getElementById('main-share-btn');
             if (shareBtn) {
-                if (['palabras', 'afirmaciones', 'frases'].includes(cat)) {
+                if (['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat)) {
                     shareBtn.style.display = 'block';
                 } else {
                     shareBtn.style.display = 'none';
@@ -1175,23 +1199,36 @@
         }
 
         async function shareAsImage() {
-            const area = document.getElementById('capture-area');
+            const isLibros = currentCategory === 'libros';
+            const areaId = isLibros ? 'capture-area-libros' : 'capture-area';
+            const area = document.getElementById(areaId);
             const btn = document.getElementById('main-share-btn');
             
             // 1. Llenar datos
-            document.getElementById('cap-date').innerText = document.getElementById('header-date').innerText;
-            document.getElementById('cap-cat').innerText = document.getElementById('header-cat').innerText;
-            document.getElementById('cap-word').innerText = document.getElementById('word-title').innerText;
-            document.getElementById('cap-def').innerText = document.getElementById('word-def').innerText;
-            
-            const exList = document.getElementById('cap-ex-list');
-            exList.innerHTML = '';
-            document.querySelectorAll('.example-item').forEach(el => {
-                const item = document.createElement('div');
-                item.className = 'cap-ex-item';
-                item.innerText = el.innerText;
-                exList.appendChild(item);
-            });
+            if (isLibros) {
+                const cached = getCache('libros');
+                if (cached) {
+                    document.getElementById('cap-lib-title').innerText = cached.titulo || "";
+                    // Si el cache tiene autor, usarlo, si no omitir o usar libro
+                    const author = cached.autor || "";
+                    const meta = author ? `${cached.libro} — ${author} — LECCIÓN ${cached.dia} DE ${cached.total}` : `${cached.libro} — LECCIÓN ${cached.dia} DE ${cached.total}`;
+                    document.getElementById('cap-lib-meta').innerText = meta.toUpperCase();
+                }
+            } else {
+                document.getElementById('cap-date').innerText = document.getElementById('header-date').innerText;
+                document.getElementById('cap-cat').innerText = document.getElementById('header-cat').innerText;
+                document.getElementById('cap-word').innerText = document.getElementById('word-title').innerText;
+                document.getElementById('cap-def').innerText = document.getElementById('word-def').innerText;
+                
+                const exList = document.getElementById('cap-ex-list');
+                exList.innerHTML = '';
+                document.querySelectorAll('.example-item').forEach(el => {
+                    const item = document.createElement('div');
+                    item.className = 'cap-ex-item';
+                    item.innerText = el.innerText;
+                    exList.appendChild(item);
+                });
+            }
 
             btn.style.opacity = '0.3';
             btn.disabled = true;
