@@ -692,7 +692,7 @@
                     iosinstallinfotext="Toca el botón Compartir y selecciona 'Añadir a la pantalla de inicio'."
                 ></pwa-install>
                 <button class="btn-save" id="btn-pwa-install" 
-                    style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%; display: none;" 
+                    style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;" 
                     onclick="document.getElementById('pwainstall').install()">
                     INCORPORAR A INICIO
                 </button>
@@ -786,18 +786,11 @@
                 window.location.hash = ''; // Clean URL
             }
 
-            // Mostrar botón de instalar si está disponible
-            const installComponent = document.getElementById('pwainstall');
+            // Mostrar botón de instalar si no está instalada
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const installBtn = document.getElementById('btn-pwa-install');
-            if (installComponent && installBtn) {
-                const showInstall = () => { installBtn.style.display = 'block'; };
-                
-                // Verificar si ya está disponible o esperar al evento
-                if (installComponent.isInstallable) {
-                    showInstall();
-                } else {
-                    installComponent.addEventListener('pwa-install-available', showInstall);
-                }
+            if (isStandalone && installBtn) {
+                installBtn.style.display = 'none';
             }
         }
 
