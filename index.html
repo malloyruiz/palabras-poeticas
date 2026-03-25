@@ -429,19 +429,12 @@
         }
         
         /* Estilo para el botón de instalación en Ajustes */
-        pwa-install {
-            --install-button-color: var(--accent);
-            --install-button-text-color: #ffffff;
-            --modal-background-color: var(--bg);
-            --modal-text-color: var(--text);
-            --install-button-border-radius: 40px;
-            font-family: 'Inter', sans-serif;
-        }
+        pwa-install { display: none; } /* Ocultar el componente, usar botón personalizado */
 
         #pwa-install-container { 
-            margin-top: 20px; 
-            padding-top: 20px; 
-            border-top: 1px solid rgba(128,128,128,0.1);
+            margin-top: 5px; 
+            padding-top: 0; 
+            border-top: none;
         }
     </style>
 </head>
@@ -695,11 +688,14 @@
             <div id="pwa-install-container">
                 <pwa-install 
                     id="pwainstall"
-                    explainer="Instala Lúmina en tu pantalla de inicio para acceder rápidamente y recibir la sabiduría del día al instante." 
-                    installbuttontext="INCORPORAR A INICIO" 
-                    cancelbuttontext="LUEGO"
+                    usecustom
                     iosinstallinfotext="Toca el botón Compartir y selecciona 'Añadir a la pantalla de inicio'."
                 ></pwa-install>
+                <button class="btn-save" id="btn-pwa-install" 
+                    style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%; display: none;" 
+                    onclick="document.getElementById('pwainstall').install()">
+                    INCORPORAR A INICIO
+                </button>
             </div>
 
             <button class="btn-save" onclick="toggleSettings()" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text);">CERRAR</button>
@@ -788,6 +784,14 @@
             if (window.location.hash === '#status=success') {
                 alert("¡Gracias por tu compra! Tu código Pro ha sido enviado a tu email. Revisa tu bandeja de entrada (y spam) para activarlo.");
                 window.location.hash = ''; // Clean URL
+            }
+
+            // Mostrar botón de instalar si está disponible
+            const installComponent = document.getElementById('pwainstall');
+            if (installComponent) {
+                installComponent.addEventListener('pwa-install-available', () => {
+                    document.getElementById('btn-pwa-install').style.display = 'block';
+                });
             }
         }
 
