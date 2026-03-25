@@ -774,6 +774,17 @@
             // Actualizar info del Hub (Título del libro actual)
             updateHubInfo();
             checkNotifications();
+
+            // Atajos de Inicio (PWA Shortcuts)
+            const params = new URLSearchParams(window.location.search);
+            const catParam = params.get('cat');
+            if (catParam && ['palabras', 'afirmaciones', 'frases', 'libros'].includes(catParam)) {
+                // Pequeño delay para que el hub cargue primero visualmente
+                setTimeout(() => openCategory(catParam, catParam !== 'palabras'), 500);
+            }
+
+            // PWA Badging
+            if ('setAppBadge' in navigator) navigator.setAppBadge(1);
             
             // Ocultar loader inicial
             setTimeout(() => {
@@ -853,7 +864,8 @@
                     loadProState();
                     document.getElementById('pro-modal').classList.remove('active');
                     setTimeout(() => {
-                        document.getElementById('success-modal').classList.add('active');
+                        if (navigator.vibrate) navigator.vibrate([30, 50, 30]); // Vibración de éxito "triple"
+                    document.getElementById('success-modal').classList.add('active');
                     }, 500);
                 } else {
                     alert("Código no válido. Por favor, verifica tu clave.");
@@ -880,52 +892,75 @@
             if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
             
             const hub = document.getElementById('hub');
-            hub.style.opacity = '0';
-            hub.style.pointerEvents = 'none'; 
-            
-            // Etiqueta dinámica según categoría
-            const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY' };
-            document.getElementById('header-cat').innerText = labels[cat] || 'LÚMINA';
+            const doOpen = () => {
+                hub.style.opacity = '0';
+                hub.style.pointerEvents = 'none'; 
+                
+                // Etiqueta dinámica según categoría
+                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY' };
+                document.getElementById('header-cat').innerText = labels[cat] || 'LÚMINA';
 
-            // Mostrar botón de compartir solo en categorías permitidas
-            const shareBtn = document.getElementById('main-share-btn');
-            if (shareBtn) {
-                if (['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat)) {
-                    shareBtn.style.display = 'block';
-                } else {
-                    shareBtn.style.display = 'none';
+                // Mostrar botón de compartir solo en categorías permitidas
+                const shareBtn = document.getElementById('main-share-btn');
+                if (shareBtn) {
+                    if (['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat)) {
+                        shareBtn.style.display = 'block';
+                    } else {
+                        shareBtn.style.display = 'none';
+                    }
                 }
+
+                if (cat === 'libros') requestWakeLock();
+
+                setTimeout(() => {
+                    hub.classList.add('hidden');
+                    let btn = document.getElementById('btn-back-hub');
+                    if (!btn) {
+                        btn = document.createElement('button');
+                        btn.id = 'btn-back-hub';
+                        btn.className = 'btn-icon';
+                        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+                        btn.onclick = showHub;
+                        document.body.appendChild(btn);
+                    }
+                    btn.style.setProperty('display', 'flex', 'important');
+                }, 400);
+
+                fetchContent();
+            };
+
+            if (navigator.vibrate) navigator.vibrate(12);
+
+            if (document.startViewTransition) {
+                document.startViewTransition(() => doOpen());
+            } else {
+                doOpen();
             }
-
-            setTimeout(() => {
-                hub.classList.add('hidden');
-                let btn = document.getElementById('btn-back-hub');
-                if (!btn) {
-                    btn = document.createElement('button');
-                    btn.id = 'btn-back-hub';
-                    btn.className = 'btn-icon';
-                    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
-                    btn.onclick = showHub;
-                    document.body.appendChild(btn);
-                }
-                btn.style.setProperty('display', 'flex', 'important');
-            }, 400);
-
-            await fetchContent();
         }
 
         function showHub() {
-            const hub = document.getElementById('hub');
-            hub.classList.remove('hidden');
-            hub.style.pointerEvents = 'auto'; 
-            setTimeout(() => hub.style.opacity = '1', 10);
-            const btn = document.getElementById('btn-back-hub');
-            if (btn) btn.style.setProperty('display', 'none', 'important');
-            const shareBtn = document.getElementById('main-share-btn');
-            if (shareBtn) shareBtn.style.display = 'none';
-            const mui = document.getElementById('main-ui');
-            if (mui) mui.classList.remove('loaded');
-            resetHero();
+            if (navigator.vibrate) navigator.vibrate(10);
+            releaseWakeLock();
+
+            const doShow = () => {
+                const hub = document.getElementById('hub');
+                hub.classList.remove('hidden');
+                hub.style.pointerEvents = 'auto'; 
+                setTimeout(() => hub.style.opacity = '1', 10);
+                const btn = document.getElementById('btn-back-hub');
+                if (btn) btn.style.setProperty('display', 'none', 'important');
+                const shareBtn = document.getElementById('main-share-btn');
+                if (shareBtn) shareBtn.style.display = 'none';
+                const mui = document.getElementById('main-ui');
+                if (mui) mui.classList.remove('loaded');
+                resetHero();
+            };
+
+            if (document.startViewTransition) {
+                document.startViewTransition(() => doShow());
+            } else {
+                doShow();
+            }
         }
 
         async function fetchContent() {
@@ -1275,6 +1310,7 @@
 
             btn.style.opacity = '0.3';
             btn.disabled = true;
+            if (navigator.vibrate) navigator.vibrate(15);
 
             try {
                 const canvas = await html2canvas(area, {
@@ -1319,6 +1355,7 @@
 
         function shareWord() {
             const text = `"${document.getElementById('word-title').innerText}" - De Lúmina (${currentCategory})`;
+            if (navigator.vibrate) navigator.vibrate(15);
             if (navigator.share) {
                 navigator.share({ title: 'Lúmina App', text: text, url: window.location.href });
             } else {
@@ -1388,6 +1425,21 @@
 
         function resetHero() {
             updateHero('Lúmina', 'CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL', 50, 50);
+        }
+
+        // PWA Wake Lock
+        let wakeLock = null;
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (err) { console.warn("WakeLock error:", err); }
+        }
+        function releaseWakeLock() {
+            if (wakeLock) {
+                wakeLock.release().then(() => wakeLock = null);
+            }
         }
 
         window.onload = init;
