@@ -36,7 +36,7 @@
             --text: #1a1a1a;
             --accent: #b5833a;
             --text-dim: rgba(26, 26, 26, 0.4);
-            --transition: 1s cubic-bezier(0.2, 0, 0, 1);
+            --transition: 0.5s cubic-bezier(0.2, 0, 0, 1);
         }
 
         [data-theme="dark"] {
@@ -80,7 +80,7 @@
             width: 100%; max-width: 1100px;
             display: grid; grid-template-columns: 1fr; gap: 80px;
             opacity: 0; transform: translateY(40px);
-            transition: 1.5s ease;
+            transition: 0.8s cubic-bezier(0.2, 0, 0, 1);
         }
         main.loaded { opacity: 1; transform: translateY(0); }
 
@@ -327,7 +327,7 @@
         #loader {
             position: fixed; inset: 0; background: var(--bg);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 5000; transition: 0.8s ease; opacity: 1;
+            z-index: 5000; transition: 0.4s ease; opacity: 1;
         }
         #loader.hidden { opacity: 0; pointer-events: none; }
         .spinner { width: 40px; height: 40px; border: 3px solid rgba(128,128,128,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -682,6 +682,25 @@
         let currentCategory = 'palabras';
         let isPro = localStorage.getItem('lumina_pro') === 'true';
 
+        // Gestión de Caché
+        const cacheDate = localStorage.getItem('lumina_cache_date');
+        const todayStr = new Date().toDateString();
+        if (cacheDate !== todayStr) {
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('lumina_data_')) localStorage.removeItem(key);
+            });
+            localStorage.setItem('lumina_cache_date', todayStr);
+        }
+
+        function getCache(cat) {
+            const data = localStorage.getItem('lumina_data_' + cat);
+            return data ? JSON.parse(data) : null;
+        }
+
+        function setCache(cat, data) {
+            localStorage.setItem('lumina_data_' + cat, JSON.stringify(data));
+        }
+
         async function init() {
             loadTheme();
             await loadProState(); // Cambiamos a await para que el estado pro sea robusto
@@ -843,52 +862,26 @@
         }
 
         async function fetchContent() {
+            const cached = getCache(currentCategory);
+            
+            // Si hay caché, mostrar inmediatamente
+            if (cached) {
+                renderContent(cached);
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('main-ui').classList.add('loaded');
+                return;
+            }
+
             document.getElementById('loader').classList.remove('hidden');
             document.getElementById('loader').style.opacity = '1';
             
             try {
-                // Pasamos la categoría como parámetro
                 const response = await fetch(`${API}?cat=${currentCategory}`);
                 const data = await response.json();
-                
-                if (currentCategory === 'libros') {
-                    document.getElementById('lesson-date-full').innerText = document.getElementById('header-date').innerText;
-                    document.getElementById('lesson-cat-label').innerText = (data.libro || "LIBRO").toUpperCase();
-                    document.getElementById('lesson-day').innerText = `LECCIÓN ${data.dia} DE ${data.total}`;
-                    document.getElementById('lesson-title').innerText = data.titulo;
-                    document.getElementById('lesson-text').innerText = data.explicacion;
-                    document.getElementById('lesson-app-prof').innerText = data.app_profesional;
-                    document.getElementById('lesson-app-pers').innerText = data.app_personal;
-                    document.getElementById('lesson-refl').innerText = data.reflexion;
-                    document.getElementById('header-cat').innerText = data.libro;
-                } else {
-                    document.getElementById('word-title').innerText = data.palabra || data.word || data.afirmacion || data.frase;
-                    document.getElementById('word-def').innerText = data.definicion || data.meaning || data.autor || "";
-                    
-                    const box = document.getElementById('example-list');
-                    box.innerHTML = '';
-                    if (data.ejemplo1 || data.ejemplo2) {
-                        const mui = document.getElementById('main-ui');
-                        if (mui) mui.classList.add('has-examples');
-                        if (data.ejemplo1) addEx(data.ejemplo1);
-                        if (data.ejemplo2) addEx(data.ejemplo2);
-                    } else {
-                        const mui = document.getElementById('main-ui');
-                        if (mui) mui.classList.remove('has-examples');
-                    }
-                }
+                setCache(currentCategory, data);
+                renderContent(data);
             } catch (e) {
-                console.warn("Error API, usando fallback:", e);
-                const fallbacks = {
-                    'palabras': { p: 'Serendipia', d: 'Un hallazgo afortunado e inesperado.' },
-                    'afirmaciones': { p: 'Soy suficiente', d: 'Hoy elijo confiar en mi capacidad y valor.' },
-                    'frases': { p: 'Conócete a ti mismo', d: 'Sócrates' }
-                };
-                if (fallbacks[currentCategory]) {
-                    document.getElementById('word-title').innerText = fallbacks[currentCategory].p;
-                    document.getElementById('word-def').innerText = fallbacks[currentCategory].d;
-                }
-                document.getElementById('example-list').innerHTML = '';
+                renderFallbacks();
             }
 
             document.getElementById('loader').style.opacity = '0';
@@ -896,7 +889,50 @@
                 document.getElementById('loader').classList.add('hidden');
                 const mui = document.getElementById('main-ui');
                 if (mui) mui.classList.add('loaded');
-            }, 800);
+            }, 400);
+        }
+
+        function renderContent(data) {
+            if (currentCategory === 'libros') {
+                document.getElementById('lesson-date-full').innerText = document.getElementById('header-date').innerText;
+                document.getElementById('lesson-cat-label').innerText = (data.libro || "LIBRO").toUpperCase();
+                document.getElementById('lesson-day').innerText = `LECCIÓN ${data.dia} DE ${data.total}`;
+                document.getElementById('lesson-title').innerText = data.titulo;
+                document.getElementById('lesson-text').innerText = data.explicacion;
+                document.getElementById('lesson-app-prof').innerText = data.app_profesional;
+                document.getElementById('lesson-app-pers').innerText = data.app_personal;
+                document.getElementById('lesson-refl').innerText = data.reflexion;
+                document.getElementById('header-cat').innerText = data.libro;
+            } else {
+                document.getElementById('word-title').innerText = data.palabra || data.word || data.afirmacion || data.frase;
+                document.getElementById('word-def').innerText = data.definicion || data.meaning || data.autor || "";
+                
+                const box = document.getElementById('example-list');
+                box.innerHTML = '';
+                if (data.ejemplo1 || data.ejemplo2) {
+                    const mui = document.getElementById('main-ui');
+                    if (mui) mui.classList.add('has-examples');
+                    if (data.ejemplo1) addEx(data.ejemplo1);
+                    if (data.ejemplo2) addEx(data.ejemplo2);
+                } else {
+                    const mui = document.getElementById('main-ui');
+                    if (mui) mui.classList.remove('has-examples');
+                }
+            }
+        }
+
+        function renderFallbacks() {
+            console.warn("Error API, usando fallback");
+            const fallbacks = {
+                'palabras': { p: 'Serendipia', d: 'Un hallazgo afortunado e inesperado.' },
+                'afirmaciones': { p: 'Soy suficiente', d: 'Hoy elijo confiar en mi capacidad y valor.' },
+                'frases': { p: 'Conócete a ti mismo', d: 'Sócrates' }
+            };
+            if (fallbacks[currentCategory]) {
+                document.getElementById('word-title').innerText = fallbacks[currentCategory].p;
+                document.getElementById('word-def').innerText = fallbacks[currentCategory].d;
+            }
+            document.getElementById('example-list').innerHTML = '';
         }
 
         function addEx(t) {
@@ -965,6 +1001,12 @@
                 ];
 
                 const [extras, palabraData, afirmData, fraseData, libroData] = await Promise.all(endpoints);
+                
+                // Guardar en caché lo que viene de notificaciones
+                if (palabraData) setCache('palabras', palabraData);
+                if (afirmData) setCache('afirmaciones', afirmData);
+                if (fraseData) setCache('frases', fraseData);
+                if (libroData) setCache('libros', libroData);
                 
                 list.innerHTML = '';
                 let count = 0;
