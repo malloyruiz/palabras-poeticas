@@ -57,9 +57,32 @@
   ],
   "shortcuts": [
     {
-      "name": "Palabra de Hoy",
-      "url": "./index.html",
-      "description": "Tu dosis diaria de sabiduría e inspiración"
+      "name": "Palabras",
+      "short_name": "Palabras",
+      "url": "./index.html?cat=palabras",
+      "description": "Eleva tu lenguaje diariamente.",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Afirmaciones",
+      "short_name": "Afirmaciones",
+      "url": "./index.html?cat=afirmaciones",
+      "description": "Reprograma tu mente hoy.",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Frases",
+      "short_name": "Frases",
+      "url": "./index.html?cat=frases",
+      "description": "Sabiduría de los gigantes.",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Libros",
+      "short_name": "Libros",
+      "url": "./index.html?cat=libros",
+      "description": "Lecciones de maestría.",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
