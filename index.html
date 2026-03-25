@@ -7,7 +7,8 @@
     <!-- Configuración PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a1a">
-    <link rel="apple-touch-icon" href="icon-640.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
     
@@ -137,6 +138,8 @@
 
         .btn-icon svg { width: 24px; height: 24px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: 0.3s; pointer-events: none; }
         .btn-icon:hover svg { stroke: var(--accent); transform: scale(1.1); }
+        
+
         
         /* FIX: Forzado de transparencia para evitar rectángulos blancos */
         .btn-icon { background: transparent !important; border: none !important; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none !important; -webkit-tap-highlight-color: transparent; }
@@ -515,7 +518,7 @@
     <div class="wrapper">
         <main id="main-ui">
             <div class="content-header">
-                <div class="date-full" id="header-date">LUNES, 22 DE MARZO DE 2026</div>
+                <div class="date-full" id="header-date">---</div>
                 <div class="cat-label" id="header-cat">PALABRA DE HOY</div>
                 <h1 class="word-display" id="word-title">---</h1>
                 <p class="definition" id="word-def">---</p>
@@ -532,7 +535,7 @@
                 <div class="content-header">
                     <div class="date-full" id="lesson-date-full"></div>
                     <div class="cat-label" id="lesson-cat-label"></div>
-                    <div class="date-full" style="margin-top: 20px; opacity: 0.4;" id="lesson-day"></div>
+                    <div class="date-full" style="opacity: 0.4;" id="lesson-day"></div>
                     <h1 class="word-display" id="lesson-title" style="margin-top: 10px;">Cargando...</h1>
                 </div>
                 <div class="lesson-body content-body" id="lesson-text"></div>
@@ -554,9 +557,11 @@
         </main>
 
         <footer>
-            <div style="font-size: 0.6rem; opacity:0.1; letter-spacing:3px;">LÚMINA v1.0</div>
-            <button class="btn-icon btn-share-main" id="main-share-btn" onclick="shareAsImage()" title="Compartir Captura" style="display: none;">
-                <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+            <div style="display: flex; align-items: center; justify-content: center; opacity: 0.15; letter-spacing: 3px;">
+                <span style="font-size: 0.6rem;">LÚMINA v1.0</span>
+            </div>
+            <button class="btn-icon btn-share-main" id="main-share-btn" onclick="shareAsImage()" title="Compartir sabiduría" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
             </button>
         </footer>
 
