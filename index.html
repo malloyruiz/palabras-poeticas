@@ -439,10 +439,29 @@
             padding-top: 0; 
             border-top: none;
         }
+
+        /* Banner Offline */
+        #offline-banner {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            padding: 8px;
+            text-align: center;
+            z-index: 6000;
+            display: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <div id="offline-banner">Sin conexión — Mostrando contenido guardado</div>
     <div class="atm-motes" id="atm-motes"></div>
 
     <!-- HUB EDITORIAL -->
@@ -748,15 +767,6 @@
         let isPro = localStorage.getItem('lumina_pro') === 'true';
 
         // Gestión de Caché
-        const cacheDate = localStorage.getItem('lumina_cache_date');
-        const todayStr = new Date().toDateString();
-        if (cacheDate !== todayStr) {
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('lumina_data_')) localStorage.removeItem(key);
-            });
-            localStorage.setItem('lumina_cache_date', todayStr);
-        }
-
         function getCache(cat) {
             const data = localStorage.getItem('lumina_data_' + cat);
             return data ? JSON.parse(data) : null;
@@ -764,7 +774,19 @@
 
         function setCache(cat, data) {
             localStorage.setItem('lumina_data_' + cat, JSON.stringify(data));
+            localStorage.setItem('lumina_cache_date_' + cat, new Date().toDateString());
         }
+
+        function checkOnline() {
+            const banner = document.getElementById('offline-banner');
+            if (navigator.onLine) {
+                banner.style.display = 'none';
+            } else {
+                banner.style.display = 'block';
+            }
+        }
+        window.addEventListener('online', checkOnline);
+        window.addEventListener('offline', checkOnline);
 
         async function init() {
             loadTheme();
@@ -969,15 +991,19 @@
 
         async function fetchContent() {
             const cached = getCache(currentCategory);
-            
-            // Si hay caché, mostrar inmediatamente
-            if (cached) {
+            const cacheDate = localStorage.getItem('lumina_cache_date_' + currentCategory);
+            const today = new Date().toDateString();
+
+            // 1. Mostrar caché inmediatamente (Si es de hoy)
+            if (cached && cacheDate === today) {
                 renderContent(cached);
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('main-ui').classList.add('loaded');
+                checkOnline();
                 return;
             }
 
+            // 2. Si no hay caché de hoy, intentar Red
             document.getElementById('loader').classList.remove('hidden');
             document.getElementById('loader').style.opacity = '1';
             
@@ -986,8 +1012,16 @@
                 const data = await response.json();
                 setCache(currentCategory, data);
                 renderContent(data);
+                if (navigator.onLine) document.getElementById('offline-banner').style.display = 'none';
             } catch (e) {
-                renderFallbacks();
+                console.warn("Error red, usando mejor caché disponible");
+                if (cached) {
+                    renderContent(cached);
+                    document.getElementById('offline-banner').style.display = 'block';
+                } else {
+                    renderFallbacks();
+                    document.getElementById('offline-banner').style.display = 'block';
+                }
             }
 
             document.getElementById('loader').style.opacity = '0';
