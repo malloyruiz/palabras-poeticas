@@ -788,10 +788,16 @@
 
             // Mostrar botón de instalar si está disponible
             const installComponent = document.getElementById('pwainstall');
-            if (installComponent) {
-                installComponent.addEventListener('pwa-install-available', () => {
-                    document.getElementById('btn-pwa-install').style.display = 'block';
-                });
+            const installBtn = document.getElementById('btn-pwa-install');
+            if (installComponent && installBtn) {
+                const showInstall = () => { installBtn.style.display = 'block'; };
+                
+                // Verificar si ya está disponible o esperar al evento
+                if (installComponent.isInstallable) {
+                    showInstall();
+                } else {
+                    installComponent.addEventListener('pwa-install-available', showInstall);
+                }
             }
         }
 
