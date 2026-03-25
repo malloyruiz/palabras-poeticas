@@ -429,6 +429,15 @@
         }
         
         /* Estilo para el botón de instalación en Ajustes */
+        pwa-install {
+            --install-button-color: var(--accent);
+            --install-button-text-color: #ffffff;
+            --modal-background-color: var(--bg);
+            --modal-text-color: var(--text);
+            --install-button-border-radius: 40px;
+            font-family: 'Inter', sans-serif;
+        }
+
         #pwa-install-container { 
             margin-top: 20px; 
             padding-top: 20px; 
@@ -686,10 +695,10 @@
             <div id="pwa-install-container">
                 <pwa-install 
                     id="pwainstall"
-                    explainer="Instala Lúmina para acceder al instante desde tu pantalla de inicio." 
-                    installbuttontext="INSTALAR APP" 
+                    explainer="Instala Lúmina en tu pantalla de inicio para acceder rápidamente y recibir la sabiduría del día al instante." 
+                    installbuttontext="INCORPORAR A INICIO" 
                     cancelbuttontext="LUEGO"
-                    iosinstallinfotext="Toca el botón Compartir y luego 'Añadir a pantalla de inicio'."
+                    iosinstallinfotext="Toca el botón Compartir y selecciona 'Añadir a la pantalla de inicio'."
                 ></pwa-install>
             </div>
 
