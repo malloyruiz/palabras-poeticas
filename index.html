@@ -788,8 +788,7 @@
                 setTimeout(() => openCategory(catParam, catParam !== 'palabras'), 500);
             }
 
-            // PWA Badging
-            if ('setAppBadge' in navigator) navigator.setAppBadge(1);
+            // PWA Badging (Removed hardcoded value, now handled in checkNotifications)
             
             // Ocultar loader inicial
             setTimeout(() => {
@@ -1075,6 +1074,7 @@
                 document.getElementById('notif-badge').style.display = 'none';
                 localStorage.setItem('lumina_last_notif_read', new Date().toDateString());
                 localStorage.setItem('lumina_last_notif_count', document.getElementById('notif-badge').innerText || 0);
+                if ('clearAppBadge' in navigator) navigator.clearAppBadge();
             }
         }
 
@@ -1199,9 +1199,11 @@
                     badge.innerText = count;
                     badge.style.display = 'flex'; 
                     badge.style.setProperty('display', 'flex', 'important');
+                    if ('setAppBadge' in navigator) navigator.setAppBadge(count);
                 } else {
                     badge.style.display = 'none';
                     badge.style.setProperty('display', 'none', 'important');
+                    if ('clearAppBadge' in navigator) navigator.clearAppBadge();
                 }
 
             } catch (e) { 
