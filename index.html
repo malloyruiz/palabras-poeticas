@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1249,8 +1248,8 @@
                         try {
                             await navigator.share({
                                 files: [file],
-                                title: 'Lúmina',
-                                text: 'Sabiduría para hoy.'
+                                title: 'Lúmina App',
+                                text: 'Comparte un momento de sabiduría'
                             });
                         } catch (err) {
                             if (err.name !== 'AbortError') console.error("Error share:", err);
