@@ -19,6 +19,8 @@
     <!-- PWABuilder Components -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
+    <!-- ResponsiveVoice for High Quality TTS -->
+    <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -741,9 +743,17 @@
         <div class="modal-content">
             <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem;">Inmersión</h2>
             
-            <div class="sub-option" style="border-bottom:none; margin-bottom: 20px; cursor:pointer;" onclick="toggleTheme()">
+            <div class="sub-option" style="border-bottom:none; margin-bottom: 5px; cursor:pointer;" onclick="toggleTheme()">
                 <span>Modo Noche</span>
                 <div class="toggle-sub" id="theme-toggle"></div>
+            </div>
+
+            <div class="sub-option" style="border-bottom:none; margin-bottom: 20px; cursor:pointer;" onclick="toggleCloudVoice()">
+                <div style="display: flex; flex-direction: column;">
+                    <span>Voz Alta Calidad (Nube)</span>
+                    <small style="font-size: 0.6rem; opacity: 0.5;">Requiere conexión a internet</small>
+                </div>
+                <div class="toggle-sub" id="cloud-voice-toggle"></div>
             </div>
 
             <div style="text-align: left; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">NOTIFICACIONES</div>
@@ -934,7 +944,11 @@
             const select = document.getElementById('voice-select');
             if (!select) return;
             const esVoices = voices.filter(v => v.lang.startsWith('es'));
-            select.innerHTML = esVoices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+            select.innerHTML = esVoices.map(v => {
+                const isPremium = v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Neural');
+                const label = isPremium ? `✨ ${v.name}` : v.name;
+                return `<option value="${v.name}">${label} (${v.lang})</option>`;
+            }).join('');
             const savedVoice = localStorage.getItem('lumina_voice');
             if (savedVoice) select.value = savedVoice;
         }
@@ -946,20 +960,46 @@
         }
 
         function speakText(text) {
-            if (window.speechSynthesis.speaking) {
+            if (window.speechSynthesis.speaking || (window.responsiveVoice && responsiveVoice.isPlaying())) {
                 window.speechSynthesis.cancel();
+                if (window.responsiveVoice) responsiveVoice.cancel();
                 document.body.classList.remove('speaking');
                 return;
             }
+
+            const useCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
+
+            if (useCloud && window.responsiveVoice) {
+                document.body.classList.add('speaking');
+                responsiveVoice.speak(text, "Spanish Female", {
+                    rate: 1,
+                    onend: () => document.body.classList.remove('speaking'),
+                    onerror: () => {
+                        document.body.classList.remove('speaking');
+                        // Fallback a nativo si falla la nube
+                        speakNative(text);
+                    }
+                });
+            } else {
+                speakNative(text);
+            }
+        }
+
+        function speakNative(text) {
             const utterance = new SpeechSynthesisUtterance(text);
             const savedVoiceName = localStorage.getItem('lumina_voice');
             const selectedVoice = voices.find(v => v.name === savedVoiceName);
             if (selectedVoice) utterance.voice = selectedVoice;
             else {
-                const fallback = voices.find(v => v.lang.startsWith('es') && v.name.includes('Google'));
-                if (fallback) utterance.voice = fallback;
+                // Priorizar Google o Natural
+                const premium = voices.find(v => v.lang.startsWith('es') && (v.name.includes('Google') || v.name.includes('Natural')));
+                if (premium) utterance.voice = premium;
+                else {
+                    const esFallback = voices.find(v => v.lang.startsWith('es'));
+                    if (esFallback) utterance.voice = esFallback;
+                }
             }
-            utterance.rate = 0.9;
+            utterance.rate = 0.95;
             utterance.onstart = () => document.body.classList.add('speaking');
             utterance.onend = () => document.body.classList.remove('speaking');
             utterance.onerror = () => document.body.classList.remove('speaking');
@@ -1489,6 +1529,13 @@
                 if (isDark) themeBtn.classList.add('active');
                 else themeBtn.classList.remove('active');
             }
+
+            const cloudBtn = document.getElementById('cloud-voice-toggle');
+            if (cloudBtn) {
+                const isCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
+                if (isCloud) cloudBtn.classList.add('active');
+                else cloudBtn.classList.remove('active');
+            }
         }
 
         async function toggleTag(cat) {
@@ -1527,6 +1574,12 @@
             updateSubscriptionUI(); 
             
             console.log("Tema cambiado a:", newTheme);
+        }
+
+        function toggleCloudVoice() {
+            const isCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
+            localStorage.setItem('lumina_cloud_voice', isCloud ? 'false' : 'true');
+            updateSubscriptionUI();
         }
 
         async function shareAsImage() {
