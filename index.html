@@ -19,8 +19,6 @@
     <!-- PWABuilder Components -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
-    <!-- ResponsiveVoice for High Quality TTS -->
-    <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -750,8 +748,8 @@
 
             <div class="sub-option" style="border-bottom:none; margin-bottom: 20px; cursor:pointer;" onclick="toggleCloudVoice()">
                 <div style="display: flex; flex-direction: column;">
-                    <span>Voz Alta Calidad (Nube)</span>
-                    <small style="font-size: 0.6rem; opacity: 0.5;">Requiere conexión a internet</small>
+                    <span>Voz Google Premium</span>
+                    <small style="font-size: 0.6rem; opacity: 0.5;">Alta fidelidad • Requiere internet</small>
                 </div>
                 <div class="toggle-sub" id="cloud-voice-toggle"></div>
             </div>
@@ -950,7 +948,7 @@
             
             // Si la nube está activa, ponerla como primera opción
             if (useCloud) {
-                options += `<option value="CLOUD_VOICE">🚀 Voz de Alta Calidad (Nube)</option>`;
+                options += `<option value="CLOUD_VOICE">🚀 Voz Google Premium (Alta Calidad)</option>`;
             }
 
             const esVoices = voices.filter(v => v.lang.startsWith('es'));
@@ -980,31 +978,59 @@
             updateSubscriptionUI();
         }
 
+        let currentAudio = null;
+
         function speakText(text) {
-            if (window.speechSynthesis.speaking || (window.responsiveVoice && responsiveVoice.isPlaying())) {
-                window.speechSynthesis.cancel();
-                if (window.responsiveVoice) responsiveVoice.cancel();
-                document.body.classList.remove('speaking');
-                return;
+            // Cancelar cualquier audio previo
+            if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
             }
 
             const voicePref = localStorage.getItem('lumina_voice');
             const useCloud = (voicePref === "CLOUD_VOICE" || localStorage.getItem('lumina_cloud_voice') === 'true');
 
-            if (useCloud && window.responsiveVoice) {
-                document.body.classList.add('speaking');
-                responsiveVoice.speak(text, "Spanish Female", {
-                    rate: 1,
-                    onend: () => document.body.classList.remove('speaking'),
-                    onerror: () => {
-                        console.error("ResponsiveVoice error, trying native");
-                        document.body.classList.remove('speaking');
-                        speakNative(text);
-                    }
-                });
+            if (useCloud && navigator.onLine) {
+                speakGoogle(text);
             } else {
                 speakNative(text);
             }
+        }
+
+        function speakGoogle(text) {
+            const chunks = text.match(/.{1,180}(?:\s|$|[,.?!])/g) || [text];
+            let current = 0;
+            
+            const playNext = () => {
+                if (current >= chunks.length) {
+                    document.body.classList.remove('speaking');
+                    currentAudio = null;
+                    return;
+                }
+                
+                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunks[current])}&tl=es&client=tw-ob`;
+                currentAudio = new Audio(url);
+                document.body.classList.add('speaking');
+                
+                currentAudio.onended = () => {
+                    current++;
+                    playNext();
+                };
+                
+                currentAudio.onerror = () => {
+                    console.error("Error Google TTS, fallback a nativo");
+                    document.body.classList.remove('speaking');
+                    speakNative(text);
+                };
+                
+                currentAudio.play().catch(e => {
+                    console.error("Audio blocked:", e);
+                    speakNative(text);
+                });
+            };
+            
+            playNext();
         }
 
         function speakNative(text) {
