@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Lúmina — Palabras y Sabiduría</title>
     <!-- Configuración PWA -->
     <link rel="manifest" href="manifest.json">
@@ -65,6 +65,8 @@
 
         html, body {
             margin: 0; padding: 0; min-height: 100vh;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
             background-color: var(--bg); color: var(--text);
             transition: background var(--transition), color var(--transition);
             font-family: 'Inter', sans-serif;
@@ -87,6 +89,7 @@
             width: 100%; min-height: 100vh;
             display: flex; flex-direction: column;
             padding: 50px; box-sizing: border-box;
+            padding-top: calc(50px + env(titlebar-area-height, 0px)); /* Soporte WCO */
             justify-content: center; align-items: center;
             position: relative; z-index: 10;
         }
@@ -166,6 +169,7 @@
 
         .hub-hero { 
             flex: 1; padding: 60px 80px; position: sticky; top: 0; height: 100vh;
+            padding-top: calc(60px + env(titlebar-area-height, 0px)); /* Soporte WCO */
             display: flex; flex-direction: column; justify-content: space-between;
             box-sizing: border-box; overflow: hidden;
         }
@@ -351,7 +355,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .hub-controls {
             position: absolute;
-            top: 40px;
+            top: calc(40px + env(titlebar-area-height, 0px)); /* Soporte WCO */
             right: 40px;
             z-index: 100;
             display: flex;
@@ -1171,11 +1175,24 @@
             updateHubInfo();
             checkNotifications();
             
-            // PEDIR PERMISO PARA EL GLOBITO (BADGE)
+            // PERMISO GLOBITO (BADGE)
             if ("Notification" in window && Notification.permission === "default") {
                 Notification.requestPermission().then(perm => {
                     if (perm === "granted") checkNotifications();
                 });
+            }
+
+            // REGISTRO DE SYNC PERIÓDICO (PREMIUM)
+            if ('periodicSync' in registration) {
+                const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+                if (status.state === 'granted') {
+                    try {
+                        await registration.periodicSync.register('fetch-daily-wisdom', {
+                            minInterval: 24 * 60 * 60 * 1000 // Una vez al día
+                        });
+                        console.log("Sync periódico activo.");
+                    } catch (e) { console.warn("PeriodicSync failed:", e); }
+                }
             }
 
             const params = new URLSearchParams(window.location.search);
@@ -1503,6 +1520,7 @@
                 dismissed.push(id);
                 localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(dismissed));
             }
+            if (navigator.vibrate) navigator.vibrate(15); 
             checkNotifications(); // Carga en segundo plano
         }
 
@@ -1647,6 +1665,7 @@
                 } else {
                      if (clearBtn) clearBtn.style.display = 'block';
                 }
+
 
                 // Gestión de Badge (Número en el icono de la App)
                 const lastCount = parseInt(localStorage.getItem('lumina_last_notif_count') || 0);
