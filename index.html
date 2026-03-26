@@ -1170,6 +1170,13 @@
             if (isPro) verifyKeySilently();
             updateHubInfo();
             checkNotifications();
+            
+            // PEDIR PERMISO PARA EL GLOBITO (BADGE)
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission().then(perm => {
+                    if (perm === "granted") checkNotifications();
+                });
+            }
 
             const params = new URLSearchParams(window.location.search);
             const catParam = params.get('cat');
@@ -1636,11 +1643,9 @@
                     badge.innerText = count;
                     badge.style.setProperty('display', 'flex', 'important');
                     
-                    // Solo activar el badge del icono si el número ha crecido o no se ha leído
-                    if (count > lastCount) {
-                        if ('setAppBadge' in navigator) {
-                            navigator.setAppBadge(count).catch(e => console.warn("Badge error:", e));
-                        }
+                    // Activar el badge del icono siempre que haya pendientes
+                    if ('setAppBadge' in navigator) {
+                        navigator.setAppBadge(count).catch(e => console.warn("Badge error:", e));
                     }
                 } else {
                     badge.style.setProperty('display', 'none', 'important');
