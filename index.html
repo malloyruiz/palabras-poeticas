@@ -506,6 +506,22 @@
         }
         .btn-trial:hover { transform: scale(1.02); filter: brightness(1.1); }
         
+        /* Notificaciones */
+        .notif-modal .modal-content { padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 80vh; }
+        .notif-header { padding: 30px 25px 20px; border-bottom: 1px solid rgba(128,128,128,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .notif-header h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 0; }
+        .btn-clear-all { font-size: 0.65rem; letter-spacing: 1px; color: var(--accent); cursor: pointer; opacity: 0.7; font-weight: 600; text-transform: uppercase; border: none; background: none; padding: 5px 10px; }
+        .btn-clear-all:hover { opacity: 1; }
+        #notif-list { padding: 0; overflow-y: auto; flex: 1; }
+        .notif-item { padding: 22px 25px; border-bottom: 1px solid rgba(128,128,128,0.05); cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: flex-start; }
+        .notif-item:hover { background: rgba(181, 131, 58, 0.05); }
+        .notif-info { flex: 1; text-align: left; padding-right: 30px; }
+        .notif-info h4 { margin: 0 0 5px; font-size: 0.95rem; font-weight: 600; padding-right: 10px; }
+        .notif-info p { margin: 0; font-size: 0.85rem; opacity: 0.6; line-height: 1.5; }
+        .btn-dismiss-notif { position: absolute; top: 18px; right: 15px; padding: 8px; opacity: 0.2; transition: 0.3s; cursor: pointer; }
+        .btn-dismiss-notif:hover { opacity: 1; color: var(--accent); }
+        .btn-dismiss-notif svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
         @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
     </style>
 </head>
@@ -675,19 +691,18 @@
     </div>
 
     <!-- Modal Novedades -->
-    <div id="notif-modal" class="modal">
+    <div id="notif-modal" class="modal notif-modal">
         <div class="modal-content" style="max-width: 450px;">
-            <div style="margin-bottom: 20px;">
-                <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div class="notif-header">
+                <h2 style="font-style: italic;">Novedades</h2>
+                <button class="btn-clear-all" id="btn-clear-notifs" onclick="clearAllNotifs()">Borrar Todo</button>
             </div>
-            <h2 style="font-family:'Playfair Display', serif; margin-bottom: 25px; font-style: italic; font-size: 2.2rem;">Actualizaciones</h2>
-            
-            <div id="notif-list" style="margin-bottom: 25px;">
-                <!-- Dinámico -->
-                <p style="opacity: 0.5; font-size: 0.9rem;">Cargando novedades...</p>
+            <div id="notif-list">
+                <div style="padding: 40px; text-align: center; opacity: 0.5;">Cargando novedades...</div>
             </div>
-
-            <button class="btn-save" onclick="toggleNotifications()" style="width: 100%; padding: 15px;">CERRAR</button>
+            <div style="padding: 20px; border-top: 1px solid rgba(128,128,128,0.1);">
+                <button class="btn-save" onclick="toggleNotifications()" style="width: 100%; margin: 0;">CERRAR</button>
+            </div>
         </div>
     </div>
 
@@ -979,13 +994,23 @@
         }
 
         let currentAudio = null;
+        let isSpeaking = false;
 
-        function speakText(text) {
-            // Cancelar cualquier audio previo
-            if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+        function stopAudio() {
+            window.speechSynthesis.cancel();
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio = null;
+            }
+            document.body.classList.remove('speaking');
+            isSpeaking = false;
+        }
+
+        function speakText(text) {
+            // Si ya está hablando, detener (Toggle)
+            if (isSpeaking) {
+                stopAudio();
+                return;
             }
 
             const voicePref = localStorage.getItem('lumina_voice');
@@ -1001,15 +1026,18 @@
         function speakGoogle(text) {
             const chunks = text.match(/.{1,180}(?:\s|$|[,.?!])/g) || [text];
             let current = 0;
+            isSpeaking = true;
             
             const playNext = () => {
+                if (!isSpeaking) return; // Abortar si se detuvo manualmente
+                
                 if (current >= chunks.length) {
-                    document.body.classList.remove('speaking');
-                    currentAudio = null;
+                    stopAudio();
                     return;
                 }
                 
-                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunks[current])}&tl=es&client=tw-ob`;
+                // Usar client=gtx que es más robusto para móviles
+                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunks[current])}&tl=es&client=gtx`;
                 currentAudio = new Audio(url);
                 document.body.classList.add('speaking');
                 
@@ -1018,15 +1046,22 @@
                     playNext();
                 };
                 
-                currentAudio.onerror = () => {
-                    console.error("Error Google TTS, fallback a nativo");
-                    document.body.classList.remove('speaking');
-                    speakNative(text);
+                currentAudio.onerror = (e) => {
+                    console.error("Error Google TTS:", e);
+                    if (current === 0) { // Si falla el primero, fallback completo
+                        isSpeaking = false;
+                        speakNative(text);
+                    } else {
+                        stopAudio();
+                    }
                 };
                 
                 currentAudio.play().catch(e => {
-                    console.error("Audio blocked:", e);
-                    speakNative(text);
+                    console.error("Audio blocked/failed:", e);
+                    if (current === 0) {
+                        isSpeaking = false;
+                        speakNative(text);
+                    }
                 });
             };
             
@@ -1034,12 +1069,12 @@
         }
 
         function speakNative(text) {
+            stopAudio(); // Asegurar limpieza
             const utterance = new SpeechSynthesisUtterance(text);
             const savedVoiceName = localStorage.getItem('lumina_voice');
             const selectedVoice = voices.find(v => v.name === savedVoiceName);
             if (selectedVoice) utterance.voice = selectedVoice;
             else {
-                // Priorizar Google o Natural
                 const premium = voices.find(v => v.lang.startsWith('es') && (v.name.includes('Google') || v.name.includes('Natural')));
                 if (premium) utterance.voice = premium;
                 else {
@@ -1048,9 +1083,12 @@
                 }
             }
             utterance.rate = 0.95;
-            utterance.onstart = () => document.body.classList.add('speaking');
-            utterance.onend = () => document.body.classList.remove('speaking');
-            utterance.onerror = () => document.body.classList.remove('speaking');
+            utterance.onstart = () => {
+                isSpeaking = true;
+                document.body.classList.add('speaking');
+            };
+            utterance.onend = () => stopAudio();
+            utterance.onerror = () => stopAudio();
             window.speechSynthesis.speak(utterance);
         }
 
@@ -1408,6 +1446,33 @@
                 if (m) m.classList.remove('active');
             });
         }
+ 
+        // Gestión de Descarte de Notificaciones
+        function getDismissedNotifs() {
+            const data = localStorage.getItem('lumina_dismissed_notifs');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function dismissNotif(id, event) {
+            if (event) event.stopPropagation();
+            const dismissed = getDismissedNotifs();
+            if (!dismissed.includes(id)) {
+                dismissed.push(id);
+                localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(dismissed));
+            }
+            checkNotifications();
+        }
+
+        function clearAllNotifs() {
+            const items = document.querySelectorAll('.notif-item[data-id]');
+            const dismissed = getDismissedNotifs();
+            items.forEach(el => {
+                const id = el.getAttribute('data-id');
+                if (!dismissed.includes(id)) dismissed.push(id);
+            });
+            localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(dismissed));
+            checkNotifications();
+        }
 
         // Cerrar modales al hacer clic fuera
         window.onclick = function(event) {
@@ -1419,7 +1484,10 @@
         async function checkNotifications() {
             const badge = document.getElementById('notif-badge');
             const list = document.getElementById('notif-list');
+            const clearBtn = document.getElementById('btn-clear-notifs');
             if (!badge || !list) return;
+
+            const dismissed = getDismissedNotifs();
 
             // DETERMINAR ESTADO USUARIO PARA NOTIFICACIONES INTELIGENTES
             const prop = localStorage.getItem('lumina_pro') === 'true';
@@ -1454,8 +1522,12 @@
                 let count = 0;
                 
                 const addNotif = (cat, tit, msg, link, isExtra = false) => {
+                    const nId = btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32);
+                    if (dismissed.includes(nId)) return;
+
                     const item = document.createElement('div');
                     item.className = 'notif-item';
+                    item.setAttribute('data-id', nId);
                     
                     let displayMsg = msg;
                     // Truncar si no es pro (Solo para categorías automáticas premium seleccionadas)
@@ -1467,6 +1539,9 @@
                         <div class="notif-info">
                             <h4>${tit}</h4>
                             <p>${displayMsg}</p>
+                        </div>
+                        <div class="btn-dismiss-notif" onclick="dismissNotif('${nId}', event)" title="Eliminar">
+                            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </div>
                     `;
                     item.onclick = () => {
@@ -1509,20 +1584,25 @@
                 }
 
                 if (count === 0 && !hasAnySub) {
+                    if (clearBtn) clearBtn.style.display = 'none';
                     list.innerHTML = `
-                        <div style="padding: 25px 0; text-align: left;">
+                        <div style="padding: 40px 25px; text-align: left;">
                             <p style="opacity: 0.9; margin-bottom: 10px; font-weight: 500; font-family:'Playfair Display', serif; font-size: 1.4rem;">Mantente al día</p>
                             <p style="opacity: 0.6; font-size: 0.85rem; margin-bottom: 25px; line-height: 1.6;">Activa tus temas favoritos en ajustes para recibir novedades diarias aquí.</p>
                             <button class="btn-save" onclick="toggleSettings()" style="background: var(--accent); color: var(--bg); width: 100%;">ACTIVAR TEMAS</button>
                         </div>
                     `;
                 } else if (!hasAnySub && count > 0) {
+                     if (clearBtn) clearBtn.style.display = 'block';
                      const tip = document.createElement('p');
-                     tip.style.cssText = "opacity: 0.4; font-size: 0.7rem; letter-spacing: 1px; margin-top: 30px; text-transform: uppercase;";
+                     tip.style.cssText = "opacity: 0.4; font-size: 0.7rem; letter-spacing: 1px; margin-top: 30px; margin-left: 25px; text-transform: uppercase; padding-bottom: 20px;";
                      tip.innerText = "Activa más temas en ajustes";
                      list.appendChild(tip);
                 } else if (count === 0) {
-                     list.innerHTML = '<p style="opacity: 0.5; font-size: 0.9rem; padding: 20px 0;">No hay novedades por ahora.</p>';
+                     if (clearBtn) clearBtn.style.display = 'none';
+                     list.innerHTML = '<p style="opacity: 0.5; font-size: 0.9rem; padding: 40px 25px; text-align:center;">No hay novedades por ahora.</p>';
+                } else {
+                     if (clearBtn) clearBtn.style.display = 'block';
                 }
 
                 // Gestión de Badge (Circulito rojo)
