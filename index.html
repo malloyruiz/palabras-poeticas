@@ -71,6 +71,8 @@
             overflow-x: hidden;
         }
 
+
+
         /* ATMÓSFERA SUTIL */
         .atm-motes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
         .mote { position: absolute; background: var(--accent); border-radius: 50%; opacity: 0.1; animation: float 20s infinite linear; }
@@ -534,7 +536,7 @@
 </head>
 <body>
 
-    <div id="offline-banner">Sin conexión — Mostrando contenido guardado</div>
+    <div id="offline-banner">MODO OFFLINE — VIENDO CONTENIDO GUARDADO</div>
     <div class="atm-motes" id="atm-motes"></div>
 
     <!-- HUB EDITORIAL -->
@@ -949,10 +951,11 @@
 
         function checkOnline() {
             const banner = document.getElementById('offline-banner');
+            if (!banner) return;
             if (navigator.onLine) {
-                if (banner) banner.style.display = 'none';
+                banner.style.display = 'none';
             } else {
-                if (banner) banner.style.display = 'block';
+                banner.style.display = 'flex';
             }
         }
         window.addEventListener('online', checkOnline);
@@ -1031,6 +1034,14 @@
         }
 
         async function speakGoogle(text) {
+            // FALLBACK OFFLINE AUTOMÁTICO
+            if (!navigator.onLine) {
+                console.warn("Offline: Usando voz nativa");
+                isSpeaking = false;
+                speakNative(text);
+                return;
+            }
+
             const chunks = text.match(/.{1,180}(?:\s|$|[,.?!])/g) || [text];
             let current = 0;
             isSpeaking = true;
@@ -1347,16 +1358,15 @@
                 const data = await response.json();
                 setCache(currentCategory, data);
                 renderContent(data);
-                if (navigator.onLine) document.getElementById('offline-banner').style.display = 'none';
+                checkOnline();
             } catch (e) {
                 console.warn("Error red, usando mejor caché disponible");
                 if (cached) {
                     renderContent(cached);
-                    document.getElementById('offline-banner').style.display = 'block';
                 } else {
                     renderFallbacks();
-                    document.getElementById('offline-banner').style.display = 'block';
                 }
+                checkOnline(); // Forzar banner si falla la red
             }
 
             document.getElementById('loader').style.opacity = '0';
@@ -1629,8 +1639,22 @@
                 }
 
             } catch (e) { 
-                console.warn("Error cargando novedades:", e);
-                list.innerHTML = '<p style="opacity: 0.5; font-size: 0.9rem;">Hubo un problema al cargar las novedades.</p>';
+                console.warn("Error red en novedades, usando caché local");
+                // Fallback offline para notificaciones
+                const palabraData = getCache('palabras');
+                const afirmData = getCache('afirmaciones');
+                const fraseData = getCache('frases');
+                const libroData = getCache('libros');
+
+                list.innerHTML = '';
+                let count = 0;
+                
+                if (isSub('palabras') && palabraData) addNotif('palabras', 'Palabra de Hoy (Offline)', `"${palabraData.palabra || palabraData.word}"`);
+                if (isSub('afirmaciones') && afirmData) addNotif('afirmaciones', 'Afirmación (Offline)', `"${afirmData.afirmacion || afirmData.word}"`);
+                if (isSub('frases') && fraseData) addNotif('frases', 'Frase (Offline)', `"${fraseData.frase || fraseData.word}"`);
+                if (isSub('libros') && libroData) addNotif('libros', 'Lección (Offline)', `"${libroData.titulo}"`);
+                
+                checkOnline();
             }
         }
 
