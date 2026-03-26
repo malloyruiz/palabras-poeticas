@@ -1740,8 +1740,8 @@
 
             const pushBtn = document.getElementById('sub-push');
             if (pushBtn && window.OneSignal) {
-                const isPushEnabled = await OneSignal.Notifications.permission;
-                if (isPushEnabled === true) pushBtn.classList.add('active');
+                // OneSignal v16 usa optedIn para saber si está suscrito realmente
+                if (OneSignal.User.PushSubscription.optedIn) pushBtn.classList.add('active');
                 else pushBtn.classList.remove('active');
             }
 
@@ -1790,17 +1790,12 @@
             try {
                 if (navigator.vibrate) navigator.vibrate(12);
                 if (window.OneSignal) {
-                    const permission = await OneSignal.Notifications.permission;
-                    if (permission !== true) {
-                        await OneSignal.Notifications.requestPermission();
+                    const isOptedIn = OneSignal.User.PushSubscription.optedIn;
+                    if (isOptedIn) {
+                        await OneSignal.User.PushSubscription.optOut();
                     } else {
-                        // Si ya tiene permiso, alternar el estado de suscripción si es posible
-                        const isOptedIn = await OneSignal.User.getPushSubscriptionId();
-                        if (isOptedIn) {
-                            await OneSignal.User.PushSubscription.optOut();
-                        } else {
-                            await OneSignal.User.PushSubscription.optIn();
-                        }
+                        // optIn() disparará el permiso si no se tiene
+                        await OneSignal.User.PushSubscription.optIn();
                     }
                     updateSubscriptionUI();
                 }
