@@ -1,3 +1,5 @@
+importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
+
 const CACHE_NAME = 'lumina-v5'; // Forzar actualización de activos premium
 const ASSETS = [
     "index.html",
@@ -58,3 +60,21 @@ self.addEventListener('notificationclick', e => {
         })
     );
 });
+
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'fetch-daily-wisdom') {
+    event.waitUntil(fetchDailyWisdom());
+  }
+});
+
+async function fetchDailyWisdom() {
+  const cache = await caches.open(CACHE_NAME);
+  const API = "https://script.google.com/macros/s/AKfycbyI_YOf6Z93I6_A6q4vj4v0R4v0R4v0R4v0R4v0R4v0R4v0/exec"; // Reemplazar con real si es necesario
+  try {
+     const response = await fetch(`${API}?action=notifs&userType=Free`); // Simplificado para fondo
+     if (response.ok) {
+        const data = await response.json();
+        await cache.put('last-periodic-sync', new Response(JSON.stringify({date: new Date().toDateString(), data})));
+     }
+  } catch (e) { console.error("Periodic sync fetch failed", e); }
+}

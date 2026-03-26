@@ -24,6 +24,8 @@
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "6a0df359-5798-42a3-9583-30ea6c825d4c",
+          serviceWorkerPath: 'sw.js',
+          serviceWorkerParam: { scope: '/' },
           notifyButton: {
             enable: false, 
           },
@@ -794,7 +796,12 @@
 
             <!-- SECCIÓN 2: NOTIFICACIONES -->
             <div style="text-align: left; margin-top:20px; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">NOTIFICACIONES</div>
-            
+
+            <div class="sub-option" onclick="togglePush()" style="cursor:pointer;">
+                <span>Alertas de Sabiduría</span>
+                <div class="toggle-sub" id="sub-push"></div>
+            </div>
+
             <div class="sub-option" onclick="toggleTag('palabras')" style="cursor:pointer;">
                 <span>Palabras de Hoy</span>
                 <div class="toggle-sub" id="sub-palabras"></div>
@@ -1731,6 +1738,13 @@
                 }
             } catch (e) { console.warn("Sync error:", e); }
 
+            const pushBtn = document.getElementById('sub-push');
+            if (pushBtn && window.OneSignal) {
+                const isPushEnabled = await OneSignal.Notifications.permission;
+                if (isPushEnabled === true) pushBtn.classList.add('active');
+                else pushBtn.classList.remove('active');
+            }
+
             const themeBtn = document.getElementById('theme-toggle');
             if (themeBtn) {
                 const isDark = (document.body.getAttribute('data-theme') || localStorage.getItem('theme')) === 'dark';
@@ -1770,6 +1784,27 @@
                 console.warn("Sync OneSignal error:", e);
                 checkNotifications();
             }
+        }
+
+        async function togglePush() {
+            try {
+                if (navigator.vibrate) navigator.vibrate(12);
+                if (window.OneSignal) {
+                    const permission = await OneSignal.Notifications.permission;
+                    if (permission !== true) {
+                        await OneSignal.Notifications.requestPermission();
+                    } else {
+                        // Si ya tiene permiso, alternar el estado de suscripción si es posible
+                        const isOptedIn = await OneSignal.User.getPushSubscriptionId();
+                        if (isOptedIn) {
+                            await OneSignal.User.PushSubscription.optOut();
+                        } else {
+                            await OneSignal.User.PushSubscription.optIn();
+                        }
+                    }
+                    updateSubscriptionUI();
+                }
+            } catch (e) { console.warn("TogglePush error:", e); }
         }
 
         function toggleTheme() {
