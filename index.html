@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1318,6 +1319,7 @@
                 if (shareBtn) shareBtn.style.display = 'none';
                 const mui = document.getElementById('main-ui');
                 if (mui) mui.classList.remove('loaded');
+                checkNotifications();
                 resetHero();
             };
 
@@ -1486,12 +1488,23 @@
 
         function dismissNotif(id, event) {
             if (event) event.stopPropagation();
+
+            // Optimismo UI: Ocultar inmediatamente
+            const target = (event && (event.currentTarget || event.target));
+            const notifItem = target ? target.closest('.notif-item') : document.querySelector(`[data-id="${id}"]`);
+            if (notifItem) {
+                notifItem.style.opacity = '0';
+                notifItem.style.transform = 'scale(0.95)';
+                notifItem.style.transition = 'all 0.3s ease';
+                setTimeout(() => notifItem.remove(), 300);
+            }
+
             const dismissed = getDismissedNotifs();
             if (!dismissed.includes(id)) {
                 dismissed.push(id);
                 localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(dismissed));
             }
-            checkNotifications();
+            checkNotifications(); // Carga en segundo plano
         }
 
         function clearAllNotifs() {
