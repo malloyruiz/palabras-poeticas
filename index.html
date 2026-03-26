@@ -1156,6 +1156,7 @@
                     localStorage.setItem('lumina_pro', 'true');
                     localStorage.setItem('lumina_pro_key', key); 
                     loadProState();
+                    checkNotifications(); // Gatillo para cargar mensajes Pro inmediatamente
                     document.getElementById('pro-modal').classList.remove('active');
                     setTimeout(() => {
                         if (navigator.vibrate) navigator.vibrate([30, 50, 30]); // Vibración de éxito "triple"
