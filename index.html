@@ -1190,6 +1190,13 @@
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const installBtn = document.getElementById('btn-pwa-install');
             if (isStandalone && installBtn) installBtn.style.display = 'none';
+
+            // REFRESH AUTOMÁTICO AL VOLVER A LA APP
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && navigator.onLine) {
+                    checkNotifications();
+                }
+            });
         }
 
         async function activatePro() {
@@ -1622,18 +1629,20 @@
                      if (clearBtn) clearBtn.style.display = 'block';
                 }
 
-                // Gestión de Badge (Circulito rojo)
-                const lastRead = localStorage.getItem('lumina_last_notif_read');
+                // Gestión de Badge (Número en el icono de la App)
                 const lastCount = parseInt(localStorage.getItem('lumina_last_notif_count') || 0);
-                const today = new Date().toDateString();
                 
-                if (count > 0 && (lastRead !== today || count > lastCount)) {
+                if (count > 0) {
                     badge.innerText = count;
-                    badge.style.display = 'flex'; 
                     badge.style.setProperty('display', 'flex', 'important');
-                    if ('setAppBadge' in navigator) navigator.setAppBadge(count);
+                    
+                    // Solo activar el badge del icono si el número ha crecido o no se ha leído
+                    if (count > lastCount) {
+                        if ('setAppBadge' in navigator) {
+                            navigator.setAppBadge(count).catch(e => console.warn("Badge error:", e));
+                        }
+                    }
                 } else {
-                    badge.style.display = 'none';
                     badge.style.setProperty('display', 'none', 'important');
                     if ('clearAppBadge' in navigator) navigator.clearAppBadge();
                 }
