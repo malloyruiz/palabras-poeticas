@@ -943,20 +943,41 @@
             voices = window.speechSynthesis.getVoices();
             const select = document.getElementById('voice-select');
             if (!select) return;
+            
+            const useCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
+            
+            let options = '';
+            
+            // Si la nube está activa, ponerla como primera opción
+            if (useCloud) {
+                options += `<option value="CLOUD_VOICE">🚀 Voz de Alta Calidad (Nube)</option>`;
+            }
+
             const esVoices = voices.filter(v => v.lang.startsWith('es'));
-            select.innerHTML = esVoices.map(v => {
-                const isPremium = v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Neural');
+            options += esVoices.map(v => {
+                const isPremium = v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Online');
                 const label = isPremium ? `✨ ${v.name}` : v.name;
                 return `<option value="${v.name}">${label} (${v.lang})</option>`;
             }).join('');
+            
+            select.innerHTML = options;
+            
             const savedVoice = localStorage.getItem('lumina_voice');
             if (savedVoice) select.value = savedVoice;
+            else if (useCloud) select.value = "CLOUD_VOICE";
         }
         window.speechSynthesis.onvoiceschanged = populateVoices;
 
         function saveVoicePreference() {
             const select = document.getElementById('voice-select');
             localStorage.setItem('lumina_voice', select.value);
+            // Si elige la voz de la nube, activar el modo nube automáticamente
+            if (select.value === "CLOUD_VOICE") {
+                localStorage.setItem('lumina_cloud_voice', 'true');
+            } else {
+                localStorage.setItem('lumina_cloud_voice', 'false');
+            }
+            updateSubscriptionUI();
         }
 
         function speakText(text) {
@@ -967,7 +988,8 @@
                 return;
             }
 
-            const useCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
+            const voicePref = localStorage.getItem('lumina_voice');
+            const useCloud = (voicePref === "CLOUD_VOICE" || localStorage.getItem('lumina_cloud_voice') === 'true');
 
             if (useCloud && window.responsiveVoice) {
                 document.body.classList.add('speaking');
@@ -975,8 +997,8 @@
                     rate: 1,
                     onend: () => document.body.classList.remove('speaking'),
                     onerror: () => {
+                        console.error("ResponsiveVoice error, trying native");
                         document.body.classList.remove('speaking');
-                        // Fallback a nativo si falla la nube
                         speakNative(text);
                     }
                 });
@@ -1578,7 +1600,13 @@
 
         function toggleCloudVoice() {
             const isCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
-            localStorage.setItem('lumina_cloud_voice', isCloud ? 'false' : 'true');
+            const newVal = isCloud ? 'false' : 'true';
+            localStorage.setItem('lumina_cloud_voice', newVal);
+            // Si activamos la nube, ponerla como voz activa
+            if (newVal === 'true') localStorage.setItem('lumina_voice', 'CLOUD_VOICE');
+            else localStorage.removeItem('lumina_voice'); // Volver al default
+            
+            populateVoices();
             updateSubscriptionUI();
         }
 
