@@ -1,12 +1,10 @@
 {
   "name": "Lúmina: Palabras y Sabiduría",
   "short_name": "Lúmina",
-  "description": "Inspiración diaria con palabras bellas, sabiduría y crecimiento personal para alimentar el alma.",
-  "id": "./",
-  "start_url": "./",
+  "description": "Inspiración diaria con palabras bellas y sabiduría para alimentar el alma.",
+  "start_url": "index.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#f5f1e8",
   "theme_color": "#1a1a1a",
@@ -14,18 +12,6 @@
   "dir": "ltr",
   "categories": ["lifestyle", "education", "books"],
   "icons": [
-    {
-      "src": "icon-1024.png",
-      "sizes": "1024x1024",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-1024.png",
-      "sizes": "1024x1024",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
@@ -65,36 +51,6 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Vista Móvil"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Palabras",
-      "short_name": "Palabras",
-      "url": "./index.html?cat=palabras",
-      "description": "Eleva tu lenguaje diariamente.",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Afirmaciones",
-      "short_name": "Afirmaciones",
-      "url": "./index.html?cat=afirmaciones",
-      "description": "Reprograma tu mente hoy.",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Frases",
-      "short_name": "Frases",
-      "url": "./index.html?cat=frases",
-      "description": "Sabiduría de los gigantes.",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Libros",
-      "short_name": "Libros",
-      "url": "./index.html?cat=libros",
-      "description": "Lecciones de maestría.",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
