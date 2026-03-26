@@ -49,6 +49,15 @@
             --accent: #38bdf8;
             --text-dim: rgba(226, 232, 240, 0.3);
         }
+        [data-theme="dark"] select, [data-theme="dark"] input {
+            background: rgba(255,255,255,0.05) !important;
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        [data-theme="dark"] option {
+            background: #0b1120;
+            color: #fff;
+        }
 
         /* Ocultar barras de scroll para diseño premium */
         ::-webkit-scrollbar { display: none; }
@@ -370,23 +379,21 @@
             }
         }
 
-        /* Notificaciones Items */
-        .notif-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            padding: 20px 0;
-            background: transparent;
-            border-bottom: 1px solid rgba(128,128,128,0.1);
-            cursor: pointer;
-            transition: 0.3s;
-            text-align: left;
-        }
-        .notif-item:last-child { border-bottom: none; }
-        .notif-item:hover { opacity: 0.7; }
-        .notif-item .notif-info h4 { margin: 0; font-size: 1rem; font-weight: 600; font-family: 'Playfair Display', serif; font-style: italic; }
-        .notif-item .notif-info h4 { margin: 0; font-size: 1rem; font-weight: 600; font-family: 'Playfair Display', serif; font-style: italic; }
-        .notif-item .notif-info p { margin: 0; font-size: 0.85rem; opacity: 0.6; line-height: 1.5; }
+        /* Notificaciones Items en el Modal */
+        .notif-modal .modal-content { padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 80vh; }
+        .notif-header { padding: 30px 25px 20px; border-bottom: 1px solid rgba(128,128,128,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .notif-header h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 0; }
+        .btn-clear-all { font-size: 0.65rem; letter-spacing: 1px; color: var(--accent); cursor: pointer; opacity: 0.7; font-weight: 600; text-transform: uppercase; border: none; background: none; padding: 5px 10px; }
+        .btn-clear-all:hover { opacity: 1; }
+        #notif-list { padding: 0; overflow-y: auto; flex: 1; }
+        .notif-item { padding: 22px 25px; border-bottom: 1px solid rgba(128,128,128,0.05); cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: flex-start; text-align: left; }
+        .notif-item:hover { background: rgba(181, 131, 58, 0.05); }
+        .notif-info { flex: 1; padding-right: 30px; }
+        .notif-info h4 { margin: 0 0 5px; font-size: 0.95rem; font-weight: 600; font-family: 'Playfair Display', serif; font-style: italic; }
+        .notif-info p { margin: 0; font-size: 0.85rem; opacity: 0.6; line-height: 1.5; }
+        .btn-dismiss-notif { position: absolute; top: 18px; right: 15px; padding: 8px; opacity: 0.2; transition: 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-dismiss-notif:hover { opacity: 1; color: var(--accent); }
+        .btn-dismiss-notif svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
         /* Estilos para Captura */
         #capture-area {
@@ -754,22 +761,33 @@
     <!-- Modal Ajustes -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
-            <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem;">Inmersión</h2>
+            <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem;">Ajustes</h2>
             
-            <div class="sub-option" style="border-bottom:none; margin-bottom: 5px; cursor:pointer;" onclick="toggleTheme()">
+            <!-- SECCIÓN 1: APARIENCIA Y VOZ -->
+            <div style="text-align: left; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">APARIENCIA Y AUDIO</div>
+            
+            <div class="sub-option" style="cursor:pointer;" onclick="toggleTheme()">
                 <span>Modo Noche</span>
                 <div class="toggle-sub" id="theme-toggle"></div>
             </div>
 
-            <div class="sub-option" style="border-bottom:none; margin-bottom: 20px; cursor:pointer;" onclick="toggleCloudVoice()">
+            <div class="sub-option" style="cursor:pointer;" onclick="toggleCloudVoice()">
                 <div style="display: flex; flex-direction: column;">
                     <span>Voz Google Premium</span>
-                    <small style="font-size: 0.6rem; opacity: 0.5;">Alta fidelidad • Requiere internet</small>
+                    <small style="font-size: 0.6rem; opacity: 0.5;">Alta fidelidad • Recomendado</small>
                 </div>
                 <div class="toggle-sub" id="cloud-voice-toggle"></div>
             </div>
 
-            <div style="text-align: left; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">NOTIFICACIONES</div>
+            <div style="text-align: left; margin: 15px 0 25px;">
+                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Selector de Voz</div>
+                <select id="voice-select" onchange="saveVoicePreference()" style="width:100%; padding:12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(0,0,0,0.05); color:var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none;">
+                    <option value="">Cargando voces...</option>
+                </select>
+            </div>
+
+            <!-- SECCIÓN 2: NOTIFICACIONES -->
+            <div style="text-align: left; margin-top:20px; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">NOTIFICACIONES</div>
             
             <div class="sub-option" onclick="toggleTag('palabras')" style="cursor:pointer;">
                 <span>Palabras de Hoy</span>
@@ -788,40 +806,29 @@
                 <div class="toggle-sub" id="sub-libros"></div>
             </div>
 
-            <div style="text-align: left; margin-top: 25px;">
-                <div style="font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 10px;">VOZ DE LECTURA</div>
-                <select id="voice-select" onchange="saveVoicePreference()" style="width:100%; padding:12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(0,0,0,0.1); color:var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem;">
-                    <option value="">Cargando voces...</option>
-                </select>
-            </div>
-
-            <div style="margin-top: 30px; text-align: left;">
-                <div style="font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 10px;">LÚMINA PRO</div>
-                <div id="premium-status-msg" style="font-size: 0.8rem; margin-bottom: 15px; color: var(--accent);">Accede a todo el ecosistema.</div>
+            <!-- SECCIÓN 3: LÚMINA PRO -->
+            <div style="margin-top: 30px; text-align: left; padding: 25px; background: rgba(181, 131, 58, 0.05); border-radius: 20px; border: 1px solid rgba(181, 131, 58, 0.1);">
+                <div style="font-size: 0.7rem; letter-spacing: 2px; opacity: 0.7; margin-bottom: 10px; color: var(--accent); font-weight: 700;">LÚMINA PRO</div>
+                <div id="premium-status-msg" style="font-size: 0.8rem; margin-bottom: 15px; opacity: 0.8;">Desbloquea todo el contenido.</div>
                 <input type="text" id="pro-key-input" placeholder="Introduce código..." 
-                    style="width:100%; padding:12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(0,0,0,0.1); color:var(--text); margin-bottom: 10px;">
-                <button class="btn-save" onclick="activatePro()" id="btn-activate-pro" style="padding: 12px 25px; margin-top:0; width:100%;">ACTIVAR AHORA</button>
+                    style="width:100%; padding:12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(0,0,0,0.05); color:var(--text); margin-bottom: 10px; outline: none;">
+                <button class="btn-save" onclick="activatePro()" id="btn-activate-pro" style="padding: 12px 25px; margin-top:0; width:100%; letter-spacing: 1px;">ACTIVAR AHORA</button>
             </div>
 
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.1); font-size: 0.7rem; opacity: 0.6;">
-                ¿Necesitas ayuda con tu clave? <br>
-                <a href="mailto:dscarteleriadigital@gmail.com" style="color: var(--accent); text-decoration: none; font-weight: 600;">dscarteleriadigital@gmail.com</a>
-            </div>
-
-            <div id="pwa-install-container">
+            <div id="pwa-install-container" style="margin-top: 25px;">
                 <pwa-install 
                     id="pwainstall"
                     usecustom
                     iosinstallinfotext="Toca el botón Compartir y selecciona 'Añadir a la pantalla de inicio'."
                 ></pwa-install>
                 <button class="btn-save" id="btn-pwa-install" 
-                    style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;" 
+                    style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%; opacity: 0.6; font-size: 0.75rem;" 
                     onclick="document.getElementById('pwainstall').install()">
-                    INCORPORAR A INICIO
+                    INSTALAR APLICACIÓN
                 </button>
             </div>
 
-            <button class="btn-save" onclick="toggleSettings()" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text);">CERRAR</button>
+            <button class="btn-save" onclick="toggleSettings()" style="background:none; border: none; color: var(--text); opacity: 0.4; font-size: 0.8rem; margin-top: 15px;">CERRAR VENTANA</button>
         </div>
     </div>
 
@@ -1023,46 +1030,46 @@
             }
         }
 
-        function speakGoogle(text) {
+        async function speakGoogle(text) {
             const chunks = text.match(/.{1,180}(?:\s|$|[,.?!])/g) || [text];
             let current = 0;
             isSpeaking = true;
+            document.body.classList.add('speaking');
             
-            const playNext = () => {
-                if (!isSpeaking) return; // Abortar si se detuvo manualmente
+            const playNext = async () => {
+                if (!isSpeaking) return;
                 
                 if (current >= chunks.length) {
                     stopAudio();
                     return;
                 }
                 
-                // Usar client=gtx que es más robusto para móviles
-                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunks[current])}&tl=es&client=gtx`;
-                currentAudio = new Audio(url);
-                document.body.classList.add('speaking');
-                
-                currentAudio.onended = () => {
-                    current++;
-                    playNext();
-                };
-                
-                currentAudio.onerror = (e) => {
-                    console.error("Error Google TTS:", e);
-                    if (current === 0) { // Si falla el primero, fallback completo
-                        isSpeaking = false;
-                        speakNative(text);
+                try {
+                    // Llamar a nuestro propio script de Google (Proxy)
+                    const response = await fetch(`${API}?action=tts&q=${encodeURIComponent(chunks[current])}`);
+                    const data = await response.json();
+                    
+                    if (!isSpeaking) return; // Por si el usuario lo paró mientras cargaba
+                    
+                    if (data && data.audio) {
+                        currentAudio = new Audio("data:audio/mpeg;base64," + data.audio);
+                        currentAudio.onended = () => {
+                            current++;
+                            playNext();
+                        };
+                        currentAudio.onerror = () => stopAudio();
+                        currentAudio.play().catch(e => {
+                            console.error("Audio blocked:", e);
+                            if (current === 0) { isSpeaking = false; speakNative(text); }
+                        });
                     } else {
                         stopAudio();
                     }
-                };
-                
-                currentAudio.play().catch(e => {
-                    console.error("Audio blocked/failed:", e);
-                    if (current === 0) {
-                        isSpeaking = false;
-                        speakNative(text);
-                    }
-                });
+                } catch (e) {
+                    console.error("TTS Proxy error:", e);
+                    if (current === 0) { isSpeaking = false; speakNative(text); }
+                    else { stopAudio(); }
+                }
             };
             
             playNext();
