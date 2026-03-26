@@ -156,7 +156,7 @@
         .hub-hero { 
             flex: 1; padding: 60px 80px; position: sticky; top: 0; height: 100vh;
             display: flex; flex-direction: column; justify-content: space-between;
-            box-sizing: border-box; overflow-y: auto;
+            box-sizing: border-box; overflow: hidden;
         }
         .hero-bg-blur {
             position: absolute; width: 400px; height: 400px;
@@ -169,9 +169,9 @@
         .hub-hero p { letter-spacing: 4px; opacity: 0.4; font-size: 0.8rem; margin-top: 20px; max-width: 400px; line-height: 1.8; }
 
         .hub-list {
-            display: flex; flex-direction: column; justify-content: center;
+            display: flex; flex-direction: column; justify-content: flex-start;
             padding: 60px; border-left: 1px solid rgba(128,128,128,0.1);
-            background: var(--bg);
+            background: var(--bg); overflow-y: auto; height: 100vh; box-sizing: border-box;
         }
         .hub-item { 
             position: relative; display: flex; align-items: flex-start; padding: 40px 0; border-bottom: 
@@ -440,6 +440,26 @@
             border-top: none;
         }
 
+        /* Botón de Escucha */
+        .btn-speak {
+            background: transparent !important;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: 0.3s;
+            vertical-align: middle;
+            margin-left: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-speak:hover { opacity: 1; transform: scale(1.1); }
+        .btn-speak svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        body.speaking .btn-speak { color: var(--accent); opacity: 1; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+
+
         /* Banner Offline */
         #offline-banner {
             position: fixed;
@@ -456,6 +476,36 @@
             text-transform: uppercase;
             animation: slideDown 0.4s ease;
         }
+
+        /* Trial UI */
+        .trial-badge {
+            background: var(--accent);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .btn-trial {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+        .btn-trial:hover { transform: scale(1.02); filter: brightness(1.1); }
+        
         @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
     </style>
 </head>
@@ -523,6 +573,18 @@
                     <p class="hub-desc">Inmersión profunda en las mentes que cambiaron el mundo.</p>
                 </div>
                 <svg class="item-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </div> <!-- Fin item Libros -->
+            
+            <div id="hub-pro-banner" style="background: rgba(181, 131, 58, 0.05); border: 1px solid rgba(181, 131, 58, 0.1); margin: 20px; padding: 30px; border-radius: 24px; text-align: center; margin-top: 20px; width: auto; box-sizing: border-box;">
+                <div style="font-size: 0.6rem; letter-spacing: 3px; color: var(--accent); font-weight: 700; margin-bottom: 15px; text-transform: uppercase;">LIBERA TU POTENCIAL</div>
+                <p style="font-size: 0.85rem; opacity: 0.7; line-height: 1.6; margin-bottom: 25px; max-width: 320px; margin-left: auto; margin-right: auto;">
+                    Prueba la experiencia completa con el Club de Libros y sabiduría ilimitada durante 14 días.
+                </p>
+                <button id="btn-start-trial" onclick="startTrial()" class="btn-trial" style="width: 100%;">COMENZAR PRUEBA GRATUITA</button>
+                <button onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')" 
+                    style="background:none; border: 1px solid rgba(181, 131, 58, 0.2); color: var(--text); padding: 12px 25px; border-radius: 12px; font-size: 0.75rem; letter-spacing: 1px; width: 100%; cursor: pointer; margin-top: 10px;">
+                    ADQUIRIR LÚMINA PRO
+                </button>
             </div>
         </div>
     </div>
@@ -539,7 +601,10 @@
             <div class="content-header">
                 <div class="date-full" id="header-date">---</div>
                 <div class="cat-label" id="header-cat">PALABRA DE HOY</div>
-                <h1 class="word-display" id="word-title">---</h1>
+                <h1 class="word-display" style="display: flex; align-items: center; flex-wrap: wrap;">
+                    <span id="word-title">---</span>
+                    <button class="btn-speak" id="btn-speak-word" onclick="speakCurrentWord()" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
+                </h1>
                 <p class="definition" id="word-def">---</p>
             </div>
             
@@ -555,7 +620,10 @@
                     <div class="date-full" id="lesson-date-full"></div>
                     <div class="cat-label" id="lesson-cat-label"></div>
                     <div class="date-full" style="opacity: 0.4;" id="lesson-day"></div>
-                    <h1 class="word-display" id="lesson-title" style="margin-top: 10px;">Cargando...</h1>
+                    <h1 class="word-display" style="margin-top: 10px; display: flex; align-items: center; flex-wrap: wrap;">
+                        <span id="lesson-title">Cargando...</span>
+                        <button class="btn-speak" id="btn-speak-lesson" onclick="speakCurrentLesson()" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
+                    </h1>
                 </div>
                 <div class="lesson-body content-body" id="lesson-text"></div>
                 <div class="lesson-apps">
@@ -576,8 +644,9 @@
         </main>
 
         <footer>
-            <div style="display: flex; align-items: center; justify-content: center; opacity: 0.15; letter-spacing: 3px;">
-                <span style="font-size: 0.6rem;">LÚMINA v1.0</span>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; letter-spacing: 3px;">
+                <span id="trial-indicator" style="font-size: 0.65rem; margin-bottom: 8px; display: none; font-weight: 700; background: var(--accent); color: var(--bg); padding: 4px 12px; border-radius: 20px; box-shadow: 0 4px 15px rgba(181, 131, 58, 0.2);">DÍA 1/14 DE PRUEBA</span>
+                <span style="font-size: 0.6rem; opacity: 0.3;">LÚMINA v1.0</span>
             </div>
             <button class="btn-icon btn-share-main" id="main-share-btn" onclick="shareAsImage()" title="Compartir sabiduría" style="display: none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
@@ -696,6 +765,13 @@
                 <div class="toggle-sub" id="sub-libros"></div>
             </div>
 
+            <div style="text-align: left; margin-top: 25px;">
+                <div style="font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 10px;">VOZ DE LECTURA</div>
+                <select id="voice-select" onchange="saveVoicePreference()" style="width:100%; padding:12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(0,0,0,0.1); color:var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem;">
+                    <option value="">Cargando voces...</option>
+                </select>
+            </div>
+
             <div style="margin-top: 30px; text-align: left;">
                 <div style="font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 10px;">LÚMINA PRO</div>
                 <div id="premium-status-msg" style="font-size: 0.8rem; margin-bottom: 15px; color: var(--accent);">Accede a todo el ecosistema.</div>
@@ -764,7 +840,71 @@
         const API = "https://script.google.com/macros/s/AKfycbxH7lP92TiRom-3bTiYnwfE6Z-sfDR5wcfaO4gTN0TD6EwuBYMtdCs4b06RFbqqnyw/exec";
         const mainUi = document.getElementById('main-ui');
         let currentCategory = 'palabras';
-        let isPro = localStorage.getItem('lumina_pro') === 'true';
+        let voices = [];
+        let isPro = false;
+        let trialDay = 0;
+
+        function checkTrial() {
+            const start = localStorage.getItem('lumina_trial_start');
+            if (!start) return false;
+            
+            const now = Date.now();
+            const diff = now - parseInt(start);
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+            
+            if (days <= 14) {
+                trialDay = days;
+                return true;
+            } else {
+                localStorage.setItem('lumina_trial_used', 'true');
+                return false;
+            }
+        }
+
+        function isTrialActive() {
+            return checkTrial();
+        }
+
+        async function loadProState() {
+            const proVal = localStorage.getItem('lumina_pro');
+            const trialActive = isTrialActive();
+            isPro = (proVal === 'true' || trialActive);
+            
+            const hubPro = document.getElementById('hub-pro-banner');
+            const trialBtn = document.getElementById('btn-start-trial');
+            const trialUsed = localStorage.getItem('lumina_trial_used') === 'true';
+
+            if (isPro) {
+                document.body.classList.add('pro-unlocked');
+                if (hubPro) hubPro.style.display = 'none';
+                const statusMsg = document.getElementById('premium-status-msg');
+                if (statusMsg) {
+                    statusMsg.innerText = trialActive ? "✨ Periodo de Prueba Activo" : "✨ ¡Eres Miembro Pro!";
+                    statusMsg.style.color = "#4ade80";
+                }
+                const actBtn = document.getElementById('btn-activate-pro');
+                if (actBtn) actBtn.style.display = 'none';
+                const keyInput = document.getElementById('pro-key-input');
+                if (keyInput) keyInput.style.display = 'none';
+                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'none');
+            } else {
+                document.body.classList.remove('pro-unlocked');
+                if (hubPro) hubPro.style.display = 'block';
+                if (trialUsed && trialBtn) trialBtn.style.display = 'none';
+                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'inline-block');
+            }
+        }
+
+        function startTrial() {
+            if (localStorage.getItem('lumina_trial_used') === 'true') {
+                alert("Ya has usado tu periodo de prueba.");
+                return;
+            }
+            localStorage.setItem('lumina_trial_start', Date.now().toString());
+            // Limpiar caché anterior para asegurar contenido fresco
+            localStorage.removeItem('lumina_data_libros');
+            location.reload();
+        }
 
         // Gestión de Caché
         function getCache(cat) {
@@ -780,55 +920,78 @@
         function checkOnline() {
             const banner = document.getElementById('offline-banner');
             if (navigator.onLine) {
-                banner.style.display = 'none';
+                if (banner) banner.style.display = 'none';
             } else {
-                banner.style.display = 'block';
+                if (banner) banner.style.display = 'block';
             }
         }
         window.addEventListener('online', checkOnline);
         window.addEventListener('offline', checkOnline);
 
-        async function init() {
-            loadTheme();
-            await loadProState(); // Cambiamos a await para que el estado pro sea robusto
-            updateHeaderDate();
-            createMotes();
-            if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-            
-            // Re-verificación silenciosa en segundo plano cada vez que se abre
-            if (isPro) verifyKeySilently();
-            
-            // Actualizar info del Hub (Título del libro actual)
-            updateHubInfo();
-            checkNotifications();
+        // Text-to-Speech Core
+        function populateVoices() {
+            voices = window.speechSynthesis.getVoices();
+            const select = document.getElementById('voice-select');
+            if (!select) return;
+            const esVoices = voices.filter(v => v.lang.startsWith('es'));
+            select.innerHTML = esVoices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+            const savedVoice = localStorage.getItem('lumina_voice');
+            if (savedVoice) select.value = savedVoice;
+        }
+        window.speechSynthesis.onvoiceschanged = populateVoices;
 
-            // Atajos de Inicio (PWA Shortcuts)
-            const params = new URLSearchParams(window.location.search);
-            const catParam = params.get('cat');
-            if (catParam && ['palabras', 'afirmaciones', 'frases', 'libros'].includes(catParam)) {
-                // Pequeño delay para que el hub cargue primero visualmente
-                setTimeout(() => openCategory(catParam, catParam !== 'palabras'), 500);
-            }
+        function saveVoicePreference() {
+            const select = document.getElementById('voice-select');
+            localStorage.setItem('lumina_voice', select.value);
+        }
 
-            // PWA Badging (Removed hardcoded value, now handled in checkNotifications)
-            
-            // Ocultar loader inicial
-            setTimeout(() => {
-                document.getElementById('loader').classList.add('hidden');
-            }, 1500);
-            
-            // Check for PayPal return status
-            if (window.location.hash === '#status=success') {
-                alert("¡Gracias por tu compra! Tu código Pro ha sido enviado a tu email. Revisa tu bandeja de entrada (y spam) para activarlo.");
-                window.location.hash = ''; // Clean URL
+        function speakText(text) {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                document.body.classList.remove('speaking');
+                return;
             }
+            const utterance = new SpeechSynthesisUtterance(text);
+            const savedVoiceName = localStorage.getItem('lumina_voice');
+            const selectedVoice = voices.find(v => v.name === savedVoiceName);
+            if (selectedVoice) utterance.voice = selectedVoice;
+            else {
+                const fallback = voices.find(v => v.lang.startsWith('es') && v.name.includes('Google'));
+                if (fallback) utterance.voice = fallback;
+            }
+            utterance.rate = 0.9;
+            utterance.onstart = () => document.body.classList.add('speaking');
+            utterance.onend = () => document.body.classList.remove('speaking');
+            utterance.onerror = () => document.body.classList.remove('speaking');
+            window.speechSynthesis.speak(utterance);
+        }
 
-            // Mostrar botón de instalar si no está instalada
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            const installBtn = document.getElementById('btn-pwa-install');
-            if (isStandalone && installBtn) {
-                installBtn.style.display = 'none';
+        function speakCurrentWord() {
+            const titleElement = document.getElementById('word-title');
+            const defElement = document.getElementById('word-def');
+            let fullText = `${titleElement.innerText.trim()}. ${defElement.innerText.trim()}. `;
+            
+            const examples = document.querySelectorAll('#example-list .example-item');
+            if (examples.length > 0) {
+                fullText += "Ejemplos de uso. ";
+                examples.forEach(ex => {
+                    fullText += `${ex.innerText.trim()}. `;
+                });
             }
+            speakText(fullText);
+        }
+
+        function speakCurrentLesson() {
+            const title = document.getElementById('lesson-title').innerText.trim();
+            const text = document.getElementById('lesson-text').innerText.trim();
+            const prof = document.getElementById('lesson-app-prof').innerText.trim();
+            const pers = document.getElementById('lesson-app-pers').innerText.trim();
+            const refl = document.getElementById('lesson-refl').innerText.trim();
+            let fullText = `${title}. ${text}. `;
+            if (prof) fullText += `Aplicación profesional: ${prof}. `;
+            if (pers) fullText += `Aplicación personal: ${pers}. `;
+            if (refl) fullText += `Reflexión del día: ${refl}`;
+            speakText(fullText);
         }
 
         async function verifyKeySilently() {
@@ -841,9 +1004,9 @@
                     isPro = false;
                     localStorage.setItem('lumina_pro', 'false');
                     localStorage.removeItem('lumina_pro_key');
-                    window.location.reload(); // Recargar para volver a bloquear todo
+                    window.location.reload();
                 }
-            } catch (e) { console.warn("Re-vulación offline"); }
+            } catch (e) { console.warn("Validación offline activa"); }
         }
 
         function updateHeaderDate() {
@@ -853,19 +1016,36 @@
             document.getElementById('header-date').innerText = formatted;
         }
 
-        function loadProState() {
-            isPro = localStorage.getItem('lumina_pro') === 'true';
-            if (isPro) {
-                document.body.classList.add('pro-unlocked');
-                document.getElementById('premium-status-msg').innerText = "✨ ¡Eres Miembro Pro!";
-                document.getElementById('premium-status-msg').style.color = "#4ade80";
-                document.getElementById('btn-activate-pro').style.display = 'none';
-                document.getElementById('pro-key-input').style.display = 'none';
-                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'none');
-            } else {
-                document.body.classList.remove('pro-unlocked');
-                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'inline-block');
+        async function init() {
+            loadTheme();
+            populateVoices();
+            await loadProState();
+            updateHeaderDate();
+            createMotes();
+            if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+            if (isPro) verifyKeySilently();
+            updateHubInfo();
+            checkNotifications();
+
+            const params = new URLSearchParams(window.location.search);
+            const catParam = params.get('cat');
+            if (catParam && ['palabras', 'afirmaciones', 'frases', 'libros'].includes(catParam)) {
+                setTimeout(() => openCategory(catParam, catParam !== 'palabras'), 500);
             }
+
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                if (loader) loader.classList.add('hidden');
+            }, 1000);
+
+            if (window.location.hash === '#status=success') {
+                alert("¡Gracias por tu compra! Tu código Pro ha sido enviado a tu email.");
+                window.location.hash = '';
+            }
+
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const installBtn = document.getElementById('btn-pwa-install');
+            if (isStandalone && installBtn) installBtn.style.display = 'none';
         }
 
         async function activatePro() {
@@ -990,9 +1170,30 @@
         }
 
         async function fetchContent() {
-            const cached = getCache(currentCategory);
-            const cacheDate = localStorage.getItem('lumina_cache_date_' + currentCategory);
+            const isTrial = isTrialActive();
+            let cacheKey = currentCategory;
+            if (currentCategory === 'libros' && isTrial) cacheKey = 'libros_trial';
+            
+            const cached = getCache(cacheKey);
+            const cacheDate = localStorage.getItem('lumina_cache_date_' + cacheKey);
             const today = new Date().toDateString();
+
+            // Actualizar indicador de trial
+            const trialInd = document.getElementById('trial-indicator');
+            if (isTrialActive()) {
+                trialInd.innerText = `DÍA ${trialDay}/14 DE PRUEBA`;
+                trialInd.style.display = 'inline-block';
+            } else {
+                trialInd.style.display = 'none';
+            }
+
+            // Categoría Especial para Trial Libros
+            let fetchCat = currentCategory;
+            let indexParam = "";
+            if (currentCategory === 'libros' && isTrial) {
+                fetchCat = 'libros_trial';
+                indexParam = `&index=${trialDay - 1}`;
+            }
 
             // 1. Mostrar caché inmediatamente (Si es de hoy)
             if (cached && cacheDate === today) {
@@ -1008,7 +1209,7 @@
             document.getElementById('loader').style.opacity = '1';
             
             try {
-                const response = await fetch(`${API}?cat=${currentCategory}`);
+                const response = await fetch(`${API}?cat=${fetchCat}${indexParam}`);
                 const data = await response.json();
                 setCache(currentCategory, data);
                 renderContent(data);
@@ -1131,15 +1332,26 @@
             const list = document.getElementById('notif-list');
             if (!badge || !list) return;
 
+            // DETERMINAR ESTADO USUARIO PARA NOTIFICACIONES INTELIGENTES
+            const prop = localStorage.getItem('lumina_pro') === 'true';
+            const trial = isTrialActive();
+            const used = localStorage.getItem('lumina_trial_used') === 'true';
+            let uType = "Free";
+            if (prop && !trial) uType = "Pro";
+            else if (trial) uType = "Trial";
+
+            const tDay = trialDay || 0;
+
             try {
                 // Intentamos obtener extras y contenido básico en paralelo
                 const endpoints = [
-                    fetch(`${API}?action=notifs`).then(r => r.json()).catch(() => []),
+                    fetch(`${API}?action=notifs&userType=${uType}&trialDay=${tDay}&trialUsed=${used}`).then(r => r.json()).catch(() => []),
                     fetch(`${API}?cat=palabras`).then(r => r.json()).catch(() => null),
                     fetch(`${API}?cat=afirmaciones`).then(r => r.json()).catch(() => null),
                     fetch(`${API}?cat=frases`).then(r => r.json()).catch(() => null),
                     fetch(`${API}?cat=libros`).then(r => r.json()).catch(() => null)
                 ];
+
 
                 const [extras, palabraData, afirmData, fraseData, libroData] = await Promise.all(endpoints);
                 
@@ -1431,7 +1643,11 @@
 
         async function updateHubInfo() {
             try {
-                const response = await fetch(`${API}?cat=libros`);
+                const isTrial = isTrialActive();
+                let fetchCat = isTrial ? 'libros_trial' : 'libros';
+                let indexParam = isTrial ? `&index=${trialDay - 1}` : "";
+                
+                const response = await fetch(`${API}?cat=${fetchCat}${indexParam}`);
                 const data = await response.json();
                 const container = document.getElementById('now-learning-hub');
                 if (!container) return;
@@ -1439,7 +1655,7 @@
                 if (data && data.titulo) {
                     const book = (data.libro || "Lúmina").toUpperCase();
                     container.innerHTML = `
-                        <div class="now-label">SABIDURÍA EN CURSO</div>
+                        <div class="now-label">${isTrial ? 'PRUEBA EN CURSO' : 'SABIDURÍA EN CURSO'}</div>
                         <div class="now-title">${data.titulo}</div>
                         <div class="now-progress">${book} &mdash; LECCIÓN ${data.dia} DE ${data.total}</div>
                     `;
