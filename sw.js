@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lumina-v4';
+const CACHE_NAME = 'lumina-v5'; // Forzar actualización de activos premium
 const ASSETS = [
     "index.html",
     "manifest.json",
@@ -14,21 +14,15 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
     e.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(ASSETS);
-        })
+        caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
     );
 });
 
 self.addEventListener('activate', e => {
     e.waitUntil(
-        caches.keys().then(keyList => {
-            return Promise.all(
-                keyList.map(key => {
-                    if (key !== CACHE_NAME) return caches.delete(key);
-                })
-            );
-        }).then(() => self.clients.claim())
+        caches.keys().then(keyList => Promise.all(
+            keyList.map(key => key !== CACHE_NAME ? caches.delete(key) : null)
+        )).then(() => self.clients.claim())
     );
 });
 
@@ -42,9 +36,25 @@ self.addEventListener('fetch', e => {
                         cache.put(e.request, networkResponse.clone());
                     }
                     return networkResponse;
-                });
+                }).catch(() => {});
                 return response || fetchPromise;
             });
+        })
+    );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+self.addEventListener('notificationclick', e => {
+    e.notification.close();
+    e.waitUntil(
+        clients.matchAll({ type: 'window' }).then(clientList => {
+            if (clientList.length > 0) return clientList[0].focus();
+            return clients.openWindow('./');
         })
     );
 });
