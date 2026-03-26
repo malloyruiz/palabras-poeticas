@@ -1170,7 +1170,23 @@
             await loadProState();
             updateHeaderDate();
             createMotes();
-            if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+            if ('serviceWorker' in navigator) {
+                const registration = await navigator.serviceWorker.register('sw.js');
+                
+                // REGISTRO DE SYNC PERIÓDICO (PREMIUM)
+                if (registration && 'periodicSync' in registration) {
+                    try {
+                        const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+                        if (status.state === 'granted') {
+                            await registration.periodicSync.register('fetch-daily-wisdom', {
+                                minInterval: 24 * 60 * 60 * 1000 // Una vez al día
+                            });
+                            console.log("Sync periódico activo.");
+                        }
+                    } catch (e) { console.warn("PeriodicSync failed:", e); }
+                }
+            }
+
             if (isPro) verifyKeySilently();
             updateHubInfo();
             checkNotifications();
@@ -1180,19 +1196,6 @@
                 Notification.requestPermission().then(perm => {
                     if (perm === "granted") checkNotifications();
                 });
-            }
-
-            // REGISTRO DE SYNC PERIÓDICO (PREMIUM)
-            if ('periodicSync' in registration) {
-                const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
-                if (status.state === 'granted') {
-                    try {
-                        await registration.periodicSync.register('fetch-daily-wisdom', {
-                            minInterval: 24 * 60 * 60 * 1000 // Una vez al día
-                        });
-                        console.log("Sync periódico activo.");
-                    } catch (e) { console.warn("PeriodicSync failed:", e); }
-                }
             }
 
             const params = new URLSearchParams(window.location.search);
