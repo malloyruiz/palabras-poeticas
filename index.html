@@ -17,8 +17,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <!-- PWABuilder Components -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -81,6 +79,14 @@
             transition: background var(--transition), color var(--transition);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+        }
+
+        /* Suavizado Global para el Cambio de Tema */
+        html, body, .modal-content, .card, .btn, .sub-option, .hub-banner, .btn-save, .toggle-sub, .icon-box, .btn-speak {
+            transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease !important;
+        }
+        .main-icon-anim, .star-anim, .cloud-anim, .bird-anim, .mote {
+            transition: none !important;
         }
 
 
@@ -527,9 +533,33 @@
             letter-spacing: 1px; font-weight: 600; cursor: pointer;
             text-decoration: none; display: inline-block;
         }
-        @media (max-width: 600px) {
-            #lumina-popup { width: calc(100% - 40px); left: 20px; right: 20px; bottom: 20px; }
+        /* Banner de Actualización de Sistema (Lúmina Theme) */
+        #update-banner {
+            position: fixed;
+            bottom: 25px;
+            left: 20px;
+            right: 20px;
+            background: var(--bg);
+            color: var(--text);
+            padding: 18px 25px;
+            border-radius: 16px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+            border: 1px solid rgba(181, 131, 58, 0.2);
+            z-index: 10001;
+            backdrop-filter: blur(10px);
         }
+        #update-banner.active { display: flex; animation: slideUp 0.6s cubic-bezier(0.2, 0, 0, 1); }
+        .update-btn {
+            background: var(--accent); color: white;
+            border: none; padding: 10px 20px; border-radius: 10px;
+            font-weight: 600; font-size: 0.8rem; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            transition: transform 0.2s ease;
+        }
+        .update-btn:active { transform: scale(0.95); }
 
         /* Botón de Escucha */
         .btn-speak {
@@ -549,7 +579,6 @@
         .btn-speak svg { width: 22px; height: 22px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         body.speaking .btn-speak { color: var(--accent); opacity: 1; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
-
 
         /* Banner Offline */
         #offline-banner {
@@ -844,8 +873,8 @@
 
     <!-- Modal Ajustes -->
     <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem;">Ajustes</h2>
+        <div class="modal-content" style="position:relative;">
+            <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem; position:relative; z-index:1;">Ajustes</h2>
             
             <!-- SECCIÓN 1: APARIENCIA Y VOZ -->
             <div style="text-align: left; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">APARIENCIA Y AUDIO</div>
@@ -1053,17 +1082,25 @@
         let trialDay = 0;
 
         function checkTrial() {
-            const start = localStorage.getItem('lumina_trial_start');
-            if (!start) return false;
+            const startStr = localStorage.getItem('lumina_trial_start');
+            if (!startStr) return false;
             
-            const now = Date.now();
-            const diff = now - parseInt(start);
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+            // Calculamos la diferencia en días calendario
+            const startDate = new Date(parseInt(startStr));
+            startDate.setHours(0, 0, 0, 0);
+            
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            
+            const diffTime = now - startDate;
+            const days = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
             
             if (days <= 14) {
                 trialDay = days;
+                localStorage.setItem('lumina_trial_active', 'true');
                 return true;
             } else {
+                localStorage.setItem('lumina_trial_active', 'false');
                 localStorage.setItem('lumina_trial_used', 'true');
                 return false;
             }
@@ -1337,9 +1374,6 @@
         }
 
         async function checkEmergencyPopup() {
-            // Solo una vez por sesión
-            if (sessionStorage.getItem('lumina_popup_shown')) return;
-
             try {
                 const userType = localStorage.getItem('lumina_pro') === 'true' ? 'PRO' : 
                                  (localStorage.getItem('lumina_trial_active') === 'true' ? 'TRIAL' : 'FREE');
@@ -1349,22 +1383,27 @@
 
                 if (!data || !data.titulo) return;
 
-                const popup = document.getElementById('lumina-popup');
-                document.getElementById('popup-img').src = data.imagen;
-                document.getElementById('popup-title').innerText = data.titulo;
-                document.getElementById('popup-text').innerText = data.descripcion;
+                // Solo mostramos si:
+                // 1. No se ha mostrado en esta sesión O
+                // 2. El aviso tiene el flag "forzar" activado en el Sheet
+                if (!sessionStorage.getItem('lumina_popup_shown') || data.forzar) {
+                    const popup = document.getElementById('lumina-popup');
+                    document.getElementById('popup-img').src = data.imagen;
+                    document.getElementById('popup-title').innerText = data.titulo;
+                    document.getElementById('popup-text').innerText = data.descripcion;
 
-                if (data.botonTexto && data.botonURL) {
-                    const btn = document.getElementById('popup-btn');
-                    btn.innerText = data.botonTexto;
-                    btn.href = data.botonURL;
-                    btn.style.display = 'inline-block';
-                } else {
-                    document.getElementById('popup-btn').style.display = 'none';
+                    if (data.botonTexto && data.botonURL) {
+                        const btn = document.getElementById('popup-btn');
+                        btn.innerText = data.botonTexto;
+                        btn.href = data.botonURL;
+                        btn.style.display = 'inline-block';
+                    } else {
+                        document.getElementById('popup-btn').style.display = 'none';
+                    }
+
+                    popup.classList.add('active');
+                    sessionStorage.setItem('lumina_popup_shown', 'true');
                 }
-
-                popup.classList.add('active');
-                sessionStorage.setItem('lumina_popup_shown', 'true');
             } catch (err) {
                 console.error("Error cargando popup de emergencia:", err);
             }
@@ -1436,12 +1475,37 @@
             const installBtn = document.getElementById('btn-pwa-install');
             if (isStandalone && installBtn) installBtn.style.display = 'none';
 
+            // GESTIÓN DE ACTUALIZACIONES MANUAL (Más confiable que el componente externo)
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                document.getElementById('update-banner').classList.add('active');
+                            }
+                        };
+                    };
+                });
+            }
+
             // REFRESH AUTOMÁTICO AL VOLVER A LA APP
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible' && navigator.onLine) {
                     checkNotifications();
                 }
             });
+        }
+
+        function forceUpdateApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then(reg => {
+                    if (reg && reg.waiting) {
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                });
+            }
+            window.location.reload();
         }
 
         async function activatePro() {
@@ -2009,12 +2073,18 @@
             const current = document.body.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
             const newTheme = current === 'dark' ? 'light' : 'dark';
             
-            // FEEDBACK INSTANTÁNEO
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateSubscriptionUI(); 
-            
-            console.log("Tema cambiado a:", newTheme);
+            const change = () => {
+                document.body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateSubscriptionUI();
+            };
+
+            // Cambio de Tema FLUIDO (Con soporte para View Transitions API)
+            if (document.startViewTransition) {
+                document.startViewTransition(change);
+            } else {
+                change();
+            }
         }
 
         function toggleCloudVoice() {
@@ -2225,11 +2295,11 @@
 
         window.onload = init;
     </script>
-    <pwa-update 
-        swpath="sw.js"
-        updatemessage="Hay mejoras de sistema disponibles"
-        readytoupdatemessage="REINICIAR LÚMINA"
-    ></pwa-update>
+    <!-- Banner de Actualización de Sistema -->
+    <div id="update-banner">
+        <span style="font-size: 0.85rem; letter-spacing: 0.5px;">Mejoras de sistema disponibles</span>
+        <button class="update-btn" onclick="forceUpdateApp()">REINICIAR LÚMINA</button>
+    </div>
 
     <!-- Popup de Emergencia / Anuncios -->
     <div id="lumina-popup">
