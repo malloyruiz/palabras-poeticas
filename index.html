@@ -1039,22 +1039,21 @@
         </div>
     </div>
 
-    <!-- Modal Go Pro -->
+    <!-- Modal Go Pro / Trial -->
     <div id="pro-modal" class="modal">
-        <div class="modal-content">
-            <div style="margin-bottom: 30px;">
-                <svg viewBox="0 0 24 24" style="width: 50px; height: 50px; stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round;">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-            </div>
-            <h2 style="font-family:'Playfair Display', serif; margin-bottom: 15px;">Sección Premium</h2>
-            <p style="font-size: 0.9rem; opacity: 0.7; line-height: 1.6; margin-bottom: 30px;">
-                Desbloquea las <strong>Lecciones de Libros</strong> y el club de lectura profunda con una suscripción única.
+        <div class="modal-content" style="text-align: center; padding: 40px 30px;">
+            <div style="text-align: center; font-size: 0.75rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 25px; font-weight: 500;">LIBERA TU POTENCIAL</div>
+            
+            <p style="font-size: 1.05rem; opacity: 0.8; line-height: 1.7; margin-bottom: 40px; font-weight: 300;">
+                Únete al <strong>Club de Libros</strong> y accede a lecciones de sabiduría profunda con tu periodo de prueba de 14 días.
             </p>
-            <button class="btn-save" onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')">OBTENER ACCESO</button>
-            <button class="btn-save" onclick="document.getElementById('pro-modal').classList.remove('active')" 
-                style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); margin-top:10px;">LUEGO</button>
+            
+            <button class="btn-save" onclick="startTrial()" style="width: 100%; margin-bottom: 15px; padding: 18px; font-size: 1rem; letter-spacing: 1px;">COMENZAR PRUEBA GRATUITA</button>
+            <button class="btn-save" onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')" 
+                style="width: 100%; background: none; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--accent); padding: 18px; font-size: 0.9rem; letter-spacing: 1.5px;">ADQUIRIR LÚMINA PRO</button>
+            
+            <button onclick="document.getElementById('pro-modal').classList.remove('active')" 
+                style="background:none; border: none; color: var(--text); opacity: 0.3; font-size: 0.7rem; margin-top:25px; cursor: pointer; letter-spacing: 2px;">LUEGO</button>
         </div>
     </div>
 
@@ -1445,7 +1444,7 @@
             if (isPro) verifyKeySilently();
             updateHubInfo();
             checkNotifications();
-            checkEmergencyPopup(); // Cargar aviso de emergencia
+            checkEmergencyPopup(); 
             
             // PERMISO GLOBITO (BADGE)
             if ("Notification" in window && Notification.permission === "default") {
@@ -1456,9 +1455,15 @@
 
             const params = new URLSearchParams(window.location.search);
             const catParam = params.get('cat');
-            if (catParam && ['palabras', 'afirmaciones', 'frases', 'libros'].includes(catParam)) {
-                // Solo los Libros son Pro.
-                setTimeout(() => openCategory(catParam, catParam === 'libros'), 500);
+            if (catParam) {
+                setTimeout(() => {
+                    if (catParam === 'trial') {
+                        const proModal = document.getElementById('pro-modal');
+                        if (proModal) proModal.classList.add('active');
+                    } else {
+                        openCategory(catParam, catParam === 'libros');
+                    }
+                }, 500);
             }
 
             setTimeout(() => {
@@ -2038,7 +2043,7 @@
                     else await OneSignal.User.addTag(cat, "true");
                 }
                 
-                checkNotifications(); // Refrescar panel de noticias (sin esperar)
+                checkNotifications(); 
                 
             } catch (e) {
                 console.warn("Sync OneSignal error:", e);
