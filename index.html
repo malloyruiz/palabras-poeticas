@@ -34,6 +34,14 @@
         if (OneSignal.Notifications.permission !== true) {
             OneSignal.Slidedown.promptDefault();
         }
+
+        // Sincronizar UI cuando cambie algo externamente
+        OneSignal.Notifications.addEventListener("permissionChange", () => {
+            if (typeof updateSubscriptionUI === "function") updateSubscriptionUI();
+        });
+        OneSignal.User.PushSubscription.addEventListener("change", () => {
+             if (typeof updateSubscriptionUI === "function") updateSubscriptionUI();
+        });
       });
     </script>
     <style>
@@ -1789,15 +1797,22 @@
         async function togglePush() {
             try {
                 if (navigator.vibrate) navigator.vibrate(12);
-                if (window.OneSignal) {
-                    const isOptedIn = OneSignal.User.PushSubscription.optedIn;
-                    if (isOptedIn) {
-                        await OneSignal.User.PushSubscription.optOut();
+                if (window.OneSignal && OneSignal.User) {
+                    const permission = OneSignal.Notifications.permission;
+                    
+                    if (permission !== true) {
+                        // Si no hay permiso, forzamos el prompt (Slidedown o Nativo)
+                        await OneSignal.Slidedown.promptDefault();
                     } else {
-                        // optIn() disparará el permiso si no se tiene
-                        await OneSignal.User.PushSubscription.optIn();
+                        const isOptedIn = OneSignal.User.PushSubscription.optedIn;
+                        if (isOptedIn) {
+                            await OneSignal.User.PushSubscription.optOut();
+                        } else {
+                            await OneSignal.User.PushSubscription.optIn();
+                        }
                     }
-                    updateSubscriptionUI();
+                    // Sincronización manual de seguridad
+                    setTimeout(updateSubscriptionUI, 500); 
                 }
             } catch (e) { console.warn("TogglePush error:", e); }
         }
