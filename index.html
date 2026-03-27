@@ -1010,12 +1010,12 @@
 
             <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">DESCARGA DIRECTA (ANDROID)</div>
             <div class="install-grid">
-                <div class="install-card" style="opacity: 0.6;" onclick="alert('Generando archivo APK de alta fidelidad...')">
+                <div class="install-card" onclick="window.open('https://github.com/malloyruiz/palabras-poeticas/releases/download/v1.0.0/Lumina.apk', '_blank')">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                     <span>Descargar APK</span>
-                    <small>Paquete Directo</small>
+                    <small>Versión v1.0.0</small>
                 </div>
-                <div class="install-card" style="opacity: 0.6;" onclick="alert('Generando archivo AAB para distribución...')">
+                <div class="install-card" onclick="window.open('https://github.com/malloyruiz/palabras-poeticas/releases/download/v1.0.0/Lumina.aab', '_blank')">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                     <span>Descargar AAB</span>
                     <small>Paquete Bundle</small>
@@ -1513,17 +1513,25 @@
 
         function forceUpdateApp() {
             if ('serviceWorker' in navigator) {
+                // Borrar cachés de la app para asegurar frescura total
+                if (window.caches) {
+                    caches.keys().then(names => {
+                        for (let name of names) caches.delete(name);
+                    });
+                }
+                
                 navigator.serviceWorker.getRegistration().then(reg => {
                     if (reg && reg.waiting) {
                         reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                     } else {
-                        window.location.reload();
+                        window.location.reload(true);
                     }
                 });
-                // Fallback de seguridad: Si no hay cambio de controlador en 2s, recargar manualmente
-                setTimeout(() => window.location.reload(), 2000);
+                
+                // Fallback agresivo: si no responde en 1.5s, forzar recarga
+                setTimeout(() => window.location.reload(true), 1500);
             } else {
-                window.location.reload();
+                window.location.reload(true);
             }
         }
 
