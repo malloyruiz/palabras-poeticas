@@ -1482,6 +1482,15 @@
 
             // GESTIÓN DE ACTUALIZACIONES MANUAL (Más confiable que el componente externo)
             if ('serviceWorker' in navigator) {
+                // RECARGA AUTOMÁTICA CUANDO EL NUEVO SW TOMA EL CONTROL
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                   if (!refreshing) {
+                       refreshing = true;
+                       window.location.reload();
+                   }
+                });
+
                 navigator.serviceWorker.register('sw.js').then(reg => {
                     reg.onupdatefound = () => {
                         const installingWorker = reg.installing;
@@ -1507,10 +1516,15 @@
                 navigator.serviceWorker.getRegistration().then(reg => {
                     if (reg && reg.waiting) {
                         reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    } else {
+                        window.location.reload();
                     }
                 });
+                // Fallback de seguridad: Si no hay cambio de controlador en 2s, recargar manualmente
+                setTimeout(() => window.location.reload(), 2000);
+            } else {
+                window.location.reload();
             }
-            window.location.reload();
         }
 
         async function activatePro() {
@@ -2302,8 +2316,11 @@
     </script>
     <!-- Banner de Actualización de Sistema -->
     <div id="update-banner">
-        <span style="font-size: 0.85rem; letter-spacing: 0.5px;">Mejoras de sistema disponibles</span>
-        <button class="update-btn" onclick="forceUpdateApp()">REINICIAR LÚMINA</button>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div onclick="this.parentElement.parentElement.classList.remove('active')" style="cursor:pointer; opacity: 0.4; font-size: 1.2rem; padding: 5px;">×</div>
+            <span style="font-size: 0.85rem; letter-spacing: 0.5px;">Optimización de sistema lista</span>
+        </div>
+        <button class="update-btn" onclick="forceUpdateApp()">REINICIAR</button>
     </div>
 
     <!-- Popup de Emergencia / Anuncios -->
