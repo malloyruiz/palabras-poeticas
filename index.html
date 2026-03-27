@@ -448,11 +448,38 @@
             --pwa-update-bg: var(--bg);
             --pwa-update-text-color: var(--text);
             --pwa-update-button-bg: var(--accent);
-            --pwa-update-button-text-color: white;
-            font-family: 'Inter', sans-serif;
-            --pwa-update-box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            --pwa-update-button-text-color: #fff;
+            --pwa-update-font-family: 'Playfair Display', serif;
+            --pwa-update-box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             --pwa-update-border-radius: 20px;
         }
+
+        /* Modal de Instalación Multiplataforma */
+        .install-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .install-card {
+            background: rgba(128,128,128,0.05);
+            border: 1px solid rgba(128,128,128,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .install-card:hover { background: rgba(181, 131, 58, 0.1); border-color: var(--accent); }
+        .install-card svg { width: 24px; height: 24px; opacity: 0.8; }
+        .install-card span { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .install-card small { font-size: 0.55rem; opacity: 0.5; font-weight: 400; }
+        .install-card.installed { border-color: #4ade80; background: rgba(74, 222, 128, 0.05); cursor: default; }
+        .install-card.installed small { color: #4ade80; opacity: 1; }
         
         /* Estilo para el botón de instalación en Ajustes */
         pwa-install { display: none; } /* Ocultar el componente, usar botón personalizado */
@@ -836,20 +863,109 @@
                 <button class="btn-save" onclick="activatePro()" id="btn-activate-pro" style="padding: 12px 25px; margin-top:0; width:100%; letter-spacing: 1px;">ACTIVAR AHORA</button>
             </div>
 
-            <div id="pwa-install-container" style="margin-top: 25px;">
-                <pwa-install 
-                    id="pwainstall"
-                    usecustom
-                    iosinstallinfotext="Toca el botón Compartir y selecciona 'Añadir a la pantalla de inicio'."
-                ></pwa-install>
-                <button class="btn-save" id="btn-pwa-install" 
-                    style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%; opacity: 0.6; font-size: 0.75rem;" 
-                    onclick="document.getElementById('pwainstall').install()">
-                    INSTALAR APLICACIÓN
-                </button>
-            </div>
+            <!-- SECCIÓN 4: INSTALACIÓN -->
+            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">DISTRIBUCIÓN</div>
+            
+            <button class="btn-save" id="btn-pwa-install-main" 
+                style="background:var(--accent); color: white; width: 100%; padding: 15px; font-size: 0.85rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;" 
+                onclick="toggleInstallModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4M7 10l5 5 5-5M12 15V3"/></svg>
+                INSTALAR APLICACIÓN
+            </button>
 
             <button class="btn-save" onclick="toggleSettings()" style="background:none; border: none; color: var(--text); opacity: 0.4; font-size: 0.8rem; margin-top: 15px;">CERRAR VENTANA</button>
+        </div>
+    </div>
+
+    <!-- Modal Instalación Multiplataforma -->
+    <div id="install-modal" class="modal">
+        <div class="modal-content" style="max-width: 480px;">
+            <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; margin-bottom: 10px;">Instalar Lúmina</h2>
+            <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 25px;">Selecciona tu plataforma preferida para llevar la sabiduría contigo.</p>
+            
+            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-bottom: 10px;">NAVEGADORES (PWA)</div>
+            <div class="install-grid">
+                <div class="install-card" id="inst-chrome" onclick="document.getElementById('pwainstall').install()">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c1.782 0 3.448.47 4.888 1.288L11.53 12H4.07c.563-3.864 3.415-6.94 7.15-7.828L10.363 6.36c-.15.26-.26.543-.327.84H12c0-.55-.45-1-1-1C9.418 6.2 8 7.618 8 9.2c0 .244.032.483.093.712L4.316 11.5c-.203-.473-.316-.973-.316-1.5 0-2.21 1.79-4 4-4 .244 0 .483.032.712.093l1.503-3.088c.563 3.864 3.415 6.94 7.15 7.828l1.167-2.182c.15-.26.26-.543.327-.84H12c.55 0 1 .45 1 1 0 1.582-1.418 3-3 3-.244 0-.483-.032-.712-.093l-1.503 3.088c4.095-.596 7.315-3.8 7.91-7.896H22c0 .17-.01.34-.02.51l-4.22.45c.14.34.22.71.22 1.1 0 1.657-1.343 3-3 3-1.01 0-1.89-.49-2.43-1.24l-3.04 5.35c.48.14.98.22 1.49.22 1.782 0 3.448-.47 4.888-1.288L18.47 12h7.46c-.563 3.864-3.415 6.94-7.15 7.828l1.167-2.182z"/></svg>
+                    <span>Chrome</span>
+                    <small id="status-chrome">Disponible</small>
+                </div>
+                <div class="install-card" id="inst-safari" onclick="document.getElementById('pwainstall').install()">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13l-2 5 5 2-5-2V7zM7.5 16.5l5-2-2-5-3 7z"/></svg>
+                    <span>Safari</span>
+                    <small id="status-safari">Disponible</small>
+                </div>
+                <div class="install-card" id="inst-edge" onclick="document.getElementById('pwainstall').install()">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c1.782 0 3.448.47 4.888 1.288L11.53 12H4.07c.563-3.864 3.415-6.94 7.15-7.828L10.363 6.36c-.15.26-.26.543-.327.84H12c0-.55-.45-1-1-1C9.418 6.2 8 7.618 8 9.2c0 .244.032.483.093.712L4.316 11.5c-.203-.473-.316-.973-.316-1.5 0-2.21 1.79-4 4-4 .244 0 .483.032.712.093l1.503-3.088c.563 3.864 3.415 6.94 7.15 7.828l1.167-2.182c.15-.26.26-.543.327-.84H12c.55 0 1 .45 1 1 0 1.582-1.418 3-3 3-.244 0-.483-.032-.712-.093l-1.503 3.088c4.095-.596 7.315-3.8 7.91-7.896H22c0 .17-.01.34-.02.51l-4.22.45c.14.34.22.71.22 1.1 0 1.657-1.343 3-3 3-1.01 0-1.89-.49-2.43-1.24l-3.04 5.35c.48.14.98.22 1.49.22 1.782 0 3.448-.47 4.888-1.288L18.47 12h7.46c-.563 3.864-3.415 6.94-7.15 7.828l1.167-2.182z"/></svg>
+                    <span>Edge</span>
+                    <small id="status-edge">Disponible</small>
+                </div>
+                <div class="install-card" id="inst-firefox" onclick="document.getElementById('pwainstall').install()">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M22.77 12.27c0 5.86-4.76 10.61-10.63 10.61-5.86 0-10.61-4.75-10.61-10.61S6.28 1.66 12.14 1.66c5.87 0 10.63 4.75 10.63 10.61zM16.5 7.5s-1.5-1.5-3-1.5-3 1.5-3 1.5l1.5 3-1.5 3 3 1.5 3-1.5-.5-3 1.5-3z"/></svg>
+                    <span>Firefox</span>
+                    <small id="status-firefox">Disponible</small>
+                </div>
+            </div>
+
+            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">TIENDAS OFICIALES</div>
+            <div class="install-grid">
+                <div class="install-card" style="opacity: 0.6;" onclick="alert('Próximamente en Play Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.67-1.5 1.5-1.5h11l5 5v13.5c0 .83-.67 1.5-1.5 1.5h-14.5c-.83 0-1.5-.67-1.5-1.5zm11-14v-3.5l-3.5 3.5h3.5z"/></svg>
+                    <span>Play Store</span>
+                    <small>Próximamente</small>
+                </div>
+                <div class="install-card" style="opacity: 0.6;" onclick="alert('Próximamente en App Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-1.99.77-3.27.82-1.31.05-2.31-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.24-1.99 1.1-3.15-1.04.04-2.3.69-3.05 1.52-.66.71-1.25 1.88-1.1 3.03 1.15.08 2.32-.58 3.05-1.4z"/></svg>
+                    <span>App Store</span>
+                    <small>Próximamente</small>
+                </div>
+                <!-- Huawei -->
+                <div class="install-card" style="opacity: 0.6;" onclick="alert('Próximamente en AppGallery')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="5"/></svg>
+                    <span>AppGallery</span>
+                    <small>Próximamente</small>
+                </div>
+                <!-- Samsung -->
+                <div class="install-card" style="opacity: 0.6;" onclick="alert('Próximamente en Galaxy Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><rect x="9" y="9" width="6" height="6"/></svg>
+                    <span>Galaxy Store</span>
+                    <small>Próximamente</small>
+                </div>
+                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="alert('Próximamente en Microsoft Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 1h10.5v10.5h-10.5zM12.5 1h10.5v10.5h-10.5zM1 12.5h10.5v10.5h-10.5zM12.5 12.5h10.5v10.5h-10.5z"/></svg>
+                    <span>Microsoft Store</span>
+                    <small>Próximamente</small>
+                </div>
+            </div>
+
+            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">DESCARGA DIRECTA (ANDROID)</div>
+            <div class="install-grid">
+                <div class="install-card" style="opacity: 0.6;" onclick="alert('Generando archivo APK de alta fidelidad...')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    <span>Descargar APK</span>
+                    <small>Paquete Directo</small>
+                </div>
+                <div class="install-card" style="opacity: 0.6;" onclick="alert('Generando archivo AAB para distribución...')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    <span>Descargar AAB</span>
+                    <small>Paquete Bundle</small>
+                </div>
+            </div>
+
+            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">EXTENSIONES</div>
+            <div class="install-grid" style="margin-bottom: 30px;">
+                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="alert('Próximamente en Web Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>Chrome Web Store</span>
+                    <small>Próximamente</small>
+                </div>
+            </div>
+
+            <pwa-install id="pwainstall" usecustom iosinstallinfotext="Toca el botón Compartir y añade a pantalla de inicio."></pwa-install>
+            
+            <button class="btn-save" onclick="document.getElementById('install-modal').classList.remove('active')" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;">CERRAR</button>
+        </div>
+    </div>
         </div>
     </div>
 
@@ -1186,19 +1302,23 @@
             updateHeaderDate();
             createMotes();
             if ('serviceWorker' in navigator) {
-                const registration = await navigator.serviceWorker.register('sw.js');
-                
-                // REGISTRO DE SYNC PERIÓDICO (PREMIUM)
-                if (registration && 'periodicSync' in registration) {
-                    try {
-                        const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
-                        if (status.state === 'granted') {
-                            await registration.periodicSync.register('fetch-daily-wisdom', {
-                                minInterval: 24 * 60 * 60 * 1000 // Una vez al día
-                            });
-                            console.log("Sync periódico activo.");
-                        }
-                    } catch (e) { console.warn("PeriodicSync failed:", e); }
+                try {
+                    const registration = await navigator.serviceWorker.register('sw.js');
+                    
+                    // REGISTRO DE SYNC PERIÓDICO (PREMIUM)
+                    if (registration && 'periodicSync' in registration) {
+                        try {
+                            const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+                            if (status.state === 'granted') {
+                                await registration.periodicSync.register('fetch-daily-wisdom', {
+                                    minInterval: 24 * 60 * 60 * 1000 // Una vez al día
+                                });
+                                console.log("Sync periódico activo.");
+                            }
+                        } catch (e) { console.warn("PeriodicSync failed:", e); }
+                    }
+                } catch (e) {
+                    console.warn("Service Worker registration failed:", e);
                 }
             }
 
@@ -1216,7 +1336,8 @@
             const params = new URLSearchParams(window.location.search);
             const catParam = params.get('cat');
             if (catParam && ['palabras', 'afirmaciones', 'frases', 'libros'].includes(catParam)) {
-                setTimeout(() => openCategory(catParam, catParam !== 'palabras'), 500);
+                // Solo los Libros son Pro.
+                setTimeout(() => openCategory(catParam, catParam === 'libros'), 500);
             }
 
             setTimeout(() => {
@@ -1560,26 +1681,62 @@
             }
         };
 
+        let isCheckingNotifs = false;
         async function checkNotifications() {
+            if (isCheckingNotifs) return;
+            isCheckingNotifs = true;
+            
             const badge = document.getElementById('notif-badge');
             const list = document.getElementById('notif-list');
             const clearBtn = document.getElementById('btn-clear-notifs');
             if (!badge || !list) return;
 
             const dismissed = getDismissedNotifs();
-
-            // DETERMINAR ESTADO USUARIO PARA NOTIFICACIONES INTELIGENTES
             const prop = localStorage.getItem('lumina_pro') === 'true';
             const trial = isTrialActive();
             const used = localStorage.getItem('lumina_trial_used') === 'true';
-            let uType = "Free";
-            if (prop && !trial) uType = "Pro";
-            else if (trial) uType = "Trial";
-
+            let uType = (prop && !trial) ? "Pro" : (trial ? "Trial" : "Free");
             const tDay = trialDay || 0;
 
+            list.innerHTML = '';
+            let count = 0;
+
+            const addNotif = (cat, tit, msg, link, isExtra = false) => {
+                const nId = btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32);
+                if (dismissed.includes(nId)) return;
+
+                const item = document.createElement('div');
+                item.className = 'notif-item';
+                item.setAttribute('data-id', nId);
+                
+                let displayMsg = msg;
+
+                item.innerHTML = `
+                    <div class="notif-info">
+                        <h4>${tit}</h4>
+                        <p>${displayMsg}</p>
+                    </div>
+                    <div class="btn-dismiss-notif" onclick="dismissNotif('${nId}', event)" title="Eliminar">
+                        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </div>
+                `;
+                item.onclick = () => {
+                    toggleNotifications();
+                    if (link) {
+                        window.open(link, '_blank');
+                    } else {
+                        // Solo Libros son Pro
+                        openCategory(cat, cat === 'libros'); 
+                    }
+                };
+                list.appendChild(item);
+                count++;
+            };
+
+            const isSub = (c) => localStorage.getItem(`lumina_sub_${c}`) === 'true';
+            const hasAnySub = ['palabras', 'afirmaciones', 'frases', 'libros'].some(c => isSub(c));
+
             try {
-                // Intentamos obtener extras y contenido básico en paralelo
                 const endpoints = [
                     fetch(`${API}?action=notifs&userType=${uType}&trialDay=${tDay}&trialUsed=${used}`).then(r => r.json()).catch(() => []),
                     fetch(`${API}?cat=palabras`).then(r => r.json()).catch(() => null),
@@ -1588,61 +1745,13 @@
                     fetch(`${API}?cat=libros`).then(r => r.json()).catch(() => null)
                 ];
 
-
                 const [extras, palabraData, afirmData, fraseData, libroData] = await Promise.all(endpoints);
                 
-                // Guardar en caché lo que viene de notificaciones
                 if (palabraData) setCache('palabras', palabraData);
                 if (afirmData) setCache('afirmaciones', afirmData);
                 if (fraseData) setCache('frases', fraseData);
                 if (libroData) setCache('libros', libroData);
                 
-                list.innerHTML = '';
-                let count = 0;
-                
-                const addNotif = (cat, tit, msg, link, isExtra = false) => {
-                    const nId = btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32);
-                    if (dismissed.includes(nId)) return;
-
-                    const item = document.createElement('div');
-                    item.className = 'notif-item';
-                    item.setAttribute('data-id', nId);
-                    
-                    let displayMsg = msg;
-                    // Truncar si no es pro (Solo para Libros)
-                    if (!isPro && !isExtra && cat === 'libros') {
-                        displayMsg = msg.length > 25 ? msg.substring(0, 22) + "..." : msg;
-                    }
-
-                    item.innerHTML = `
-                        <div class="notif-info">
-                            <h4>${tit}</h4>
-                            <p>${displayMsg}</p>
-                        </div>
-                        <div class="btn-dismiss-notif" onclick="dismissNotif('${nId}', event)" title="Eliminar">
-                            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        </div>
-                    `;
-                    item.onclick = () => {
-                        toggleNotifications();
-                        if (link) {
-                            window.open(link, '_blank');
-                        } else {
-                            // Solo los Libros son Pro.
-                            const isPremiumCat = (cat === 'libros');
-                            openCategory(cat, isPremiumCat); 
-                        }
-                    };
-                    list.appendChild(item);
-                    count++;
-                };
-
-                // Comprobamos qué temas están activos (local o OneSignal)
-                const isSub = (c) => localStorage.getItem(`lumina_sub_${c}`) === 'true';
-                const hasAnySub = ['palabras', 'afirmaciones', 'frases', 'libros'].some(c => isSub(c));
-
-                
-                // 1. Extras GAS (Prioridad: Arriba siempre)
                 if (Array.isArray(extras)) {
                     extras.forEach(n => addNotif(n.cat || 'extra', n.titulo || 'Aviso', n.mensaje || '', n.link, true));
                 }
@@ -1658,66 +1767,63 @@
                         addNotif('frases', 'Frase de Hoy', `"${fraseData.frase || fraseData.word}"`);
                     }
                     if (isSub('libros') && libroData && libroData.titulo) {
-                        addNotif('libros', 'Lección del Día', `Hoy: "${libroData.titulo}" (${libroData.libro || 'Libros'})`);
+                        const libMeta = `${libroData.titulo} — ${libroData.libro || 'Libros'} — ${libroData.autor || 'Lúmina'} — Lección ${libroData.dia} de ${libroData.total}`;
+                        addNotif('libros', 'Lección del Día', libMeta);
                     }
                 }
 
-                if (count === 0 && !hasAnySub) {
+                if (count === 0) {
                     if (clearBtn) clearBtn.style.display = 'none';
-                    list.innerHTML = `
-                        <div style="padding: 40px 25px; text-align: left;">
-                            <p style="opacity: 0.9; margin-bottom: 10px; font-weight: 500; font-family:'Playfair Display', serif; font-size: 1.4rem;">Mantente al día</p>
-                            <p style="opacity: 0.6; font-size: 0.85rem; margin-bottom: 25px; line-height: 1.6;">Activa tus temas favoritos en ajustes para recibir novedades diarias aquí.</p>
-                            <button class="btn-save" onclick="toggleSettings()" style="background: var(--accent); color: var(--bg); width: 100%;">ACTIVAR TEMAS</button>
-                        </div>
-                    `;
-                } else if (!hasAnySub && count > 0) {
-                     if (clearBtn) clearBtn.style.display = 'block';
-                     const tip = document.createElement('p');
-                     tip.style.cssText = "opacity: 0.4; font-size: 0.7rem; letter-spacing: 1px; margin-top: 30px; margin-left: 25px; text-transform: uppercase; padding-bottom: 20px;";
-                     tip.innerText = "Activa más temas en ajustes";
-                     list.appendChild(tip);
-                } else if (count === 0) {
-                     if (clearBtn) clearBtn.style.display = 'none';
-                     list.innerHTML = '<p style="opacity: 0.5; font-size: 0.9rem; padding: 40px 25px; text-align:center;">No hay novedades por ahora.</p>';
+                    if (!hasAnySub) {
+                        list.innerHTML = `
+                            <div style="padding: 40px 25px; text-align: left;">
+                                <p style="opacity: 0.9; margin-bottom: 10px; font-weight: 500; font-family:'Playfair Display', serif; font-size: 1.4rem;">Mantente al día</p>
+                                <p style="opacity: 0.6; font-size: 0.85rem; margin-bottom: 25px; line-height: 1.6;">Activa tus temas favoritos en ajustes para recibir novedades diarias aquí.</p>
+                                <button class="btn-save" onclick="toggleSettings()" style="background: var(--accent); color: var(--bg); width: 100%;">ACTIVAR TEMAS</button>
+                            </div>
+                        `;
+                    } else {
+                        list.innerHTML = '<p style="opacity: 0.5; font-size: 0.9rem; padding: 40px 25px; text-align:center;">No hay novedades por ahora.</p>';
+                    }
                 } else {
-                     if (clearBtn) clearBtn.style.display = 'block';
+                    if (clearBtn) clearBtn.style.display = 'block';
+                    if (!hasAnySub) {
+                        const tip = document.createElement('p');
+                        tip.style.cssText = "opacity: 0.4; font-size: 0.7rem; letter-spacing: 1px; margin-top: 30px; margin-left: 25px; text-transform: uppercase; padding-bottom: 20px;";
+                        tip.innerText = "Activa más temas en ajustes";
+                        list.appendChild(tip);
+                    }
                 }
 
-
-                // Gestión de Badge (Número en el icono de la App)
-                const lastCount = parseInt(localStorage.getItem('lumina_last_notif_count') || 0);
-                
                 if (count > 0) {
                     badge.innerText = count;
                     badge.style.setProperty('display', 'flex', 'important');
-                    
-                    // Activar el badge del icono siempre que haya pendientes
-                    if ('setAppBadge' in navigator) {
-                        navigator.setAppBadge(count).catch(e => console.warn("Badge error:", e));
-                    }
+                    if ('setAppBadge' in navigator) navigator.setAppBadge(count).catch(() => {});
                 } else {
                     badge.style.setProperty('display', 'none', 'important');
                     if ('clearAppBadge' in navigator) navigator.clearAppBadge();
                 }
 
             } catch (e) { 
-                console.warn("Error red en novedades, usando caché local");
-                // Fallback offline para notificaciones
+                console.warn("Error red novedades:", e);
                 const palabraData = getCache('palabras');
                 const afirmData = getCache('afirmaciones');
                 const fraseData = getCache('frases');
                 const libroData = getCache('libros');
 
                 list.innerHTML = '';
-                let count = 0;
+                count = 0;
                 
                 if (isSub('palabras') && palabraData) addNotif('palabras', 'Palabra de Hoy (Offline)', `"${palabraData.palabra || palabraData.word}"`);
                 if (isSub('afirmaciones') && afirmData) addNotif('afirmaciones', 'Afirmación (Offline)', `"${afirmData.afirmacion || afirmData.word}"`);
                 if (isSub('frases') && fraseData) addNotif('frases', 'Frase (Offline)', `"${fraseData.frase || fraseData.word}"`);
-                if (isSub('libros') && libroData) addNotif('libros', 'Lección (Offline)', `"${libroData.titulo}"`);
-                
+                if (isSub('libros') && libroData) {
+                    const libMeta = `${libroData.libro || 'Libros'} — ${libroData.autor || 'Lúmina'} — Lección ${libroData.dia} de ${libroData.total}`;
+                    addNotif('libros', libroData.titulo + ' (Offline)', libMeta);
+                }
                 checkOnline();
+            } finally {
+                isCheckingNotifs = false;
             }
         }
 
@@ -2011,12 +2117,36 @@
             }
         }
 
+        function toggleInstallModal() {
+            const modal = document.getElementById('install-modal');
+            modal.classList.toggle('active');
+            if (modal.classList.contains('active')) {
+                const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+                if (isStandalone) {
+                    const ua = navigator.userAgent.toLowerCase();
+                    if (ua.includes('edg/')) {
+                         document.getElementById('inst-edge').classList.add('installed');
+                         document.getElementById('status-edge').innerText = 'Ya instalada';
+                    } else if (ua.includes('safari') && !ua.includes('chrome')) {
+                        document.getElementById('inst-safari').classList.add('installed');
+                        document.getElementById('status-safari').innerText = 'Ya instalada';
+                    } else if (ua.includes('firefox')) {
+                        document.getElementById('inst-firefox').classList.add('installed');
+                        document.getElementById('status-firefox').innerText = 'Ya instalada';
+                    } else {
+                        document.getElementById('inst-chrome').classList.add('installed');
+                        document.getElementById('status-chrome').innerText = 'Ya instalada';
+                    }
+                }
+            }
+        }
+
         window.onload = init;
     </script>
     <pwa-update 
         swpath="sw.js"
-        updatemessage="Nueva Sabiduría disponible"
-        readytoupdatemessage="ACTUALIZAR"
+        updatemessage="Hay mejoras de sistema disponibles"
+        readytoupdatemessage="REINICIAR LÚMINA"
     ></pwa-update>
 </body>
 </html>
