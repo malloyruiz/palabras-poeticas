@@ -481,13 +481,54 @@
         .install-card.installed { border-color: #4ade80; background: rgba(74, 222, 128, 0.05); cursor: default; }
         .install-card.installed small { color: #4ade80; opacity: 1; }
         
-        /* Estilo para el botón de instalación en Ajustes */
-        pwa-install { display: none; } /* Ocultar el componente, usar botón personalizado */
-
-        #pwa-install-container { 
-            margin-top: 5px; 
-            padding-top: 0; 
-            border-top: none;
+        /* Estilos para el Popup de Emergencia / Anuncios */
+        #lumina-popup {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 320px;
+            background: var(--bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(181, 131, 58, 0.15);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            z-index: 9999;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            transform: translateY(120%);
+            transition: transform 0.6s cubic-bezier(0.2, 0, 0, 1);
+        }
+        #lumina-popup.active { display: flex; transform: translateY(0); }
+        .popup-close {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(0,0,0,0.3); color: white;
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 5; font-size: 1.2rem;
+        }
+        .popup-img { width: 100%; height: 160px; object-fit: cover; }
+        .popup-logo-container {
+            position: relative; margin-top: -30px;
+            display: flex; justify-content: center;
+        }
+        .popup-logo-icon {
+            width: 60px; height: 60px; background: white;
+            border-radius: 50%; padding: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            object-fit: contain;
+        }
+        .popup-content { padding: 20px 25px 25px; text-align: center; }
+        .popup-content h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin: 0 0 10px; font-style: italic; }
+        .popup-content p { font-size: 0.85rem; opacity: 0.7; line-height: 1.5; margin-bottom: 20px; }
+        .popup-btn {
+            background: var(--accent); color: white; border: none;
+            padding: 12px 25px; border-radius: 12px; font-size: 0.8rem;
+            letter-spacing: 1px; font-weight: 600; cursor: pointer;
+            text-decoration: none; display: inline-block;
+        }
+        @media (max-width: 600px) {
+            #lumina-popup { width: calc(100% - 40px); left: 20px; right: 20px; bottom: 20px; }
         }
 
         /* Botón de Escucha */
@@ -1295,6 +1336,46 @@
             document.getElementById('header-date').innerText = formatted;
         }
 
+        async function checkEmergencyPopup() {
+            // Solo una vez por sesión
+            if (sessionStorage.getItem('lumina_popup_shown')) return;
+
+            try {
+                const userType = localStorage.getItem('lumina_pro') === 'true' ? 'PRO' : 
+                                 (localStorage.getItem('lumina_trial_active') === 'true' ? 'TRIAL' : 'FREE');
+                
+                const response = await fetch(`${API}?action=popup&userType=${userType}`);
+                const data = await response.json();
+
+                if (!data || !data.titulo) return;
+
+                const popup = document.getElementById('lumina-popup');
+                document.getElementById('popup-img').src = data.imagen;
+                document.getElementById('popup-title').innerText = data.titulo;
+                document.getElementById('popup-text').innerText = data.descripcion;
+
+                if (data.botonTexto && data.botonURL) {
+                    const btn = document.getElementById('popup-btn');
+                    btn.innerText = data.botonTexto;
+                    btn.href = data.botonURL;
+                    btn.style.display = 'inline-block';
+                } else {
+                    document.getElementById('popup-btn').style.display = 'none';
+                }
+
+                popup.classList.add('active');
+                sessionStorage.setItem('lumina_popup_shown', 'true');
+            } catch (err) {
+                console.error("Error cargando popup de emergencia:", err);
+            }
+        }
+
+        function closeEmergencyPopup() {
+            const popup = document.getElementById('lumina-popup');
+            popup.style.transform = 'translateY(120%)';
+            setTimeout(() => popup.classList.remove('active'), 600);
+        }
+
         async function init() {
             loadTheme();
             populateVoices();
@@ -1325,6 +1406,7 @@
             if (isPro) verifyKeySilently();
             updateHubInfo();
             checkNotifications();
+            checkEmergencyPopup(); // Cargar aviso de emergencia
             
             // PERMISO GLOBITO (BADGE)
             if ("Notification" in window && Notification.permission === "default") {
@@ -2148,5 +2230,19 @@
         updatemessage="Hay mejoras de sistema disponibles"
         readytoupdatemessage="REINICIAR LÚMINA"
     ></pwa-update>
+
+    <!-- Popup de Emergencia / Anuncios -->
+    <div id="lumina-popup">
+        <div class="popup-close" onclick="closeEmergencyPopup()">×</div>
+        <img id="popup-img" class="popup-img" alt="Anuncio">
+        <div class="popup-logo-container">
+            <img src="icon-192.png" class="popup-logo-icon" alt="Lúmina">
+        </div>
+        <div class="popup-body popup-content">
+            <h3 id="popup-title"></h3>
+            <p id="popup-text"></p>
+            <a id="popup-btn" class="popup-btn" target="_blank"></a>
+        </div>
+    </div>
 </body>
 </html>
