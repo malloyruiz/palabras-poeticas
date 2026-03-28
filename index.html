@@ -228,6 +228,25 @@
             display: none; /* Se activa vía JS en loadProState o por defecto */
         }
         body:not(.pro-unlocked) .pro-badge { display: inline-block; }
+        body.pro-unlocked .pro-locked { display: none !important; }
+
+        /* Estilos para la insignia Pro en el Logo */
+        .logo-pro-badge {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), #d4af37);
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-left: 15px;
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(181, 131, 58, 0.4);
+            text-transform: uppercase;
+        }
 
         /* Responsive Mobile */
         @media (max-width: 1024px) {
@@ -329,6 +348,31 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .toggle-sub.active::after { transform: translateX(24px); }
+
+        /* App-Like Section Transitions */
+        .seccion {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+        .seccion.activa {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+            pointer-events: auto !important;
+        }
+        .seccion.saliendo {
+            opacity: 0 !important;
+            transform: translateY(-10px) !important;
+        }
+
+        /* Tactile Feedback */
+        .btn-icon, .hub-item, .btn-save, .sub-option, .btn-cta-light, .tab-btn {
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        }
+        .btn-icon:active, .hub-item:active, .btn-save:active, .sub-option:active, .btn-cta-light:active, .tab-btn:active {
+            transform: scale(0.94) !important;
+        }
 
         /* Refactored Modal */
         .modal {
@@ -580,6 +624,36 @@
         body.speaking .btn-speak { color: var(--accent); opacity: 1; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
 
+        /* Journey & Tabs Modal */
+        .modal-tabs { display: flex; gap: 40px; border-bottom: 1px solid rgba(128,128,128,0.1); margin: -20px 0 30px; justify-content: center; }
+        .tab-btn { background: none; border: none; padding: 15px 0; color: var(--text); opacity: 0.4; font-weight: 600; cursor: pointer; position: relative; font-size: 0.8rem; letter-spacing: 2px; }
+        .tab-btn.active { opacity: 1; color: var(--accent); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent); }
+
+        .timeline-container { text-align: left; padding: 5px 0; display: flex; flex-direction: column; gap: 0; }
+        .timeline-item { display: flex; gap: 20px; align-items: flex-start; padding: 20px 0; border-left: 1px solid rgba(128,128,128,0.1); padding-left: 20px; position: relative; transition: 0.3s; }
+        .timeline-item::before { content: ''; position: absolute; left: -5px; top: 26px; width: 9px; height: 9px; border-radius: 50%; background: var(--bg); border: 1px solid rgba(128,128,128,0.2); }
+        .timeline-item.active { border-left-color: var(--accent); }
+        .timeline-item.active::before { background: var(--accent); border-color: var(--accent); transform: scale(1.3); }
+        .timeline-item.past { opacity: 0.5; border-left-style: dashed; }
+        .timeline-item.past::before { background: rgba(128,128,128,0.5); }
+        
+        .timeline-info { flex: 1; }
+        .timeline-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; margin-bottom: 4px; }
+        .timeline-meta { font-size: 0.65rem; opacity: 0.5; letter-spacing: 1px; text-transform: uppercase; }
+        .timeline-progress { height: 3px; background: rgba(128,128,128,0.1); margin-top: 10px; border-radius: 2px; overflow: hidden; }
+        .timeline-bar { height: 100%; background: var(--accent); transition: width 1s ease; }
+
+        .banner-standalone { background: rgba(181, 131, 58, 0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(181, 131, 58, 0.1); margin-bottom: 30px; text-align: center; }
+        .banner-standalone h4 { font-size: 0.7rem; margin: 0 0 10px; color: var(--accent); letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
+        .banner-standalone p { font-size: 0.8rem; opacity: 0.7; margin: 0; line-height: 1.5; }
+
+        .cta-app-card { background: rgba(181, 131, 58, 0.05); padding: 30px 25px; border-radius: 24px; margin-top: 40px; text-align: center; border: 1px solid rgba(181, 131, 58, 0.1); }
+        .cta-app-card h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin: 0 0 10px; font-style: italic; color: var(--text); }
+        .cta-app-card p { font-size: 0.85rem; opacity: 0.7; margin-bottom: 25px; line-height: 1.6; color: var(--text); }
+        .btn-cta-light { background: var(--accent); color: white; border: none; padding: 14px 30px; border-radius: 14px; font-weight: 700; font-size: 0.75rem; cursor: pointer; letter-spacing: 1px; width: 100%; transition: transform 0.2s; }
+        .btn-cta-light:active { transform: scale(0.98); }
+
         /* Banner Offline */
         #offline-banner {
             position: fixed;
@@ -642,6 +716,15 @@
         .btn-dismiss-notif:hover { opacity: 1; color: var(--accent); }
         .btn-dismiss-notif svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
+        /* Exit Toast Android */
+        #exit-toast {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: rgba(0,0,0,0.8); color: #fff; padding: 12px 25px; border-radius: 25px;
+            font-size: 0.75rem; letter-spacing: 1px; z-index: 10000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none; border: 1px solid rgba(255,255,255,0.1);
+        }
+        #exit-toast.active { transform: translateX(-50%) translateY(0); }
+
         @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
     </style>
 </head>
@@ -651,7 +734,7 @@
     <div class="atm-motes" id="atm-motes"></div>
 
     <!-- HUB EDITORIAL -->
-    <div id="hub">
+    <div id="hub" class="seccion activa">
         <div class="hub-hero">
             <div class="hero-bg-blur" id="hero-blur"></div>
             <div class="hub-controls">
@@ -733,7 +816,7 @@
     </div>
 
     <div class="wrapper">
-        <main id="main-ui">
+        <main id="main-ui" class="seccion">
             <div class="content-header">
                 <div class="date-full" id="header-date">---</div>
                 <div class="cat-label" id="header-cat">PALABRA DE HOY</div>
@@ -829,42 +912,63 @@
     <!-- Modal Info -->
     <div id="info-modal" class="modal">
         <div class="modal-content" style="max-width: 550px;">
-            <div style="margin-bottom: 25px;">
-                <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round;">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
+            <div class="modal-tabs">
+                <button class="tab-btn active" id="btn-tab-filosofia" onclick="switchInfoTab('filosofia')">LÚMINA</button>
+                <button class="tab-btn" id="btn-tab-viaje" onclick="switchInfoTab('viaje')">MI VIAJE</button>
             </div>
-            <h2 style="font-family:'Playfair Display', serif; margin-bottom: 20px; font-style: italic; font-size: 2.2rem;">Sobre Lúmina</h2>
-            
-            <p style="font-size: 0.95rem; opacity: 0.9; line-height: 1.7; text-align: left; margin-bottom: 25px;">
-                Lúmina es la plataforma de microaprendizaje ideada para el hombre y la mujer de espíritu estoico y mente moderna. Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria.
-            </p>
 
-            <div style="text-align: left; font-size: 0.8rem; line-height: 1.6; opacity: 0.85;">
-                <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; color: var(--accent);">NUESTROS PILARES DE CRECIMIENTO</p>
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                        <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Palabras</strong>
-                        Precisión verbal para claridad mental. Eleva tu léxico y expande los límites de tu conciencia.
-                    </div>
-                    <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                        <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Afirmaciones</strong>
-                        Reprogramación consciente. Diálogo interno diseñado para la fortaleza y la resiliencia ante el caos.
-                    </div>
-                    <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                        <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Frases</strong>
-                        El consejo de los gigantes. Sabiduría atemporal para navegar los desafíos de la vida contemporánea.
-                    </div>
-                    <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                        <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Libros</strong>
-                        Inmersión profunda en las mentes universales, destilada en lecciones prácticas y accionables para tu día a día.
+            <!-- TAB: FILOSOFÍA -->
+            <div id="info-tab-filosofia">
+                <h2 style="font-family:'Playfair Display', serif; margin-bottom: 20px; font-style: italic; font-size: 2.2rem; margin-top: 20px;">Sobre Lúmina</h2>
+                
+                <p style="font-size: 0.95rem; opacity: 0.9; line-height: 1.7; text-align: left; margin-bottom: 25px;">
+                    Lúmina es la plataforma de microaprendizaje ideada para el hombre y la mujer de espíritu estoico y mente moderna. Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria.
+                </p>
+
+                <div style="text-align: left; font-size: 0.8rem; line-height: 1.6; opacity: 0.85;">
+                    <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; color: var(--accent);">NUESTROS PILARES DE CRECIMIENTO</p>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Palabras</strong>
+                            Precisión verbal para claridad mental. Eleva tu léxico y expande los límites de tu conciencia.
+                        </div>
+                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Afirmaciones</strong>
+                            Reprogramación consciente. Diálogo interno diseñado para la fortaleza y la resiliencia ante el caos.
+                        </div>
+                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Frases</strong>
+                            El consejo de los gigantes. Sabiduría atemporal para navegar los desafíos de la vida contemporánea.
+                        </div>
+                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Libros</strong>
+                            Inmersión profunda en las mentes universales, destilada en lecciones prácticas y accionables para tu día a día.
+                        </div>
                     </div>
                 </div>
-                <p style="margin-top: 30px; font-style: italic; opacity: 0.6; text-align: center; font-size: 0.85rem;">
+
+                <p style="margin-top: 40px; font-style: italic; opacity: 0.6; text-align: center; font-size: 0.85rem; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">
                     "Un refugio para quienes buscan la maestría personal, honrando la brevedad del tiempo con la profundidad del conocimiento."
                 </p>
+            </div>
+
+            <!-- TAB: VIAJE -->
+            <div id="info-tab-viaje" style="display: none;">
+                <div class="banner-standalone">
+                    <h4>Aprendizaje Modular</h4>
+                    <p>Cada lección es una joya de sabiduría independiente. Incluye su propia aplicación personal, profesional y reflexión. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
+                </div>
+                
+                <div id="journey-timeline" class="timeline-container">
+                    <div style="padding: 40px; opacity: 0.5;">Cargando cronograma...</div>
+                </div>
+
+                <!-- CTA SOLO EN VIAJE -->
+                <div class="cta-app-card">
+                    <h3>¿Quieres más control?</h3>
+                    <p>Únete a nuestra nueva app de microlecciones donde tienes el control total de tus libros y progreso.</p>
+                    <button class="btn-cta-light" onclick="window.open('https://luminapp.today/beta', '_blank')">DESCUBRIR NUEVA APP</button>
+                </div>
             </div>
 
             <button class="btn-save" onclick="toggleInfo()" style="width: 100%; margin-top: 30px; padding: 15px;">ENTENDIDO</button>
@@ -1109,6 +1213,18 @@
             return checkTrial();
         }
 
+        function updateHeroTitle(isProUser, trialActive) {
+            const heroTitle = document.getElementById('hero-title');
+            if (!heroTitle) return;
+            if (isProUser) {
+                heroTitle.innerHTML = 'LúminaPro <span class="logo-pro-badge">PRO</span>';
+            } else if (trialActive) {
+                heroTitle.innerText = 'LúminaTrial';
+            } else {
+                heroTitle.innerText = 'Lúmina';
+            }
+        }
+
         async function loadProState() {
             const proVal = localStorage.getItem('lumina_pro');
             const trialActive = isTrialActive();
@@ -1117,6 +1233,9 @@
             const hubPro = document.getElementById('hub-pro-banner');
             const trialBtn = document.getElementById('btn-start-trial');
             const trialUsed = localStorage.getItem('lumina_trial_used') === 'true';
+
+            // Personalización dinámica del Logo/Título del Hub
+            updateHeroTitle(proVal === 'true', trialActive);
 
             if (isPro) {
                 document.body.classList.add('pro-unlocked');
@@ -1453,15 +1572,29 @@
                 });
             }
 
+            // --- GESTIÓN DE RUTA INICIAL ---
+            if (!window.location.hash) {
+                history.replaceState({ cat: 'hub' }, "", window.location.pathname + "#hub");
+            }
+
             const params = new URLSearchParams(window.location.search);
             const catParam = params.get('cat');
-            if (catParam) {
+            const hashParam = window.location.hash.replace('#', '');
+
+            // Prioridad: ?cat (notificaciones) > #hash (navegación guardada)
+            const targetCat = catParam || hashParam;
+
+            if (targetCat && targetCat !== 'hub') {
                 setTimeout(() => {
-                    if (catParam === 'trial') {
+                    if (targetCat === 'trial') {
                         const proModal = document.getElementById('pro-modal');
                         if (proModal) proModal.classList.add('active');
+                    } else if (targetCat === 'status=success') {
+                         alert("¡Gracias por tu compra! Tu código Pro ha sido enviado a tu email.");
+                         window.location.hash = '#hub';
                     } else {
-                        openCategory(catParam, catParam === 'libros');
+                        // Navegar a la categoría (sin empujar doble historial)
+                        openCategory(targetCat, targetCat === 'libros', true);
                     }
                 }, 500);
             }
@@ -1470,11 +1603,6 @@
                 const loader = document.getElementById('loader');
                 if (loader) loader.classList.add('hidden');
             }, 1000);
-
-            if (window.location.hash === '#status=success') {
-                alert("¡Gracias por tu compra! Tu código Pro ha sido enviado a tu email.");
-                window.location.hash = '';
-            }
 
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const installBtn = document.getElementById('btn-pwa-install');
@@ -1574,7 +1702,10 @@
             }
         }
 
-        async function openCategory(cat, isLocked = false) {
+        // --- SISTEMA DE NAVEGACIÓN (TIPO APP) ---
+        let lastBackPress = 0;
+
+        async function openCategory(cat, isLocked = false, isUserAction = true) {
             if (isLocked && !isPro) {
                 document.getElementById('pro-modal').classList.add('active');
                 return;
@@ -1585,41 +1716,49 @@
             if (isPro) document.body.classList.add('pro-unlocked');
             if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
             
+            // Si es acción del usuario, empujar al historial
+            if (isUserAction) {
+                history.pushState({ cat: cat }, "", "#" + cat);
+            }
+
             const hub = document.getElementById('hub');
+            const mainUI = document.getElementById('main-ui');
+            
             const doOpen = () => {
-                hub.style.opacity = '0';
-                hub.style.pointerEvents = 'none'; 
+                window.scrollTo(0, 0); // Scroll inteligente
                 
-                // Etiqueta dinámica según categoría
+                // Transición App-Like
+                hub.classList.remove('activa');
+                hub.classList.add('saliendo');
+                
+                setTimeout(() => {
+                    hub.classList.add('hidden');
+                    hub.classList.remove('saliendo');
+                    
+                    mainUI.classList.remove('hidden');
+                    setTimeout(() => mainUI.classList.add('activa'), 50);
+                }, 300);
+
+                // Etiquetas y Controles
                 const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY' };
                 document.getElementById('header-cat').innerText = labels[cat] || 'LÚMINA';
 
-                // Mostrar botón de compartir solo en categorías permitidas
                 const shareBtn = document.getElementById('main-share-btn');
-                if (shareBtn) {
-                    if (['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat)) {
-                        shareBtn.style.display = 'block';
-                    } else {
-                        shareBtn.style.display = 'none';
-                    }
-                }
+                if (shareBtn) shareBtn.style.display = ['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat) ? 'block' : 'none';
 
                 if (cat === 'libros') requestWakeLock();
 
-                setTimeout(() => {
-                    hub.classList.add('hidden');
-                    let btn = document.getElementById('btn-back-hub');
-                    if (!btn) {
-                        btn = document.createElement('button');
-                        btn.id = 'btn-back-hub';
-                        btn.className = 'btn-icon';
-                        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
-                        btn.onclick = showHub;
-                        document.body.appendChild(btn);
-                    }
-                    btn.style.setProperty('display', 'flex', 'important');
-                }, 400);
-
+                let btn = document.getElementById('btn-back-hub');
+                if (!btn) {
+                    btn = document.createElement('button');
+                    btn.id = 'btn-back-hub';
+                    btn.className = 'btn-icon';
+                    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+                    btn.onclick = () => history.back(); // Usar historial nativo
+                    document.body.appendChild(btn);
+                }
+                btn.style.setProperty('display', 'flex', 'important');
+                
                 fetchContent();
             };
 
@@ -1632,21 +1771,40 @@
             }
         }
 
-        function showHub() {
+        function showHub(isUserAction = true) {
+            if (isUserAction) {
+                history.pushState({ cat: 'hub' }, "", "#hub");
+            }
+            
             if (navigator.vibrate) navigator.vibrate(10);
             releaseWakeLock();
 
+            const hub = document.getElementById('hub');
+            const mainUI = document.getElementById('main-ui');
+
             const doShow = () => {
-                const hub = document.getElementById('hub');
-                hub.classList.remove('hidden');
-                hub.style.pointerEvents = 'auto'; 
-                setTimeout(() => hub.style.opacity = '1', 10);
+                window.scrollTo(0, 0);
+                
+                mainUI.classList.remove('activa');
+                mainUI.classList.add('saliendo');
+
+                setTimeout(() => {
+                    mainUI.classList.add('hidden');
+                    mainUI.classList.remove('saliendo');
+                    
+                    hub.classList.remove('hidden');
+                    setTimeout(() => hub.classList.add('activa'), 50);
+                }, 300);
+
                 const btn = document.getElementById('btn-back-hub');
                 if (btn) btn.style.setProperty('display', 'none', 'important');
+                
                 const shareBtn = document.getElementById('main-share-btn');
                 if (shareBtn) shareBtn.style.display = 'none';
+                
                 const mui = document.getElementById('main-ui');
                 if (mui) mui.classList.remove('loaded');
+                
                 checkNotifications();
                 resetHero();
             };
@@ -1657,6 +1815,35 @@
                 doShow();
             }
         }
+
+        // Listener de Navegación Física (Botón Atrás Android)
+        window.onpopstate = function(event) {
+            const state = event.state;
+            const hash = window.location.hash;
+
+            if (state && state.cat && state.cat !== 'hub') {
+                openCategory(state.cat, state.cat === 'libros', false);
+            } else {
+                // Si venimos de una categoría (hash era algo y ahora es #hub o vacío)
+                // Debemos mostrar el Hub visualmente
+                showHub(false);
+
+                // Lógica de salida: solo si YA estábamos en el hub y el usuario pulsa atrás
+                if (hash === "" || hash === "#hub") {
+                    const now = Date.now();
+                    if (now - lastBackPress < 2000) return; // Permitir salida nativa
+                    
+                    lastBackPress = now;
+                    const toast = document.getElementById('exit-toast');
+                    if (toast) {
+                        toast.classList.add('active');
+                        setTimeout(() => toast.classList.remove('active'), 2000);
+                    }
+                    // Mantenerse en el hub para el siguiente "atrás"
+                    history.pushState({ cat: 'hub' }, "", "#hub");
+                }
+            }
+        };
 
         async function fetchContent() {
             const isTrial = isTrialActive();
@@ -1785,7 +1972,83 @@
             const modal = document.getElementById('info-modal');
             const wasActive = modal.classList.contains('active');
             closeModals();
-            if (!wasActive) modal.classList.add('active');
+            if (!wasActive) {
+                modal.classList.add('active');
+                switchInfoTab('filosofia');
+                renderJourney(); // Cargar en el fondo
+            }
+        }
+
+        function switchInfoTab(tab) {
+            const btnFilo = document.getElementById('btn-tab-filosofia');
+            const btnViaje = document.getElementById('btn-tab-viaje');
+            const tabFilo = document.getElementById('info-tab-filosofia');
+            const tabViaje = document.getElementById('info-tab-viaje');
+
+            if (tab === 'filosofia') {
+                btnFilo.classList.add('active');
+                btnViaje.classList.remove('active');
+                tabFilo.style.display = 'block';
+                tabViaje.style.display = 'none';
+            } else {
+                btnFilo.classList.remove('active');
+                btnViaje.classList.add('active');
+                tabFilo.style.display = 'none';
+                tabViaje.style.display = 'block';
+                renderJourney();
+            }
+        }
+
+        async function renderJourney() {
+            const container = document.getElementById('journey-timeline');
+            if (!container) return;
+
+            try {
+                const response = await fetch(`${API}?action=journey`);
+                const data = await response.json();
+                
+                if (!data || !data.journey) {
+                    container.innerHTML = '<p style="opacity:0.5; padding:20px;">No se pudo cargar el cronograma.</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.journey.forEach(book => {
+                    const item = document.createElement('div');
+                    item.className = `timeline-item ${book.isCurrent ? 'active' : ''} ${book.isPast ? 'past' : ''}`;
+                    
+                    let statusIcon = '📅';
+                    if (book.isCurrent) statusIcon = '🔥';
+                    if (book.isPast) statusIcon = '✅';
+
+                    // Calcular Fecha Estimada
+                    const targetDate = new Date();
+                    targetDate.setDate(targetDate.getDate() + book.daysUntil);
+                    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                    const dateStr = `${targetDate.getDate()} ${months[targetDate.getMonth()]}`;
+
+                    const dateLabel = book.isCurrent ? 'EN CURSO' : (book.isPast ? 'COMPLETADO' : dateStr);
+
+                    item.innerHTML = `
+                        <div style="font-size: 1.2rem;">${statusIcon}</div>
+                        <div class="timeline-info">
+                            <div class="timeline-meta">${dateLabel} • ${book.lessons} LECCIONES</div>
+                            <div class="timeline-title">${book.title}</div>
+                            ${book.isCurrent ? `
+                                <div class="timeline-progress">
+                                    <div class="timeline-bar" style="width: ${book.progress}%"></div>
+                                </div>
+                                <div style="font-size: 0.6rem; opacity: 0.5; margin-top: 5px;">PROGRESO DEL LIBRO: ${book.progress}%</div>
+                            ` : ''}
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+
+            } catch (e) {
+                console.warn("Journey fetch error:", e);
+                container.innerHTML = '<p style="opacity:0.5; padding:20px;">Error de conexión con el cronograma.</p>';
+            }
         }
 
         function toggleNotifications() {
@@ -1940,7 +2203,12 @@
                         addNotif('frases', 'Frase de Hoy', `"${fraseData.frase || fraseData.word}"`);
                     }
                     if (isSub('libros') && libroData && libroData.titulo) {
-                        const libMeta = `${libroData.titulo} — ${libroData.libro || 'Libros'} — ${libroData.autor || 'Lúmina'} — Lección ${libroData.dia} de ${libroData.total}`;
+                        const libParts = [
+                            libroData.titulo,
+                            libroData.libro,
+                            libroData.autor
+                        ].filter(p => p && p !== 'Lúmina' && p !== 'Libros');
+                        const libMeta = [...libParts, `Lección ${libroData.dia} de ${libroData.total}`].join(' — ');
                         addNotif('libros', 'Lección del Día', libMeta);
                     }
                 }
@@ -1991,8 +2259,12 @@
                 if (isSub('afirmaciones') && afirmData) addNotif('afirmaciones', 'Afirmación (Offline)', `"${afirmData.afirmacion || afirmData.word}"`);
                 if (isSub('frases') && fraseData) addNotif('frases', 'Frase (Offline)', `"${fraseData.frase || fraseData.word}"`);
                 if (isSub('libros') && libroData) {
-                    const libMeta = `${libroData.libro || 'Libros'} — ${libroData.autor || 'Lúmina'} — Lección ${libroData.dia} de ${libroData.total}`;
-                    addNotif('libros', libroData.titulo + ' (Offline)', libMeta);
+                    const libParts = [
+                        libroData.libro,
+                        libroData.autor
+                    ].filter(p => p && p !== 'Lúmina' && p !== 'Libros');
+                    const libMeta = [...libParts, `Lección ${libroData.dia} de ${libroData.total}`].join(' — ');
+                    addNotif('libros', (libroData.titulo || 'Libros') + ' (Offline)', libMeta);
                 }
                 checkOnline();
             } finally {
@@ -2250,11 +2522,12 @@
                 if (!container) return;
                 
                 if (data && data.titulo) {
-                    const book = (data.libro || "Lúmina").toUpperCase();
+                    const book = (data.libro && data.libro !== "Lúmina") ? data.libro.toUpperCase() : "";
+                    const progress = `LECCIÓN ${data.dia} DE ${data.total}`;
                     container.innerHTML = `
                         <div class="now-label">${isTrial ? 'PRUEBA EN CURSO' : 'SABIDURÍA EN CURSO'}</div>
                         <div class="now-title">${data.titulo}</div>
-                        <div class="now-progress">${book} &mdash; LECCIÓN ${data.dia} DE ${data.total}</div>
+                        <div class="now-progress">${book ? book + ' &mdash; ' : ''}${progress}</div>
                     `;
                 }
             } catch (e) { console.warn("No se pudo cargar info del hub."); }
@@ -2269,7 +2542,11 @@
             
             container.style.opacity = '0';
             setTimeout(() => {
-                h1.innerText = title;
+                if (title === 'Lúmina') {
+                    updateHeroTitle(localStorage.getItem('lumina_pro') === 'true', isTrialActive());
+                } else {
+                    h1.innerText = title;
+                }
                 p.innerText = tag;
                 container.style.opacity = '1';
                 blur.style.left = x + '%';
