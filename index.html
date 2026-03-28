@@ -1682,12 +1682,18 @@
                     isPro = true;
                     localStorage.setItem('lumina_pro', 'true');
                     localStorage.setItem('lumina_pro_key', key); 
+                    localStorage.setItem('lumina_pro_type', data.type || 'LIFETIME');
+                    
                     loadProState();
-                    checkNotifications(); // Gatillo para cargar mensajes Pro inmediatamente
+                    checkNotifications();
                     document.getElementById('pro-modal').classList.remove('active');
+                    
                     setTimeout(() => {
-                        if (navigator.vibrate) navigator.vibrate([30, 50, 30]); // Vibración de éxito "triple"
-                    document.getElementById('success-modal').classList.add('active');
+                        if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                        const successModal = document.getElementById('success-modal');
+                        const msg = data.type === 'MONTHLY' ? "Suscripción Mensual Activada" : "Acceso Vitalicio Activado";
+                        successModal.querySelector('p').innerText = `¡Gracias por tu confianza! ${msg}. Disfruta de la maestría total.`;
+                        successModal.classList.add('active');
                     }, 500);
                 } else {
                     alert("Código no válido. Por favor, verifica tu clave.");
