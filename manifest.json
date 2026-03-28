@@ -71,28 +71,28 @@
     {
       "name": "Palabras",
       "short_name": "Palabras",
-      "url": "./index.html?cat=palabras",
+      "url": "./index.html#palabras",
       "description": "Eleva tu lenguaje diariamente.",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Afirmaciones",
       "short_name": "Afirmaciones",
-      "url": "./index.html?cat=afirmaciones",
+      "url": "./index.html#afirmaciones",
       "description": "Reprograma tu mente hoy.",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Frases",
       "short_name": "Frases",
-      "url": "./index.html?cat=frases",
+      "url": "./index.html#frases",
       "description": "Sabiduría de los gigantes.",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Libros",
       "short_name": "Libros",
-      "url": "./index.html?cat=libros",
+      "url": "./index.html#libros",
       "description": "Lecciones de maestría.",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
