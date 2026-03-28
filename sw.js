@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lumina-v5'; // Forzar actualización de activos premium
+const CACHE_NAME = 'lumina-v6'; // Forzar actualización de navegación por hash
 const ASSETS = [
     "index.html",
     "manifest.json",
@@ -69,7 +69,7 @@ self.addEventListener('periodicsync', (event) => {
 
 async function fetchDailyWisdom() {
   const cache = await caches.open(CACHE_NAME);
-  const API = "https://script.google.com/macros/s/AKfycbyI_YOf6Z93I6_A6q4vj4v0R4v0R4v0R4v0R4v0R4v0R4v0/exec"; // Reemplazar con real si es necesario
+  const API = "https://script.google.com/macros/s/AKfycbxH7lP92TiRom-3bTiYnwfE6Z-sfDR5wcfaO4gTN0TD6EwuBYMtdCs4b06RFbqqnyw/exec";
   try {
      const response = await fetch(`${API}?action=notifs&userType=Free`); // Simplificado para fondo
      if (response.ok) {
