@@ -1205,19 +1205,20 @@
         let isPro = false;
         let trialDay = 0;
 
-        function checkTrial() {
+        function getTrialDay() {
             const startStr = localStorage.getItem('lumina_trial_start');
-            if (!startStr) return false;
-            
-            // Calculamos la diferencia en días calendario
+            if (!startStr) return 0;
             const startDate = new Date(parseInt(startStr));
             startDate.setHours(0, 0, 0, 0);
-            
             const now = new Date();
             now.setHours(0, 0, 0, 0);
-            
             const diffTime = now - startDate;
-            const days = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        function checkTrial() {
+            const days = getTrialDay();
+            if (days === 0) return false;
             
             if (days <= 14) {
                 trialDay = days;
@@ -2172,12 +2173,23 @@
                 item.className = 'notif-item';
                 item.setAttribute('data-id', nId);
                 
-                let displayMsg = msg;
+                const icons = {
+                    palabras: '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>',
+                    afirmaciones: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>',
+                    frases: '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
+                    libros: '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>',
+                    extra: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
+                };
+
+                const iconHtml = `<div class="notif-icon-circle" style="width: 35px; height: 35px; background: rgba(181, 131, 58, 0.1); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                    <div style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2;">${icons[cat] || icons.extra}</div>
+                </div>`;
 
                 item.innerHTML = `
+                    ${iconHtml}
                     <div class="notif-info">
                         <h4>${tit}</h4>
-                        <p>${displayMsg}</p>
+                        <p>${msg}</p>
                     </div>
                     <div class="btn-dismiss-notif" onclick="dismissNotif('${nId}', event)" title="Eliminar">
                         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -2188,7 +2200,6 @@
                     if (link) {
                         window.open(link, '_blank');
                     } else {
-                        // Solo Libros son Pro
                         openCategory(cat, cat === 'libros'); 
                     }
                 };
@@ -2201,11 +2212,11 @@
 
             try {
                 const uType = isPro ? 'PRO' : (isTrialActive() ? 'TRIAL' : 'FREE');
-                const tDay = getTrialDay();
-                const used = localStorage.getItem('lumina_trial_used') === 'true';
+                const tDayNum = getTrialDay();
+                const trialUsed = localStorage.getItem('lumina_trial_used') === 'true';
 
                 const endpoints = [
-                    fetch(`${API}?action=notifs&userType=${uType}&trialDay=${tDay}&trialUsed=${used}`).then(r => r.json()).catch(() => []),
+                    fetch(`${API}?action=notifs&userType=${uType}&trialDay=${tDayNum}&trialUsed=${trialUsed}`).then(r => r.json()).catch(() => []),
                     fetch(`${API}?cat=palabras`).then(r => r.json()).catch(() => null),
                     fetch(`${API}?cat=afirmaciones`).then(r => r.json()).catch(() => null),
                     fetch(`${API}?cat=frases`).then(r => r.json()).catch(() => null),
@@ -2228,19 +2239,15 @@
                         addNotif('palabras', 'Palabra de Hoy', `La palabra de hoy es "${palabraData.palabra || palabraData.word}". Descúbrela.`);
                     }
                     if (isSub('afirmaciones') && afirmData && (afirmData.afirmacion || afirmData.word)) {
-                        addNotif('afirmaciones', 'Afirmación de Hoy', `"${afirmData.afirmacion || afirmData.word}"`);
+                        addNotif('afirmaciones', 'Afirmación de Hoy', `La afirmación de hoy es "${afirmData.afirmacion || afirmData.word}".`);
                     }
                     if (isSub('frases') && fraseData && (fraseData.frase || fraseData.word)) {
-                        addNotif('frases', 'Frase de Hoy', `"${fraseData.frase || fraseData.word}"`);
+                        addNotif('frases', 'Frase de Hoy', `La frase de hoy es "${fraseData.frase || fraseData.word}".`);
                     }
                     if (isSub('libros') && libroData && libroData.titulo) {
-                        const libParts = [
-                            libroData.titulo,
-                            libroData.libro,
-                            libroData.autor
-                        ].filter(p => p && p !== 'Lúmina' && p !== 'Libros');
+                        const libParts = [libroData.titulo, libroData.libro, libroData.autor].filter(p => p && p !== 'Lúmina' && p !== 'Libros');
                         const libMeta = [...libParts, `Lección ${libroData.dia} de ${libroData.total}`].join(' — ');
-                        addNotif('libros', 'Lección del Día', libMeta);
+                        addNotif('libros', 'Lección del Día', `Hoy estudiamos: ${libMeta}. Accede ahora.`);
                     }
                 }
 
@@ -2254,16 +2261,6 @@
                                 <button class="btn-save" onclick="toggleSettings()" style="background: var(--accent); color: var(--bg); width: 100%;">ACTIVAR TEMAS</button>
                             </div>
                         `;
-                    } else {
-                        list.innerHTML = '<p style="opacity: 0.5; font-size: 0.9rem; padding: 40px 25px; text-align:center;">No hay novedades por ahora.</p>';
-                    }
-                } else {
-                    if (clearBtn) clearBtn.style.display = 'block';
-                    if (!hasAnySub) {
-                        const tip = document.createElement('p');
-                        tip.style.cssText = "opacity: 0.4; font-size: 0.7rem; letter-spacing: 1px; margin-top: 30px; margin-left: 25px; text-transform: uppercase; padding-bottom: 20px;";
-                        tip.innerText = "Activa más temas en ajustes";
-                        list.appendChild(tip);
                     }
                 }
 
@@ -2286,16 +2283,22 @@
                 list.innerHTML = '';
                 count = 0;
                 
-                if (isSub('palabras') && palabraData) addNotif('palabras', 'Palabra de Hoy (Offline)', `"${palabraData.palabra || palabraData.word}"`);
-                if (isSub('afirmaciones') && afirmData) addNotif('afirmaciones', 'Afirmación (Offline)', `"${afirmData.afirmacion || afirmData.word}"`);
-                if (isSub('frases') && fraseData) addNotif('frases', 'Frase (Offline)', `"${fraseData.frase || fraseData.word}"`);
+                if (isSub('palabras') && palabraData) addNotif('palabras', 'Palabra de Hoy', `La palabra de hoy es "${palabraData.palabra || palabraData.word}". Descúbrela.`);
+                if (isSub('afirmaciones') && afirmData) addNotif('afirmaciones', 'Afirmación de Hoy', `La afirmación de hoy es "${afirmData.afirmacion || afirmData.word}".`);
+                if (isSub('frases') && fraseData) addNotif('frases', 'Frase de Hoy', `La frase de hoy es "${fraseData.frase || fraseData.word}".`);
                 if (isSub('libros') && libroData) {
-                    const libParts = [
-                        libroData.libro,
-                        libroData.autor
-                    ].filter(p => p && p !== 'Lúmina' && p !== 'Libros');
+                    const libParts = [libroData.libro, libroData.autor].filter(p => p && p !== 'Lúmina' && p !== 'Libros');
                     const libMeta = [...libParts, `Lección ${libroData.dia} de ${libroData.total}`].join(' — ');
-                    addNotif('libros', (libroData.titulo || 'Libros') + ' (Offline)', libMeta);
+                    addNotif('libros', 'Lección del Día (Offline)', `Hoy estudiamos: ${libMeta}.`);
+                }
+
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.style.setProperty('display', 'flex', 'important');
+                    if ('setAppBadge' in navigator) navigator.setAppBadge(count).catch(() => {});
+                } else {
+                    badge.style.setProperty('display', 'none', 'important');
+                    if ('clearAppBadge' in navigator) navigator.clearAppBadge();
                 }
                 checkOnline();
             } finally {
