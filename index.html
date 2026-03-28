@@ -794,14 +794,18 @@
                 <svg class="item-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             </div> <!-- Fin item Libros -->
             
-            <div id="hub-pro-banner" style="background: rgba(181, 131, 58, 0.05); border: 1px solid rgba(181, 131, 58, 0.1); margin: 20px; padding: 30px; border-radius: 24px; text-align: center; margin-top: 20px; width: auto; box-sizing: border-box;">
-                <div style="font-size: 0.6rem; letter-spacing: 3px; color: var(--accent); font-weight: 700; margin-bottom: 15px; text-transform: uppercase;">LIBERA TU POTENCIAL</div>
-                <p style="font-size: 0.85rem; opacity: 0.7; line-height: 1.6; margin-bottom: 25px; max-width: 320px; margin-left: auto; margin-right: auto;">
+            <!-- BANNER PRO REFINADO (HUB) -->
+            <div id="hub-pro-banner" style="background: #f7f3eb; border: 1px solid rgba(181, 131, 58, 0.1); margin: 25px; padding: 45px 35px; border-radius: 32px; text-align: center; margin-top: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+                <div style="font-size: 0.6rem; letter-spacing: 4px; color: var(--accent); font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">LIBERA TU POTENCIAL</div>
+                <p style="font-size: 0.85rem; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; font-weight: 300;">
                     Únete al Club de Libros y accede a lecciones de sabiduría profunda con tu periodo de prueba de 14 días.
                 </p>
-                <button id="btn-start-trial" onclick="startTrial()" class="btn-trial" style="width: 100%;">COMENZAR PRUEBA GRATUITA</button>
-                <button onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')" 
-                    style="background:none; border: 1px solid rgba(181, 131, 58, 0.2); color: var(--text); padding: 12px 25px; border-radius: 12px; font-size: 0.75rem; letter-spacing: 1px; width: 100%; cursor: pointer; margin-top: 10px;">
+                <button id="btn-start-trial" onclick="startTrial()" 
+                    style="width: 100%; border-radius: 50px; padding: 18px; font-size: 0.8rem; letter-spacing: 1.5px; font-weight: 600; background: var(--accent); color: #fff; border: none; margin-bottom: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(181, 131, 58, 0.15);">
+                    COMENZAR PRUEBA GRATUITA
+                </button>
+                <button onclick="document.getElementById('pro-modal').classList.add('active')" 
+                    style="background:transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--accent); padding: 16px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 1.5px; width: 100%; cursor: pointer; font-weight: 500;">
                     ADQUIRIR LÚMINA PRO
                 </button>
             </div>
@@ -1143,21 +1147,38 @@
         </div>
     </div>
 
-    <!-- Modal Go Pro / Trial -->
+    <!-- Modal Go Pro / Trial (Diseño Refinado) -->
     <div id="pro-modal" class="modal">
-        <div class="modal-content" style="text-align: center; padding: 40px 30px;">
-            <div style="text-align: center; font-size: 0.75rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 25px; font-weight: 500;">LIBERA TU POTENCIAL</div>
+        <div class="modal-content" style="text-align: center; padding: 45px 35px; background: #f7f3eb; border-radius: 32px; border: 1px solid rgba(181, 131, 58, 0.1); max-width: 420px; box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
             
-            <p style="font-size: 1.05rem; opacity: 0.8; line-height: 1.7; margin-bottom: 40px; font-weight: 300;">
-                Únete al <strong>Club de Libros</strong> y accede a lecciones de sabiduría profunda con tu periodo de prueba de 14 días.
+            <div style="font-size: 0.65rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 25px; font-weight: 600; text-transform: uppercase;">Libera tu Potencial</div>
+            
+            <p style="font-size: 0.95rem; opacity: 0.75; line-height: 1.7; margin-bottom: 40px; font-weight: 300; padding: 0 10px;">
+                Únete al Club de Libros y accede a lecciones de sabiduría profunda con tu periodo de prueba de 14 días.
             </p>
-            
-            <button class="btn-save" onclick="startTrial()" style="width: 100%; margin-bottom: 15px; padding: 18px; font-size: 1rem; letter-spacing: 1px;">COMENZAR PRUEBA GRATUITA</button>
-            <button class="btn-save" onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')" 
-                style="width: 100%; background: none; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--accent); padding: 18px; font-size: 0.9rem; letter-spacing: 1.5px;">ADQUIRIR LÚMINA PRO</button>
-            
+
+            <!-- BTN: TRIAL (Sólido) -->
+            <button class="btn-save" onclick="startTrial()" 
+                style="width: 100%; border-radius: 50px; padding: 18px; font-size: 0.85rem; letter-spacing: 1.5px; font-weight: 500; background: var(--accent); color: #fff; border: none; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(181, 131, 58, 0.2);">
+                COMENZAR PRUEBA GRATUITA
+            </button>
+
+            <!-- BTN: SUSCRIPCIÓN (Outline) -->
+            <button class="btn-save" onclick="window.open('https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-4XK17925J43504944NHEDJFA', '_blank')" 
+                style="width: 100%; border-radius: 50px; padding: 16px; font-size: 0.8rem; letter-spacing: 1.5px; font-weight: 500; background: transparent; border: 1px solid rgba(181, 131, 58, 0.4); color: var(--accent); margin-bottom: 12px;">
+                SUSCRIPCIÓN MENSUAL
+            </button>
+
+            <!-- BTN: LIFETIME (Simple Link) -->
+            <button onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')" 
+                style="background:none; border: none; color: var(--accent); opacity: 0.6; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 15px; cursor: pointer; font-weight: 600;">
+                O ADQUIRIR ACCESO VITALICIO
+            </button>
+
             <button onclick="document.getElementById('pro-modal').classList.remove('active')" 
-                style="background:none; border: none; color: var(--text); opacity: 0.3; font-size: 0.7rem; margin-top:25px; cursor: pointer; letter-spacing: 2px;">LUEGO</button>
+                style="background:none; border: none; color: var(--text); opacity: 0.2; font-size: 0.6rem; margin-top: 35px; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; width: 100%;">
+                Luego
+            </button>
         </div>
     </div>
 
@@ -2179,6 +2200,10 @@
             const hasAnySub = ['palabras', 'afirmaciones', 'frases', 'libros'].some(c => isSub(c));
 
             try {
+                const uType = isPro ? 'PRO' : (isTrialActive() ? 'TRIAL' : 'FREE');
+                const tDay = getTrialDay();
+                const used = localStorage.getItem('lumina_trial_used') === 'true';
+
                 const endpoints = [
                     fetch(`${API}?action=notifs&userType=${uType}&trialDay=${tDay}&trialUsed=${used}`).then(r => r.json()).catch(() => []),
                     fetch(`${API}?cat=palabras`).then(r => r.json()).catch(() => null),
