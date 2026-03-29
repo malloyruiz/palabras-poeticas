@@ -859,14 +859,60 @@
         .journal-history-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; margin-bottom: 10px; color: var(--accent); }
         .journal-history-note { font-size: 0.9rem; opacity: 0.8; line-height: 1.6; }
 
-        /* --- AMBIENTE AUDIO --- */
-        .ambient-controls { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
-        .ambient-btn {
-            padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2);
-            background: rgba(128,128,128,0.05); color: var(--text); font-size: 0.7rem;
-            letter-spacing: 1px; cursor: pointer; transition: 0.3s; font-weight: 500;
+        /* --- AMBIENTE AUDIO REFINADO --- */
+        .ambient-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 15px;
         }
-        .ambient-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 12px rgba(181, 131, 58, 0.2); }
+        .ambient-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            opacity: 0.4;
+        }
+        .ambient-item:hover { opacity: 0.8; }
+        .ambient-item.active { opacity: 1; }
+        .ambient-icon-box {
+            width: 50px;
+            height: 50px;
+            background: rgba(181, 131, 58, 0.05);
+            border: 1px solid rgba(181, 131, 58, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .ambient-item.active .ambient-icon-box {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 8px 20px rgba(181, 131, 58, 0.25);
+            transform: translateY(-2px);
+        }
+        .ambient-icon-box svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--accent);
+            stroke-width: 2;
+            fill: none;
+            transition: 0.3s;
+        }
+        .ambient-item.active .ambient-icon-box svg {
+            stroke: white;
+        }
+        .ambient-label {
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            font-weight: 600;
+            text-transform: uppercase;
+            text-align: center;
+            white-space: nowrap;
+        }
         
         [data-theme="dark"] .user-reflection-card { background: rgba(255,255,255,0.02); }
         [data-theme="dark"] .journal-history-item { border-bottom-color: rgba(255,255,255,0.05); }
@@ -1172,9 +1218,10 @@
             <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem; position:relative; z-index:1;">Ajustes</h2>
             
             <!-- SECCIÓN 1: AUDIO -->
-            <div style="text-align: left; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">AUDIO</div>
-            
-            <div class="sub-option" style="cursor:pointer;" onclick="toggleCloudVoice()">
+            <!-- SECCIÓN 1: AUDIO -->
+            <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">AUDIO Y NARRACIÓN</div>
+
+            <div class="sub-option" style="cursor:pointer; margin-bottom: 15px;" onclick="toggleCloudVoice()">
                 <div style="display: flex; flex-direction: column;">
                     <span>Voz Google Premium</span>
                     <small style="font-size: 0.6rem; opacity: 0.5;">Alta fidelidad • Recomendado</small>
@@ -1182,34 +1229,74 @@
                 <div class="toggle-sub" id="cloud-voice-toggle"></div>
             </div>
 
-            <div style="text-align: left; margin: 20px 0 25px;">
-                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 5px; text-transform: uppercase;">Sonido de Ambiente</div>
-                <div class="ambient-controls">
-                    <button class="ambient-btn" id="amb-none" onclick="toggleAmbient('none')">SILENCIO</button>
-                    <button class="ambient-btn" id="amb-rain" onclick="toggleAmbient('rain')">LLUVIA</button>
-                    <button class="ambient-btn" id="amb-forest" onclick="toggleAmbient('forest')">BOSQUE</button>
-                    <button class="ambient-btn" id="amb-cafe" onclick="toggleAmbient('cafe')">CAFÉ</button>
-                </div>
-                <input type="range" id="ambient-vol" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; margin-top: 15px; accent-color: var(--accent); height: 4px; cursor: pointer;">
-            </div>
-
-            <div style="text-align: left; margin: 15px 0 25px;">
-                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Selector de Voz del Sistema</div>
+            <div style="text-align: left; margin-bottom: 30px;">
+                <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Voz del Sistema (Backup)</div>
                 <select id="voice-select" onchange="saveVoicePreference()" style="width:100%; padding:12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(0,0,0,0.05); color:var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none;">
                     <option value="">Cargando voces...</option>
                 </select>
             </div>
 
-            <!-- SECCIÓN 2: APARIENCIA -->
-            <div style="text-align: left; margin-top:20px; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">APARIENCIA</div>
+            <!-- SECCIÓN 2: AMBIENTE -->
+            <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">SONIDOS AMBIENTALES</div>
+
+            <div style="text-align: left; margin-bottom: 30px;">
+                <div class="ambient-grid">
+                    <div class="ambient-item" id="amb-none" onclick="toggleAmbient('none')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                        </div>
+                        <span class="ambient-label">Silencio</span>
+                    </div>
+                    <div class="ambient-item" id="amb-zen" onclick="toggleAmbient('zen')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M12 3c1.64 4 4 7 8 8-4 1.64-7 4-8 8-1.64-4-4-7-8-8 4-1.64 7-4 8-8z"></path></svg>
+                        </div>
+                        <span class="ambient-label">Zen</span>
+                    </div>
+                    <div class="ambient-item" id="amb-birds" onclick="toggleAmbient('birds')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M4 11c5-5 11-5 16 0-5-1-11-1-16 0zM4 15c5-5 11-5 16 0-5-1-11-1-16 0z"></path></svg>
+                        </div>
+                        <span class="ambient-label">Pájaros</span>
+                    </div>
+                    <div class="ambient-item" id="amb-forest" onclick="toggleAmbient('forest')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l4 5h-3v4h5l-4 5h3l-5 6h-2l-5-6h3l-4-5h5V7H8l4-5z"></path></svg>
+                        </div>
+                        <span class="ambient-label">Bosque</span>
+                    </div>
+                    <div class="ambient-item" id="amb-ocean" onclick="toggleAmbient('ocean')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
+                        </div>
+                        <span class="ambient-label">Océano</span>
+                    </div>
+                    <div class="ambient-item" id="amb-rain" onclick="toggleAmbient('rain')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"></path><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="13" x2="12" y2="21"></line><line x1="16" y1="13" x2="16" y2="21"></line></svg>
+                        </div>
+                        <span class="ambient-label">Lluvia</span>
+                    </div>
+                    <div class="ambient-item" id="amb-waterfall" onclick="toggleAmbient('waterfall')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M8 4v16M12 6v14M16 4v16M20 6v14"></path></svg>
+                        </div>
+                        <span class="ambient-label">Cascada</span>
+                    </div>
+                </div>
+                <input type="range" id="ambient-vol" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; margin-top: 15px; accent-color: var(--accent); height: 4px; cursor: pointer;">
+            </div>
+
+            <!-- SECCIÓN 3: APARIENCIA -->
+            <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">APARIENCIA Y ESTILO</div>
 
             <div class="sub-option" style="cursor:pointer; margin-bottom: 20px;" onclick="toggleTheme()">
                 <span>Modo Noche</span>
                 <div class="toggle-sub" id="theme-toggle"></div>
             </div>
             
-            <div style="text-align: left;">
-                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Color de Acento</div>
+            <div style="text-align: left; margin-bottom: 20px;">
+                <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Color de Acento</div>
                 <div class="color-picker">
                     <div class="color-circle" id="col-aureum" style="background:#b5833a" onclick="setAccent('#b5833a', 'aureum')" title="Aureum (Oro)"></div>
                     <div class="color-circle" id="col-aether" style="background:#38bdf8" onclick="setAccent('#38bdf8', 'aether')" title="Aether (Azul)"></div>
@@ -1923,7 +2010,10 @@
                 setTimeout(() => {
                     if (targetCat === 'trial') {
                         const proModal = document.getElementById('pro-modal');
-                        if (proModal) proModal.classList.add('active');
+                        if (proModal) {
+                            proModal.classList.add('active');
+                            history.pushState({ modal: 'pro' }, "", "#pro");
+                        }
                     } else if (targetCat === 'status=success') {
                          alert("¡Gracias por tu compra! Tu código Pro ha sido enviado a tu email.");
                          window.location.hash = '#hub';
@@ -1976,26 +2066,26 @@
 
         function forceUpdateApp() {
             if ('serviceWorker' in navigator) {
-                // Borrar cachés de la app para asegurar frescura total
                 if (window.caches) {
                     caches.keys().then(names => {
                         for (let name of names) caches.delete(name);
                     });
                 }
-                
                 navigator.serviceWorker.getRegistration().then(reg => {
-                    if (reg && reg.waiting) {
-                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                    } else {
-                        window.location.reload(true);
-                    }
+                    if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    else window.location.reload(true);
                 });
-                
-                // Fallback agresivo: si no responde en 1.5s, forzar recarga
                 setTimeout(() => window.location.reload(true), 1500);
             } else {
                 window.location.reload(true);
             }
+        }
+
+        // Helper para fechas en español
+        function getSpanishDate(dateObj = new Date()) {
+            const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            return `${days[dateObj.getDay()]}, ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
         }
 
         async function activatePro() {
@@ -2029,6 +2119,7 @@
                         const msg = data.type === 'MONTHLY' ? "Suscripción Mensual Activada" : "Acceso Vitalicio Activado";
                         successModal.querySelector('p').innerText = `¡Gracias por tu confianza! ${msg}. Disfruta de la maestría total.`;
                         successModal.classList.add('active');
+                        history.pushState({ modal: 'success' }, "", "#success");
                     }, 500);
                 } else {
                     alert("Código no válido. Por favor, verifica tu clave.");
@@ -2049,6 +2140,7 @@
         async function openCategory(cat, isLocked = false, isUserAction = true) {
             if (isLocked && !isPro) {
                 document.getElementById('pro-modal').classList.add('active');
+                history.pushState({ modal: 'pro' }, "", "#pro");
                 return;
             }
             
@@ -2157,34 +2249,45 @@
             }
         }
 
-        // Listener de Navegación Física (Botón Atrás Android)
+        // Listener de Navegación Física (Botón Atrás Android / Navegación Web)
         window.onpopstate = function(event) {
             const state = event.state;
             const hash = window.location.hash;
 
+            // 1. Prioridad: Si hay un modal abierto, lo cerramos y cancelamos la navegación
+            const activeModal = document.querySelector('.modal.active');
+            if (activeModal) {
+                activeModal.classList.remove('active');
+                if (navigator.vibrate) navigator.vibrate(8);
+                return;
+            }
+
+            // 2. Navegación normal entre categorías
             if (state && state.cat && state.cat !== 'hub') {
                 openCategory(state.cat, state.cat === 'libros', false);
             } else {
-                // Si venimos de una categoría (hash era algo y ahora es #hub o vacío)
-                // Debemos mostrar el Hub visualmente
                 showHub(false);
-
-                // Lógica de salida: solo si YA estábamos en el hub y el usuario pulsa atrás
                 if (hash === "" || hash === "#hub") {
                     const now = Date.now();
-                    if (now - lastBackPress < 2000) return; // Permitir salida nativa
-                    
+                    if (now - lastBackPress < 2000) return;
                     lastBackPress = now;
                     const toast = document.getElementById('exit-toast');
                     if (toast) {
                         toast.classList.add('active');
                         setTimeout(() => toast.classList.remove('active'), 2000);
                     }
-                    // Mantenerse en el hub para el siguiente "atrás"
                     history.pushState({ cat: 'hub' }, "", "#hub");
                 }
             }
         };
+
+        // Soporte Tecla Escape
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const activeModal = document.querySelector('.modal.active');
+                if (activeModal) history.back();
+            }
+        });
 
         async function fetchContent() {
             let cacheKey = currentCategory;
@@ -2284,22 +2387,28 @@
 
         function toggleSettings() {
             const modal = document.getElementById('settings-modal');
-            const wasActive = modal.classList.contains('active');
-            closeModals();
-            if (!wasActive) {
+            if (modal.classList.contains('active')) {
+                history.back();
+            } else {
+                closeModals();
                 modal.classList.add('active');
+                history.pushState({ modal: 'settings' }, "", "#settings");
                 updateSubscriptionUI().catch(e => console.warn("Sync error:", e));
+                if (navigator.vibrate) navigator.vibrate(10);
             }
         }
 
         function toggleInfo() {
             const modal = document.getElementById('info-modal');
-            const wasActive = modal.classList.contains('active');
-            closeModals();
-            if (!wasActive) {
+            if (modal.classList.contains('active')) {
+                history.back();
+            } else {
+                closeModals();
                 modal.classList.add('active');
+                history.pushState({ modal: 'info' }, "", "#info");
                 switchInfoTab('filosofia');
-                renderJourney(); // Cargar en el fondo
+                renderJourney();
+                if (navigator.vibrate) navigator.vibrate(10);
             }
         }
 
@@ -2383,22 +2492,34 @@
 
         function toggleNotifications() {
             const modal = document.getElementById('notif-modal');
-            const wasActive = modal.classList.contains('active');
-            closeModals();
-            if (!wasActive) {
+            if (modal.classList.contains('active')) {
+                history.back();
+            } else {
+                closeModals();
                 modal.classList.add('active');
+                history.pushState({ modal: 'notif' }, "", "#notifications");
                 document.getElementById('notif-badge').style.display = 'none';
                 localStorage.setItem('lumina_last_notif_read', new Date().toDateString());
                 localStorage.setItem('lumina_last_notif_count', document.getElementById('notif-badge').innerText || 0);
                 if ('clearAppBadge' in navigator) navigator.clearAppBadge();
+                if (navigator.vibrate) navigator.vibrate(10);
             }
         }
 
         function closeModals() {
-            ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal'].forEach(id => {
+            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal'];
+            let anyClosed = false;
+            modals.forEach(id => {
                 const m = document.getElementById(id);
-                if (m) m.classList.remove('active');
+                if (m && m.classList.contains('active')) {
+                    m.classList.remove('active');
+                    anyClosed = true;
+                }
             });
+            // Si cerramos manualmente y hay un hash de modal, volvemos atrás en el historial
+            if (anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success)/)) {
+                history.back();
+            }
         }
  
         // Gestión de Descarte de Notificaciones
@@ -2522,9 +2643,10 @@
                     toggleNotifications();
                     if (link) {
                         window.open(link, '_blank');
-                    } else {
+                    } else if (['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat)) {
                         openCategory(cat, cat === 'libros'); 
                     }
+                    if (navigator.vibrate) navigator.vibrate(10);
                 };
                 list.appendChild(item);
                 count++;
@@ -2639,8 +2761,9 @@
             journalDebounce = setTimeout(() => {
                 const text = document.getElementById('journal-input').value;
                 const title = document.getElementById(currentCategory === 'libros' ? 'lesson-title' : 'word-title').innerText;
-                const date = new Date().toDateString();
-                const key = `lumina_note_${currentCategory}_${date}`;
+                const dateKey = new Date().toDateString(); // Mantener inglés para la KEY
+                const dateDisplay = getSpanishDate(); // Español para el VALOR
+                const key = `lumina_note_${currentCategory}_${dateKey}`;
                 
                 if (text.trim() === "") {
                     localStorage.removeItem(key);
@@ -2648,7 +2771,7 @@
                     localStorage.setItem(key, JSON.stringify({
                         title: title,
                         notes: text,
-                        date: date,
+                        date: dateDisplay,
                         cat: currentCategory
                     }));
                 }
@@ -2706,37 +2829,40 @@
             });
         }
 
-        // --- LÓGICA DE SONIDOS DE AMBIENTE ---
+        // --- LÓGICA DE SONIDOS DE AMBIENTE REFINADO ---
         const AMBIENT_SOURCES = {
             'none': '',
-            'rain': 'https://www.soundjay.com/nature/rain-01.mp3',
-            'forest': 'https://www.soundjay.com/nature/forest-birds-01.mp3',
-            'cafe': 'https://www.soundjay.com/ambient/restaurant-ambience-01.mp3'
+            'zen': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/ambience-zen.mp3',
+            'birds': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/birds.mp3',
+            'forest': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/forest.mp3',
+            'ocean': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/ocean-waves.mp3',
+            'rain': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/rain-falling.mp3',
+            'waterfall': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/waterfall.mp3'
         };
 
         function toggleAmbient(type) {
             const player = document.getElementById('ambient-player');
             if (!player) return;
             
-            localStorage.setItem('lumina_ambient', type);
-            updateAmbientUI(type);
+            const current = localStorage.getItem('lumina_ambient') || 'none';
+            const nextType = (current === type && type !== 'none') ? 'none' : type;
             
-            if (type === 'none') {
+            localStorage.setItem('lumina_ambient', nextType);
+            updateAmbientUI(nextType);
+            
+            if (nextType === 'none') {
                 player.pause();
-                console.log("Ambiente: Silencio");
+                player.src = '';
             } else {
-                const src = AMBIENT_SOURCES[type];
-                player.src = src;
+                player.src = AMBIENT_SOURCES[nextType];
                 player.load();
-                // Reproducción inmediata dentro del evento click para evitar bloqueos
-                player.play().then(() => {
-                    console.log("Ambiente: Reproduciendo " + type);
-                }).catch(e => {
-                    console.error("Ambiente: Error al reproducir. Intentando de nuevo...", e);
-                    // Re-intento suave
-                    setTimeout(() => player.play(), 100);
+                player.play().catch(e => {
+                    console.warn("Reproducción bloqueada: requiere interacción inicial.");
+                    // Intentar reproducir de nuevo tras un breve delay si fue por interacción (ya estamos en un click handler)
+                    setTimeout(() => player.play(), 50);
                 });
             }
+            if (navigator.vibrate) navigator.vibrate(12);
         }
 
         function setAmbientVolume(val) {
@@ -2746,33 +2872,23 @@
         }
 
         function updateAmbientUI(activeType) {
-            document.querySelectorAll('.ambient-btn').forEach(btn => {
-                btn.classList.remove('active');
+            document.querySelectorAll('.ambient-item').forEach(item => {
+                item.classList.remove('active');
             });
-            const activeBtn = document.getElementById(`amb-${activeType}`);
-            if (activeBtn) activeBtn.classList.add('active');
+            const activeItem = document.getElementById(`amb-${activeType}`);
+            if (activeItem) activeItem.classList.add('active');
         }
 
         function initAmbient() {
             const player = document.getElementById('ambient-player');
-            if (player) {
-                player.onerror = () => {
-                   console.error("Ambiente: Error al cargar el sonido. Es posible que el navegador bloquee el archivo o el enlace haya cambiado.");
-                };
-            }
-            
             const saved = localStorage.getItem('lumina_ambient') || 'none';
             const vol = localStorage.getItem('lumina_ambient_vol') || '0.5';
+            
             const volInput = document.getElementById('ambient-vol');
             if (volInput) volInput.value = vol;
             
             setAmbientVolume(vol);
-            if (saved !== 'none') {
-                updateAmbientUI(saved);
-                // No auto-play en init para evitar bloqueos del navegador
-            } else {
-                updateAmbientUI('none');
-            }
+            updateAmbientUI(saved);
         }
 
         async function updateSubscriptionUI() {
@@ -3096,8 +3212,8 @@
         async function updateHubInfo() {
             try {
                 const isTrial = isTrialActive();
-                let fetchCat = isTrial ? 'libros_trial' : 'libros';
-                let indexParam = isTrial ? `&index=${trialDay - 1}` : "";
+                let fetchCat = 'libros';
+                let indexParam = "";
                 
                 const response = await fetch(`${API}?cat=${fetchCat}${indexParam}`);
                 const data = await response.json();
