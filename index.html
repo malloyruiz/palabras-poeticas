@@ -1504,6 +1504,17 @@
                 if (trialUsed && trialBtn) trialBtn.style.display = 'none';
                 document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'inline-block');
             }
+
+            // Actualizar indicador de trial en el footer
+            const trialInd = document.getElementById('trial-indicator');
+            if (trialActive) {
+                if (trialInd) {
+                    trialInd.innerText = `DÍA ${trialDay}/14 DE PRUEBA`;
+                    trialInd.style.display = 'inline-block';
+                }
+            } else if (trialInd) {
+                trialInd.style.display = 'none';
+            }
         }
 
         function startTrial() {
@@ -2176,30 +2187,10 @@
         };
 
         async function fetchContent() {
-            const isTrial = isTrialActive();
             let cacheKey = currentCategory;
-            if (currentCategory === 'libros' && isTrial) cacheKey = 'libros_trial';
-            
             const cached = getCache(cacheKey);
             const cacheDate = localStorage.getItem('lumina_cache_date_' + cacheKey);
             const today = new Date().toDateString();
-
-            // Actualizar indicador de trial
-            const trialInd = document.getElementById('trial-indicator');
-            if (isTrialActive()) {
-                trialInd.innerText = `DÍA ${trialDay}/14 DE PRUEBA`;
-                trialInd.style.display = 'inline-block';
-            } else {
-                trialInd.style.display = 'none';
-            }
-
-            // Categoría Especial para Trial Libros
-            let fetchCat = currentCategory;
-            let indexParam = "";
-            if (currentCategory === 'libros' && isTrial) {
-                fetchCat = 'libros_trial';
-                indexParam = `&index=${trialDay - 1}`;
-            }
 
             // 1. Mostrar caché inmediatamente (Si es de hoy)
             if (cached && cacheDate === today) {
@@ -2216,7 +2207,7 @@
             document.getElementById('loader').style.opacity = '1';
             
             try {
-                const response = await fetch(`${API}?cat=${fetchCat}${indexParam}`);
+                const response = await fetch(`${API}?cat=${currentCategory}`);
                 const data = await response.json();
                 setCache(currentCategory, data);
                 renderContent(data);
@@ -2543,7 +2534,7 @@
             const hasAnySub = ['palabras', 'afirmaciones', 'frases', 'libros'].some(c => isSub(c));
 
             try {
-                const uType = isPro ? 'PRO' : (isTrialActive() ? 'TRIAL' : 'FREE');
+                const uType = (localStorage.getItem('lumina_pro') === 'true') ? 'PRO' : (isTrialActive() ? 'TRIAL' : 'FREE');
                 const tDayNum = getTrialDay();
                 const trialUsed = localStorage.getItem('lumina_trial_used') === 'true';
 
