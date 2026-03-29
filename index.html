@@ -1215,7 +1215,12 @@
     <!-- Modal Ajustes -->
     <div id="settings-modal" class="modal">
         <div class="modal-content" style="position:relative;">
-            <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem; position:relative; z-index:1;">Ajustes</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Ajustes</h2>
+                <button class="btn-icon" onclick="toggleProfile()" title="Ver Perfil" style="background: var(--accent) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1;">
+                    <svg viewBox="0 0 24 24" style="stroke: white;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </button>
+            </div>
             
             <!-- SECCIÓN 1: AUDIO -->
             <!-- SECCIÓN 1: AUDIO -->
@@ -1347,14 +1352,6 @@
                 <div class="toggle-sub" id="sub-libros"></div>
             </div>
 
-            <!-- SECCIÓN 3: LÚMINA PRO -->
-            <div style="margin-top: 30px; text-align: left; padding: 25px; background: rgba(181, 131, 58, 0.05); border-radius: 20px; border: 1px solid rgba(181, 131, 58, 0.1);">
-                <div style="font-size: 0.7rem; letter-spacing: 2px; opacity: 0.7; margin-bottom: 10px; color: var(--accent); font-weight: 700;">LÚMINA PRO</div>
-                <div id="premium-status-msg" style="font-size: 0.8rem; margin-bottom: 15px; opacity: 0.8;">Desbloquea todo el contenido.</div>
-                <input type="text" id="pro-key-input" placeholder="Introduce código..." 
-                    style="width:100%; padding:12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(0,0,0,0.05); color:var(--text); margin-bottom: 10px; outline: none;">
-                <button class="btn-save" onclick="activatePro()" id="btn-activate-pro" style="padding: 12px 25px; margin-top:0; width:100%; letter-spacing: 1px;">ACTIVAR AHORA</button>
-            </div>
 
             <!-- SECCIÓN 4: INSTALACIÓN -->
             <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">DISTRIBUCIÓN</div>
@@ -1510,6 +1507,65 @@
         </div>
     </div>
 
+    <!-- Modal Perfil de Usuario (NUEVO) -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div style="text-align: right; margin-bottom: -20px;">
+                <button class="btn-icon" onclick="toggleProfile()" style="opacity: 0.5;">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
+                <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(181, 131, 58, 0.2);">
+                    <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: white; fill: none; stroke-width: 1.5;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <!-- Input de nombre (se guarda al cambiar focus o pulsar enter) -->
+                <input type="text" id="user-name-input" placeholder="Tu Nombre..." onchange="saveUserName()" 
+                    style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; border: none; background: transparent; text-align: center; color: var(--text); outline: none; width: 100%; font-weight: 700;">
+                <div id="profile-email" style="font-size: 0.8rem; opacity: 0.4; margin-top: 5px;">Cargando...</div>
+            </div>
+
+            <div style="text-align: left; background: rgba(181, 131, 58, 0.05); padding: 25px; border-radius: 24px; border: 1px solid rgba(181, 131, 58, 0.1); margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700;">MI PLAN</span>
+                    <span id="profile-plan-badge" class="pro-badge" style="display: inline-block; margin-left: 0;">---</span>
+                </div>
+                <div id="profile-trial-indicator" style="display: none; font-size: 0.65rem; letter-spacing: 1px; color: var(--accent); margin-top: 8px; font-weight: 600; text-align: right; text-transform: uppercase;"></div>
+                
+                <!-- Sección para Activación (Si es Free) -->
+                <div id="profile-pro-activation" style="display: none; padding-top: 10px; border-top: 1px dashed rgba(181, 131, 58, 0.2);">
+                    <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Accede a toda la maestría de Lúmina introduciendo tu código:</p>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="pro-key-input-profile" placeholder="Código PRO..." 
+                            style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.5); color: var(--text); outline: none; font-size: 0.85rem;">
+                        <button class="btn-save" onclick="activateProProfile()" id="btn-activate-pro-profile" style="margin: 0; padding: 12px 20px; font-size: 0.75rem;">ACTIVAR</button>
+                    </div>
+                </div>
+                
+                <!-- Sección para Suscritos -->
+                <div id="profile-pro-info" style="display: none; padding-top: 10px; border-top: 1px dashed rgba(181, 131, 58, 0.2);">
+                    <p style="font-size: 0.8rem; opacity: 0.8; margin: 0; font-style: italic;">¡Gracias por ser parte de nuestra comunidad de buscadores de sabiduría!</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                <div style="background: rgba(181, 131, 58, 0.03); border: 1px solid rgba(181, 131, 58, 0.1); padding: 20px; border-radius: 24px; text-align: center;">
+                    <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Racha</div>
+                    <div id="profile-streak-val" style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;">0</div>
+                    <div style="font-size: 0.55rem; opacity: 0.4; letter-spacing: 1px; text-transform: uppercase;">Días Seguidos</div>
+                </div>
+                <div style="background: rgba(181, 131, 58, 0.03); border: 1px solid rgba(181, 131, 58, 0.1); padding: 20px; border-radius: 24px; text-align: center;">
+                    <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Logros</div>
+                    <div id="profile-medals-val" style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;">0</div>
+                    <div style="font-size: 0.55rem; opacity: 0.4; letter-spacing: 1px; text-transform: uppercase;">Medallas</div>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="toggleProfile()" style="width: 100%; padding: 18px; border-radius: 50px; font-size: 0.8rem; letter-spacing: 2px;">GUARDAR Y CERRAR</button>
+        </div>
+    </div>
+
     <script>
         const API = "https://script.google.com/macros/s/AKfycbxH7lP92TiRom-3bTiYnwfE6Z-sfDR5wcfaO4gTN0TD6EwuBYMtdCs4b06RFbqqnyw/exec";
         const mainUi = document.getElementById('main-ui');
@@ -1575,20 +1631,30 @@
             if (isPro) {
                 document.body.classList.add('pro-unlocked');
                 if (hubPro) hubPro.style.display = 'none';
+                
+                // Actualizar Perfil (Modal)
                 const statusMsg = document.getElementById('premium-status-msg');
                 if (statusMsg) {
                     statusMsg.innerText = trialActive ? "✨ Periodo de Prueba Activo" : "✨ ¡Eres Miembro Pro!";
                     statusMsg.style.color = "#4ade80";
                 }
-                const actBtn = document.getElementById('btn-activate-pro');
-                if (actBtn) actBtn.style.display = 'none';
-                const keyInput = document.getElementById('pro-key-input');
-                if (keyInput) keyInput.style.display = 'none';
+                
+                const activationSection = document.getElementById('profile-pro-activation');
+                const infoSection = document.getElementById('profile-pro-info');
+                if (activationSection) activationSection.style.display = 'none';
+                if (infoSection) infoSection.style.display = 'block';
+
                 document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'none');
             } else {
                 document.body.classList.remove('pro-unlocked');
                 if (hubPro) hubPro.style.display = 'block';
                 if (trialUsed && trialBtn) trialBtn.style.display = 'none';
+                
+                const activationSection = document.getElementById('profile-pro-activation');
+                const infoSection = document.getElementById('profile-pro-info');
+                if (activationSection) activationSection.style.display = 'block';
+                if (infoSection) infoSection.style.display = 'none';
+
                 document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'inline-block');
             }
 
@@ -1602,6 +1668,71 @@
             } else if (trialInd) {
                 trialInd.style.display = 'none';
             }
+        }
+
+        function toggleProfile() {
+            const modal = document.getElementById('profile-modal');
+            if (modal.classList.contains('active')) {
+                history.back();
+            } else {
+                // Cerramos otros modales sin disparar history.back para evitar conflictos de navegación
+                closeModals(true); 
+                modal.classList.add('active');
+                history.pushState({ modal: 'profile' }, "", "#profile");
+                updateProfileUI();
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+        }
+
+        function saveUserName() {
+            const input = document.getElementById('user-name-input');
+            if (input) {
+                localStorage.setItem('lumina_user_name', input.value.trim());
+            }
+        }
+
+        function updateProfileUI() {
+            const nameInput = document.getElementById('user-name-input');
+            if (nameInput) nameInput.value = localStorage.getItem('lumina_user_name') || "";
+
+            const emailEl = document.getElementById('profile-email');
+            if (emailEl) emailEl.innerText = localStorage.getItem('lumina_pro_key') ? "Usuario Pro" : "Usuario Estándar";
+
+            const planBadge = document.getElementById('profile-plan-badge');
+            if (planBadge) {
+                const proVal = localStorage.getItem('lumina_pro') === 'true';
+                const trial = isTrialActive();
+                if (proVal) {
+                    planBadge.innerText = "LÚMINA PRO";
+                    planBadge.className = "pro-badge pro-unlocked";
+                    planBadge.style.display = "inline-block";
+                } else if (trial) {
+                    planBadge.innerText = "PRUEBA ACTIVA";
+                    planBadge.className = "pro-badge";
+                    planBadge.style.display = "inline-block";
+                } else {
+                    planBadge.innerText = "PLAN GRATUITO";
+                    planBadge.className = "pro-badge";
+                    planBadge.style.display = "inline-block";
+                    planBadge.style.border = "1px solid rgba(128,128,128,0.2)";
+                    planBadge.style.color = "var(--text-dim)";
+                }
+            }
+
+            const profileTrialInd = document.getElementById('profile-trial-indicator');
+            if (profileTrialInd) {
+                const trialActive = isTrialActive();
+                if (trialActive) {
+                    profileTrialInd.innerText = `DÍA ${trialDay || 0}/14 DE PRUEBA`;
+                    profileTrialInd.style.display = 'block';
+                } else {
+                    profileTrialInd.style.display = 'none';
+                }
+            }
+
+            // Gamificación
+            document.getElementById('profile-streak-val').innerText = localStorage.getItem('lumina_streak') || 0;
+            document.getElementById('profile-medals-val').innerText = getMedalCount();
         }
 
         function startTrial() {
@@ -2008,18 +2139,31 @@
 
             if (targetCat && targetCat !== 'hub') {
                 setTimeout(() => {
-                    if (targetCat === 'trial') {
-                        const proModal = document.getElementById('pro-modal');
-                        if (proModal) {
-                            proModal.classList.add('active');
-                            history.pushState({ modal: 'pro' }, "", "#pro");
-                        }
+                    const modalHashes = {
+                        'settings': toggleSettings,
+                        'profile': toggleProfile,
+                        'info': toggleInfo,
+                        'notifications': toggleNotifications,
+                        'pro': () => document.getElementById('pro-modal').classList.add('active'),
+                        'success': () => document.getElementById('success-modal').classList.add('active')
+                    };
+
+                    if (modalHashes[targetCat]) {
+                        modalHashes[targetCat]();
+                    } else if (targetCat === 'trial') {
+                         document.getElementById('pro-modal').classList.add('active');
+                         history.pushState({ modal: 'pro' }, "", "#pro");
                     } else if (targetCat === 'status=success') {
                          alert("¡Gracias por tu compra! Tu código Pro ha sido enviado a tu email.");
                          window.location.hash = '#hub';
                     } else {
-                        // Navegar a la categoría (sin empujar doble historial)
-                        openCategory(targetCat, targetCat === 'libros', true);
+                        // Es una categoría real (palabras, afirmaciones, frases, libros)
+                        const validCats = ['palabras', 'afirmaciones', 'frases', 'libros'];
+                        if (validCats.includes(targetCat)) {
+                            openCategory(targetCat, targetCat === 'libros', true);
+                        } else {
+                            showHub(false);
+                        }
                     }
                 }, 500);
             }
@@ -2096,17 +2240,18 @@
         }
 
         async function activatePro() {
-            const codeInput = document.getElementById('pro-key-input');
+            const codeInput = document.getElementById('pro-key-input') || document.getElementById('pro-key-input-profile');
+            if (!codeInput) return;
             const key = codeInput.value.trim().toUpperCase();
-            const btn = document.getElementById('btn-activate-pro');
+            const btn = document.getElementById('btn-activate-pro') || document.getElementById('btn-activate-pro-profile');
 
             if (!key) return;
 
+            const originalText = btn.innerText;
             btn.innerText = "VERIFICANDO...";
             btn.disabled = true;
 
             try {
-                // Llamamos a tu Google Script con la acción 'val'
                 const response = await fetch(`${API}?action=val&code=${key}`);
                 const data = await response.json();
 
@@ -2118,7 +2263,7 @@
                     
                     loadProState();
                     checkNotifications();
-                    document.getElementById('pro-modal').classList.remove('active');
+                    closeModals();
                     
                     setTimeout(() => {
                         if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
@@ -2130,15 +2275,20 @@
                     }, 500);
                 } else {
                     alert("Código no válido. Por favor, verifica tu clave.");
-                    btn.innerText = "ACTIVAR AHORA";
+                    btn.innerText = originalText;
                     btn.disabled = false;
                 }
             } catch (e) {
                 console.error("Error validación:", e);
                 alert("Error de conexión. Asegúrate de tener internet.");
-                btn.innerText = "ACTIVAR AHORA";
+                btn.innerText = originalText;
                 btn.disabled = false;
             }
+        }
+
+        // Wrapper para el modal de perfil
+        function activateProProfile() {
+            activatePro();
         }
 
         // --- SISTEMA DE NAVEGACIÓN (TIPO APP) ---
@@ -2397,7 +2547,7 @@
             if (modal.classList.contains('active')) {
                 history.back();
             } else {
-                closeModals();
+                closeModals(true);
                 modal.classList.add('active');
                 history.pushState({ modal: 'settings' }, "", "#settings");
                 updateSubscriptionUI().catch(e => console.warn("Sync error:", e));
@@ -2410,7 +2560,7 @@
             if (modal.classList.contains('active')) {
                 history.back();
             } else {
-                closeModals();
+                closeModals(true);
                 modal.classList.add('active');
                 history.pushState({ modal: 'info' }, "", "#info");
                 switchInfoTab('filosofia');
@@ -2502,7 +2652,7 @@
             if (modal.classList.contains('active')) {
                 history.back();
             } else {
-                closeModals();
+                closeModals(true);
                 modal.classList.add('active');
                 history.pushState({ modal: 'notif' }, "", "#notifications");
                 document.getElementById('notif-badge').style.display = 'none';
@@ -2513,8 +2663,8 @@
             }
         }
 
-        function closeModals() {
-            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal'];
+        function closeModals(preventBack = false) {
+            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal'];
             let anyClosed = false;
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -2523,8 +2673,8 @@
                     anyClosed = true;
                 }
             });
-            // Si cerramos manualmente y hay un hash de modal, volvemos atrás en el historial
-            if (anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success)/)) {
+            // Si cerramos manualmente y hay un hash de modal, volvemos atrás en el historial (a menos que se prevenga)
+            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile)/)) {
                 history.back();
             }
         }
