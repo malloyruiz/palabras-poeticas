@@ -27,7 +27,7 @@
     <link rel="icon" type="image/png" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-512.png">
     
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@200;300;400;500;600&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@200;300;400;500;600&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -126,25 +126,19 @@
             100% { transform: translateY(-10vh) translateX(30px); opacity: 0; }
         }
 
-        .wrapper {
-            width: 100%; min-height: 100vh;
-            display: flex; flex-direction: column;
-            padding: 50px; box-sizing: border-box;
-            padding-top: calc(50px + env(titlebar-area-height, 0px)); /* Soporte WCO */
-            justify-content: center; align-items: center;
-            position: relative; z-index: 10;
-        }
-
         main {
             width: 100%; max-width: 1100px;
             display: grid; grid-template-columns: 1fr; gap: 80px;
-            opacity: 0; transform: translateY(40px);
+            opacity: 0;
             transition: 0.8s cubic-bezier(0.2, 0, 0, 1);
+            margin: 0 auto; /* Centrado horizontal */
+            padding: 50px; padding-top: calc(120px + env(titlebar-area-height, 0px));
+            align-items: start; box-sizing: border-box;
         }
-        main.loaded { opacity: 1; transform: translateY(0); }
+        main.loaded { opacity: 1; }
 
         @media (min-width: 1024px) {
-            main { grid-template-columns: 2fr 1.2fr; align-items: center; }
+            main { grid-template-columns: 2fr 1.2fr; align-items: start; }
             .side-panel { border-left: 1px solid rgba(128,128,128,0.1); padding-left: 80px; }
             .word-display { font-size: clamp(3rem, 4.3vw, 5.8rem) !important; }
             .btn-share { display: none; }
@@ -157,7 +151,7 @@
 
         .word-display {
             font-family: var(--font-heading);
-            font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 700; font-style: italic;
+            font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 900; font-style: italic;
             line-height: 1.15; margin: 0 0 3rem 0;
             letter-spacing: -1px;
             overflow-wrap: break-word;
@@ -189,8 +183,19 @@
             margin-top: 100px; width: 100%; max-width: 1100px;
             display: flex; justify-content: space-between; align-items: center;
             border-top: 1px solid rgba(128,128,128,0.1); padding-top: 40px;
+        }        .btn-speak svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2; }
+        
+        .btn-fav {
+            background: rgba(181, 131, 58, 0.05); border: none; width: 44px; height: 44px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition); margin-left: 10px;
         }
+        .btn-fav:hover { background: rgba(181, 131, 58, 0.1); transform: scale(1.1); }
+        .btn-fav svg { width: 20px; height: 20px; stroke: var(--accent); transition: 0.3s; }
+        .btn-fav.active svg { fill: var(--accent); stroke: var(--accent); }
 
+        /* --- HUB FOOTER --- */
+        .btn-icon { background: transparent !important; border: none !important; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none !important; -webkit-tap-highlight-color: transparent; }
         .btn-icon svg { width: 24px; height: 24px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: 0.3s; pointer-events: none; }
         .btn-icon:hover svg { stroke: var(--accent); transform: scale(1.1); }
         
@@ -214,14 +219,9 @@
             display: flex; flex-direction: column; justify-content: space-between;
             box-sizing: border-box; overflow: hidden;
         }
-        .hero-bg-blur {
-            position: absolute; width: 400px; height: 400px;
-            background: var(--accent); opacity: 0.1; filter: blur(100px);
-            border-radius: 50%; transition: 1.5s ease;
-            pointer-events: none;
-        }
+        /* Eliminado redundancia de hero-bg-blur para usar la versión animada arriba */
         .hub-hero-inner { position: relative; z-index: 2; transition: 0.8s ease; }
-        .hub-hero h1 { font-family: 'Playfair Display', serif; font-size: 6rem; margin: 0; font-style: italic; letter-spacing: -2px; }
+        .hub-hero h1 { font-family: 'Playfair Display', serif; font-size: 6rem; margin: 0; font-style: italic; letter-spacing: -2px; font-weight: 900; }
         .hub-hero p { letter-spacing: 4px; opacity: 0.4; font-size: 0.8rem; margin-top: 20px; max-width: 400px; line-height: 1.8; }
 
         .hub-list {
@@ -236,7 +236,7 @@
         .hub-item:last-child { border-bottom: none; }
         .hub-item .item-num { font-size: 0.7rem; letter-spacing: 2px; opacity: 0.3; margin-right: 40px; font-weight: 600; margin-top: 15px; }
         .hub-item .item-content { flex: 1; padding-right: 40px; }
-        .hub-item .item-content h3 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 0; transition: 0.5s; font-weight: 400; color: var(--text); display: block; font-style: italic; }
+        .hub-item .item-content h3 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 0; transition: 0.5s; font-weight: 700; color: var(--text); display: block; font-style: italic; }
         .hub-item .item-content .hub-desc { font-size: 0.85rem; opacity: 0.8 !important; visibility: visible !important; color: var(--text) !important; display: block !important; margin-top: 10px; max-width: 400px; line-height: 1.6; transition: 0.5s; }
         .hub-item .item-icon { position: absolute; right: 20px; top: 40px; width: 32px; height: 32px; stroke: var(--accent); stroke-width: 1.5; fill: none; opacity: 0.4; transition: 0.5s; }
 
@@ -301,11 +301,12 @@
         /* Lesson Reading Mode */
         .lesson-container { display: none; text-align: left; animation: fadeIn 1s ease; }
         body.cat-libros .lesson-container { display: block; }
-        body.cat-libros #main-ui { display: block; max-width: 900px; }
-        body.cat-libros #main-ui > div:not(.lesson-container) { display: none; } /* Ocultar vista normal */
+        body.cat-libros #main-ui { display: block; max-width: 1100px; }
+        body.cat-libros #main-ui > .content-header, body.cat-libros #main-ui > .side-panel { display: none; }
+        body:not(.cat-libros) .lesson-container { display: none !important; }
 
-        .lesson-header { margin-bottom: 40px; }
-        .lesson-header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; margin: 10px 0; font-style: italic; }
+        .content-header, .lesson-header { margin-bottom: 20px; text-align: left; width: 100%; }
+        .lesson-header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; margin: 10px 0; font-style: italic; font-weight: 900; }
         .lesson-body { font-size: 1.15rem; line-height: 1.9; font-weight: 300; opacity: 0.95; max-width: 800px; white-space: pre-line; }
         .lesson-apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-top: 60px; padding-top: 60px; border-top: 1px solid rgba(128,128,128,0.1); }
         .app-box { background: rgba(0,0,0,0.02); padding: 30px; border-radius: 20px; border: 1px solid rgba(128,128,128,0.05); }
@@ -317,7 +318,7 @@
         
         /* Header Labels */
         .date-full { font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 500; }
-        .cat-label { font-size: 0.8rem; letter-spacing: 5px; opacity: 0.4; text-transform: uppercase; margin-bottom: 25px; font-weight: 300; }
+        .cat-label { font-size: 0.8rem; letter-spacing: 5px; opacity: 0.4; text-transform: uppercase; margin-bottom: 10px; font-weight: 300; }
         
         /* Pro Badge */
         .pro-locked { position: absolute; top: 20px; right: 20px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.6; display: flex; align-items: center; gap: 5px; }
@@ -410,21 +411,45 @@
         }
         .toggle-sub.active::after { transform: translateX(24px); }
 
-        /* App-Like Section Transitions */
+        /* App-Like Section Transitions (Cinematic) */
         .seccion {
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                        filter 0.8s ease;
             opacity: 0;
-            transform: translateY(10px);
+            transform: scale(0.98);
+            filter: blur(10px);
             pointer-events: none;
+            grid-area: 1 / 1;
+            width: 100%;
+            visibility: hidden;
         }
         .seccion.activa {
             opacity: 1 !important;
-            transform: translateY(0) !important;
+            transform: translateY(0) scale(1) !important;
+            filter: blur(0) !important;
             pointer-events: auto !important;
+            visibility: visible;
         }
         .seccion.saliendo {
             opacity: 0 !important;
-            transform: translateY(-10px) !important;
+            transform: translateY(-20px) scale(1.02) !important;
+            filter: blur(10px) !important;
+        }
+
+        @keyframes floatBlur {
+            0% { transform: translate(0, 0); }
+            33% { transform: translate(30px, 50px); }
+            66% { transform: translate(-20px, 20px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .hero-bg-blur {
+            position: absolute; width: 450px; height: 450px;
+            background: var(--accent); opacity: 0.1; filter: blur(100px);
+            border-radius: 50%; transition: 1.5s ease;
+            pointer-events: none; z-index: -1;
+            animation: floatBlur 20s infinite ease-in-out;
         }
 
         /* Tactile Feedback */
@@ -786,6 +811,18 @@
         }
         #exit-toast.active { transform: translateX(-50%) translateY(0); }
 
+        /* --- TABS PERFIL --- */
+        .profile-tab {
+            background: transparent; border: none; color: var(--text); padding: 8px 15px;
+            font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
+            opacity: 0.4; cursor: pointer; transition: 0.3s; white-space: nowrap;
+        }
+        .profile-tab.active { opacity: 1; color: var(--accent); }
+        .profile-tab-content { display: none; }
+        .profile-tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
         /* --- GAMIFICACIÓN --- */
         .gamification-bar {
             display: flex; gap: 15px; justify-content: flex-start; margin-top: 25px;
@@ -944,6 +981,29 @@
     <div id="offline-banner">MODO OFFLINE — VIENDO CONTENIDO GUARDADO</div>
     <div class="atm-motes" id="atm-motes"></div>
 
+    <div id="loader">
+        <div class="spinner"></div>
+        <p id="loader-text" style="margin-top: 25px; font-family: var(--font-heading); font-style: italic; font-size: 1.1rem; opacity: 0.6; text-align: center; max-width: 80%; line-height: 1.5;">CARGANDO...</p>
+    </div>
+    <script>
+        (function() {
+            var frases = [
+                "Acepta. Luego avanza.",
+                "La calma es fuerza.",
+                "Haz lo que puedas.",
+                "Respira. Todo llega.",
+                "Domina tu reacción.",
+                "Paciencia es poder.",
+                "Enfócate en lo esencial.",
+                "Sigue. Aunque sea lento.",
+                "Controla tu interior.",
+                "Sé firme. Sé claro."
+            ];
+            document.getElementById('loader-text').innerText = frases[Math.floor(Math.random() * frases.length)];
+        })();
+    </script>
+
+    <div id="app-viewport" style="display: grid; grid-template-columns: 100%; min-height: 100vh;">
     <!-- HUB EDITORIAL -->
     <div id="hub" class="seccion activa">
         <div class="hub-hero">
@@ -1045,19 +1105,19 @@
 
     <!-- Back button will be injected/managed by script -->
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <p style="margin-top: 25px; letter-spacing: 6px; font-size: 0.6rem; opacity: 0.3;">CARGANDO...</p>
-    </div>
+    <!-- Loader movido afuera -->
 
-    <div class="wrapper">
         <main id="main-ui" class="seccion">
+            <div class="hero-bg-blur" style="left: 10%; top: 10%; opacity: 0.05;"></div>
             <div class="content-header">
                 <div class="date-full" id="header-date">---</div>
                 <div class="cat-label" id="header-cat">PALABRA DE HOY</div>
                 <h1 class="word-display" style="display: flex; align-items: center; flex-wrap: wrap;">
                     <span id="word-title">---</span>
                     <button class="btn-speak" id="btn-speak-word" onclick="speakCurrentWord()" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
+                    <button class="btn-fav" id="btn-fav-main" onclick="toggleFavorite()" title="Favorito">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
                 </h1>
                 <p class="definition" id="word-def">---</p>
             </div>
@@ -1067,7 +1127,7 @@
                     <!-- Dinámico -->
                 </div>
             </div>
-
+            
             <!-- VISTA DE LECCIONES (EXTRA) -->
             <div class="lesson-container" id="lesson-ui">
                 <div class="content-header">
@@ -1077,6 +1137,9 @@
                     <h1 class="word-display" style="margin-top: 10px; display: flex; align-items: center; flex-wrap: wrap;">
                         <span id="lesson-title">Cargando...</span>
                         <button class="btn-speak" id="btn-speak-lesson" onclick="speakCurrentLesson()" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
+                        <button class="btn-fav" id="btn-fav-lesson" onclick="toggleFavorite()" title="Favorito">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
                     </h1>
                 </div>
                 <div class="lesson-body content-body" id="lesson-text"></div>
@@ -1102,6 +1165,7 @@
                 </div>
             </div>
         </main>
+    </div>
 
         <footer>
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; letter-spacing: 3px;">
@@ -1156,7 +1220,6 @@
             <div class="modal-tabs">
                 <button class="tab-btn active" id="btn-tab-filosofia" onclick="switchInfoTab('filosofia')">LÚMINA</button>
                 <button class="tab-btn" id="btn-tab-viaje" onclick="switchInfoTab('viaje')">MI VIAJE</button>
-                <button class="tab-btn" id="btn-tab-diario" onclick="switchInfoTab('diario')">MI DIARIO</button>
             </div>
 
             <!-- TAB: FILOSOFÍA -->
@@ -1194,35 +1257,16 @@
                 </p>
             </div>
 
-            <!-- TAB: VIAJE -->
+            <!-- TAB: VIAJE (RESTAURADO AL MODAL INFO) -->
             <div id="info-tab-viaje" style="display: none;">
-                <div class="banner-standalone">
-                    <h4>Aprendizaje Modular</h4>
-                    <p>Cada lección es una joya de sabiduría independiente. Incluye su propia aplicación personal, profesional y reflexión. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
+                <div class="banner-standalone" style="margin-top: 20px; margin-bottom: 20px;">
+                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Aprendizaje Modular</h4>
+                    <p style="font-size: 0.8rem; opacity: 0.7;">Cada lección es una joya de sabiduría independiente. Incluye su propia aplicación personal, profesional y reflexión. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
                 </div>
-                <div id="journey-timeline" class="timeline-container">
+                <div id="journey-timeline" class="timeline-container" style="max-height: 400px; overflow-y: auto;">
                     <div style="padding: 40px; opacity: 0.5;">Cargando cronograma...</div>
                 </div>
-
-                <!-- CTA SOLO EN VIAJE -->
-                <div class="cta-app-card">
-                    <h3>¿Quieres más control?</h3>
-                    <p>Únete a nuestra nueva app de microlecciones donde tienes el control total de tus libros y progreso.</p>
-                    <button class="btn-cta-light" onclick="window.open('https://luminapp.today/beta', '_blank')">DESCUBRIR NUEVA APP</button>
-                </div>
             </div>
-
-            <!-- TAB: DIARIO (NUEVO) -->
-            <div id="info-tab-diario" style="display: none;">
-                <div class="banner-standalone">
-                    <h4>Tus Reflexiones</h4>
-                    <p>Aquí se guardan los pensamientos que has compartido con Lúmina. Un registro de tu evolución personal.</p>
-                </div>
-                <div id="journal-history-list" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
-                    <!-- Dinámico -->
-                </div>
-            </div>
-
             <button class="btn-save" onclick="toggleInfo()" style="width: 100%; margin-top: 30px; padding: 15px;">ENTENDIDO</button>
         </div>
     </div>
@@ -1237,7 +1281,6 @@
                 </button>
             </div>
             
-            <!-- SECCIÓN 1: AUDIO -->
             <!-- SECCIÓN 1: AUDIO -->
             <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">AUDIO Y NARRACIÓN</div>
 
@@ -1395,7 +1438,7 @@
                     <span>Chrome</span>
                     <small id="status-chrome">Disponible</small>
                 </div>
-                <div class="install-card" id="inst-safari" onclick="alert('En iPhone/iPad: Toca el icono de compartir (flecha arriba) y selecciona \'Añadir a pantalla de inicio\'.')">
+                <div class="install-card" id="inst-safari" onclick="showToast('En iPhone/iPad: Toca el icono de compartir (flecha arriba) y selecciona \'Añadir a pantalla de inicio\'.')">
                     <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
                     <span>Safari</span>
                     <small id="status-safari">Instrucciones</small>
@@ -1459,7 +1502,7 @@
 
             <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">EXTENSIONES</div>
             <div class="install-grid" style="margin-bottom: 30px;">
-                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="alert('Próximamente en Web Store')">
+                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="showToast('Próximamente en Web Store')">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/></svg>
                     <span>Chrome Web Store</span>
                     <small>Próximamente</small>
@@ -1525,59 +1568,79 @@
     <!-- Modal Perfil de Usuario (NUEVO) -->
     <div id="profile-modal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
-            <div style="text-align: right; margin-bottom: -20px;">
-                <button class="btn-icon" onclick="toggleProfile()" style="opacity: 0.5;">
-                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
-                <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(181, 131, 58, 0.2);">
-                    <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: white; fill: none; stroke-width: 1.5;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                </div>
-                <!-- Input de nombre (se guarda al cambiar focus o pulsar enter) -->
-                <input type="text" id="user-name-input" placeholder="Tu Nombre..." onchange="saveUserName()" 
-                    style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; border: none; background: transparent; text-align: center; color: var(--text); outline: none; width: 100%; font-weight: 700;">
-                <div id="profile-email" style="font-size: 0.8rem; opacity: 0.4; margin-top: 5px;">Cargando...</div>
+            <div style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.1); padding-bottom: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <button class="profile-tab active" onclick="switchProfileTab('identidad')">Perfil</button>
+                <button class="profile-tab" onclick="switchProfileTab('diario')">Diario</button>
+                <button class="profile-tab" onclick="switchProfileTab('favs')">Favoritos</button>
             </div>
 
-            <div style="text-align: left; background: rgba(181, 131, 58, 0.05); padding: 25px; border-radius: 24px; border: 1px solid rgba(181, 131, 58, 0.1); margin-bottom: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700;">MI PLAN</span>
-                    <span id="profile-plan-badge" class="pro-badge" style="display: inline-block; margin-left: 0;">---</span>
+            <!-- SECCIÓN: IDENTIDAD -->
+            <div id="profile-tab-identidad" class="profile-tab-content active">
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
+                    <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(181, 131, 58, 0.2);">
+                        <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: white; fill: none; stroke-width: 1.5;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <input type="text" id="user-name-input" placeholder="Tu Nombre..." onchange="saveUserName()" 
+                        style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; border: none; background: transparent; text-align: center; color: var(--text); outline: none; width: 100%; font-weight: 700;">
+                    <div id="profile-email" style="font-size: 0.8rem; opacity: 0.4; margin-top: 5px;">Usuario Lúmina</div>
                 </div>
-                <div id="profile-trial-indicator" style="display: none; font-size: 0.65rem; letter-spacing: 1px; color: var(--accent); margin-top: 8px; font-weight: 600; text-align: right; text-transform: uppercase;"></div>
-                
-                <!-- Sección para Activación (Si es Free) -->
-                <div id="profile-pro-activation" style="display: none; padding-top: 10px; border-top: 1px dashed rgba(181, 131, 58, 0.2);">
-                    <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Accede a toda la maestría de Lúmina introduciendo tu código:</p>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="pro-key-input-profile" placeholder="Código PRO..." 
-                            style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.5); color: var(--text); outline: none; font-size: 0.85rem;">
-                        <button class="btn-save" onclick="activateProProfile()" id="btn-activate-pro-profile" style="margin: 0; padding: 12px 20px; font-size: 0.75rem;">ACTIVAR</button>
+
+                <div style="margin-bottom: 30px; padding: 0 10px;">
+                    <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 12px; text-transform: uppercase; text-align: left; opacity: 0.6;">MI MANTRA PERSONAL</div>
+                    <textarea id="user-mantra-input" placeholder="Escribe aquí tu intención o mantra del día..." oninput="saveUserMantra()" 
+                        style="width: 100%; min-height: 80px; background: rgba(181, 131, 58, 0.03); border: 1px dashed rgba(181, 131, 58, 0.2); border-radius: 16px; padding: 15px; color: var(--text); font-family: 'Playfair Display', serif; font-size: 1rem; font-style: italic; outline: none; resize: none; line-height: 1.5;"></textarea>
+                    <div id="mantra-save-status" style="font-size: 0.5rem; opacity: 0.3; text-align: right; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;">Guardado automáticamente</div>
+                </div>
+
+                <div style="text-align: left; background: rgba(181, 131, 58, 0.05); padding: 25px; border-radius: 24px; border: 1px solid rgba(181, 131, 58, 0.1); margin-bottom: 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700;">MI PLAN</span>
+                        <span id="profile-plan-badge" class="pro-badge" style="display: inline-block; margin-left: 0;">PLAN ESTÁNDAR</span>
+                    </div>
+                    <div id="profile-trial-indicator" style="display: none; font-size: 0.65rem; letter-spacing: 1px; color: var(--accent); margin-top: 8px; font-weight: 600; text-align: right; text-transform: uppercase;"></div>
+                    <div id="profile-pro-activation" style="display: none; padding-top: 15px; border-top: 1px dashed rgba(181, 131, 58, 0.2); margin-top: 15px;">
+                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Eleva tu nivel con Lúmina Pro:</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="pro-key-input-profile" placeholder="Código..." style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.5); color: var(--text); outline: none; font-size: 0.85rem;">
+                            <button class="btn-save" onclick="activateProProfile()" style="margin: 0; padding: 12px 20px; font-size: 0.75rem;">ACTIVAR</button>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Sección para Suscritos -->
-                <div id="profile-pro-info" style="display: none; padding-top: 10px; border-top: 1px dashed rgba(181, 131, 58, 0.2);">
-                    <p style="font-size: 0.8rem; opacity: 0.8; margin: 0; font-style: italic;">¡Gracias por ser parte de nuestra comunidad de buscadores de sabiduría!</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="background: rgba(181, 131, 58, 0.03); border: 1px solid rgba(181, 131, 58, 0.1); padding: 20px; border-radius: 24px; text-align: center;">
+                        <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Racha</div>
+                        <div id="profile-streak-val" style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;">0</div>
+                    </div>
+                    <div style="background: rgba(181, 131, 58, 0.03); border: 1px solid rgba(181, 131, 58, 0.1); padding: 20px; border-radius: 24px; text-align: center;">
+                        <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Logros</div>
+                        <div id="profile-medals-val" style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;">0</div>
+                    </div>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                <div style="background: rgba(181, 131, 58, 0.03); border: 1px solid rgba(181, 131, 58, 0.1); padding: 20px; border-radius: 24px; text-align: center;">
-                    <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Racha</div>
-                    <div id="profile-streak-val" style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;">0</div>
-                    <div style="font-size: 0.55rem; opacity: 0.4; letter-spacing: 1px; text-transform: uppercase;">Días Seguidos</div>
+            <div id="profile-tab-diario" class="profile-tab-content">
+                <div class="banner-standalone" style="margin-top: 0; margin-bottom: 20px;">
+                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Tus Reflexiones</h4>
+                    <p style="font-size: 0.8rem; opacity: 0.7;">Aquí se guardan los pensamientos que has compartido con Lúmina. Un registro de tu evolución personal.</p>
                 </div>
-                <div style="background: rgba(181, 131, 58, 0.03); border: 1px solid rgba(181, 131, 58, 0.1); padding: 20px; border-radius: 24px; text-align: center;">
-                    <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Logros</div>
-                    <div id="profile-medals-val" style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;">0</div>
-                    <div style="font-size: 0.55rem; opacity: 0.4; letter-spacing: 1px; text-transform: uppercase;">Medallas</div>
+                <div id="profile-journal-list" style="max-height: 400px; overflow-y: auto; text-align: left;">
+                    <!-- Dinámico -->
                 </div>
             </div>
 
-            <button class="btn-save" onclick="toggleProfile()" style="width: 100%; padding: 18px; border-radius: 50px; font-size: 0.8rem; letter-spacing: 2px;">GUARDAR Y CERRAR</button>
+
+            <div id="profile-tab-favs" class="profile-tab-content">
+                <div class="banner-standalone" style="margin-top: 0; margin-bottom: 20px;">
+                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Mis Favoritos</h4>
+                    <p style="font-size: 0.8rem; opacity: 0.7;">Palabras, frases y afirmaciones que han resonado en tu espíritu.</p>
+                </div>
+                <div id="profile-favs-list" style="margin-top: 10px; text-align: left;">
+                    <!-- Dinámico con opción de borrar -->
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="toggleProfile()" style="width: 100%; padding: 18px; border-radius: 50px; font-size: 0.8rem; letter-spacing: 2px; margin-top: 30px;">GUARDAR Y CERRAR</button>
         </div>
     </div>
 
@@ -1688,6 +1751,7 @@
         function toggleProfile() {
             const modal = document.getElementById('profile-modal');
             if (modal.classList.contains('active')) {
+                playSound('click');
                 history.back();
             } else {
                 // Cerramos otros modales sin disparar history.back para evitar conflictos de navegación
@@ -1695,8 +1759,22 @@
                 modal.classList.add('active');
                 history.pushState({ modal: 'profile' }, "", "#profile");
                 updateProfileUI();
+                playSound('click'); // Click simple, no audio largo
                 if (navigator.vibrate) navigator.vibrate(10);
             }
+        }
+
+        let mantraDebounce;
+        function saveUserMantra() {
+            clearTimeout(mantraDebounce);
+            const status = document.getElementById('mantra-save-status');
+            if (status) status.innerText = "Sintonizando...";
+            
+            mantraDebounce = setTimeout(() => {
+                const val = document.getElementById('user-mantra-input').value;
+                localStorage.setItem('lumina_mantra', val);
+                if (status) status.innerText = "Mantra Guardado";
+            }, 800);
         }
 
         function saveUserName() {
@@ -1709,6 +1787,9 @@
         function updateProfileUI() {
             const nameInput = document.getElementById('user-name-input');
             if (nameInput) nameInput.value = localStorage.getItem('lumina_user_name') || "";
+
+            const mantraInput = document.getElementById('user-mantra-input');
+            if (mantraInput) mantraInput.value = localStorage.getItem('lumina_mantra') || "";
 
             const emailEl = document.getElementById('profile-email');
             if (emailEl) emailEl.innerText = localStorage.getItem('lumina_pro_key') ? "Usuario Pro" : "Usuario Estándar";
@@ -1748,6 +1829,63 @@
             // Gamificación
             document.getElementById('profile-streak-val').innerText = localStorage.getItem('lumina_streak') || 0;
             document.getElementById('profile-medals-val').innerText = getMedalCount();
+            
+            switchProfileTab('identidad');
+        }
+
+        function switchProfileTab(tab) {
+            playSound('click');
+            document.querySelectorAll('.profile-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
+            
+            const btn = document.querySelector(`.profile-tab[onclick*="${tab}"]`);
+            const content = document.getElementById(`profile-tab-${tab}`);
+            
+            if (btn) btn.classList.add('active');
+            if (content) content.classList.add('active');
+            
+            if (tab === 'diario') renderJournalHistory();
+            if (tab === 'favs') renderFavorites();
+        }
+
+        function removeFavorite(id) {
+            let favs = getFavorites();
+            favs = favs.filter(f => f.id !== id);
+            localStorage.setItem('lumina_favs', JSON.stringify(favs));
+            renderFavorites();
+            updateFavoriteIcon();
+            showToast("Favorito eliminado");
+        }
+
+        function renderFavorites() {
+            const list = document.getElementById('profile-favs-list');
+            if (!list) return;
+            const favs = getFavorites();
+            
+            if (favs.length === 0) {
+                list.innerHTML = '<div style="padding:40px; text-align:center; opacity:0.4; font-size:0.85rem;">No tienes favoritos guardados aún.</div>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            favs.sort((a,b) => b.timestamp - a.timestamp).forEach(f => {
+                const item = document.createElement('div');
+                item.className = 'journal-history-item';
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.alignItems = 'center';
+                item.innerHTML = `
+                    <div style="flex: 1; cursor: pointer;" onclick="toggleProfile(); openCategory('${f.cat}', ${f.cat === 'libros'})">
+                        <div class="journal-history-date">${f.cat.toUpperCase()}</div>
+                        <div class="journal-history-title" style="margin-bottom:5px;">${f.id}</div>
+                        <div style="font-size:0.75rem; opacity:0.5; font-style:italic;">${f.subtitle}</div>
+                    </div>
+                    <button onclick="removeFavorite('${f.id}')" style="background:transparent; border:none; color:var(--accent); opacity:0.4; padding:10px; cursor:pointer;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
+                    </button>
+                `;
+                list.appendChild(item);
+            });
         }
 
         function startTrial() {
@@ -2549,6 +2687,65 @@
                     if (mui) mui.classList.remove('has-examples');
                 }
             }
+            updateFavoriteIcon();
+        }
+
+        // --- SISTEMA DE FAVORITOS ---
+        function getFavorites() {
+            const favs = localStorage.getItem('lumina_favs');
+            return favs ? JSON.parse(favs) : [];
+        }
+
+        function toggleFavorite() {
+            const favs = getFavorites();
+            const id = (currentCategory === 'libros' ? 
+                       document.getElementById('lesson-title').innerText : 
+                       document.getElementById('word-title').innerText).trim();
+            const subtitle = (currentCategory === 'libros' ? 
+                             document.getElementById('lesson-cat-label').innerText : 
+                             document.getElementById('word-def').innerText).trim();
+            
+            const index = favs.findIndex(f => f.id === id);
+            
+            if (index > -1) {
+                favs.splice(index, 1);
+                showToast("Eliminado de favoritos");
+            } else {
+                favs.push({
+                    id: id,
+                    subtitle: subtitle,
+                    cat: currentCategory,
+                    timestamp: Date.now()
+                });
+                showToast("Guardado en favoritos", "success");
+                playSound('success');
+            }
+            
+            localStorage.setItem('lumina_favs', JSON.stringify(favs));
+            updateFavoriteIcon();
+            if (navigator.vibrate) navigator.vibrate(15);
+        }
+
+        function updateFavoriteIcon() {
+            const favs = getFavorites();
+            const id = (currentCategory === 'libros' ? 
+                       document.getElementById('lesson-title').innerText : 
+                       document.getElementById('word-title').innerText).trim();
+            
+            const isFav = favs.some(f => f.id === id);
+            const btns = [document.getElementById('btn-fav-main'), document.getElementById('btn-fav-lesson')];
+            
+            btns.forEach(btn => {
+                if (btn) {
+                    if (isFav) {
+                        btn.classList.add('active');
+                        btn.querySelector('svg').style.fill = 'var(--accent)';
+                    } else {
+                        btn.classList.remove('active');
+                        btn.querySelector('svg').style.fill = 'none';
+                    }
+                }
+            });
         }
 
         function renderFallbacks() {
@@ -2575,12 +2772,14 @@
         function toggleSettings() {
             const modal = document.getElementById('settings-modal');
             if (modal.classList.contains('active')) {
+                playSound('click');
                 history.back();
             } else {
                 closeModals(true);
                 modal.classList.add('active');
                 history.pushState({ modal: 'settings' }, "", "#settings");
                 updateSubscriptionUI().catch(e => console.warn("Sync error:", e));
+                playSound('click');
                 if (navigator.vibrate) navigator.vibrate(10);
             }
         }
@@ -2588,6 +2787,7 @@
         function toggleInfo() {
             const modal = document.getElementById('info-modal');
             if (modal.classList.contains('active')) {
+                playSound('click');
                 history.back();
             } else {
                 closeModals(true);
@@ -2595,6 +2795,7 @@
                 history.pushState({ modal: 'info' }, "", "#info");
                 switchInfoTab('filosofia');
                 renderJourney();
+                playSound('click');
                 if (navigator.vibrate) navigator.vibrate(10);
             }
         }
@@ -2602,14 +2803,12 @@
         function switchInfoTab(tab) {
             const btnFilo = document.getElementById('btn-tab-filosofia');
             const btnViaje = document.getElementById('btn-tab-viaje');
-            const btnDiario = document.getElementById('btn-tab-diario');
             const tabFilo = document.getElementById('info-tab-filosofia');
             const tabViaje = document.getElementById('info-tab-viaje');
-            const tabDiario = document.getElementById('info-tab-diario');
 
             // Reset
-            [btnFilo, btnViaje, btnDiario].forEach(b => b?.classList.remove('active'));
-            [tabFilo, tabViaje, tabDiario].forEach(t => t ? t.style.display = 'none' : null);
+            [btnFilo, btnViaje].forEach(b => b?.classList.remove('active'));
+            [tabFilo, tabViaje].forEach(t => t ? t.style.display = 'none' : null);
 
             if (tab === 'filosofia') {
                 btnFilo.classList.add('active');
@@ -2618,10 +2817,6 @@
                 btnViaje.classList.add('active');
                 tabViaje.style.display = 'block';
                 renderJourney();
-            } else if (tab === 'diario') {
-                btnDiario.classList.add('active');
-                tabDiario.style.display = 'block';
-                renderJournalHistory();
             }
         }
 
@@ -2680,6 +2875,7 @@
         function toggleNotifications() {
             const modal = document.getElementById('notif-modal');
             if (modal.classList.contains('active')) {
+                playSound('click');
                 history.back();
             } else {
                 closeModals(true);
@@ -2689,6 +2885,7 @@
                 localStorage.setItem('lumina_last_notif_read', new Date().toDateString());
                 localStorage.setItem('lumina_last_notif_count', document.getElementById('notif-badge').innerText || 0);
                 if ('clearAppBadge' in navigator) navigator.clearAppBadge();
+                playSound('click');
                 if (navigator.vibrate) navigator.vibrate(10);
             }
         }
@@ -2984,7 +3181,7 @@
         }
 
         function renderJournalHistory() {
-            const list = document.getElementById('journal-history-list');
+            const list = document.getElementById('profile-journal-list');
             if (!list) return;
             list.innerHTML = '';
             
@@ -3014,7 +3211,7 @@
             notes.forEach(n => {
                 // Si la fecha guardada era en inglés (Sun Mar 29...), intentamos mostrarla mejor
                 let displayDate = n.date;
-                if (displayDate.length > 15 && displayDate.includes('202')) {
+                if (displayDate.length >= 15 && displayDate.includes('202')) {
                     const testDate = new Date(displayDate);
                     if (!isNaN(testDate)) displayDate = getSpanishDate(testDate, true);
                 }
@@ -3220,6 +3417,25 @@
                 console.warn("Sync OneSignal error:", e);
                 updateSubscriptionUI();
             }
+        }
+
+        // --- SISTEMA DE FEEDBACK SENSORIAL ---
+        function playSound(type) {
+            const player = document.getElementById('ambient-player');
+            if (!player) return;
+            
+            // Si el audio general está en 'none', no emitir sonidos táctiles tampoco para respetar el silencio
+            if (localStorage.getItem('lumina_ambient') === 'none') return;
+
+            const effects = {
+                'click': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/click.mp3',
+                'zen': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/ambience-zen.mp3', // Usaremos un fade in/out rápido como placeholder premium
+                'success': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/zen-gong.mp3'
+            };
+
+            const sfx = new Audio(effects[type] || effects.click);
+            sfx.volume = (localStorage.getItem('lumina_ambient_vol') || 0.5) * 0.5; // SFX más bajos que el ambiente
+            sfx.play().catch(() => {});
         }
 
         async function togglePush() {
