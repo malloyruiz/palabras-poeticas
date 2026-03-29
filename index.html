@@ -922,6 +922,21 @@
             .hub-hero-inner { display: flex; flex-direction: column; height: 100%; min-height: 500px; }
             .gamification-bar { margin-top: auto; padding-bottom: 20px; }
         }
+
+        /* --- SISTEMA DE TOAST PREMIUM --- */
+        .toast {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: rgba(26, 26, 26, 0.9); color: white; padding: 12px 25px;
+            border-radius: 50px; font-size: 0.85rem; z-index: 6000;
+            transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: none;
+            display: flex; align-items: center; gap: 10px; opacity: 0;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            white-space: nowrap;
+        }
+        .toast.active { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { background: rgba(239, 68, 68, 0.9); }
+        .toast.success { background: rgba(16, 185, 129, 0.9); }
     </style>
 </head>
 <body>
@@ -1399,29 +1414,29 @@
 
             <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">TIENDAS OFICIALES</div>
             <div class="install-grid">
-                <div class="install-card" style="opacity: 0.6;" onclick="alert('Próximamente en Play Store')">
+                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en Play Store')">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.67-1.5 1.5-1.5h11l5 5v13.5c0 .83-.67 1.5-1.5 1.5h-14.5c-.83 0-1.5-.67-1.5-1.5zm11-14v-3.5l-3.5 3.5h3.5z"/></svg>
                     <span>Play Store</span>
                     <small>Próximamente</small>
                 </div>
-                <div class="install-card" style="opacity: 0.6;" onclick="alert('Próximamente en App Store')">
+                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en App Store')">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-1.99.77-3.27.82-1.31.05-2.31-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.24-1.99 1.1-3.15-1.04.04-2.3.69-3.05 1.52-.66.71-1.25 1.88-1.1 3.03 1.15.08 2.32-.58 3.05-1.4z"/></svg>
                     <span>App Store</span>
                     <small>Próximamente</small>
                 </div>
                 <!-- Huawei -->
-                <div class="install-card" style="opacity: 0.6;" onclick="alert('Próximamente en AppGallery')">
+                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en AppGallery')">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="5"/></svg>
                     <span>AppGallery</span>
                     <small>Próximamente</small>
                 </div>
                 <!-- Samsung -->
-                <div class="install-card" style="opacity: 0.6;" onclick="alert('Próximamente en Galaxy Store')">
+                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en Galaxy Store')">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><rect x="9" y="9" width="6" height="6"/></svg>
                     <span>Galaxy Store</span>
                     <small>Próximamente</small>
                 </div>
-                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="alert('Próximamente en Microsoft Store')">
+                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="showToast('Próximamente en Microsoft Store')">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 1h10.5v10.5h-10.5zM12.5 1h10.5v10.5h-10.5zM1 12.5h10.5v10.5h-10.5zM12.5 12.5h10.5v10.5h-10.5z"/></svg>
                     <span>Microsoft Store</span>
                     <small>Próximamente</small>
@@ -1737,7 +1752,7 @@
 
         function startTrial() {
             if (localStorage.getItem('lumina_trial_used') === 'true') {
-                alert("Ya has usado tu periodo de prueba.");
+                showToast("Ya has usado tu periodo de prueba.", "error");
                 return;
             }
             localStorage.setItem('lumina_trial_start', Date.now().toString());
@@ -2034,9 +2049,9 @@
                 // Si no hay nada, mostrar mensaje manual según navegador
                 const ua = navigator.userAgent.toLowerCase();
                 if (ua.includes('safari') && !ua.includes('chrome')) {
-                    alert("En iPhone/iPad: Toca 'Compartir' y luego 'Añadir a pantalla de inicio'.");
+                    showToast("En iPhone/iPad: Toca 'Compartir' y luego 'Añadir a pantalla de inicio'.");
                 } else {
-                    alert("Busca el icono de 'Instalar App' en la barra de direcciones de tu navegador.");
+                    showToast("Busca el icono de 'Instalar App' en la barra de direcciones de tu navegador.");
                 }
             }
         }
@@ -2083,7 +2098,7 @@
         async function init() {
             if (window.location.protocol === 'file:') {
                 console.warn("Lúmina: Detectado protocolo file://. Algunas funciones premium y el Service Worker estarán limitados por seguridad del navegador.");
-                alert("Lúmina detectó que estás abriendo el archivo directamente. Para que los sonidos, notificaciones y el diseño PWA funcionen, por favor usa el servidor local que te he creado (serve.py).");
+                showToast("Usa el servidor local para activar todos los sonidos y funciones.", "error");
             }
             updateGamification();
             loadTheme();
@@ -2239,17 +2254,30 @@
             }
         }
 
+        function showToast(msg, type = '') {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.querySelector('span').innerText = msg;
+            toast.className = 'toast active ' + type;
+            if (navigator.vibrate) navigator.vibrate(10);
+            setTimeout(() => toast.classList.remove('active'), 3500);
+        }
+
         async function activatePro() {
             const codeInput = document.getElementById('pro-key-input') || document.getElementById('pro-key-input-profile');
             if (!codeInput) return;
             const key = codeInput.value.trim().toUpperCase();
             const btn = document.getElementById('btn-activate-pro') || document.getElementById('btn-activate-pro-profile');
 
-            if (!key) return;
+            if (!key) {
+                showToast("Por favor, introduce un código.");
+                return;
+            }
 
             const originalText = btn.innerText;
             btn.innerText = "VERIFICANDO...";
             btn.disabled = true;
+            btn.style.opacity = "0.7";
 
             try {
                 const response = await fetch(`${API}?action=val&code=${key}`);
@@ -2274,15 +2302,17 @@
                         history.pushState({ modal: 'success' }, "", "#success");
                     }, 500);
                 } else {
-                    alert("Código no válido. Por favor, verifica tu clave.");
+                    showToast("Código no válido. Revisa tu clave.", "error");
                     btn.innerText = originalText;
                     btn.disabled = false;
+                    btn.style.opacity = "1";
                 }
             } catch (e) {
                 console.error("Error validación:", e);
-                alert("Error de conexión. Asegúrate de tener internet.");
+                showToast("Error de conexión. Revisa tu internet.", "error");
                 btn.innerText = originalText;
                 btn.disabled = false;
+                btn.style.opacity = "1";
             }
         }
 
@@ -3491,6 +3521,7 @@
             <a id="popup-btn" class="popup-btn" target="_blank"></a>
         </div>
     </div>
+    <div id="toast" class="toast"><span></span></div>
     <audio id="ambient-player" loop style="display:none;"></audio>
 </body>
 </html>
