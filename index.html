@@ -4,17 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Lúmina — Palabras y Sabiduría</title>
+    <meta name="description" content="Inspiración diaria con palabras bellas, sabiduría y crecimiento personal para alimentar el alma.">
+    <link rel="canonical" href="https://luminapp.today">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://luminapp.today">
+    <meta property="og:title" content="Lúmina — Palabras y Sabiduría">
+    <meta property="og:description" content="Tu dosis diaria de crecimiento personal con palabras, afirmaciones y lecciones inspiradoras.">
+    <meta property="og:image" content="https://luminapp.today/icon-1024.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://luminapp.today">
+    <meta name="twitter:title" content="Lúmina — Palabras y Sabiduría">
+    <meta name="twitter:description" content="Tu dosis diaria de crecimiento personal con palabras, afirmaciones y lecciones inspiradoras.">
+    <meta name="twitter:image" content="https://luminapp.today/icon-1024.png">
+
     <!-- Configuración PWA -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a1a1a">
+    <meta name="theme-color" content="#f5f1e8">
     <link rel="icon" type="image/png" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-512.png">
     
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@200;300;400;500;600&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
     
     <!-- PWABuilder Components -->
     <script>
@@ -27,15 +45,22 @@
           notifyButton: {
             enable: false, 
           },
+          allowLocalhostAsSecureOrigin: true // Para pruebas locales si es necesario
         });
-        // Auto-solicitar permiso al abrir por primera vez
-        if (OneSignal.Notifications.permission !== true) {
-            OneSignal.Slidedown.promptDefault();
-        }
+
+        // Sincronizar UI inmediatamente después de init
+        if (typeof updateSubscriptionUI === "function") updateSubscriptionUI();
+
+        // Auto-solicitar permiso con un ligero delay para no asustar
+        setTimeout(() => {
+            if (OneSignal.Notifications.permission !== true) {
+                OneSignal.Slidedown.promptDefault();
+            }
+        }, 2000);
 
         // Sincronizar UI cuando cambie algo externamente
         OneSignal.Notifications.addEventListener("permissionChange", () => {
-            if (typeof updateSubscriptionUI === "function") updateSubscriptionUI();
+             if (typeof updateSubscriptionUI === "function") updateSubscriptionUI();
         });
         OneSignal.User.PushSubscription.addEventListener("change", () => {
              if (typeof updateSubscriptionUI === "function") updateSubscriptionUI();
@@ -77,7 +102,7 @@
             padding-bottom: env(safe-area-inset-bottom);
             background-color: var(--bg); color: var(--text);
             transition: background var(--transition), color var(--transition);
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             overflow-x: hidden;
         }
 
@@ -131,7 +156,7 @@
         }
 
         .word-display {
-            font-family: 'Playfair Display', serif;
+            font-family: var(--font-heading);
             font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 700; font-style: italic;
             line-height: 1.15; margin: 0 0 3rem 0;
             letter-spacing: -1px;
@@ -316,6 +341,42 @@
         .side-panel { display: none; }
         main.has-examples { grid-template-columns: 1.5fr 1fr; }
         main.has-examples .side-panel { display: block; border-left: 1px solid rgba(128,128,128,0.1); padding-left: 80px; }
+
+        /* PERSONALIZACIÓN */
+        .color-picker { display: flex; gap: 15px; margin: 15px 0 25px; }
+        .color-circle {
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            border: 2px solid transparent; transition: transform 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .color-circle:hover { transform: scale(1.15); }
+        .color-circle.active { border-color: var(--text); transform: scale(1.1); }
+
+        .font-picker { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 25px; }
+        .font-pair-btn {
+            background: rgba(0,0,0,0.03); border: 1px solid rgba(128,128,128,0.1);
+            padding: 12px 15px; border-radius: 12px; cursor: pointer;
+            display: flex; flex-direction: column; gap: 4px; text-align: left;
+            transition: all 0.3s ease;
+        }
+        .font-pair-btn:hover { background: rgba(0,0,0,0.06); }
+        .font-pair-btn.active { 
+            border-color: var(--accent); 
+            background: rgba(181, 131, 58, 0.08); 
+            box-shadow: 0 4px 15px rgba(181, 131, 58, 0.1);
+        }
+        [data-theme="dark"] .font-pair-btn { background: rgba(255,255,255,0.03); }
+        [data-theme="dark"] .font-pair-btn:hover { background: rgba(255,255,255,0.06); }
+        [data-theme="dark"] .font-pair-btn.active { background: rgba(56, 189, 248, 0.1); border-color: var(--accent); }
+
+        .font-pair-btn .pair-name { font-size: 0.85rem; font-weight: 600; }
+        .font-pair-btn .pair-desc { font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
+
+        @media (max-width: 600px) {
+            .color-picker { gap: 10px; justify-content: space-between; }
+            .color-circle { width: 38px; height: 38px; } /* Más fácil de tocar en móvil */
+        }
+
         @media (max-width: 1023px) {
             main.has-examples { grid-template-columns: 1fr; }
             main.has-examples .side-panel { border-left: none; padding-left: 0; padding-top: 40px; border-top: 1px solid rgba(128,128,128,0.1); }
@@ -499,7 +560,7 @@
             --pwa-update-text-color: var(--text);
             --pwa-update-button-bg: var(--accent);
             --pwa-update-button-text-color: #fff;
-            --pwa-update-font-family: 'Playfair Display', serif;
+            --pwa-update-font-family: var(--font-heading);
             --pwa-update-box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             --pwa-update-border-radius: 20px;
         }
@@ -725,7 +786,96 @@
         }
         #exit-toast.active { transform: translateX(-50%) translateY(0); }
 
-        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+        /* --- GAMIFICACIÓN --- */
+        .gamification-bar {
+            display: flex; gap: 15px; justify-content: flex-start; margin-top: 25px;
+            animation: fadeIn 1s ease 0.5s both;
+        }
+        .gam-item {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(181, 131, 58, 0.05);
+            padding: 6px 15px; border-radius: 20px;
+            border: 1px solid rgba(181, 131, 58, 0.1);
+            transition: var(--transition);
+        }
+        .gam-item:hover { background: rgba(181, 131, 58, 0.1); transform: translateY(-2px); }
+        .gam-icon { width: 18px; height: 18px; fill: none; stroke: var(--accent); stroke-width: 2; }
+        .gam-text { font-size: 0.7rem; letter-spacing: 1px; font-weight: 600; text-transform: uppercase; color: var(--accent); }
+        .gam-val { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--text); }
+
+        /* --- TOOLTIPS GAMIFICACIÓN --- */
+        .gam-item { position: relative; cursor: help; }
+        .gam-tooltip {
+            position: absolute; bottom: 100%; left: 0; width: 220px;
+            background: rgba(0,0,0,0.85); color: #fff; border: 1px solid rgba(181,131,58,0.3);
+            backdrop-filter: blur(8px);
+            padding: 12px; border-radius: 12px; font-size: 0.75rem; line-height: 1.4;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            opacity: 0; pointer-events: none; transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            z-index: 1000; margin-bottom: 12px; text-transform: none; letter-spacing: 0;
+            text-align: left;
+        }
+        .gam-item:hover .gam-tooltip, .gam-item.show-tip .gam-tooltip {
+            opacity: 1; transform: translateY(0); pointer-events: auto;
+        }
+        .gam-tooltip b { color: #f5f1e8; display: block; margin-bottom: 4px; font-size: 0.8rem; }
+
+        [data-theme="dark"] .gam-tooltip { background: rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.1); }
+
+        /* --- DIARIO Y REFLEXIÓN --- */
+        .user-reflection-card {
+            background: rgba(181, 131, 58, 0.04);
+            border: 1px dashed rgba(181, 131, 58, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: left;
+            animation: fadeIn 0.8s ease;
+        }
+        .journal-textarea {
+            width: 100%;
+            min-height: 140px;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            resize: none;
+            outline: none;
+            padding: 0;
+            margin-top: 15px;
+            display: block;
+        }
+        .journal-textarea::placeholder { opacity: 0.3; font-style: italic; }
+        
+        .journal-history-item {
+            padding: 25px;
+            border-bottom: 1px solid rgba(128,128,128,0.1);
+            text-align: left;
+        }
+        .journal-history-date { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase; margin-bottom: 8px; }
+        .journal-history-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; margin-bottom: 10px; color: var(--accent); }
+        .journal-history-note { font-size: 0.9rem; opacity: 0.8; line-height: 1.6; }
+
+        /* --- AMBIENTE AUDIO --- */
+        .ambient-controls { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
+        .ambient-btn {
+            padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2);
+            background: rgba(128,128,128,0.05); color: var(--text); font-size: 0.7rem;
+            letter-spacing: 1px; cursor: pointer; transition: 0.3s; font-weight: 500;
+        }
+        .ambient-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 12px rgba(181, 131, 58, 0.2); }
+        
+        [data-theme="dark"] .user-reflection-card { background: rgba(255,255,255,0.02); }
+        [data-theme="dark"] .journal-history-item { border-bottom-color: rgba(255,255,255,0.05); }
+
+        /* Ajuste de posición escritorio */
+        @media (min-width: 1025px) {
+            .hub-hero-inner { display: flex; flex-direction: column; height: 100%; min-height: 500px; }
+            .gamification-bar { margin-top: auto; padding-bottom: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -754,6 +904,26 @@
                 <h1 id="hero-title">Lúmina</h1>
                 <p id="hero-tagline">CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL</p>
                 <div id="now-learning-hub"></div>
+                <div class="gamification-bar">
+                    <div class="gam-item" onclick="this.classList.toggle('show-tip')">
+                        <svg class="gam-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
+                        <span class="gam-text">Racha</span>
+                        <span class="gam-val" id="streak-val">0</span>
+                        <div class="gam-tooltip">
+                            <b>Racha Diaria</b>
+                            Días seguidos conectando con tu sabiduría. Entra cada día para mantener el fuego de tu hábito encendido.
+                        </div>
+                    </div>
+                    <div class="gam-item" onclick="this.classList.toggle('show-tip')">
+                        <svg class="gam-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                        <span class="gam-text">Logros</span>
+                        <span class="gam-val" id="medals-val">0</span>
+                        <div class="gam-tooltip">
+                            <b>Tus Logros</b>
+                            Medallas ganadas por tu constancia. Obtienes un nuevo logro por cada 7 lecciones completadas en "Mi Viaje".
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -863,6 +1033,12 @@
                     <div class="date-full">REFLEXIÓN DEL DÍA</div>
                     <em id="lesson-refl"></em>
                 </div>
+                <!-- MI DIARIO (NUEVO) -->
+                <div class="user-reflection-card">
+                    <div class="date-full" style="color: var(--accent); opacity: 0.8;">MI DIARIO PERSONAL</div>
+                    <textarea class="journal-textarea" id="journal-input" placeholder="Escribe aquí lo que esta lección ha despertado en ti..." oninput="saveUserJournal()"></textarea>
+                    <div id="journal-save-status" style="font-size: 0.55rem; opacity: 0.3; text-align: right; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase;">Guardado automáticamente</div>
+                </div>
             </div>
         </main>
 
@@ -919,6 +1095,7 @@
             <div class="modal-tabs">
                 <button class="tab-btn active" id="btn-tab-filosofia" onclick="switchInfoTab('filosofia')">LÚMINA</button>
                 <button class="tab-btn" id="btn-tab-viaje" onclick="switchInfoTab('viaje')">MI VIAJE</button>
+                <button class="tab-btn" id="btn-tab-diario" onclick="switchInfoTab('diario')">MI DIARIO</button>
             </div>
 
             <!-- TAB: FILOSOFÍA -->
@@ -962,7 +1139,6 @@
                     <h4>Aprendizaje Modular</h4>
                     <p>Cada lección es una joya de sabiduría independiente. Incluye su propia aplicación personal, profesional y reflexión. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
                 </div>
-                
                 <div id="journey-timeline" class="timeline-container">
                     <div style="padding: 40px; opacity: 0.5;">Cargando cronograma...</div>
                 </div>
@@ -975,6 +1151,17 @@
                 </div>
             </div>
 
+            <!-- TAB: DIARIO (NUEVO) -->
+            <div id="info-tab-diario" style="display: none;">
+                <div class="banner-standalone">
+                    <h4>Tus Reflexiones</h4>
+                    <p>Aquí se guardan los pensamientos que has compartido con Lúmina. Un registro de tu evolución personal.</p>
+                </div>
+                <div id="journal-history-list" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+
             <button class="btn-save" onclick="toggleInfo()" style="width: 100%; margin-top: 30px; padding: 15px;">ENTENDIDO</button>
         </div>
     </div>
@@ -984,14 +1171,9 @@
         <div class="modal-content" style="position:relative;">
             <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom:2rem; position:relative; z-index:1;">Ajustes</h2>
             
-            <!-- SECCIÓN 1: APARIENCIA Y VOZ -->
-            <div style="text-align: left; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">APARIENCIA Y AUDIO</div>
+            <!-- SECCIÓN 1: AUDIO -->
+            <div style="text-align: left; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">AUDIO</div>
             
-            <div class="sub-option" style="cursor:pointer;" onclick="toggleTheme()">
-                <span>Modo Noche</span>
-                <div class="toggle-sub" id="theme-toggle"></div>
-            </div>
-
             <div class="sub-option" style="cursor:pointer;" onclick="toggleCloudVoice()">
                 <div style="display: flex; flex-direction: column;">
                     <span>Voz Google Premium</span>
@@ -1000,11 +1182,57 @@
                 <div class="toggle-sub" id="cloud-voice-toggle"></div>
             </div>
 
+            <div style="text-align: left; margin: 20px 0 25px;">
+                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 5px; text-transform: uppercase;">Sonido de Ambiente</div>
+                <div class="ambient-controls">
+                    <button class="ambient-btn" id="amb-none" onclick="toggleAmbient('none')">SILENCIO</button>
+                    <button class="ambient-btn" id="amb-rain" onclick="toggleAmbient('rain')">LLUVIA</button>
+                    <button class="ambient-btn" id="amb-forest" onclick="toggleAmbient('forest')">BOSQUE</button>
+                    <button class="ambient-btn" id="amb-cafe" onclick="toggleAmbient('cafe')">CAFÉ</button>
+                </div>
+                <input type="range" id="ambient-vol" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; margin-top: 15px; accent-color: var(--accent); height: 4px; cursor: pointer;">
+            </div>
+
             <div style="text-align: left; margin: 15px 0 25px;">
-                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Selector de Voz</div>
+                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Selector de Voz del Sistema</div>
                 <select id="voice-select" onchange="saveVoicePreference()" style="width:100%; padding:12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(0,0,0,0.05); color:var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none;">
                     <option value="">Cargando voces...</option>
                 </select>
+            </div>
+
+            <!-- SECCIÓN 2: APARIENCIA -->
+            <div style="text-align: left; margin-top:20px; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">APARIENCIA</div>
+
+            <div class="sub-option" style="cursor:pointer; margin-bottom: 20px;" onclick="toggleTheme()">
+                <span>Modo Noche</span>
+                <div class="toggle-sub" id="theme-toggle"></div>
+            </div>
+            
+            <div style="text-align: left;">
+                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Color de Acento</div>
+                <div class="color-picker">
+                    <div class="color-circle" id="col-aureum" style="background:#b5833a" onclick="setAccent('#b5833a', 'aureum')" title="Aureum (Oro)"></div>
+                    <div class="color-circle" id="col-aether" style="background:#38bdf8" onclick="setAccent('#38bdf8', 'aether')" title="Aether (Azul)"></div>
+                    <div class="color-circle" id="col-viridis" style="background:#10b981" onclick="setAccent('#10b981', 'viridis')" title="Viridis (Esmeralda)"></div>
+                    <div class="color-circle" id="col-terra" style="background:#e2725b" onclick="setAccent('#e2725b', 'terra')" title="Terra (Arcilla)"></div>
+                    <div class="color-circle" id="col-vesper" style="background:#8b5cf6" onclick="setAccent('#8b5cf6', 'vesper')" title="Vesper (Violeta)"></div>
+                </div>
+
+                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Estilo de Texto</div>
+                <div class="font-picker">
+                    <div class="font-pair-btn" id="font-esenza" onclick="setFontPair('esenza')">
+                        <span class="pair-name" style="font-family:'Playfair Display', serif;">Esenza</span>
+                        <span class="pair-desc">Clásico y Atemporal</span>
+                    </div>
+                    <div class="font-pair-btn" id="font-nova" onclick="setFontPair('nova')">
+                        <span class="pair-name" style="font-family:'Outfit', sans-serif;">Nova</span>
+                        <span class="pair-desc">Moderno y Tecnológico</span>
+                    </div>
+                    <div class="font-pair-btn" id="font-sereni" onclick="setFontPair('sereni')">
+                        <span class="pair-name" style="font-family:'Lora', serif;">Sereni</span>
+                        <span class="pair-desc">Editorial y Sofisticado</span>
+                    </div>
+                </div>
             </div>
 
             <!-- SECCIÓN 2: NOTIFICACIONES -->
@@ -1063,22 +1291,22 @@
             
             <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-bottom: 10px;">NAVEGADORES (PWA)</div>
             <div class="install-grid">
-                <div class="install-card" id="inst-chrome" onclick="document.getElementById('pwainstall').install()">
-                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c1.782 0 3.448.47 4.888 1.288L11.53 12H4.07c.563-3.864 3.415-6.94 7.15-7.828L10.363 6.36c-.15.26-.26.543-.327.84H12c0-.55-.45-1-1-1C9.418 6.2 8 7.618 8 9.2c0 .244.032.483.093.712L4.316 11.5c-.203-.473-.316-.973-.316-1.5 0-2.21 1.79-4 4-4 .244 0 .483.032.712.093l1.503-3.088c.563 3.864 3.415 6.94 7.15 7.828l1.167-2.182c.15-.26.26-.543.327-.84H12c.55 0 1 .45 1 1 0 1.582-1.418 3-3 3-.244 0-.483-.032-.712-.093l-1.503 3.088c4.095-.596 7.315-3.8 7.91-7.896H22c0 .17-.01.34-.02.51l-4.22.45c.14.34.22.71.22 1.1 0 1.657-1.343 3-3 3-1.01 0-1.89-.49-2.43-1.24l-3.04 5.35c.48.14.98.22 1.49.22 1.782 0 3.448-.47 4.888-1.288L18.47 12h7.46c-.563 3.864-3.415 6.94-7.15 7.828l1.167-2.182z"/></svg>
+                <div class="install-card" id="inst-chrome" onclick="triggerPwaInstall()">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="21.17" y1="8" x2="12" y2="8"></line><line x1="3.95" y1="6.06" x2="8.54" y2="14"></line><line x1="10.88" y1="21.94" x2="15.46" y2="14"></line></svg>
                     <span>Chrome</span>
                     <small id="status-chrome">Disponible</small>
                 </div>
-                <div class="install-card" id="inst-safari" onclick="document.getElementById('pwainstall').install()">
-                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13l-2 5 5 2-5-2V7zM7.5 16.5l5-2-2-5-3 7z"/></svg>
+                <div class="install-card" id="inst-safari" onclick="alert('En iPhone/iPad: Toca el icono de compartir (flecha arriba) y selecciona \'Añadir a pantalla de inicio\'.')">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
                     <span>Safari</span>
-                    <small id="status-safari">Disponible</small>
+                    <small id="status-safari">Instrucciones</small>
                 </div>
-                <div class="install-card" id="inst-edge" onclick="document.getElementById('pwainstall').install()">
-                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c1.782 0 3.448.47 4.888 1.288L11.53 12H4.07c.563-3.864 3.415-6.94 7.15-7.828L10.363 6.36c-.15.26-.26.543-.327.84H12c0-.55-.45-1-1-1C9.418 6.2 8 7.618 8 9.2c0 .244.032.483.093.712L4.316 11.5c-.203-.473-.316-.973-.316-1.5 0-2.21 1.79-4 4-4 .244 0 .483.032.712.093l1.503-3.088c.563 3.864 3.415 6.94 7.15 7.828l1.167-2.182c.15-.26.26-.543.327-.84H12c.55 0 1 .45 1 1 0 1.582-1.418 3-3 3-.244 0-.483-.032-.712-.093l-1.503 3.088c4.095-.596 7.315-3.8 7.91-7.896H22c0 .17-.01.34-.02.51l-4.22.45c.14.34.22.71.22 1.1 0 1.657-1.343 3-3 3-1.01 0-1.89-.49-2.43-1.24l-3.04 5.35c.48.14.98.22 1.49.22 1.782 0 3.448-.47 4.888-1.288L18.47 12h7.46c-.563 3.864-3.415 6.94-7.15 7.828l1.167-2.182z"/></svg>
+                <div class="install-card" id="inst-edge" onclick="triggerPwaInstall()">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
                     <span>Edge</span>
                     <small id="status-edge">Disponible</small>
                 </div>
-                <div class="install-card" id="inst-firefox" onclick="document.getElementById('pwainstall').install()">
+                <div class="install-card" id="inst-firefox" onclick="triggerPwaInstall()">
                     <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M22.77 12.27c0 5.86-4.76 10.61-10.63 10.61-5.86 0-10.61-4.75-10.61-10.61S6.28 1.66 12.14 1.66c5.87 0 10.63 4.75 10.63 10.61zM16.5 7.5s-1.5-1.5-3-1.5-3 1.5-3 1.5l1.5 3-1.5 3 3 1.5 3-1.5-.5-3 1.5-3z"/></svg>
                     <span>Firefox</span>
                     <small id="status-firefox">Disponible</small>
@@ -1142,8 +1370,6 @@
             <pwa-install id="pwainstall" usecustom iosinstallinfotext="Toca el botón Compartir y añade a pantalla de inicio."></pwa-install>
             
             <button class="btn-save" onclick="document.getElementById('install-modal').classList.remove('active')" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;">CERRAR</button>
-        </div>
-    </div>
         </div>
     </div>
 
@@ -1555,12 +1781,88 @@
             setTimeout(() => popup.classList.remove('active'), 600);
         }
 
+        // --- GESTIÓN DE INSTALACIÓN PWA ---
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log("Evento PWA capturado. Listo para instalar.");
+            // Opcional: Mostrar un aviso visual de que la App se puede instalar
+        });
+
+        async function triggerPwaInstall() {
+            const pwaComp = document.getElementById('pwainstall');
+            if (deferredPrompt) {
+                // Usar el evento capturado directamente para máxima compatibilidad
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User choice: ${outcome}`);
+                deferredPrompt = null;
+            } else if (pwaComp && typeof pwaComp.install === 'function') {
+                // Fallback al componente PWABuilder
+                pwaComp.install();
+            } else {
+                // Si no hay nada, mostrar mensaje manual según navegador
+                const ua = navigator.userAgent.toLowerCase();
+                if (ua.includes('safari') && !ua.includes('chrome')) {
+                    alert("En iPhone/iPad: Toca 'Compartir' y luego 'Añadir a pantalla de inicio'.");
+                } else {
+                    alert("Busca el icono de 'Instalar App' en la barra de direcciones de tu navegador.");
+                }
+            }
+        }
+
+        // --- GAMIFICACIÓN ---
+        function updateStreak() {
+            const today = new Date().toDateString();
+            const lastVisit = localStorage.getItem('lumina_last_visit');
+            let streak = parseInt(localStorage.getItem('lumina_streak')) || 0;
+
+            if (lastVisit === today) {
+                // Ya entró hoy
+            } else {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (lastVisit === yesterday.toDateString()) {
+                    streak++;
+                } else {
+                    streak = 1; // Se rompió la racha o es primera vez
+                }
+                localStorage.setItem('lumina_last_visit', today);
+                localStorage.setItem('lumina_streak', streak);
+            }
+            document.getElementById('streak-val').innerText = streak;
+        }
+
+        function getMedalCount() {
+            // Basado en el progreso del viaje (podemos contar libros con 'completed' o similar)
+            const journey = JSON.parse(localStorage.getItem('lumina_journey_prog') || '{}');
+            let completed = 0;
+            for (let day in journey) {
+                if (journey[day].completed) completed++;
+            }
+            // Por ahora, 1 medalla por cada 7 lecciones completadas (un "logro")
+            return Math.floor(completed / 7);
+        }
+
+        function updateGamification() {
+            updateStreak();
+            document.getElementById('medals-val').innerText = getMedalCount();
+        }
+
         async function init() {
+            if (window.location.protocol === 'file:') {
+                console.warn("Lúmina: Detectado protocolo file://. Algunas funciones premium y el Service Worker estarán limitados por seguridad del navegador.");
+                alert("Lúmina detectó que estás abriendo el archivo directamente. Para que los sonidos, notificaciones y el diseño PWA funcionen, por favor usa el servidor local que te he creado (serve.py).");
+            }
+            updateGamification();
             loadTheme();
             populateVoices();
             await loadProState();
             updateHeaderDate();
             createMotes();
+            initAmbient(); // Inicializar sonidos de ambiente
             if ('serviceWorker' in navigator) {
                 try {
                     const registration = await navigator.serviceWorker.register('sw.js');
@@ -1904,6 +2206,7 @@
                 renderContent(cached);
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('main-ui').classList.add('loaded');
+                loadUserJournal(); // Cargar diario
                 checkOnline();
                 return;
             }
@@ -1917,6 +2220,7 @@
                 const data = await response.json();
                 setCache(currentCategory, data);
                 renderContent(data);
+                loadUserJournal(); // Cargar diario
                 checkOnline();
             } catch (e) {
                 console.warn("Error red, usando mejor caché disponible");
@@ -1933,6 +2237,7 @@
                 document.getElementById('loader').classList.add('hidden');
                 const mui = document.getElementById('main-ui');
                 if (mui) mui.classList.add('loaded');
+                loadUserJournal(); // Cargar diario
             }, 400);
         }
 
@@ -2010,20 +2315,26 @@
         function switchInfoTab(tab) {
             const btnFilo = document.getElementById('btn-tab-filosofia');
             const btnViaje = document.getElementById('btn-tab-viaje');
+            const btnDiario = document.getElementById('btn-tab-diario');
             const tabFilo = document.getElementById('info-tab-filosofia');
             const tabViaje = document.getElementById('info-tab-viaje');
+            const tabDiario = document.getElementById('info-tab-diario');
+
+            // Reset
+            [btnFilo, btnViaje, btnDiario].forEach(b => b?.classList.remove('active'));
+            [tabFilo, tabViaje, tabDiario].forEach(t => t ? t.style.display = 'none' : null);
 
             if (tab === 'filosofia') {
                 btnFilo.classList.add('active');
-                btnViaje.classList.remove('active');
                 tabFilo.style.display = 'block';
-                tabViaje.style.display = 'none';
-            } else {
-                btnFilo.classList.remove('active');
+            } else if (tab === 'viaje') {
                 btnViaje.classList.add('active');
-                tabFilo.style.display = 'none';
                 tabViaje.style.display = 'block';
                 renderJourney();
+            } else if (tab === 'diario') {
+                btnDiario.classList.add('active');
+                tabDiario.style.display = 'block';
+                renderJournalHistory();
             }
         }
 
@@ -2108,23 +2419,44 @@
         function dismissNotif(id, event) {
             if (event) event.stopPropagation();
 
-            // Optimismo UI: Ocultar inmediatamente
+            // 1. Optimismo UI: Ocultar y remover suavemente
             const target = (event && (event.currentTarget || event.target));
             const notifItem = target ? target.closest('.notif-item') : document.querySelector(`[data-id="${id}"]`);
             if (notifItem) {
                 notifItem.style.opacity = '0';
                 notifItem.style.transform = 'scale(0.95)';
                 notifItem.style.transition = 'all 0.3s ease';
-                setTimeout(() => notifItem.remove(), 300);
+                setTimeout(() => {
+                    notifItem.remove();
+                    // Si ya no quedan notificaciones, mostrar el mensaje de vacío
+                    const list = document.getElementById('notif-list');
+                    if (list && list.querySelectorAll('.notif-item').length === 0) {
+                        checkNotifications(); // Aquí sí recargamos para mostrar el estado vacío
+                    }
+                }, 300);
             }
 
+            // 2. Persistir descarte
             const dismissed = getDismissedNotifs();
             if (!dismissed.includes(id)) {
                 dismissed.push(id);
                 localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(dismissed));
             }
-            if (navigator.vibrate) navigator.vibrate(15); 
-            checkNotifications(); // Carga en segundo plano
+
+            // 3. Actualizar Badge en tiempo real (evita parpadeo de lista)
+            const badge = document.getElementById('notif-badge');
+            if (badge) {
+                let currentCount = parseInt(badge.innerText) || 0;
+                if (currentCount > 1) {
+                    badge.innerText = currentCount - 1;
+                    if ('setAppBadge' in navigator) navigator.setAppBadge(currentCount - 1).catch(() => {});
+                } else {
+                    badge.style.display = 'none';
+                    if ('clearAppBadge' in navigator) navigator.clearAppBadge();
+                }
+            }
+
+            if (navigator.vibrate) navigator.vibrate(12);
         }
 
         function clearAllNotifs() {
@@ -2306,6 +2638,152 @@
             }
         }
 
+        // --- LÓGICA DE DIARIO PERSONAL ---
+        let journalDebounce;
+        function saveUserJournal() {
+            clearTimeout(journalDebounce);
+            const status = document.getElementById('journal-save-status');
+            if(status) status.innerText = "Escribiendo...";
+            
+            journalDebounce = setTimeout(() => {
+                const text = document.getElementById('journal-input').value;
+                const title = document.getElementById(currentCategory === 'libros' ? 'lesson-title' : 'word-title').innerText;
+                const date = new Date().toDateString();
+                const key = `lumina_note_${currentCategory}_${date}`;
+                
+                if (text.trim() === "") {
+                    localStorage.removeItem(key);
+                } else {
+                    localStorage.setItem(key, JSON.stringify({
+                        title: title,
+                        notes: text,
+                        date: date,
+                        cat: currentCategory
+                    }));
+                }
+                if(status) status.innerText = "Guardado.";
+            }, 1000);
+        }
+
+        function loadUserJournal() {
+            const date = new Date().toDateString();
+            const key = `lumina_note_${currentCategory}_${date}`;
+            const saved = localStorage.getItem(key);
+            const input = document.getElementById('journal-input');
+            if (input) {
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    input.value = data.notes || "";
+                } else {
+                    input.value = "";
+                }
+            }
+        }
+
+        function renderJournalHistory() {
+            const list = document.getElementById('journal-history-list');
+            if (!list) return;
+            list.innerHTML = '';
+            
+            const notes = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('lumina_note_')) {
+                    try {
+                        notes.push(JSON.parse(localStorage.getItem(key)));
+                    } catch(e) {}
+                }
+            }
+            
+            // Ordenar por fecha (asumiendo formato toDateString)
+            notes.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (notes.length === 0) {
+                list.innerHTML = '<p style="opacity:0.4; padding:30px; text-align:center; font-size:0.85rem;">Aún no has escrito reflexiones. Comienza hoy en tu lección diaria.</p>';
+                return;
+            }
+            
+            notes.forEach(n => {
+                const item = document.createElement('div');
+                item.className = 'journal-history-item';
+                item.innerHTML = `
+                    <div class="journal-history-date">${n.date}</div>
+                    <div class="journal-history-title">${n.title}</div>
+                    <div class="journal-history-note">${n.notes.replace(/\n/g, '<br>')}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // --- LÓGICA DE SONIDOS DE AMBIENTE ---
+        const AMBIENT_SOURCES = {
+            'none': '',
+            'rain': 'https://www.soundjay.com/nature/rain-01.mp3',
+            'forest': 'https://www.soundjay.com/nature/forest-birds-01.mp3',
+            'cafe': 'https://www.soundjay.com/ambient/restaurant-ambience-01.mp3'
+        };
+
+        function toggleAmbient(type) {
+            const player = document.getElementById('ambient-player');
+            if (!player) return;
+            
+            localStorage.setItem('lumina_ambient', type);
+            updateAmbientUI(type);
+            
+            if (type === 'none') {
+                player.pause();
+                console.log("Ambiente: Silencio");
+            } else {
+                const src = AMBIENT_SOURCES[type];
+                player.src = src;
+                player.load();
+                // Reproducción inmediata dentro del evento click para evitar bloqueos
+                player.play().then(() => {
+                    console.log("Ambiente: Reproduciendo " + type);
+                }).catch(e => {
+                    console.error("Ambiente: Error al reproducir. Intentando de nuevo...", e);
+                    // Re-intento suave
+                    setTimeout(() => player.play(), 100);
+                });
+            }
+        }
+
+        function setAmbientVolume(val) {
+            const player = document.getElementById('ambient-player');
+            if (player) player.volume = val;
+            localStorage.setItem('lumina_ambient_vol', val);
+        }
+
+        function updateAmbientUI(activeType) {
+            document.querySelectorAll('.ambient-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById(`amb-${activeType}`);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+
+        function initAmbient() {
+            const player = document.getElementById('ambient-player');
+            if (player) {
+                player.onerror = () => {
+                   console.error("Ambiente: Error al cargar el sonido. Es posible que el navegador bloquee el archivo o el enlace haya cambiado.");
+                };
+            }
+            
+            const saved = localStorage.getItem('lumina_ambient') || 'none';
+            const vol = localStorage.getItem('lumina_ambient_vol') || '0.5';
+            const volInput = document.getElementById('ambient-vol');
+            if (volInput) volInput.value = vol;
+            
+            setAmbientVolume(vol);
+            if (saved !== 'none') {
+                updateAmbientUI(saved);
+                // No auto-play en init para evitar bloqueos del navegador
+            } else {
+                updateAmbientUI('none');
+            }
+        }
+
         async function updateSubscriptionUI() {
             try {
                 // Sincronizar UI con localStorage como base (funciona sin OneSignal)
@@ -2317,7 +2795,7 @@
                     else btn.classList.remove('active');
                 });
 
-                if (window.OneSignal && OneSignal.User) {
+                if (window.OneSignal && OneSignal.User && OneSignal.User.getTags) {
                     const tags = await OneSignal.User.getTags();
                     if (tags) {
                         for (let cat in tags) {
@@ -2332,9 +2810,9 @@
             } catch (e) { console.warn("Sync error:", e); }
 
             const pushBtn = document.getElementById('sub-push');
-            if (pushBtn && window.OneSignal) {
-                // OneSignal v16 usa optedIn para saber si está suscrito realmente
-                if (OneSignal.User.PushSubscription.optedIn) pushBtn.classList.add('active');
+            if (pushBtn && window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
+                const isOptedIn = OneSignal.User.PushSubscription.optedIn;
+                if (isOptedIn) pushBtn.classList.add('active');
                 else pushBtn.classList.remove('active');
             }
 
@@ -2351,6 +2829,61 @@
                 if (isCloud) cloudBtn.classList.add('active');
                 else cloudBtn.classList.remove('active');
             }
+
+            applyCustomization();
+        }
+
+        function setAccent(color, id) {
+            document.documentElement.style.setProperty('--accent', color);
+            localStorage.setItem('lumina_accent', color);
+            localStorage.setItem('lumina_accent_id', id);
+            
+            // Actualizar UI
+            document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('active'));
+            const activeCircle = document.getElementById(`col-${id}`);
+            if (activeCircle) activeCircle.classList.add('active');
+            
+            if (navigator.vibrate) navigator.vibrate(5);
+        }
+
+        function setFontPair(id) {
+            let heading = "'Playfair Display', serif";
+            let body = "'Inter', sans-serif";
+
+            if (id === 'nova') {
+                heading = "'Outfit', sans-serif";
+                body = "'Montserrat', sans-serif";
+            } else if (id === 'sereni') {
+                heading = "'Lora', serif";
+                body = "'Inter', sans-serif";
+            }
+
+            document.documentElement.style.setProperty('--font-heading', heading);
+            document.documentElement.style.setProperty('--font-body', body);
+            localStorage.setItem('lumina_font_pair', id);
+
+            // Actualizar UI
+            document.querySelectorAll('.font-pair-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`font-${id}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (navigator.vibrate) navigator.vibrate(5);
+        }
+
+        function applyCustomization() {
+            const savedAccent = localStorage.getItem('lumina_accent');
+            const savedAccentId = localStorage.getItem('lumina_accent_id') || 'aureum';
+            const savedFontPair = localStorage.getItem('lumina_font_pair') || 'esenza';
+
+            if (savedAccent) {
+                document.documentElement.style.setProperty('--accent', savedAccent);
+                const circle = document.getElementById(`col-${savedAccentId}`);
+                if (circle) circle.classList.add('active');
+            } else {
+                document.getElementById('col-aureum').classList.add('active');
+            }
+
+            setFontPair(savedFontPair);
         }
 
         async function toggleTag(cat) {
@@ -2371,35 +2904,60 @@
                     else await OneSignal.User.addTag(cat, "true");
                 }
                 
-                checkNotifications(); 
+                updateSubscriptionUI(); 
+                // Sincronizar notificaciones internas en segundo plano
+                setTimeout(checkNotifications, 500); 
                 
             } catch (e) {
                 console.warn("Sync OneSignal error:", e);
-                checkNotifications();
+                updateSubscriptionUI();
             }
         }
 
         async function togglePush() {
+            const btn = document.getElementById('sub-push');
+            if (!btn || btn.classList.contains('busy')) return;
+
             try {
                 if (navigator.vibrate) navigator.vibrate(12);
-                if (window.OneSignal && OneSignal.User) {
+                if (window.OneSignal && OneSignal.User && OneSignal.Notifications) {
+                    btn.classList.add('busy');
+
                     const permission = OneSignal.Notifications.permission;
+                    const nativePermission = OneSignal.Notifications.permissionNative; // 'granted', 'denied', 'default'
                     
-                    if (permission !== true) {
-                        // Si no hay permiso, forzamos el prompt (Slidedown o Nativo)
+                    if (nativePermission === 'denied') {
+                        alert("Has bloqueado las notificaciones en tu navegador. Por favor, habilítalas en la configuración del sitio para recibir alertas.");
+                        return;
+                    }
+
+                    if (!permission) {
+                        // Solicitar permiso si no lo hay (modal OneSignal)
                         await OneSignal.Slidedown.promptDefault();
                     } else {
-                        const isOptedIn = OneSignal.User.PushSubscription.optedIn;
-                        if (isOptedIn) {
-                            await OneSignal.User.PushSubscription.optOut();
-                        } else {
-                            await OneSignal.User.PushSubscription.optIn();
+                        // Optimismo UI
+                        btn.classList.toggle('active');
+
+                        // SYNC REAL
+                        const sub = OneSignal.User.PushSubscription;
+                        if (sub) {
+                            if (sub.optedIn) await sub.optOut();
+                            else await sub.optIn();
                         }
                     }
-                    // Sincronización manual de seguridad
-                    setTimeout(updateSubscriptionUI, 500); 
+                } else {
+                    alert("Cargando sistema de alertas... intenta en un momento.");
                 }
-            } catch (e) { console.warn("TogglePush error:", e); }
+            } catch (e) { 
+                console.warn("TogglePush error:", e);
+            } finally {
+                setTimeout(() => {
+                    if (btn) btn.classList.remove('busy');
+                    updateSubscriptionUI();
+                    // Sincronizar notificaciones internas en segundo plano
+                    setTimeout(checkNotifications, 500);
+                }, 1000);
+            }
         }
 
         function toggleTheme() {
@@ -2655,5 +3213,6 @@
             <a id="popup-btn" class="popup-btn" target="_blank"></a>
         </div>
     </div>
+    <audio id="ambient-player" loop style="display:none;"></audio>
 </body>
 </html>
