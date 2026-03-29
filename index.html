@@ -1832,8 +1832,8 @@
 
         function updateHeaderDate() {
             const now = new Date();
-            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-            const formatted = now.toLocaleDateString('es-ES', options).toUpperCase();
+            // Usamos nuestra función manual que es más confiable que toLocaleDateString en algunos móviles
+            const formatted = getSpanishDate(now, false).toUpperCase();
             document.getElementById('header-date').innerText = formatted;
         }
 
@@ -2082,10 +2082,17 @@
         }
 
         // Helper para fechas en español
-        function getSpanishDate(dateObj = new Date()) {
-            const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        function getSpanishDate(dateObj = new Date(), short = true) {
+            const daysShort = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            const daysLong = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
             const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-            return `${days[dateObj.getDay()]}, ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+            const monthsLong = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            
+            if (short) {
+                return `${daysShort[dateObj.getDay()]}, ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+            } else {
+                return `${daysLong[dateObj.getDay()]}, ${dateObj.getDate()} de ${monthsLong[dateObj.getMonth()]} de ${dateObj.getFullYear()}`;
+            }
         }
 
         async function activatePro() {
@@ -2761,8 +2768,9 @@
             journalDebounce = setTimeout(() => {
                 const text = document.getElementById('journal-input').value;
                 const title = document.getElementById(currentCategory === 'libros' ? 'lesson-title' : 'word-title').innerText;
-                const dateKey = new Date().toDateString(); // Mantener inglés para la KEY
-                const dateDisplay = getSpanishDate(); // Español para el VALOR
+                const now = new Date();
+                const dateKey = now.toDateString(); 
+                const dateDisplay = getSpanishDate(now, true); 
                 const key = `lumina_note_${currentCategory}_${dateKey}`;
                 
                 if (text.trim() === "") {
@@ -2772,6 +2780,7 @@
                         title: title,
                         notes: text,
                         date: dateDisplay,
+                        timestamp: now.getTime(), // Para ordenar correctamente
                         cat: currentCategory
                     }));
                 }
@@ -2804,13 +2813,18 @@
                 const key = localStorage.key(i);
                 if (key.startsWith('lumina_note_')) {
                     try {
-                        notes.push(JSON.parse(localStorage.getItem(key)));
+                        const n = JSON.parse(localStorage.getItem(key));
+                        // Re-validación del formato de fecha para notas antiguas si no tienen timestamp
+                        if (!n.timestamp) {
+                            n.timestamp = new Date(n.date).getTime() || 0;
+                        }
+                        notes.push(n);
                     } catch(e) {}
                 }
             }
             
-            // Ordenar por fecha (asumiendo formato toDateString)
-            notes.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Ordenar por timestamp (descendente)
+            notes.sort((a, b) => b.timestamp - a.timestamp);
             
             if (notes.length === 0) {
                 list.innerHTML = '<p style="opacity:0.4; padding:30px; text-align:center; font-size:0.85rem;">Aún no has escrito reflexiones. Comienza hoy en tu lección diaria.</p>';
@@ -2818,10 +2832,17 @@
             }
             
             notes.forEach(n => {
+                // Si la fecha guardada era en inglés (Sun Mar 29...), intentamos mostrarla mejor
+                let displayDate = n.date;
+                if (displayDate.length > 15 && displayDate.includes('202')) {
+                    const testDate = new Date(displayDate);
+                    if (!isNaN(testDate)) displayDate = getSpanishDate(testDate, true);
+                }
+
                 const item = document.createElement('div');
                 item.className = 'journal-history-item';
                 item.innerHTML = `
-                    <div class="journal-history-date">${n.date}</div>
+                    <div class="journal-history-date">${displayDate}</div>
                     <div class="journal-history-title">${n.title}</div>
                     <div class="journal-history-note">${n.notes.replace(/\n/g, '<br>')}</div>
                 `;
