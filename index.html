@@ -1937,6 +1937,7 @@
         function confirmEndTrial() {
             localStorage.setItem('lumina_trial_active', 'false');
             localStorage.setItem('lumina_trial_used', 'true');
+            localStorage.removeItem('lumina_trial_start');
             localStorage.removeItem('lumina_data_libros');
             showToast("Periodo de prueba finalizado.");
             closeModals();
