@@ -1663,7 +1663,8 @@
             const now = new Date();
             now.setHours(0, 0, 0, 0);
             const diffTime = now - startDate;
-            return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            // Usar Math.round en lugar de Math.floor para compensar cambios de horario (DST) donde el día tiene 23 o 25 horas
+            return Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
         }
 
         function checkTrial() {
@@ -2199,25 +2200,54 @@
 
         // --- GAMIFICACIÓN ---
         function updateStreak() {
-            const today = new Date().toDateString();
-            const lastVisit = localStorage.getItem('lumina_last_visit');
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            const lastTs = localStorage.getItem('lumina_last_visit_ts');
+            const legacyStr = localStorage.getItem('lumina_last_visit'); // Respaldo del formato anterior
             let streak = parseInt(localStorage.getItem('lumina_streak')) || 0;
 
-            if (lastVisit === today) {
-                // Ya entró hoy
-            } else {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                
-                if (lastVisit === yesterday.toDateString()) {
-                    streak++;
-                } else {
-                    streak = 1; // Se rompió la racha o es primera vez
+            let diffDays = -1; // -1 significa primera vez
+
+            if (lastTs) {
+                const lastDate = new Date(parseInt(lastTs));
+                lastDate.setHours(0, 0, 0, 0);
+                diffDays = Math.round((now - lastDate) / (1000 * 60 * 60 * 24));
+            } else if (legacyStr) {
+                const lastDate = new Date(legacyStr);
+                lastDate.setHours(0, 0, 0, 0);
+                if (!isNaN(lastDate.getTime())) {
+                    diffDays = Math.round((now - lastDate) / (1000 * 60 * 60 * 24));
                 }
-                localStorage.setItem('lumina_last_visit', today);
-                localStorage.setItem('lumina_streak', streak);
             }
-            document.getElementById('streak-val').innerText = streak;
+
+            if (diffDays === -1) {
+                streak = 1;
+            } else if (diffDays === 0) {
+                // Ya entró hoy, no hacemos nada
+            } else if (diffDays === 1) {
+                streak++; // Día consecutivo
+            } else {
+                streak = 1; // Se rompió la racha
+            }
+
+            // AUTO-RECUPERACIÓN: Si sabemos que el usuario empezó el trial ayer (Día 2) 
+            // y la racha por el bug se quedó en 1 o se rompió, se la restauramos compasivamente.
+            const tStart = localStorage.getItem('lumina_trial_start');
+            if (tStart && streak < 2) {
+                const sd = new Date(parseInt(tStart));
+                sd.setHours(0, 0, 0, 0);
+                if (Math.round((now - sd) / (1000 * 60 * 60 * 24)) === 1) {
+                    streak = 2; 
+                }
+            }
+
+            // Guardamos el nuevo formato robusto
+            localStorage.setItem('lumina_last_visit_ts', Date.now().toString());
+            localStorage.setItem('lumina_streak', streak);
+
+            const streakEl = document.getElementById('streak-val');
+            if (streakEl) streakEl.innerText = streak;
         }
 
         function getMedalCount() {
@@ -3039,7 +3069,7 @@
                 count++;
             };
 
-            const isSub = (c) => localStorage.getItem(`lumina_sub_${c}`) === 'true';
+            const isSub = (c) => localStorage.getItem(`lumina_sub_${c}`) !== 'false';
             const hasAnySub = ['palabras', 'afirmaciones', 'frases', 'libros'].some(c => isSub(c));
 
             try {
@@ -3298,7 +3328,7 @@
                 ['palabras', 'afirmaciones', 'frases', 'libros'].forEach(cat => {
                     const btn = document.getElementById(`sub-${cat}`);
                     if (!btn) return;
-                    const isSub = localStorage.getItem(`lumina_sub_${cat}`) === 'true';
+                    const isSub = localStorage.getItem(`lumina_sub_${cat}`) !== 'false';
                     if (isSub) btn.classList.add('active');
                     else btn.classList.remove('active');
                 });
@@ -3306,13 +3336,18 @@
                 if (window.OneSignal && OneSignal.User && OneSignal.User.getTags) {
                     const tags = await OneSignal.User.getTags();
                     if (tags) {
-                        for (let cat in tags) {
+                        ['palabras', 'afirmaciones', 'frases', 'libros'].forEach(cat => {
                             const btn = document.getElementById(`sub-${cat}`);
-                            if (btn && tags[cat] === 'true') {
-                                btn.classList.add('active');
-                                localStorage.setItem(`lumina_sub_${cat}`, 'true');
+                            if (btn) {
+                                if (tags[cat] === 'true') {
+                                    btn.classList.add('active');
+                                    localStorage.setItem(`lumina_sub_${cat}`, 'true');
+                                } else if (tags[cat] === 'false') {
+                                    btn.classList.remove('active');
+                                    localStorage.setItem(`lumina_sub_${cat}`, 'false');
+                                }
                             }
-                        }
+                        });
                     }
                 }
             } catch (e) { console.warn("Sync error:", e); }
@@ -3406,20 +3441,28 @@
                 const btn = document.getElementById(`sub-${cat}`);
                 const isSubscribed = btn.classList.contains('active');
                 
+                const nextState = isSubscribed ? 'false' : 'true';
+                
                 // 1. FEEDBACK INSTANTÁNEO (UI LOCAL)
-                localStorage.setItem(`lumina_sub_${cat}`, isSubscribed ? 'false' : 'true');
-                updateSubscriptionUI();
+                localStorage.setItem(`lumina_sub_${cat}`, nextState);
+                if (nextState === 'true') {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
                 
                 // 2. SYNC ASYNC (ONESIGNAL)
                 if (window.OneSignal && OneSignal.User) {
                     if (OneSignal.Notifications.permission !== true) {
-                        await OneSignal.Notifications.requestPermission();
+                        OneSignal.Notifications.requestPermission();
                     }
-                    if (isSubscribed) await OneSignal.User.removeTag(cat);
-                    else await OneSignal.User.addTag(cat, "true");
+                    if (isSubscribed) {
+                        OneSignal.User.removeTag(cat);
+                    } else {
+                        OneSignal.User.addTag(cat, "true");
+                    }
                 }
                 
-                updateSubscriptionUI(); 
                 // Sincronizar notificaciones internas en segundo plano
                 setTimeout(checkNotifications, 500); 
                 
