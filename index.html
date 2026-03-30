@@ -2337,10 +2337,18 @@
             localStorage.setItem('lumina_last_day_active', today);
         }
 
+        const APP_VERSION = '2.5.1'; // Bumper para forzar limpieza de memoria antigua
+
         async function init() {
             if (window.location.protocol === 'file:') {
                 console.warn("Lúmina: Detectado protocolo file://. Algunas funciones premium y el Service Worker estarán limitados por seguridad del navegador.");
                 showToast("Usa el servidor local para activar todos los sonidos y funciones.", "error");
+            }
+            
+            // Migración de una sola vez: al cambiar de versión, limpiamos notificaciones "stuck"
+            if (localStorage.getItem('lumina_app_v') !== APP_VERSION) {
+                localStorage.removeItem('lumina_dismissed_notifs');
+                localStorage.setItem('lumina_app_v', APP_VERSION);
             }
             
             // Verificación inicial de cambio de día

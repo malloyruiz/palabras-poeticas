@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lumina-v6'; // Forzar actualización de navegación por hash
+const CACHE_NAME = 'lumina-v7'; // Forzar actualización para Midnight Refresh y nuevos IDs
 const ASSETS = [
     "index.html",
     "manifest.json",
