@@ -73,6 +73,8 @@
             --text: #1a1a1a;
             --accent: #b5833a;
             --text-dim: rgba(26, 26, 26, 0.4);
+            --card-bg: #f7f3eb;
+            --card-border: rgba(181, 131, 58, 0.1);
             --transition: 0.5s cubic-bezier(0.2, 0, 0, 1);
         }
 
@@ -81,6 +83,8 @@
             --text: #e2e8f0;
             --accent: #38bdf8;
             --text-dim: rgba(226, 232, 240, 0.3);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
         }
         [data-theme="dark"] select, [data-theme="dark"] input {
             background: rgba(255,255,255,0.05) !important;
@@ -1086,7 +1090,7 @@
             </div> <!-- Fin item Libros -->
             
             <!-- BANNER PRO REFINADO (HUB) -->
-            <div id="hub-pro-banner" style="background: #f7f3eb; border: 1px solid rgba(181, 131, 58, 0.1); margin: 25px; padding: 45px 35px; border-radius: 32px; text-align: center; margin-top: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+            <div id="hub-pro-banner" style="background: var(--card-bg); border: 1px solid var(--card-border); margin: 25px; padding: 45px 35px; border-radius: 32px; text-align: center; margin-top: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
                 <div style="font-size: 0.6rem; letter-spacing: 4px; color: var(--accent); font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">LIBERA TU POTENCIAL</div>
                 <p style="font-size: 0.85rem; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; font-weight: 300;">
                     Únete al Club de Libros y accede a lecciones de sabiduría profunda con tu periodo de prueba de 14 días.
@@ -1520,7 +1524,7 @@
 
     <!-- Modal Go Pro / Trial (Diseño Refinado) -->
     <div id="pro-modal" class="modal">
-        <div class="modal-content" style="text-align: center; padding: 45px 35px; background: #f7f3eb; border-radius: 32px; border: 1px solid rgba(181, 131, 58, 0.1); max-width: 420px; box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
+        <div class="modal-content" style="text-align: center; padding: 45px 35px; background: var(--card-bg); border-radius: 32px; border: 1px solid var(--card-border); max-width: 420px; box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
             
             <div style="font-size: 0.65rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 25px; font-weight: 600; text-transform: uppercase;">Libera tu Potencial</div>
             
@@ -1570,7 +1574,7 @@
 
     <!-- Modal Finalizar Prueba -->
     <div id="end-trial-modal" class="modal">
-        <div class="modal-content" style="text-align: center; max-width: 380px; padding: 45px 35px; background: #f7f3eb; border-radius: 32px; border: 1px solid rgba(181, 131, 58, 0.1); box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
+        <div class="modal-content" style="text-align: center; max-width: 380px; padding: 45px 35px; background: var(--card-bg); border-radius: 32px; border: 1px solid var(--card-border); box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
             <div style="width: 60px; height: 60px; background: rgba(220, 53, 69, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
                 <svg viewBox="0 0 24 24" width="30" height="30" stroke="#dc3545" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
             </div>
@@ -1624,9 +1628,9 @@
                     </div>
                     <div id="profile-pro-activation" style="display: none; padding-top: 15px; border-top: 1px dashed rgba(181, 131, 58, 0.2); margin-top: 15px;">
                         <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Eleva tu nivel con Lúmina Pro:</p>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="pro-key-input-profile" placeholder="Código..." style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.5); color: var(--text); outline: none; font-size: 0.85rem;">
-                            <button class="btn-save" onclick="activateProProfile()" style="margin: 0; padding: 12px 20px; font-size: 0.75rem;">ACTIVAR</button>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <input type="text" id="pro-key-input-profile" placeholder="Código..." style="width: 100%; box-sizing: border-box; padding: 15px 20px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 1rem;">
+                            <button id="btn-activate-pro-profile" class="btn-save" onclick="activateProProfile()" style="margin: 0; padding: 15px; font-size: 0.85rem; width: 100%; border-radius: 16px; background: var(--text); color: var(--bg); display: block;">ACTIVAR</button>
                         </div>
                     </div>
                 </div>
@@ -2307,11 +2311,41 @@
             document.getElementById('medals-val').innerText = getMedalCount();
         }
 
+        function checkMidnightRefresh() {
+            const today = new Date().toDateString();
+            const lastDay = localStorage.getItem('lumina_last_day_active');
+            
+            if (lastDay && lastDay !== today) {
+                console.log("Lúmina: Cambio de día detectado. Refrescando estados...");
+                
+                // 1. Limpiar SOLO notificaciones automáticas (memoria diaria)
+                // Las 'extra' (personalizadas) se mantienen bloqueadas si el usuario las cerró
+                const dismissed = JSON.parse(localStorage.getItem('lumina_dismissed_notifs') || '[]');
+                const autoCats = ['palabras', 'afirmaciones', 'frases', 'libros'];
+                const filtered = dismissed.filter(id => !autoCats.some(ac => id.startsWith(ac + ":")));
+                localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(filtered));
+                
+                // 2. Ejecutar actualizaciones de estado existentes (SIN TOCAR LÓGICA INTERNA)
+                updateHeaderDate(); 
+                loadProState(); 
+                checkNotifications();
+                updateGamification();
+                updateHubInfo();
+                
+                if (navigator.vibrate) navigator.vibrate([10, 30]);
+            }
+            localStorage.setItem('lumina_last_day_active', today);
+        }
+
         async function init() {
             if (window.location.protocol === 'file:') {
                 console.warn("Lúmina: Detectado protocolo file://. Algunas funciones premium y el Service Worker estarán limitados por seguridad del navegador.");
                 showToast("Usa el servidor local para activar todos los sonidos y funciones.", "error");
             }
+            
+            // Verificación inicial de cambio de día
+            checkMidnightRefresh();
+            
             updateGamification();
             loadTheme();
             populateVoices();
@@ -2344,6 +2378,9 @@
             updateHubInfo();
             checkNotifications();
             checkEmergencyPopup(); 
+            
+            // Monitor de cambio de día cada 10 minutos (para Apps que quedan abiertas)
+            setInterval(checkMidnightRefresh, 10 * 60 * 1000);
             
             // PERMISO GLOBITO (BADGE)
             if ("Notification" in window && Notification.permission === "default") {
@@ -3080,7 +3117,7 @@
             let count = 0;
 
             const addNotif = (cat, tit, msg, link, isExtra = false) => {
-                const nId = btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32);
+                const nId = (cat || 'extra') + ":" + btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32);
                 if (dismissed.includes(nId)) return;
 
                 const currentDate = new Date();
