@@ -320,6 +320,14 @@
         .reflection-box { margin-top: 60px; padding: 40px; background: rgba(181, 131, 58, 0.05); border-radius: 30px; text-align: center; }
         .reflection-box em { font-family: 'Playfair Display', serif; font-size: 1.4rem;  display: block; margin-top: 15px; }
         
+        /* Reto del Día */
+        #reto-del-dia { display: none; }
+        body.cat-palabras #reto-del-dia { display: block; }
+        #reflexion-del-dia { display: none; }
+        body.cat-afirmaciones #reflexion-del-dia { display: block; }
+        .reto-label { font-size: 0.6rem; letter-spacing: 3px; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-bottom: 15px; }
+        .reto-text { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-style: italic; display: block; margin-top: 10px; line-height: 1.6; opacity: 0.9; }
+
         /* Header Labels */
         .date-full { font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 500; }
         .cat-label { font-size: 0.8rem; letter-spacing: 5px; opacity: 0.4; text-transform: uppercase; margin-bottom: 10px; font-weight: 300; }
@@ -958,10 +966,35 @@
         [data-theme="dark"] .user-reflection-card { background: rgba(255,255,255,0.02); }
         [data-theme="dark"] .journal-history-item { border-bottom-color: rgba(255,255,255,0.05); }
 
-        /* Ajuste de posición escritorio */
+        /* Panel de Hábitos Rediseñado */
+        .habitos-panel { margin-top: 22px; padding: 16px; background: rgba(181,131,58,0.04); border: 1px solid rgba(181,131,58,0.1); border-radius: 20px; animation: fadeIn 1s ease 0.5s both; }
+        .habitos-title { font-size: 0.45rem; letter-spacing: 3px; color: var(--accent); opacity: 0.5; text-transform: uppercase; font-weight: 700; margin-bottom: 12px; }
+        .habitos-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+        .habito-stat { background: rgba(181,131,58,0.05); border-radius: 14px; padding: 12px 14px; cursor: pointer; position: relative; transition: 0.2s; }
+        .habito-stat:hover { background: rgba(181,131,58,0.1); }
+        .habito-stat:hover .gam-tooltip, .habito-stat.show-tip .gam-tooltip { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .habito-stat-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; display: block; line-height: 1.1; }
+        .habito-stat-label { font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; display: block; margin-top: 5px; }
+        .habito-stat-desc { font-size: 0.55rem; opacity: 0.4; display: block; margin-top: 3px; line-height: 1.3; }
+        .habito-icon { width: 16px; height: 16px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; margin-bottom: 8px; }
+        .habitos-divider { border: none; border-top: 1px solid rgba(181,131,58,0.08); margin: 0 0 12px; }
+        .habitos-dots-label { font-size: 0.42rem; letter-spacing: 2px; opacity: 0.3; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 9px; }
+        .racha-visual { display: flex; gap: 2px; justify-content: space-between; width: 100%; }
+        .racha-dot { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .racha-dot-circle { width: 7px; height: 7px; border-radius: 50%; background: rgba(181,131,58,0.12); transition: all 0.4s; }
+        .racha-dot.visited .racha-dot-circle { background: var(--accent); box-shadow: 0 0 5px rgba(181,131,58,0.4); }
+        .racha-dot.today .racha-dot-circle { background: var(--accent); box-shadow: 0 0 8px rgba(181,131,58,0.7); transform: scale(1.35); }
+        .racha-dot.future .racha-dot-circle { opacity: 0.2; }
+        .racha-dot-lbl { font-size: 0.37rem; letter-spacing: 0.3px; opacity: 0.3; text-transform: uppercase; }
+        .racha-dot.today .racha-dot-lbl { opacity: 0.7; color: var(--accent); }
+        .logro-hoy-badge { display: none; align-items: center; gap: 8px; margin-top: 13px; padding-top: 11px; border-top: 1px solid rgba(181,131,58,0.08); cursor: pointer; position: relative; }
+        .logro-hoy-badge.show { display: flex; animation: fadeIn 0.5s ease; }
+        .logro-hoy-badge:hover .gam-tooltip, .logro-hoy-badge.show-tip .gam-tooltip { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .logro-hoy-badge .logro-label { font-size: 0.62rem; letter-spacing: 1px; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+
         @media (min-width: 1025px) {
             .hub-hero-inner { display: flex; flex-direction: column; height: 100%; min-height: 500px; }
-            .gamification-bar { margin-top: auto; padding-bottom: 20px; }
+            .habitos-panel { margin-top: auto; }
         }
 
         /* --- SISTEMA DE TOAST PREMIUM --- */
@@ -1029,26 +1062,50 @@
                 <h1 id="hero-title">Lúmina</h1>
                 <p id="hero-tagline">CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL</p>
                 <div id="now-learning-hub"></div>
-                <div class="gamification-bar">
-                    <div class="gam-item" onclick="this.classList.toggle('show-tip')">
-                        <svg class="gam-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
-                        <span class="gam-text">Racha</span>
-                        <span class="gam-val" id="streak-val">0</span>
-                        <div class="gam-tooltip">
-                            <b>Racha Diaria</b>
-                            Días seguidos conectando con tu sabiduría. Entra cada día para mantener el fuego de tu hábito encendido.
+                <!-- PANEL DE HÁBITOS -->
+                <div class="habitos-panel">
+                    <div class="habitos-title">Mis Hábitos</div>
+
+                    <!-- Stats: Racha + Logros -->
+                    <div class="habitos-stats">
+                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
+                            <span class="habito-stat-num" id="streak-val">0</span>
+                            <span class="habito-stat-label">Racha</span>
+                            <span class="habito-stat-desc">Días seguidos de sabiduría</span>
+                            <div class="gam-tooltip">
+                                <b>Racha Diaria</b>
+                                Entra cada día para mantener el fuego de tu hábito encendido.
+                            </div>
+                        </div>
+                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                            <span class="habito-stat-num" id="medals-val">0</span>
+                            <span class="habito-stat-label">Logros</span>
+                            <span class="habito-stat-desc">Por cada 7 lecciones completadas</span>
+                            <div class="gam-tooltip">
+                                <b>Tus Logros</b>
+                                Ganas 1 logro por cada 7 lecciones completadas en la sección "Mi Viaje". Completa lecciones de Libros para desbloquearlos.
+                            </div>
                         </div>
                     </div>
-                    <div class="gam-item" onclick="this.classList.toggle('show-tip')">
-                        <svg class="gam-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                        <span class="gam-text">Logros</span>
-                        <span class="gam-val" id="medals-val">0</span>
+
+                    <!-- Puntos 7 días (Dom—Sáb) -->
+                    <hr class="habitos-divider">
+                    <span class="habitos-dots-label">Esta semana</span>
+                    <div class="racha-visual" id="racha-visual"><!-- dots por JS --></div>
+
+                    <!-- Logro del Día -->
+                    <div class="logro-hoy-badge" id="logro-hoy" onclick="this.classList.toggle('show-tip')">
+                        <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
+                        <span class="logro-label">Logro del Día — Sabiduría Completa</span>
                         <div class="gam-tooltip">
-                            <b>Tus Logros</b>
-                            Medallas ganadas por tu constancia. Obtienes un nuevo logro por cada 7 lecciones completadas en "Mi Viaje".
+                            <b>¡Excelente!</b>
+                            Visitaste las 4 secciones hoy. Tu mente está en pleno movimiento.
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
         
@@ -1132,6 +1189,18 @@
                 </div>
             </div>
             
+            <!-- RETO DEL DÍA (solo Palabras) -->
+            <div id="reto-del-dia" style="grid-column: 1 / -1; margin-top: 20px; padding: 40px; background: rgba(181,131,58,0.05); border-radius: 30px; text-align: center;">
+                <div class="reto-label">⚡ Reto del Día</div>
+                <em id="reto-text" class="reto-text">Usa la palabra de hoy en una conversación real.</em>
+            </div>
+
+            <!-- PREGUNTA DE REFLEXIÓN (solo Afirmaciones) -->
+            <div id="reflexion-del-dia" style="grid-column: 1 / -1; margin-top: 20px; padding: 40px; background: rgba(181,131,58,0.05); border-radius: 30px; text-align: center;">
+                <div class="reto-label">💭 Pregunta de Reflexión</div>
+                <em id="reflexion-text" class="reto-text">¿Qué parte de ti necesita escuchar esto hoy?</em>
+            </div>
+            
             <!-- VISTA DE LECCIONES (EXTRA) -->
             <div class="lesson-container" id="lesson-ui">
                 <div class="content-header">
@@ -1169,6 +1238,9 @@
                 </div>
             </div>
         </main>
+
+        </main>
+
     </div>
 
         <footer>
@@ -1631,18 +1703,49 @@
                         <div style="display: flex; flex-direction: column; gap: 12px;">
                             <input type="text" id="pro-key-input-profile" placeholder="Código..." style="width: 100%; box-sizing: border-box; padding: 15px 20px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 1rem;">
                             <button id="btn-activate-pro-profile" class="btn-save" onclick="activateProProfile()" style="margin: 0; padding: 15px; font-size: 0.85rem; width: 100%; border-radius: 16px; background: var(--text); color: var(--bg); display: block;">ACTIVAR</button>
+                            <p style="font-size: 0.65rem; opacity: 0.4; text-align: center; margin: 5px 0 0; line-height: 1.5;">¿Problemas con tu código? Escríbenos a<br><a href="mailto:dscarteleriadigital@gmail.com" style="color: var(--accent); opacity: 0.8; text-decoration: none;">dscarteleriadigital@gmail.com</a></p>
                         </div>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div style="background: rgba(181, 131, 58, 0.03); border: 1px solid rgba(181, 131, 58, 0.1); padding: 20px; border-radius: 24px; text-align: center;">
-                        <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Racha</div>
-                        <div id="profile-streak-val" style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;">0</div>
+                <!-- PANEL DE HÁBITOS (Perfil) -->
+                <div class="habitos-panel" style="margin-bottom: 25px;">
+                    <div class="habitos-title">Mis Hábitos</div>
+
+                    <div class="habitos-stats">
+                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
+                            <span class="habito-stat-num" id="profile-streak-val">0</span>
+                            <span class="habito-stat-label">Racha</span>
+                            <span class="habito-stat-desc">Días seguidos de sabiduría</span>
+                            <div class="gam-tooltip">
+                                <b>Racha Diaria</b>
+                                Entra cada día para mantener el fuego de tu hábito encendido.
+                            </div>
+                        </div>
+                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                            <span class="habito-stat-num" id="profile-medals-val">0</span>
+                            <span class="habito-stat-label">Logros</span>
+                            <span class="habito-stat-desc">Por cada 7 lecciones completadas</span>
+                            <div class="gam-tooltip">
+                                <b>Tus Logros</b>
+                                Medallas ganadas por tu constancia en "Mi Viaje".
+                            </div>
+                        </div>
                     </div>
-                    <div style="background: rgba(181, 131, 58, 0.03); border: 1px solid rgba(181, 131, 58, 0.1); padding: 20px; border-radius: 24px; text-align: center;">
-                        <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Logros</div>
-                        <div id="profile-medals-val" style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;">0</div>
+
+                    <hr class="habitos-divider">
+                    <span class="habitos-dots-label">Esta semana</span>
+                    <div class="racha-visual" id="profile-racha-visual"><!-- dots por JS --></div>
+
+                    <div class="logro-hoy-badge" id="profile-logro-hoy" onclick="this.classList.toggle('show-tip')">
+                        <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
+                        <span class="logro-label">Logro del Día — Sabiduría Completa</span>
+                        <div class="gam-tooltip">
+                            <b>¡Excelente!</b>
+                            Visitaste las 4 secciones hoy. Tu mente está en pleno movimiento.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2291,8 +2394,22 @@
             localStorage.setItem('lumina_last_visit_ts', Date.now().toString());
             localStorage.setItem('lumina_streak', streak);
 
+            // LOG DE DÍAS VISITADOS (para racha visual)
+            if (diffDays !== 0) { // Solo registrar si es un día nuevo
+                const todayStr = new Date().toDateString();
+                const visitLog = JSON.parse(localStorage.getItem('lumina_visit_log') || '[]');
+                if (!visitLog.includes(todayStr)) {
+                    visitLog.push(todayStr);
+                    // Conservar solo los últimos 30 días
+                    if (visitLog.length > 30) visitLog.splice(0, visitLog.length - 30);
+                    localStorage.setItem('lumina_visit_log', JSON.stringify(visitLog));
+                }
+            }
+
             const streakEl = document.getElementById('streak-val');
             if (streakEl) streakEl.innerText = streak;
+            const profileStreakEl = document.getElementById('profile-streak-val');
+            if (profileStreakEl) profileStreakEl.innerText = streak;
         }
 
         function getMedalCount() {
@@ -2308,7 +2425,87 @@
 
         function updateGamification() {
             updateStreak();
-            document.getElementById('medals-val').innerText = getMedalCount();
+            const medals = getMedalCount();
+            document.getElementById('medals-val').innerText = medals;
+            const profileMedals = document.getElementById('profile-medals-val');
+            if (profileMedals) profileMedals.innerText = medals;
+            renderRachaVisual();
+            updateLogroDelDia();
+        }
+
+        function renderRachaVisual() {
+            const container = document.getElementById('racha-visual');
+            const profileContainer = document.getElementById('profile-racha-visual');
+            if (!container && !profileContainer) return;
+            const visitLog = JSON.parse(localStorage.getItem('lumina_visit_log') || '[]');
+            const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            if (container) container.innerHTML = '';
+            if (profileContainer) profileContainer.innerHTML = '';
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dayOfWeek = today.getDay(); // 0=Dom, 1=Lun...
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - dayOfWeek); // Retroceder al domingo
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(weekStart);
+                d.setDate(weekStart.getDate() + i);
+                const dateStr = d.toDateString();
+                const isToday = dateStr === today.toDateString();
+                const isFuture = d > today;
+                const wasVisited = visitLog.includes(dateStr);
+
+                const makeDot = () => {
+                    const dot = document.createElement('div');
+                    dot.className = 'racha-dot' +
+                        (isToday ? ' today' : '') +
+                        (wasVisited && !isFuture ? ' visited' : '') +
+                        (isFuture ? ' future' : '');
+                    dot.innerHTML = `<div class="racha-dot-circle"></div><div class="racha-dot-lbl">${days[d.getDay()]}</div>`;
+                    dot.title = isToday ? 'Hoy' : (isFuture ? '' : d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' }));
+                    return dot;
+                };
+                container.appendChild(makeDot());
+                if (profileContainer) profileContainer.appendChild(makeDot());
+            }
+        }
+
+        function trackCategoryVisit(cat) {
+            const todayKey = 'lumina_visited_' + new Date().toDateString();
+            const visited = JSON.parse(localStorage.getItem(todayKey) || '[]');
+            if (!visited.includes(cat)) {
+                visited.push(cat);
+                localStorage.setItem(todayKey, JSON.stringify(visited));
+            }
+            updateLogroDelDia();
+        }
+
+        function updateLogroDelDia() {
+            const todayKey = 'lumina_visited_' + new Date().toDateString();
+            const visited = JSON.parse(localStorage.getItem(todayKey) || '[]');
+            const allCats = ['palabras', 'afirmaciones', 'frases', 'libros'];
+            const count = allCats.filter(c => visited.includes(c)).length;
+
+            const milestones = [
+                null,
+                { label: 'Primera Chispa',    desc: 'Visitaste tu primera sección hoy. El camino empieza aquí.' },
+                { label: 'En Movimiento',      desc: 'Dos secciones completas. Tu mente está despertando.' },
+                { label: 'Casi Completo',      desc: 'Tres secciones visitadas. Una más y alcanzas la sabiduría completa del día.' },
+                { label: 'Sabiduría Completa', desc: '¡Visitaste las 4 secciones hoy! Tu mente está en pleno movimiento.' }
+            ];
+
+            ['logro-hoy', 'profile-logro-hoy'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (count === 0) { el.classList.remove('show'); return; }
+                const m = milestones[count];
+                el.classList.add('show');
+                const labelEl = el.querySelector('.logro-label');
+                if (labelEl) labelEl.innerText = `Logro del Día — ${m.label}`;
+                const tip = el.querySelector('.gam-tooltip');
+                if (tip) tip.innerHTML = `<b>${m.label}</b> ${m.desc}`;
+            });
         }
 
         function checkMidnightRefresh() {
@@ -2337,7 +2534,7 @@
             localStorage.setItem('lumina_last_day_active', today);
         }
 
-        const APP_VERSION = '2.5.1'; // Bumper para forzar limpieza de memoria antigua
+        const APP_VERSION = '2.5.2'; // v2.5.2: fix banner actualización + toggles
 
         async function init() {
             if (window.location.protocol === 'file:') {
@@ -2600,6 +2797,7 @@
                 return;
             }
             
+            trackCategoryVisit(cat); // Logro del Día
             currentCategory = cat;
             document.body.className = 'cat-' + cat;
             if (isPro) document.body.classList.add('pro-unlocked');
@@ -2819,6 +3017,36 @@
                 }
             }
             updateFavoriteIcon();
+
+            // Reto del Día (solo para palabras)
+            const retoEl = document.getElementById('reto-text');
+            if (retoEl) {
+                const reto = data.reto || (data.palabra ? `Usa la palabra "${data.palabra}" en una conversación real hoy.` : null);
+                if (reto) retoEl.innerText = reto;
+            }
+
+            // Pregunta de Reflexión (solo para afirmaciones)
+            const reflexionEl = document.getElementById('reflexion-text');
+            if (reflexionEl && currentCategory === 'afirmaciones') {
+                const preguntas = [
+                    "¿Qué parte de ti necesita escuchar esto hoy?",
+                    "¿Estás actuando desde el miedo o desde tus valores?",
+                    "¿Qué harías diferente hoy si creyeras esta afirmación completamente?",
+                    "¿Esta afirmación te desafía o te confirma algo que ya sabías?",
+                    "¿Qué obstáculo interno te impide vivir esta verdad?",
+                    "¿Cómo cambiaría tu día si aplicaras esto desde el amanecer?",
+                    "¿Esta afirmación te compromete a alguna acción concreta hoy?",
+                    "¿Qué diría tu yo de dentro de 5 años sobre este momento?",
+                    "¿Estás viviendo según lo que valoras, o según lo que temes perder?",
+                    "¿Esta afirmación cambia algo en cómo ves a las personas a tu alrededor?",
+                    "¿Qué hábito pequeño refuerza esta verdad en tu vida?",
+                    "¿Hay alguien en tu vida que encarne esta afirmación? ¿Qué aprendes de él?",
+                    "¿Qué parte de ti resiste esta idea? ¿Por qué?",
+                    "¿Cómo sería tu mundo interior si vivieras esta afirmación sin cuestionarla?"
+                ];
+                const dayIndex = Math.floor(Date.now() / 86400000) % preguntas.length;
+                reflexionEl.innerText = preguntas[dayIndex];
+            }
         }
 
         // --- SISTEMA DE FAVORITOS ---
@@ -3423,6 +3651,9 @@
             updateAmbientUI(saved);
         }
 
+        // Guarda para evitar que OneSignal sobreescriba cambios locales recientes
+        const _pendingSync = {};
+
         async function updateSubscriptionUI() {
             try {
                 // Sincronizar UI con localStorage como base (funciona sin OneSignal)
@@ -3437,7 +3668,10 @@
                 if (window.OneSignal && OneSignal.User && OneSignal.User.getTags) {
                     const tags = await OneSignal.User.getTags();
                     if (tags) {
+                        const now = Date.now();
                         ['palabras', 'afirmaciones', 'frases', 'libros'].forEach(cat => {
+                            // GUARD: si el usuario tocó este toggle hace menos de 3 seg, ignorar datos de OneSignal
+                            if (_pendingSync[cat] && (now - _pendingSync[cat]) < 3000) return;
                             const btn = document.getElementById(`sub-${cat}`);
                             if (btn) {
                                 if (tags[cat] === 'true') {
@@ -3544,7 +3778,8 @@
                 
                 const nextState = isSubscribed ? 'false' : 'true';
                 
-                // 1. FEEDBACK INSTANTÁNEO (UI LOCAL)
+                // 1. FEEDBACK INSTANTÁNEO (UI LOCAL) + bloquear sync de OneSignal por 3 seg
+                _pendingSync[cat] = Date.now();
                 localStorage.setItem(`lumina_sub_${cat}`, nextState);
                 if (nextState === 'true') {
                     btn.classList.add('active');

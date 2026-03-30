@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lumina-v7'; // Forzar actualización para Midnight Refresh y nuevos IDs
+const CACHE_NAME = 'lumina-v8'; // v8: skipWaiting para evitar banner de actualización infinito
 const ASSETS = [
     "index.html",
     "manifest.json",
@@ -15,6 +15,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
+    self.skipWaiting(); // Tomar el control inmediatamente, sin "waiting"
     e.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
     );
