@@ -3030,6 +3030,9 @@
                 const nId = btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32);
                 if (dismissed.includes(nId)) return;
 
+                const currentDate = new Date();
+                const dateStr = currentDate.getDate() + ' ' + ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][currentDate.getMonth()];
+
                 const item = document.createElement('div');
                 item.className = 'notif-item';
                 item.setAttribute('data-id', nId);
@@ -3049,7 +3052,7 @@
                 item.innerHTML = `
                     ${iconHtml}
                     <div class="notif-info">
-                        <h4>${tit}</h4>
+                        <h4>${tit} <span style="font-size: 0.75rem; opacity: 0.5; font-weight: 400; font-family: 'Inter', sans-serif; margin-left: 6px; letter-spacing: 0;">• ${dateStr}</span></h4>
                         <p>${msg}</p>
                     </div>
                     <div class="btn-dismiss-notif" onclick="dismissNotif('${nId}', event)" title="Eliminar">
