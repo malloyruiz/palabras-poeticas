@@ -446,9 +446,9 @@
 
         .hero-bg-blur {
             position: absolute; width: 450px; height: 450px;
-            background: var(--accent); opacity: 0.1; filter: blur(100px);
+            background: var(--accent); opacity: 0.2; filter: blur(100px);
             border-radius: 50%; transition: 1.5s ease;
-            pointer-events: none; z-index: -1;
+            pointer-events: none; z-index: 0;
             animation: floatBlur 20s infinite ease-in-out;
         }
 
@@ -1108,7 +1108,7 @@
     <!-- Loader movido afuera -->
 
         <main id="main-ui" class="seccion">
-            <div class="hero-bg-blur" style="left: 10%; top: 10%; opacity: 0.05;"></div>
+            <div class="hero-bg-blur" style="left: 10%; top: -5%; opacity: 0.2;"></div>
             <div class="content-header">
                 <div class="date-full" id="header-date">---</div>
                 <div class="cat-label" id="header-cat">PALABRA DE HOY</div>
@@ -1299,10 +1299,13 @@
                 </select>
             </div>
 
-            <!-- SECCIÓN 2: AMBIENTE -->
-            <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">SONIDOS AMBIENTALES</div>
+            <div class="sub-option" style="cursor:pointer; margin-bottom: 30px;" onclick="toggleUISounds()">
+                <span>Sonidos de Interfaz</span>
+                <div class="toggle-sub" id="ui-sounds-toggle"></div>
+            </div>
 
             <div style="text-align: left; margin-bottom: 30px;">
+                <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Sonidos Ambientales</div>
                 <div class="ambient-grid">
                     <div class="ambient-item" id="amb-none" onclick="toggleAmbient('none')">
                         <div class="ambient-icon-box">
@@ -1350,8 +1353,8 @@
                 <input type="range" id="ambient-vol" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; margin-top: 15px; accent-color: var(--accent); height: 4px; cursor: pointer;">
             </div>
 
-            <!-- SECCIÓN 3: APARIENCIA -->
-            <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">APARIENCIA Y ESTILO</div>
+            <!-- SECCIÓN: APARIENCIA -->
+            <div style="text-align: left; margin-top: 15px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">APARIENCIA Y ESTILO</div>
 
             <div class="sub-option" style="cursor:pointer; margin-bottom: 20px;" onclick="toggleTheme()">
                 <span>Modo Noche</span>
@@ -1385,8 +1388,8 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 2: NOTIFICACIONES -->
-            <div style="text-align: left; margin-top:20px; margin-bottom: 10px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">NOTIFICACIONES</div>
+            <!-- SECCIÓN: NOTIFICACIONES -->
+            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">NOTIFICACIONES</div>
 
             <div class="sub-option" onclick="togglePush()" style="cursor:pointer;">
                 <span>Alertas de Sabiduría</span>
@@ -1411,8 +1414,8 @@
             </div>
 
 
-            <!-- SECCIÓN 4: INSTALACIÓN -->
-            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5;">DISTRIBUCIÓN</div>
+            <!-- SECCIÓN: DISTRIBUCIÓN -->
+            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">DISTRIBUCIÓN</div>
             
             <button class="btn-save" id="btn-pwa-install-main" 
                 style="background:var(--accent); color: white; width: 100%; padding: 15px; font-size: 0.85rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;" 
@@ -3335,6 +3338,13 @@
                 else cloudBtn.classList.remove('active');
             }
 
+            const sfxBtn = document.getElementById('ui-sounds-toggle');
+            if (sfxBtn) {
+                const isSfx = localStorage.getItem('lumina_sfx') !== 'false';
+                if (isSfx) sfxBtn.classList.add('active');
+                else sfxBtn.classList.remove('active');
+            }
+
             applyCustomization();
         }
 
@@ -3421,12 +3431,11 @@
 
         // --- SISTEMA DE FEEDBACK SENSORIAL ---
         function playSound(type) {
+            if (localStorage.getItem('lumina_sfx') === 'false') return;
+
             const player = document.getElementById('ambient-player');
             if (!player) return;
             
-            // Si el audio general está en 'none', no emitir sonidos táctiles tampoco para respetar el silencio
-            if (localStorage.getItem('lumina_ambient') === 'none') return;
-
             const effects = {
                 'click': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/click.mp3',
                 'zen': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/ambience-zen.mp3', // Usaremos un fade in/out rápido como placeholder premium
@@ -3512,6 +3521,14 @@
             
             populateVoices();
             updateSubscriptionUI();
+        }
+
+        function toggleUISounds() {
+            const current = localStorage.getItem('lumina_sfx') !== 'false';
+            const newVal = current ? 'false' : 'true';
+            localStorage.setItem('lumina_sfx', newVal);
+            updateSubscriptionUI();
+            if (newVal === 'true') playSound('click');
         }
 
         async function shareAsImage() {
