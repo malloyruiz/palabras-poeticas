@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lumina-v8'; // v8: skipWaiting para evitar banner de actualización infinito
+const CACHE_NAME = 'lumina-v9'; // v9: Actualización de API URL y fixes de diseño
 const ASSETS = [
     "index.html",
     "manifest.json",
@@ -70,7 +70,7 @@ self.addEventListener('periodicsync', (event) => {
 
 async function fetchDailyWisdom() {
   const cache = await caches.open(CACHE_NAME);
-  const API = "https://script.google.com/macros/s/AKfycbzL-S0-W_Aon8w_aNidrX47T-m4OqIqGZf5u0vj2_sVqVvjIovfVrIvT-f9K2w_v_0-vA/exec";
+  const API = "https://script.google.com/macros/s/AKfycbxH7lP92TiRom-3bTiYnwfE6Z-sfDR5wcfaO4gTN0TD6EwuBYMtdCs4b06RFbqqnyw/exec";
   try {
      const response = await fetch(`${API}?action=notifs&userType=Free`); // Simplificado para fondo
      if (response.ok) {
