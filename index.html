@@ -1568,6 +1568,24 @@
         </div>
     </div>
 
+    <!-- Modal Finalizar Prueba -->
+    <div id="end-trial-modal" class="modal">
+        <div class="modal-content" style="text-align: center; max-width: 380px; padding: 45px 35px; background: #f7f3eb; border-radius: 32px; border: 1px solid rgba(181, 131, 58, 0.1); box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
+            <div style="width: 60px; height: 60px; background: rgba(220, 53, 69, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="#dc3545" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <div style="font-size: 0.65rem; letter-spacing: 4px; color: #dc3545; margin-bottom: 10px; font-weight: 600; text-transform: uppercase;">Aviso Importante</div>
+            <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 15px; color: var(--text);">¿Finalizar Prueba?</h2>
+            <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 30px; line-height: 1.6; color: var(--text);">
+                Perderás tu acceso a las <strong>Lecciones del Club</strong> y volverás al plan estándar (gratuito) inmediatamente.
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-save" onclick="closeModals()" style="flex: 1; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); padding: 16px; font-size: 0.75rem; border-radius: 50px;">MANTENER</button>
+                <button class="btn-save" onclick="confirmEndTrial()" style="flex: 1; background: #dc3545; color: white; padding: 16px; border: none; font-size: 0.75rem; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2); border-radius: 50px;">SÍ, FINALIZAR</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Perfil de Usuario (NUEVO) -->
     <div id="profile-modal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
@@ -1910,13 +1928,19 @@
         }
 
         function endTrialEarly() {
-            if (confirm("¿Estás seguro que deseas finalizar tu periodo de prueba anticipadamente? Volverás al plan gratuito.")) {
-                localStorage.setItem('lumina_trial_active', 'false');
-                localStorage.setItem('lumina_trial_used', 'true');
-                localStorage.removeItem('lumina_data_libros');
-                showToast("Periodo de prueba finalizado.");
-                setTimeout(() => location.reload(), 1000);
-            }
+            closeModals(true);
+            const modal = document.getElementById('end-trial-modal');
+            modal.classList.add('active');
+            history.pushState({ modal: 'end-trial' }, "", "#end-trial");
+        }
+
+        function confirmEndTrial() {
+            localStorage.setItem('lumina_trial_active', 'false');
+            localStorage.setItem('lumina_trial_used', 'true');
+            localStorage.removeItem('lumina_data_libros');
+            showToast("Periodo de prueba finalizado.");
+            closeModals();
+            setTimeout(() => location.reload(), 1000);
         }
 
         // Gestión de Caché
@@ -2952,7 +2976,7 @@
         }
 
         function closeModals(preventBack = false) {
-            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal'];
+            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal'];
             let anyClosed = false;
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -2962,7 +2986,7 @@
                 }
             });
             // Si cerramos manualmente y hay un hash de modal, volvemos atrás en el historial (a menos que se prevenga)
-            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile)/)) {
+            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial)/)) {
                 history.back();
             }
         }
