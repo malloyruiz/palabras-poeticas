@@ -1601,6 +1601,9 @@
                         <span id="profile-plan-badge" class="pro-badge" style="display: inline-block; margin-left: 0;">PLAN ESTÁNDAR</span>
                     </div>
                     <div id="profile-trial-indicator" style="display: none; font-size: 0.65rem; letter-spacing: 1px; color: var(--accent); margin-top: 8px; font-weight: 600; text-align: right; text-transform: uppercase;"></div>
+                    <div id="profile-trial-actions" style="display: none; margin-top: 15px; text-align: right;">
+                        <button class="btn-save" onclick="endTrialEarly()" style="background:transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); opacity: 0.6; padding: 6px 12px; font-size: 0.6rem; margin: 0; border-radius: 8px;">FINALIZAR PRUEBA</button>
+                    </div>
                     <div id="profile-pro-activation" style="display: none; padding-top: 15px; border-top: 1px dashed rgba(181, 131, 58, 0.2); margin-top: 15px;">
                         <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Eleva tu nivel con Lúmina Pro:</p>
                         <div style="display: flex; gap: 10px;">
@@ -1820,13 +1823,16 @@
             }
 
             const profileTrialInd = document.getElementById('profile-trial-indicator');
+            const profileTrialActions = document.getElementById('profile-trial-actions');
             if (profileTrialInd) {
                 const trialActive = isTrialActive();
                 if (trialActive) {
                     profileTrialInd.innerText = `DÍA ${trialDay || 0}/14 DE PRUEBA`;
                     profileTrialInd.style.display = 'block';
+                    if (profileTrialActions) profileTrialActions.style.display = 'block';
                 } else {
                     profileTrialInd.style.display = 'none';
+                    if (profileTrialActions) profileTrialActions.style.display = 'none';
                 }
             }
 
@@ -1901,6 +1907,16 @@
             // Limpiar caché anterior para asegurar contenido fresco
             localStorage.removeItem('lumina_data_libros');
             location.reload();
+        }
+
+        function endTrialEarly() {
+            if (confirm("¿Estás seguro que deseas finalizar tu periodo de prueba anticipadamente? Volverás al plan gratuito.")) {
+                localStorage.setItem('lumina_trial_active', 'false');
+                localStorage.setItem('lumina_trial_used', 'true');
+                localStorage.removeItem('lumina_data_libros');
+                showToast("Periodo de prueba finalizado.");
+                setTimeout(() => location.reload(), 1000);
+            }
         }
 
         // Gestión de Caché
@@ -2442,6 +2458,18 @@
 
             if (!key) {
                 showToast("Por favor, introduce un código.");
+                return;
+            }
+
+            // Código secreto promocional para restaurar trial
+            if (key === "RENOVARPRUEBA") {
+                localStorage.setItem('lumina_trial_start', Date.now().toString());
+                localStorage.removeItem('lumina_trial_active');
+                localStorage.removeItem('lumina_trial_used');
+                localStorage.removeItem('lumina_data_libros');
+                showToast("¡Prueba restaurada con éxito!", "success");
+                if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                setTimeout(() => location.reload(), 1500);
                 return;
             }
 
