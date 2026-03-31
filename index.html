@@ -1010,13 +1010,18 @@
 
         /* Grupo de Botones FAB (Hábitos + Pausa) */
         .nav-fab-group {
-            position: fixed;
-            bottom: 50px;
-            left: 80px;
             display: flex;
-            gap: 20px;
+            gap: 25px;
             z-index: 500;
         }
+        @media (min-width: 1025px) {
+            .nav-fab-group {
+                position: fixed;
+                bottom: 60px;
+                left: 80px;
+            }
+        }
+        [data-theme="dark"] .btn-fab-item { opacity: 0.7; }
         .btn-fab-item {
             background: transparent;
             border: none;
@@ -1041,12 +1046,12 @@
         .btn-fab-item svg { stroke: currentColor; fill: none; stroke-width: 2; width: 16px; height: 16px; stroke-linecap: round; stroke-linejoin: round; }
         
         @media (max-width: 1024px) {
-            .nav-fab-group { left: 30px; bottom: 30px; }
+            .nav-fab-group { margin-top: 25px; justify-content: flex-start; }
         }
         @media (max-width: 768px) {
-            .nav-fab-group { bottom: 20px; left: 30px; gap: 15px; }
-            .btn-fab-item { font-size: 0.6rem; padding: 5px 0; letter-spacing: 2px; }
-            .btn-fab-item svg { width: 15px; height: 15px; }
+            .nav-fab-group { margin-top: 20px; gap: 20px; }
+            .btn-fab-item { font-size: 0.65rem; letter-spacing: 2px; }
+            .btn-fab-item svg { width: 16px; height: 16px; }
         }
 
         /* --- ESTILOS DE PAUSA CONSCIENTE --- */
@@ -1202,20 +1207,21 @@
                 <h1 id="hero-title">Lúmina</h1>
                 <p id="hero-tagline">CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL</p>
                 <div id="now-learning-hub"></div>
+
+                <!-- Botones integrados: Fijos en PC, debajo de la lección en Móvil -->
+                <div class="nav-fab-group">
+                    <button class="btn-fab-item" onclick="toggleHabitos()" title="Mis Hábitos">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 19V5M12 5L7 10M12 5L17 10"/><path d="M5 19h14"/></svg>
+                        MIS HÁBITOS
+                    </button>
+                    <button class="btn-fab-item" onclick="openCategory('pausa')" title="Pausa Consciente">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><circle cx="12" cy="12" r="9" stroke-dasharray="40 10"/></svg>
+                        PAUSA
+                    </button>
+                </div>
+                
                 <!-- (El Panel de Hábitos se ha movido al Modal) -->
             </div>
-        </div>
-        
-        <!-- Botones Flotantes (Hábitos / Pausa) -->
-        <div class="nav-fab-group">
-            <button class="btn-fab-item" onclick="toggleHabitos()" title="Mis Hábitos">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap: round; stroke-linejoin: round; style="width:18px; height:18px;"><path d="M12 19V5M12 5L7 10M12 5L17 10"/><path d="M5 19h14"/></svg>
-                MIS HÁBITOS
-            </button>
-            <button class="btn-fab-item" onclick="openCategory('pausa')" title="Pausa Consciente">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap: round; stroke-linejoin: round; style="width:18px; height:18px;"><circle cx="12" cy="12" r="9" stroke-dasharray="40 10"/></svg>
-                PAUSA
-            </button>
         </div>
         
         <div class="hub-list">
@@ -1426,8 +1432,8 @@
                         <input class="ambient-vol-slider" type="range" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; max-width: 300px; margin: 15px auto 30px; accent-color: var(--accent); height: 4px; cursor: pointer; display: block;">
                     </div>
 
-                    <button class="btn-save" onclick="startPausaSession()" style="width: 100%; max-width: 300px; background: var(--accent); color: white; padding: 18px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; letter-spacing: 2px;">INICIAR PAUSA</button>
-                    <button onclick="renderPausaList()" style="display: block; width: 100%; max-width: 300px; margin: 15px auto 0; background: transparent; border: none; font-size: 0.75rem; letter-spacing: 2px; opacity: 0.5; cursor: pointer; text-transform: uppercase;">VOLVER AL MENÚ</button>
+                    <button class="btn-save" onclick="startPausaSession()" style="width: 100%; max-width: 300px; background: var(--accent); color: #fff; padding: 18px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; letter-spacing: 2px; border: none;">INICIAR PAUSA</button>
+                    <button onclick="renderPausaList()" style="display: block; width: 100%; max-width: 300px; margin: 15px auto 0; background: transparent; border: none; font-size: 0.75rem; letter-spacing: 2px; opacity: 0.6; cursor: pointer; text-transform: uppercase; color: var(--text);">VOLVER AL MENÚ</button>
                 </div>
 
                 <!-- VISTA 3: Sesión (Respiración) -->
@@ -1440,8 +1446,8 @@
                         </svg>
                         <div class="breath-text" id="breath-text">Prepárate...</div>
                     </div>
-                    <div id="pausa-timer" style="font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 1.2rem; letter-spacing: 4px; opacity: 0.4; margin-top: 50px;">03:00</div>
-                    <button onclick="endPausaEarly()" style="display: block; margin: 40px auto 0; background: transparent; border: 1px solid rgba(128,128,128,0.2); padding: 10px 20px; border-radius: 20px; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5; cursor: pointer; text-transform: uppercase;">ABANDONAR</button>
+                    <div id="pausa-timer" style="font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 1.2rem; letter-spacing: 4px; opacity: 0.5; margin-top: 50px; color: var(--text);">03:00</div>
+                    <button onclick="endPausaEarly()" style="display: block; margin: 40px auto 0; background: transparent; border: 1px solid var(--text-dim); padding: 10px 20px; border-radius: 20px; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.7; cursor: pointer; text-transform: uppercase; color: var(--text);">ABANDONAR</button>
                 </div>
 
                 <!-- VISTA 4: Finalizado -->
