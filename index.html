@@ -302,12 +302,17 @@
         .now-progress { font-size: 0.75rem; letter-spacing: 1px; opacity: 0.4; margin-top: 5px; }
 
         
-        /* Lesson Reading Mode */
-        .lesson-container { display: none; text-align: left; animation: fadeIn 1s ease; }
+        /* Lesson & Pausa UI Modes */
+        .lesson-container, .pausa-container { display: none; text-align: left; animation: fadeIn 1s ease; }
         body.cat-libros .lesson-container { display: block; }
-        body.cat-libros #main-ui { display: block; max-width: 1100px; }
-        body.cat-libros #main-ui > .content-header, body.cat-libros #main-ui > .side-panel { display: none; }
+        body.cat-pausa .pausa-container { display: block; }
+        
+        body.cat-libros #main-ui, body.cat-pausa #main-ui { display: block; max-width: 1100px; }
+        body.cat-libros #main-ui > .content-header, body.cat-libros #main-ui > .side-panel,
+        body.cat-pausa #main-ui > .content-header, body.cat-pausa #main-ui > .side-panel { display: none; }
+        
         body:not(.cat-libros) .lesson-container { display: none !important; }
+        body:not(.cat-pausa) .pausa-container { display: none !important; }
 
         .content-header, .lesson-header { margin-bottom: 20px; text-align: left; width: 100%; }
         .lesson-header h1 { font-family: 'Playfair Display', serif; font-size: 3rem; margin: 10px 0; font-style: italic; font-weight: 900; }
@@ -998,13 +1003,139 @@
                 flex-direction: column; 
                 height: 100%; 
                 min-height: 500px; 
-                overflow-y: auto;
-                -ms-overflow-style: none; /* Invisible scroll */
-                scrollbar-width: none;
+                overflow: hidden; /* Scroll bloqueado */
             }
-            .hub-hero-inner::-webkit-scrollbar { display: none; }
             .habitos-panel { margin-top: auto; }
         }
+
+        /* Grupo de Botones FAB (Hábitos + Pausa) */
+        .nav-fab-group {
+            position: fixed;
+            bottom: 50px;
+            left: 80px;
+            display: flex;
+            gap: 20px;
+            z-index: 500;
+        }
+        .btn-fab-item {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            opacity: 0.5;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-fab-item:hover {
+            opacity: 1;
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .btn-fab-item svg { stroke: currentColor; fill: none; stroke-width: 2; width: 16px; height: 16px; stroke-linecap: round; stroke-linejoin: round; }
+        
+        @media (max-width: 1024px) {
+            .nav-fab-group { left: 30px; bottom: 30px; }
+        }
+        @media (max-width: 768px) {
+            .nav-fab-group { bottom: 20px; left: 30px; gap: 15px; }
+            .btn-fab-item { font-size: 0.6rem; padding: 5px 0; letter-spacing: 2px; }
+            .btn-fab-item svg { width: 15px; height: 15px; }
+        }
+
+        /* --- ESTILOS DE PAUSA CONSCIENTE --- */
+        .pausa-list { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+        .pausa-list-item { 
+            padding: 25px 30px; border-radius: 20px; 
+            border: 1px solid rgba(128,128,128,0.1); 
+            background: rgba(181,131,58,0.02);
+            cursor: pointer; transition: 0.4s ease;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .pausa-list-item:hover {
+            border-color: rgba(181,131,58,0.3); background: rgba(181,131,58,0.05); transform: translateY(-2px);
+        }
+        .pausa-list-item .p-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-style: italic; font-weight: 700; color: var(--accent); margin: 0; }
+        .pausa-list-item .p-desc { font-size: 0.85rem; opacity: 0.6; margin-top: 5px; }
+        
+        /* Iconografía SVGs */
+        .p-icon { width: 32px; height: 32px; stroke: var(--accent); opacity: 0.8; }
+        
+        .pausa-ambient-panel {
+            margin-top: 30px; border-top: 1px dashed rgba(128,128,128,0.2); padding-top: 30px;
+        }
+        
+        .breath-ring-wrapper {
+            position: relative; width: 340px; height: 340px; margin: 40px auto; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        /* El "aura" exterior, suave y difusa */
+        .breath-aura {
+            position: absolute; width: 100%; height: 100%; border-radius: 50%;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0; filter: blur(40px);
+            transition: transform 4s ease-out, opacity 4s ease-out;
+            z-index: 1;
+        }
+        /* El anillo de progreso SVG */
+        .breath-svg {
+            position: absolute; width: 100%; height: 100%;
+            transform: rotate(-90deg); z-index: 5;
+            transition: transform 4s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+        .breath-svg circle {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 2;
+            stroke-linecap: round;
+            opacity: 0.3;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            transition: stroke-dashoffset 4s linear, opacity 2s ease;
+        }
+        /* El núcleo sutil con pulso */
+        .breath-core {
+            position: absolute; width: 12px; height: 12px; border-radius: 50%;
+            background: var(--accent); opacity: 0; filter: blur(8px);
+            transition: transform 4s ease, opacity 4s ease;
+            z-index: 2;
+        }
+
+        .breath-ring-wrapper.inhaling .breath-svg { transform: rotate(-90deg) scale(1.3); transition-duration: 4s; }
+        .breath-ring-wrapper.inhaling .breath-svg circle { stroke-dashoffset: 0; opacity: 0.8; transition-duration: 4s; }
+        .breath-ring-wrapper.inhaling .breath-aura { transform: scale(1.5); opacity: 0.2; transition-duration: 4s; }
+        .breath-ring-wrapper.inhaling .breath-core { transform: scale(10); opacity: 0.3; transition-duration: 4s; }
+
+        .breath-ring-wrapper.holding .breath-svg { transform: rotate(-90deg) scale(1.3); transition-duration: 2s; }
+        .breath-ring-wrapper.holding .breath-svg circle { stroke-dashoffset: 0; opacity: 0.5; transition-duration: 2s; }
+        .breath-ring-wrapper.holding .breath-aura { transform: scale(1.5); opacity: 0.15; transition-duration: 2s; }
+        .breath-ring-wrapper.holding .breath-core { transform: scale(10); opacity: 0.2; transition-duration: 2s; }
+
+        .breath-ring-wrapper.exhaling .breath-svg { transform: rotate(-90deg) scale(1); transition-duration: 6s; }
+        .breath-ring-wrapper.exhaling .breath-svg circle { stroke-dashoffset: 1000; opacity: 0.3; transition-duration: 6s; }
+        .breath-ring-wrapper.exhaling .breath-aura { transform: scale(0.9); opacity: 0; transition-duration: 6s; }
+        .breath-ring-wrapper.exhaling .breath-core { transform: scale(1); opacity: 0; transition-duration: 6s; }
+
+        .breath-text {
+            font-family: 'Playfair Display', serif; font-size: 2.2rem; font-style: italic; color: var(--accent); z-index: 10;
+            transition: all 0.8s ease;
+            text-shadow: 0 0 15px rgba(181, 131, 58, 0);
+        }
+        .breath-ring-wrapper.inhaling .breath-text { text-shadow: 0 0 20px rgba(181, 131, 58, 0.4); }
+        
+        .time-chips { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 30px 0; }
+        .time-chip { 
+            background: transparent; border: 1px solid rgba(128,128,128,0.2); 
+            color: var(--text); padding: 10px 20px; border-radius: 30px;
+            font-size: 0.75rem; letter-spacing: 1px; cursor: pointer; transition: 0.3s;
+        }
+        .time-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
 
         /* --- SISTEMA DE TOAST PREMIUM --- */
         .toast {
@@ -1071,51 +1202,20 @@
                 <h1 id="hero-title">Lúmina</h1>
                 <p id="hero-tagline">CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL</p>
                 <div id="now-learning-hub"></div>
-                <!-- PANEL DE HÁBITOS -->
-                <div class="habitos-panel">
-                    <div class="habitos-title">Mis Hábitos</div>
-
-                    <!-- Stats: Racha + Logros -->
-                    <div class="habitos-stats">
-                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
-                            <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
-                            <span class="habito-stat-num" id="streak-val">0</span>
-                            <span class="habito-stat-label">Racha</span>
-                            <span class="habito-stat-desc">Días seguidos de sabiduría</span>
-                            <div class="gam-tooltip">
-                                <b>Racha Diaria</b>
-                                Entra cada día para mantener el fuego de tu hábito encendido.
-                            </div>
-                        </div>
-                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
-                            <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                            <span class="habito-stat-num" id="medals-val">0</span>
-                            <span class="habito-stat-label">Logros</span>
-                            <span class="habito-stat-desc">Por cada 7 lecciones completadas</span>
-                            <div class="gam-tooltip">
-                                <b>Tus Logros</b>
-                                Ganas 1 logro por cada 7 lecciones completadas en la sección "Mi Viaje". Completa lecciones de Libros para desbloquearlos.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Puntos 7 días (Dom—Sáb) -->
-                    <hr class="habitos-divider">
-                    <span class="habitos-dots-label">Esta semana</span>
-                    <div class="racha-visual" id="racha-visual"><!-- dots por JS --></div>
-
-                    <!-- Logro del Día -->
-                    <div class="logro-hoy-badge" id="logro-hoy" onclick="this.classList.toggle('show-tip')">
-                        <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
-                        <span class="logro-label">Logro del Día — Sabiduría Completa</span>
-                        <div class="gam-tooltip">
-                            <b>¡Excelente!</b>
-                            Visitaste las 4 secciones hoy. Tu mente está en pleno movimiento.
-                        </div>
-                    </div>
-                </div>
-
+                <!-- (El Panel de Hábitos se ha movido al Modal) -->
             </div>
+        </div>
+        
+        <!-- Botones Flotantes (Hábitos / Pausa) -->
+        <div class="nav-fab-group">
+            <button class="btn-fab-item" onclick="toggleHabitos()" title="Mis Hábitos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap: round; stroke-linejoin: round; style="width:18px; height:18px;"><path d="M12 19V5M12 5L7 10M12 5L17 10"/><path d="M5 19h14"/></svg>
+                MIS HÁBITOS
+            </button>
+            <button class="btn-fab-item" onclick="openCategory('pausa')" title="Pausa Consciente">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap: round; stroke-linejoin: round; style="width:18px; height:18px;"><circle cx="12" cy="12" r="9" stroke-dasharray="40 10"/></svg>
+                PAUSA
+            </button>
         </div>
         
         <div class="hub-list">
@@ -1246,8 +1346,116 @@
                     <div id="journal-save-status" style="font-size: 0.55rem; opacity: 0.3; text-align: right; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase;">Guardado automáticamente</div>
                 </div>
             </div>
-        </main>
+            <!-- VISTA DE PAUSA CONSCIENTE -->
+            <div class="pausa-container" id="pausa-ui" style="text-align: center; max-width: 600px; margin: 0 auto; padding-top: 40px; min-height: 80vh;">
+                
+                <!-- VISTA 1: Lista -->
+                <div id="pausa-view-list">
+                    <h1 style="font-family:'Playfair Display', serif; font-size: 3rem; font-style: italic; margin-bottom: 10px;">Pausa Consciente</h1>
+                    <p style="opacity: 0.6; font-size: 0.9rem; margin-bottom: 20px;">Elige el ancla que necesitas en este momento.</p>
+                    <div class="pausa-list" id="pausa-list-container">
+                        <!-- Las opciones se inyectarán por JS -->
+                    </div>
+                </div>
 
+                <!-- VISTA 2: Preparación -->
+                <div id="pausa-view-prep" style="display: none;">
+                    <div class="date-full" id="prep-title" style="margin-bottom: 20px;">---</div>
+                    <h2 id="prep-phrase" style="font-family:'Playfair Display', serif; font-size: 2.2rem; font-style: italic; margin-bottom: 30px; opacity: 0.9; color: var(--accent);"></h2>
+                    <div id="prep-guide" style="font-size: 0.9rem; line-height: 1.8; opacity: 0.7; margin-bottom: 40px; border-left: 2px solid var(--accent); padding-left: 20px; text-align: left; margin-left: auto; margin-right: auto; max-width: 400px;"></div>
+                    
+                    <div style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.4;">Tiempo de inmersión</div>
+                    <div class="time-chips">
+                        <button class="time-chip" onclick="setPausaTime(1)">1 min</button>
+                        <button class="time-chip active" onclick="setPausaTime(3)">3 min</button>
+                        <button class="time-chip" onclick="setPausaTime(5)">5 min</button>
+                        <button class="time-chip" onclick="setPausaTime(10)">10 min</button>
+                        <button class="time-chip" onclick="openCustomTime()">Personalizado</button>
+                    </div>
+
+                    <p style="font-style: italic; opacity: 0.5; font-size: 0.85rem; margin-bottom: 30px; margin-top: 20px;">
+                        "Nada que hacer. Nada que lograr. Solo estar."
+                    </p>
+
+                    <div class="pausa-ambient-panel">
+                        <div style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.4; margin-bottom: 15px;">Sonido Ambiental</div>
+                        <div class="ambient-grid">
+                            <div class="ambient-item" data-amb="none" onclick="toggleAmbient('none')">
+                                <div class="ambient-icon-box">
+                                    <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                                </div>
+                                <span class="ambient-label" style="font-size: 0.65rem;">Silencio</span>
+                            </div>
+                            <div class="ambient-item" data-amb="zen" onclick="toggleAmbient('zen')">
+                                <div class="ambient-icon-box">
+                                    <svg viewBox="0 0 24 24"><path d="M12 3c1.64 4 4 7 8 8-4 1.64-7 4-8 8-1.64-4-4-7-8-8 4-1.64 7-4 8-8z"></path></svg>
+                                </div>
+                                <span class="ambient-label" style="font-size: 0.65rem;">Zen</span>
+                            </div>
+                            <div class="ambient-item" data-amb="birds" onclick="toggleAmbient('birds')">
+                                <div class="ambient-icon-box">
+                                    <svg viewBox="0 0 24 24"><path d="M4 11c5-5 11-5 16 0-5-1-11-1-16 0zM4 15c5-5 11-5 16 0-5-1-11-1-16 0z"></path></svg>
+                                </div>
+                                <span class="ambient-label" style="font-size: 0.65rem;">Pájaros</span>
+                            </div>
+                            <div class="ambient-item" data-amb="forest" onclick="toggleAmbient('forest')">
+                                <div class="ambient-icon-box">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2l4 5h-3v4h5l-4 5h3l-5 6h-2l-5-6h3l-4-5h5V7H8l4-5z"></path></svg>
+                                </div>
+                                <span class="ambient-label" style="font-size: 0.65rem;">Bosque</span>
+                            </div>
+                            <div class="ambient-item" data-amb="ocean" onclick="toggleAmbient('ocean')">
+                                <div class="ambient-icon-box">
+                                    <svg viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
+                                </div>
+                                <span class="ambient-label" style="font-size: 0.65rem;">Océano</span>
+                            </div>
+                            <div class="ambient-item" data-amb="rain" onclick="toggleAmbient('rain')">
+                                <div class="ambient-icon-box">
+                                    <svg viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"></path><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="13" x2="12" y2="21"></line><line x1="16" y1="13" x2="16" y2="21"></line></svg>
+                                </div>
+                                <span class="ambient-label" style="font-size: 0.65rem;">Lluvia</span>
+                            </div>
+                            <div class="ambient-item" data-amb="waterfall" onclick="toggleAmbient('waterfall')">
+                                <div class="ambient-icon-box">
+                                    <svg viewBox="0 0 24 24"><path d="M8 4v16M12 6v14M16 4v16M20 6v14"></path></svg>
+                                </div>
+                                <span class="ambient-label" style="font-size: 0.65rem;">Cascada</span>
+                            </div>
+                        </div>
+                        <input class="ambient-vol-slider" type="range" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; max-width: 300px; margin: 15px auto 30px; accent-color: var(--accent); height: 4px; cursor: pointer; display: block;">
+                    </div>
+
+                    <button class="btn-save" onclick="startPausaSession()" style="width: 100%; max-width: 300px; background: var(--accent); color: white; padding: 18px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; letter-spacing: 2px;">INICIAR PAUSA</button>
+                    <button onclick="renderPausaList()" style="display: block; width: 100%; max-width: 300px; margin: 15px auto 0; background: transparent; border: none; font-size: 0.75rem; letter-spacing: 2px; opacity: 0.5; cursor: pointer; text-transform: uppercase;">VOLVER AL MENÚ</button>
+                </div>
+
+                <!-- VISTA 3: Sesión (Respiración) -->
+                <div id="pausa-view-session" style="display: none; height: 60vh; flex-direction: column; justify-content: center; align-items: center;">
+                    <div class="breath-ring-wrapper" id="breath-wrapper">
+                        <div class="breath-aura"></div>
+                        <div class="breath-core"></div>
+                        <svg class="breath-svg" viewBox="0 0 340 340">
+                            <circle cx="170" cy="170" r="158" id="breath-circle-svg"></circle>
+                        </svg>
+                        <div class="breath-text" id="breath-text">Prepárate...</div>
+                    </div>
+                    <div id="pausa-timer" style="font-family: var(--font-body); font-variant-numeric: tabular-nums; font-size: 1.2rem; letter-spacing: 4px; opacity: 0.4; margin-top: 50px;">03:00</div>
+                    <button onclick="endPausaEarly()" style="display: block; margin: 40px auto 0; background: transparent; border: 1px solid rgba(128,128,128,0.2); padding: 10px 20px; border-radius: 20px; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5; cursor: pointer; text-transform: uppercase;">ABANDONAR</button>
+                </div>
+
+                <!-- VISTA 4: Finalizado -->
+                <div id="pausa-view-end" style="display: none; padding-top: 60px;">
+                    <h2 style="font-family:'Playfair Display', serif; font-size: 3rem; font-style: italic; margin-bottom: 20px; color: var(--accent);">Has vuelto.</h2>
+                    <p style="opacity: 0.7; font-size: 1rem; margin-bottom: 50px; line-height: 1.6;">El mundo no se ha movido, pero tú estás más presente.<br>Gracias por dedicarte este tiempo.</p>
+                    
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button class="btn-save" onclick="savePausaHabit()" style="background: var(--accent); color: white; padding: 15px 30px; border-radius: 50px; font-weight: 500; font-size: 0.8rem; letter-spacing: 1px;">GUARDAR COMO HÁBITO</button>
+                        <button class="btn-save" onclick="renderPausaList()" style="background: transparent; border: 1px solid rgba(128,128,128,0.3); color: var(--text); padding: 15px 30px; border-radius: 50px; font-weight: 500; font-size: 0.8rem; letter-spacing: 1px;">CONTINUAR</button>
+                    </div>
+                </div>
+
+            </div>
         </main>
 
     </div>
@@ -1295,6 +1503,75 @@
             </div>
             <div style="padding: 20px; border-top: 1px solid rgba(128,128,128,0.1);">
                 <button class="btn-save" onclick="toggleNotifications()" style="width: 100%; margin: 0;">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hábitos -->
+    <div id="habitos-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Mis Hábitos</h2>
+                <button class="btn-icon" onclick="toggleHabitos()" title="Cerrar" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
+                    <svg viewBox="0 0 24 24" style="stroke: currentColor;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <!-- PANEL DE HÁBITOS (MIGRADO) -->
+            <div class="habitos-panel" style="margin-top: 0; animation: none;">
+                <!-- Stats: Racha + Logros -->
+                <div class="habitos-stats">
+                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                        <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
+                        <span class="habito-stat-num" id="streak-val">0</span>
+                        <span class="habito-stat-label">Racha</span>
+                        <span class="habito-stat-desc">Días seguidos de sabiduría</span>
+                        <div class="gam-tooltip">
+                            <b>Racha Diaria</b>
+                            Entra cada día para mantener el fuego de tu hábito encendido.
+                        </div>
+                    </div>
+                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                        <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                        <span class="habito-stat-num" id="medals-val">0</span>
+                        <span class="habito-stat-label">Logros</span>
+                        <span class="habito-stat-desc">Por lecciones</span>
+                        <div class="gam-tooltip">
+                            <b>Tus Logros</b>
+                            Ganas 1 logro por cada 7 lecciones completadas en la sección "Mi Viaje". Completa lecciones de Libros para desbloquearlos.
+                        </div>
+                    </div>
+                    <!-- NUEVO: Pausas Conscientes -->
+                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                        <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                        <span class="habito-stat-num" id="pausas-val">0</span>
+                        <span class="habito-stat-label">Pausas</span>
+                        <span class="habito-stat-desc">Momentos de paz</span>
+                        <div class="gam-tooltip">
+                            <b>Pausas Conscientes</b>
+                            El total de minutos de calma y respiración consciente logrados históricamente.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Puntos 7 días (Dom—Sáb) -->
+                <hr class="habitos-divider">
+                <span class="habitos-dots-label">Esta semana</span>
+                <div class="racha-visual" id="racha-visual"><!-- dots por JS --></div>
+
+                <!-- Logro del Día -->
+                <div class="logro-hoy-badge" id="logro-hoy" onclick="this.classList.toggle('show-tip')">
+                    <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
+                    <span class="logro-label">Logro del Día — Sabiduría Completa</span>
+                    <div class="gam-tooltip">
+                        <b>¡Excelente!</b>
+                        Visitaste las 4 secciones hoy. Tu mente está en pleno movimiento.
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding-top: 25px; margin-top: 10px;">
+                <button class="btn-save" onclick="toggleHabitos()" style="width: 100%; margin: 0; background: transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--text);">VOLVER</button>
             </div>
         </div>
     </div>
@@ -1736,10 +2013,21 @@
                             <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
                             <span class="habito-stat-num" id="profile-medals-val">0</span>
                             <span class="habito-stat-label">Logros</span>
-                            <span class="habito-stat-desc">Por cada 7 lecciones completadas</span>
+                            <span class="habito-stat-desc">Por lecciones</span>
                             <div class="gam-tooltip">
                                 <b>Tus Logros</b>
                                 Medallas ganadas por tu constancia en "Mi Viaje".
+                            </div>
+                        </div>
+                        <!-- NUEVO: Pausas Conscientes (Perfil) -->
+                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                            <span class="habito-stat-num" id="profile-pausas-val">0</span>
+                            <span class="habito-stat-label">Pausas</span>
+                            <span class="habito-stat-desc">Momentos de paz</span>
+                            <div class="gam-tooltip">
+                                <b>Pausas Conscientes</b>
+                                El total de minutos de calma y respiración consciente logrados históricamente.
                             </div>
                         </div>
                     </div>
@@ -1933,7 +2221,10 @@
             if (mantraInput) mantraInput.value = localStorage.getItem('lumina_mantra') || "";
 
             const emailEl = document.getElementById('profile-email');
-            if (emailEl) emailEl.innerText = localStorage.getItem('lumina_pro_key') ? "Usuario Pro" : "Usuario Estándar";
+            if (emailEl) {
+                const savedEmail = localStorage.getItem('lumina_user_email');
+                emailEl.innerText = savedEmail || (localStorage.getItem('lumina_pro_key') ? "Usuario Pro" : "Usuario Estándar");
+            }
 
             const planBadge = document.getElementById('profile-plan-badge');
             if (planBadge) {
@@ -2486,6 +2777,16 @@
             if (!visited.includes(cat)) {
                 visited.push(cat);
                 localStorage.setItem(todayKey, JSON.stringify(visited));
+                
+                // Toast de progreso (Lúmina Style)
+                const allCats = ['palabras', 'afirmaciones', 'frases', 'libros'];
+                const count = allCats.filter(c => visited.includes(c)).length;
+                if (count < 4) {
+                    showToast(`Logro del día: ${count}/4 secciones exploradas 🌟`, "info");
+                } else {
+                    showToast("¡Logro Completado! Sabiduría total alcanzada ✨", "success");
+                    playSound('success');
+                }
             }
             updateLogroDelDia();
         }
@@ -2763,6 +3064,7 @@
                     localStorage.setItem('lumina_pro', 'true');
                     localStorage.setItem('lumina_pro_key', key); 
                     localStorage.setItem('lumina_pro_type', data.type || 'LIFETIME');
+                    if (data.email) localStorage.setItem('lumina_user_email', data.email);
                     
                     loadProState();
                     checkNotifications();
@@ -2771,8 +3073,9 @@
                     setTimeout(() => {
                         if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
                         const successModal = document.getElementById('success-modal');
-                        const msg = data.type === 'MONTHLY' ? "Suscripción Mensual Activada" : "Acceso Vitalicio Activado";
-                        successModal.querySelector('p').innerText = `¡Gracias por tu confianza! ${msg}. Disfruta de la maestría total.`;
+                        const isLifetime = data.type && data.type.toUpperCase() === 'LIFETIME';
+                        const msg = isLifetime ? "Acceso Vitalicio" : "Tu Suscripción Lúmina Pro";
+                        successModal.querySelector('p').innerHTML = `¡Gracias por tu confianza!<br><br><strong>${msg}</strong> ha sido activada correctamente. Disfruta de la maestría total sin límites.`;
                         successModal.classList.add('active');
                         history.pushState({ modal: 'success' }, "", "#success");
                     }, 500);
@@ -2875,6 +3178,11 @@
             if (navigator.vibrate) navigator.vibrate(10);
             releaseWakeLock();
 
+            // Detener audio si venimos de pausa
+            if (currentCategory === 'pausa') {
+                toggleAmbient('none');
+            }
+
             const hub = document.getElementById('hub');
             const mainUI = document.getElementById('main-ui');
 
@@ -2928,6 +3236,8 @@
             // 2. Navegación normal entre categorías
             if (state && state.cat && state.cat !== 'hub') {
                 openCategory(state.cat, state.cat === 'libros', false);
+            } else if (hash === '#pausa') {
+                openCategory('pausa', false, false);
             } else {
                 showHub(false);
                 if (hash === "" || hash === "#hub") {
@@ -3258,8 +3568,22 @@
             }
         }
 
+        function toggleHabitos() {
+            const modal = document.getElementById('habitos-modal');
+            if (modal.classList.contains('active')) {
+                playSound('click');
+                history.back();
+            } else {
+                closeModals(true);
+                modal.classList.add('active');
+                history.pushState({ modal: 'habitos' }, "", "#habitos");
+                playSound('click');
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+        }
+
         function closeModals(preventBack = false) {
-            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal'];
+            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal'];
             let anyClosed = false;
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -3269,7 +3593,7 @@
                 }
             });
             // Si cerramos manualmente y hay un hash de modal, volvemos atrás en el historial (a menos que se prevenga)
-            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial)/)) {
+            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos)/)) {
                 history.back();
             }
         }
@@ -3398,7 +3722,7 @@
                     toggleNotifications();
                     if (link) {
                         window.open(link, '_blank');
-                    } else if (['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat)) {
+                    } else if (['palabras', 'afirmaciones', 'frases', 'libros', 'pausa'].includes(cat)) {
                         openCategory(cat, cat === 'libros'); 
                     }
                     if (navigator.vibrate) navigator.vibrate(10);
@@ -3638,12 +3962,17 @@
             const player = document.getElementById('ambient-player');
             if (player) player.volume = val;
             localStorage.setItem('lumina_ambient_vol', val);
+            document.querySelectorAll('.ambient-vol-slider').forEach(s => s.value = val);
         }
 
         function updateAmbientUI(activeType) {
             document.querySelectorAll('.ambient-item').forEach(item => {
                 item.classList.remove('active');
             });
+            document.querySelectorAll(`[data-amb="${activeType}"]`).forEach(item => {
+                item.classList.add('active');
+            });
+            // Mantener soporte backward-compatible con los IDs originales
             const activeItem = document.getElementById(`amb-${activeType}`);
             if (activeItem) activeItem.classList.add('active');
         }
@@ -4117,6 +4446,225 @@
                 }
             }
         }
+
+        // --- SISTEMA DE URL Y BOTÓN ATRÁS (HARDWARE) ---
+        window.addEventListener('hashchange', () => {
+            // Si el usuario presiona "Atrás" en Android, el hash desaparece o cambia.
+            // Si el hash ya no contiene un modal válido, cerramos todos los modales.
+            if (!window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos)/)) {
+                closeModals(true); 
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Soporte para abrir modal desde notificaciones o links externos
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('modal') === 'habitos' || window.location.hash === '#habitos') {
+                setTimeout(() => {
+                    const modal = document.getElementById('habitos-modal');
+                    if (modal && !modal.classList.contains('active')) {
+                        toggleHabitos();
+                    }
+                }, 800); 
+            }
+
+            if (window.location.hash === '#pausa') {
+                setTimeout(() => openCategory('pausa', false, false), 500);
+            }
+        });
+
+        // --- LÓGICA DE PAUSA CONSCIENTE ---
+        const pausasData = [
+            { id: 'emocional', icon: '<svg viewBox="0 0 24 24" fill="none" class="p-icon"><path d="M12 2c0 0-5 5.5-5 10a5 5 0 0 0 10 0c0-4.5-5-10-5-10z"/></svg>', title: 'Pausa Emocional', desc: 'Cuando estás alterado.', phrase: 'No eres la emoción. Eres quien la observa.', guide: 'Siente lo que está presente sin rechazarlo.<br>No lo nombres bueno ni malo.<br>Respira y permite que pase a través de ti.' },
+            { id: 'mental', icon: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="p-icon"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>', title: 'Pausa Mental', desc: 'Cuando estás saturado.', phrase: 'Tu mente no necesita más ruido. Necesita espacio.', guide: 'Deja caer los pensamientos sin seguirlos.<br>No resuelvas nada ahora.<br>Solo observa... y vuelve a tu respiración.' },
+            { id: 'decisiva', icon: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="p-icon"><path d="M12 3v18"/><path d="M3 12h18"/><path d="M7 12v5"/><path d="M17 12v5"/><path d="M4 17h16"/></svg>', title: 'Pausa Decisiva', desc: 'Antes de actuar.', phrase: 'No todo impulso merece convertirse en acción.', guide: 'Antes de responder, detente.<br>Respira y observa la intención detrás de tu acción.<br>Elige con claridad, no con prisa.' },
+            { id: 'matutina', icon: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="p-icon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>', title: 'Pausa Matutina', desc: 'Para comenzar el día.', phrase: 'El día no comienza afuera. Comienza dentro de ti.', guide: 'Antes de tocar el mundo, vuelve a ti.<br>Respira profundo.<br>Define cómo quieres habitar este día.' },
+            { id: 'nocturna', icon: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="p-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>', title: 'Pausa Nocturna', desc: 'Para cerrar el día.', phrase: 'Suelta el día. Ya hizo lo que tenía que hacer.', guide: 'No repases, no corrijas.<br>Agradece lo vivido.<br>Respira... y descansa en calma.' }
+        ];
+
+        let currentPausaTime = 3; // 3 min por defecto
+        let pausaTimerInterval = null;
+        let breathInterval = null;
+        let remainingSeconds = 0;
+
+        function renderPausaList() {
+            playSound('click');
+            const container = document.getElementById('pausa-list-container');
+            container.innerHTML = '';
+            pausasData.forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'pausa-list-item';
+                el.onclick = () => openPausaDetail(p.id);
+                el.innerHTML = `
+                    <div>
+                        <h3 class="p-title">${p.title}</h3>
+                        <p class="p-desc">${p.desc}</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center;">${p.icon}</div>
+                `;
+                container.appendChild(el);
+            });
+            document.getElementById('pausa-view-list').style.display = 'block';
+            document.getElementById('pausa-view-prep').style.display = 'none';
+            document.getElementById('pausa-view-session').style.display = 'none';
+            document.getElementById('pausa-view-end').style.display = 'none';
+        }
+
+        function openPausaDetail(id) {
+            playSound('click');
+            const data = pausasData.find(p => p.id === id);
+            if (!data) return;
+            document.getElementById('prep-title').innerHTML = `<div style="display:flex; align-items:center; justify-content:center; gap:8px;">${data.icon} <span>${data.title.toUpperCase()}</span></div>`;
+            document.getElementById('prep-phrase').innerText = `"${data.phrase}"`;
+            document.getElementById('prep-guide').innerHTML = data.guide;
+
+            document.getElementById('pausa-view-list').style.display = 'none';
+            document.getElementById('pausa-view-prep').style.display = 'block';
+            setPausaTime(currentPausaTime); // Reset visual chips
+        }
+
+        function setPausaTime(minutes) {
+            playSound('click');
+            currentPausaTime = minutes;
+            const buttons = document.querySelectorAll('.time-chip');
+            buttons.forEach(b => b.classList.remove('active'));
+            // Activa el botón correcto si no es personalizado
+            const match = Array.from(buttons).find(b => b.innerText.includes(minutes + ' min'));
+            if (match) match.classList.add('active');
+        }
+
+        function openCustomTime() {
+            playSound('click');
+            const qty = prompt("¿Cuántos minutos deseas meditar?", "15");
+            if (qty && !isNaN(qty) && qty > 0) {
+                setPausaTime(parseInt(qty));
+                const buttons = document.querySelectorAll('.time-chip');
+                buttons.forEach(b => b.classList.remove('active'));
+                buttons[buttons.length - 1].classList.add('active'); // custom btn
+                buttons[buttons.length - 1].innerText = qty + ' min';
+            }
+        }
+
+        function startPausaSession() {
+            playSound('click');
+            document.getElementById('pausa-view-prep').style.display = 'none';
+            document.getElementById('pausa-view-session').style.display = 'flex';
+            
+            remainingSeconds = currentPausaTime * 60;
+            updatePausaTimerUI();
+            
+            // Ciclo de respiración (4 - 2 - 6)
+            const wrapper = document.getElementById('breath-wrapper');
+            const text = document.getElementById('breath-text');
+            const circle = document.getElementById('breath-circle-svg');
+            
+            clearInterval(pausaTimerInterval);
+            clearInterval(breathInterval);
+
+            // Calcular el perímetro exacto para el dasharray
+            const radius = 158;
+            const circumference = 2 * Math.PI * radius;
+            circle.style.strokeDasharray = circumference;
+            circle.style.strokeDashoffset = circumference;
+            
+            const startBreathCycle = () => {
+                // Inhalar (4s)
+                wrapper.className = 'breath-ring-wrapper inhaling';
+                circle.style.transitionDuration = '4s';
+                circle.style.strokeDashoffset = '0';
+                text.innerText = 'Inhala...';
+                text.style.opacity = 0.5;
+                setTimeout(() => text.style.opacity = 1, 100);
+
+                setTimeout(() => {
+                    // Sostener (2s)
+                    wrapper.className = 'breath-ring-wrapper holding';
+                    circle.style.transitionDuration = '2s';
+                    // Mantener el offset en 0 o hacer un pequeño pulso si quisieras
+                    text.innerText = 'Sostén...';
+                    text.style.opacity = 0.5;
+                    setTimeout(() => text.style.opacity = 1, 100);
+
+                    setTimeout(() => {
+                        // Exhalar (6s)
+                        wrapper.className = 'breath-ring-wrapper exhaling';
+                        circle.style.transitionDuration = '6s';
+                        circle.style.strokeDashoffset = circumference;
+                        text.innerText = 'Exhala...';
+                        text.style.opacity = 0.5;
+                        setTimeout(() => text.style.opacity = 1, 100);
+                    }, 2000); 
+                }, 4000); 
+            };
+
+            startBreathCycle();
+            breathInterval = setInterval(startBreathCycle, 12000); // 4 + 2 + 6 = 12s total
+
+            // Timer general
+            pausaTimerInterval = setInterval(() => {
+                remainingSeconds--;
+                updatePausaTimerUI();
+                if (remainingSeconds <= 0) {
+                    endPausaSuccess();
+                }
+            }, 1000);
+        }
+
+        function updatePausaTimerUI() {
+            const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
+            const s = (remainingSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('pausa-timer').innerText = `${m}:${s}`;
+        }
+
+        function endPausaEarly() {
+            playSound('click');
+            toggleAmbient('none');
+            clearInterval(pausaTimerInterval);
+            clearInterval(breathInterval);
+            renderPausaList();
+        }
+
+        function endPausaSuccess() {
+            playSound('success');
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]); // Patrón de zumbido
+            clearInterval(pausaTimerInterval);
+            clearInterval(breathInterval);
+            document.getElementById('pausa-view-session').style.display = 'none';
+            document.getElementById('pausa-view-end').style.display = 'block';
+        }
+
+        function savePausaHabit() {
+            playSound('click');
+            let pausasCount = parseInt(localStorage.getItem('lumina_pausas_count') || '0');
+            pausasCount++;
+            localStorage.setItem('lumina_pausas_count', pausasCount);
+            
+            // Refrescar DOM
+            document.getElementById('pausas-val').innerText = pausasCount;
+            document.getElementById('profile-pausas-val').innerText = pausasCount;
+            
+            showToast("Momento de paz guardado en tu historial 🌿", "success");
+            toggleAmbient('none');
+            renderPausaList(); // Volver al inicio de pausas
+        }
+
+        // --- INYECCIÓN AL CARGAR PARA LEER EL HISTORIAL DE PAUSAS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            let pausasCount = parseInt(localStorage.getItem('lumina_pausas_count') || '0');
+            const pVal = document.getElementById('pausas-val');
+            const profilePVal = document.getElementById('profile-pausas-val');
+            if (pVal) pVal.innerText = pausasCount;
+            if (profilePVal) profilePVal.innerText = pausasCount;
+        });
+
+        // Intercepción en openCategory para Pausas
+        const originalOpenCategory = openCategory;
+        openCategory = function(cat, isLocked = false, isUserAction = true) {
+            if (cat === 'pausa') {
+                renderPausaList(); 
+            }
+            originalOpenCategory(cat, isLocked, isUserAction);
+        };
 
         window.onload = init;
     </script>
