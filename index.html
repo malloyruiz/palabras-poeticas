@@ -1120,6 +1120,47 @@
             .btn-fab-item svg { width: 16px; height: 16px; }
         }
 
+        /* --- CONTROL DE VISTAS ESPECIALES --- */
+        #pausa-ui, #lesson-ui, #reto-del-dia, #reflexion-del-dia { display: none; }
+        
+        /* Vista Pausa: Ocultar todo lo estándar y centrar */
+        .view-pausa > .content-header,
+        .view-pausa .side-panel,
+        .view-pausa #reto-del-dia, 
+        .view-pausa #reflexion-del-dia { display: none !important; }
+        
+        .view-pausa { display: flex !important; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px !important; }
+        .view-pausa #pausa-ui { display: block !important; width: 100%; max-width: 600px; margin: 0 auto; }
+        
+        /* Botón de volver flotante */
+        #btn-back-hub { display: none; }
+        .view-pausa #btn-back-hub, .view-libros #btn-back-hub, .view-palabras #btn-back-hub, .view-afirmaciones #btn-back-hub, .view-frases #btn-back-hub {
+            position: fixed !important;
+            top: 30px !important;
+            left: 30px !important;
+            z-index: 1001;
+            background: var(--bg);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Vista Libros */
+        .view-libros > .content-header, 
+        .view-libros .side-panel,
+        .view-libros #reto-del-dia,
+        .view-libros #reflexion-del-dia { display: none !important; }
+        .view-libros #lesson-ui { display: block !important; }
+
+        /* Visibilidad Condicional por Categoría */
+        .view-palabras #reto-del-dia { display: block !important; }
+        .view-afirmaciones #reflexion-del-dia { display: block !important; }
+
         /* --- ESTILOS DE PAUSA CONSCIENTE --- */
         .pausa-list { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
         .pausa-list-item { 
@@ -1278,11 +1319,11 @@
                 <!-- Botones integrados: Fijos en PC, debajo de la lección en Móvil -->
                 <div class="nav-fab-group">
                     <button class="btn-fab-item" onclick="toggleHabitos()" title="Mis Hábitos">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 19V5M12 5L7 10M12 5L17 10"/><path d="M5 19h14"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 20V10"/><path d="M12 10C12 10 9 6 4 6"/><path d="M12 10C12 10 15 6 20 6"/></svg>
                         MIS HÁBITOS
                     </button>
                     <button class="btn-fab-item" onclick="openCategory('pausa')" title="Pausa Consciente">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><circle cx="12" cy="12" r="9" stroke-dasharray="40 10"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="4"></circle></svg>
                         PAUSA
                     </button>
                 </div>
@@ -1298,8 +1339,8 @@
                     <h3>Palabras</h3>
                     <p class="hub-desc">La precisión en el lenguaje es la precisión en el pensamiento.</p>
                 </div>
-                <svg class="item-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-            </div>
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
+</div>
 
             <div class="hub-item" onmouseenter="updateHero('Afirmaciones', 'Reprograma tu mente y manifiesta tu poder interior.', 60, 30)" onclick="openCategory('afirmaciones', false)">
                 <span class="item-num">02</span>
@@ -1325,7 +1366,7 @@
                     <h3>Libros <small class="pro-locked" style="position: relative; top: auto; right: auto; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; margin-left: 12px; vertical-align: middle; border: 1px solid rgba(181, 131, 58, 0.3); border-radius: 20px; padding: 2px 10px; color: var(--accent); font-weight: 400; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px;">Pro <svg viewBox="0 0 24 24" style="width: 10px; height: 10px; stroke: var(--accent); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></small></h3>
                     <p class="hub-desc">Inmersión profunda en las mentes que cambiaron el mundo.</p>
                 </div>
-                <svg class="item-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
             </div> <!-- Fin item Libros -->
             
             <!-- BANNER PRO REFINADO (HUB) -->
@@ -3328,20 +3369,27 @@
                     try {
                         const registration = await navigator.serviceWorker.register('sw.js');
                         
-                        // Recarga automática el nuevo SW toma el control
+                        // FIX: Control estricto de recarga para evitar bucles infinitos
                         let refreshing = false;
                         navigator.serviceWorker.addEventListener('controllerchange', () => {
-                           if (!refreshing) {
-                               refreshing = true;
-                               window.location.reload();
-                           }
+                            if (refreshing) return;
+                            refreshing = true;
+                            // Solo recargamos si no acabamos de forzar una actualización hace menos de 2 segundos
+                            if (!sessionStorage.getItem('lumina_recently_updated')) {
+                                sessionStorage.setItem('lumina_recently_updated', 'true');
+                                window.location.reload();
+                            }
                         });
 
                         registration.onupdatefound = () => {
                             const installingWorker = registration.installing;
                             installingWorker.onstatechange = () => {
+                                // Solo mostramos el banner si el trabajador está instalado Y hay uno previo controlando
                                 if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    document.getElementById('update-banner').classList.add('active');
+                                    // Seguridad: Si acabamos de actualizar, no molestamos con el banner inmediatamente
+                                    if (!sessionStorage.getItem('lumina_recently_updated')) {
+                                        document.getElementById('update-banner').classList.add('active');
+                                    }
                                 }
                             };
                         };
@@ -3431,17 +3479,28 @@
         }
 
         function forceUpdateApp() {
+            // 1. Ocultar banner inmediatamente para evitar clics dobles
+            document.getElementById('update-banner').classList.remove('active');
+            
+            // 2. Marcar que estamos actualizando voluntariamente para que el evento controllerchange no buclee
+            sessionStorage.setItem('lumina_recently_updated', 'true');
+
             if ('serviceWorker' in navigator) {
+                // Limpiar cachés
                 if (window.caches) {
                     caches.keys().then(names => {
                         for (let name of names) caches.delete(name);
                     });
                 }
                 navigator.serviceWorker.getRegistration().then(reg => {
-                    if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                    else window.location.reload(true);
+                    if (reg && reg.waiting) {
+                        // Le decimos al nuevo worker que tome el mando; esto disparará 'controllerchange'
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    } else {
+                        // Si no hay worker esperando, recarga normal
+                        window.location.reload(true);
+                    }
                 });
-                setTimeout(() => window.location.reload(true), 1500);
             } else {
                 window.location.reload(true);
             }
@@ -4143,11 +4202,13 @@
                 item.setAttribute('data-id', nId);
                 
                 const icons = {
-                    palabras: '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>',
-                    afirmaciones: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>',
-                    frases: '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
-                    libros: '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>',
-                    extra: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
+                    palabras: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>',
+                    afirmaciones: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>',
+                    frases: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
+                    libros: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>',
+                    pausa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="4"></circle></svg>',
+                    habitos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M12 10C12 10 9 6 4 6"/><path d="M12 10C12 10 15 6 20 6"/></svg>',
+                    extra: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
                 };
 
                 const iconHtml = `<div class="notif-icon-circle" style="width: 35px; height: 35px; background: rgba(181, 131, 58, 0.1); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
@@ -4167,7 +4228,13 @@
                 item.onclick = () => {
                     toggleNotifications();
                     if (link) {
-                        window.open(link, '_blank');
+                        if (link.startsWith('#')) {
+                            // Enlace interno (ej: #pausa)
+                            openCategory(link.substring(1));
+                        } else {
+                            // Enlace externo
+                            window.open(link, '_blank');
+                        }
                     } else if (['palabras', 'afirmaciones', 'frases', 'libros', 'pausa'].includes(cat)) {
                         openCategory(cat, cat === 'libros'); 
                     }
@@ -4922,11 +4989,11 @@
 
         // --- LÓGICA DE PAUSA CONSCIENTE ---
         const pausasData = [
-            { id: 'emocional', icon: '<svg viewBox="0 0 24 24" fill="none" class="p-icon"><path d="M12 2c0 0-5 5.5-5 10a5 5 0 0 0 10 0c0-4.5-5-10-5-10z"/></svg>', title: 'Pausa Emocional', desc: 'Cuando estás alterado.', phrase: 'No eres la emoción. Eres quien la observa.', guide: 'Siente lo que está presente sin rechazarlo.<br>No lo nombres bueno ni malo.<br>Respira y permite que pase a través de ti.' },
-            { id: 'mental', icon: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="p-icon"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>', title: 'Pausa Mental', desc: 'Cuando estás saturado.', phrase: 'Tu mente no necesita más ruido. Necesita espacio.', guide: 'Deja caer los pensamientos sin seguirlos.<br>No resuelvas nada ahora.<br>Solo observa... y vuelve a tu respiración.' },
-            { id: 'decisiva', icon: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="p-icon"><path d="M12 3v18"/><path d="M3 12h18"/><path d="M7 12v5"/><path d="M17 12v5"/><path d="M4 17h16"/></svg>', title: 'Pausa Decisiva', desc: 'Antes de actuar.', phrase: 'No todo impulso merece convertirse en acción.', guide: 'Antes de responder, detente.<br>Respira y observa la intención detrás de tu acción.<br>Elige con claridad, no con prisa.' },
-            { id: 'matutina', icon: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="p-icon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>', title: 'Pausa Matutina', desc: 'Para comenzar el día.', phrase: 'El día no comienza afuera. Comienza dentro de ti.', guide: 'Antes de tocar el mundo, vuelve a ti.<br>Respira profundo.<br>Define cómo quieres habitar este día.' },
-            { id: 'nocturna', icon: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" class="p-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>', title: 'Pausa Nocturna', desc: 'Para cerrar el día.', phrase: 'Suelta el día. Ya hizo lo que tenía que hacer.', guide: 'No repases, no corrijas.<br>Agradece lo vivido.<br>Respira... y descansa en calma.' }
+            { id: 'emocional', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="4"></circle></svg>', title: 'Pausa Emocional', desc: 'Cuando estás alterado.', phrase: 'No eres la emoción. Eres quien la observa.', guide: 'Siente lo que está presente sin rechazarlo.<br>No lo nombres bueno ni malo.<br>Respira y permite que pase a través de ti.' },
+            { id: 'mental', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg>', title: 'Pausa Mental', desc: 'Cuando estás saturado.', phrase: 'Tu mente no necesita más ruido. Necesita espacio.', guide: 'Deja caer los pensamientos sin seguirlos.<br>No resuelvas nada ahora.<br>Solo observa... y vuelve a tu respiración.' },
+            { id: 'decisiva', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M12 3v18"/><path d="M3 12h18"/><path d="M7 12v5"/><path d="M17 12v5"/><path d="M4 17h16"/></svg>', title: 'Pausa Decisiva', desc: 'Antes de actuar.', phrase: 'No todo impulso merece convertirse en acción.', guide: 'Antes de responder, detente.<br>Respira y observa la intención detrás de tu acción.<br>Elige con claridad, no con prisa.' },
+            { id: 'matutina', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></svg>', title: 'Pausa Matutina', desc: 'Para comenzar el día.', phrase: 'El día no comienza afuera. Comienza dentro de ti.', guide: 'Antes de tocar el mundo, vuelve a ti.<br>Respira profundo.<br>Define cómo quieres habitar este día.' },
+            { id: 'nocturna', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>', title: 'Pausa Nocturna', desc: 'Para cerrar el día.', phrase: 'Suelta el día. Ya hizo lo que tenía que hacer.', guide: 'No repases, no corrijas.<br>Agradece lo vivido.<br>Respira... y descansa en calma.' }
         ];
 
         let currentPausaTime = 3; // 3 min por defecto
@@ -5107,12 +5174,56 @@
             if (profilePVal) profilePVal.innerText = pausasCount;
         });
 
-        // Intercepción en openCategory para Pausas
+        // Intercepción en openCategory para Comandos Universales
         const originalOpenCategory = openCategory;
         openCategory = function(cat, isLocked = false, isUserAction = true) {
-            if (cat === 'pausa') {
-                renderPausaList(); 
+            const mainUI = document.getElementById('main-ui');
+            const hub = document.getElementById('hub');
+            
+            // Limpiar estados previos de vista
+            if (mainUI) {
+                mainUI.classList.remove('view-pausa', 'view-libros', 'view-palabras', 'view-afirmaciones', 'view-frases');
+                mainUI.classList.add('view-' + cat);
             }
+
+            // Comandos especiales (Modales / Vistas Únicas)
+            const specialCmds = ['pausa', 'profile', 'settings', 'habitos', 'notifications', 'pro', 'trial'];
+            
+            if (specialCmds.includes(cat)) {
+                if (cat === 'pausa') {
+                    renderPausaList();
+                    // Navegación desde Hub si es necesario
+                    if (hub && !hub.classList.contains('hidden')) {
+                        hub.classList.add('hidden');
+                        mainUI.classList.remove('hidden');
+                        setTimeout(() => mainUI.classList.add('activa'), 50);
+                    }
+                    if (mainUI) mainUI.classList.add('view-pausa');
+                    document.getElementById('header-cat').innerText = 'PAUSA CONSCIENTE';
+                }
+                if (cat === 'profile') toggleProfile();
+                if (cat === 'settings') toggleSettings();
+                if (cat === 'habitos') toggleHabitos();
+                if (cat === 'notifications') toggleNotifications();
+                if (cat === 'pro' || cat === 'trial') openProModal();
+
+                // Garantizar botón de volver para todos los comandos especiales que usen el main-ui
+                if (cat === 'pausa' || cat === 'libros') {
+                    let btn = document.getElementById('btn-back-hub');
+                    if (!btn) {
+                        btn = document.createElement('button');
+                        btn.id = 'btn-back-hub';
+                        btn.className = 'btn-icon';
+                        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+                        btn.onclick = () => history.back();
+                        document.body.appendChild(btn);
+                    }
+                    btn.style.setProperty('display', 'flex', 'important');
+                }
+                return; 
+            }
+            
+            // El resto de la lógica (libros, etc.) ya se gestiona con la clase 'view-' + cat añadida rriba
             originalOpenCategory(cat, isLocked, isUserAction);
         };
 
