@@ -1160,6 +1160,41 @@
         /* Visibilidad Condicional por Categoría */
         .view-palabras #reto-del-dia { display: block !important; }
         .view-afirmaciones #reflexion-del-dia { display: block !important; }
+        /* Vista Extra (Día de Enfoque) */
+        .view-extra > .content-header, 
+        .view-extra .side-panel,
+        .view-extra #reto-del-dia,
+        .view-extra #reflexion-del-dia { display: none !important; }
+        .view-extra #extra-ui { display: block !important; padding-bottom: 80px; }
+        
+        .extra-story { font-size: 1.1rem; line-height: 1.8; margin-top: 35px; color: var(--text); font-weight: 300; opacity: 0.9; }
+        .extra-thought { 
+            margin: 40px 0; padding: 30px; 
+            border-left: 3px solid var(--accent); 
+            background: rgba(181, 131, 58, 0.05); 
+            font-style: italic; font-family: 'Playfair Display', serif;
+            font-size: 1.25rem; line-height: 1.6; color: var(--accent);
+        }
+        .extra-quote { 
+            text-align: center; margin: 50px 0; padding: 20px; 
+            border-top: 1px solid rgba(128,128,128,0.1); border-bottom: 1px solid rgba(128,128,128,0.1); 
+            font-size: 0.95rem; opacity: 0.6; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .extra-challenge-box {
+            margin-top: 60px; padding: 40px; border-radius: 32px;
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
+        .extra-challenge-box h3 { font-size: 0.65rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; }
+        .extra-challenge-text { font-size: 1.1rem; font-family: 'Playfair Display', serif; font-style: italic; color: var(--text); line-height: 1.5; }
+        
+        .extra-cta {
+            margin-top: 30px; width: 100%; border-radius: 50px; padding: 18px; 
+            font-size: 0.8rem; letter-spacing: 2px; font-weight: 600; 
+            background: var(--accent); color: #fff; border: none; cursor: pointer;
+            transition: all 0.3s ease; text-transform: uppercase;
+        }
+        .extra-cta:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(181,131,58,0.2); }
 
         /* --- ESTILOS DE PAUSA CONSCIENTE --- */
         .pausa-list { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
@@ -1422,6 +1457,18 @@
             <div id="reflexion-del-dia" style="grid-column: 1 / -1; margin-top: 20px; padding: 40px; background: rgba(181,131,58,0.05); border-radius: 30px; text-align: center;">
                 <div class="reto-label">💭 Pregunta de Reflexión</div>
                 <em id="reflexion-text" class="reto-text">¿Qué parte de ti necesita escuchar esto hoy?</em>
+            </div>
+
+            <!-- SECCIÓN EXTRA (DÍA DE ENFOQUE) -->
+            <div id="extra-ui" style="grid-column: 1 / -1; display: none;">
+                <div class="extra-story" id="extra-story">---</div>
+                <div class="extra-thought" id="extra-thought">---</div>
+                <div class="extra-quote" id="extra-quote">---</div>
+                <div class="extra-challenge-box">
+                    <h3>⚡ Reto o Reflexión del Día</h3>
+                    <div class="extra-challenge-text" id="extra-challenge">---</div>
+                    <button id="extra-cta" class="extra-cta" style="display: none;" onclick="window.open(this.dataset.url, '_blank')">EXPLORAR MÁS</button>
+                </div>
             </div>
             
             <!-- VISTA DE LECCIONES (EXTRA) -->
@@ -2598,6 +2645,8 @@
                     'lumina_trial_start', 'lumina_trial_used', 'lumina_last_visit_ts',
                     // Plan y membresía
                     'lumina_pro_type',         // LIFETIME o MONTHLY
+                    'lumina_library_unlocked', // Expansión de Biblioteca
+                    'lumina_expansions',      // Otros módulos futuros
                     // Apariencia
                     'theme', 'lumina_accent', 'lumina_accent_id', 'lumina_font_pair',
                     // Audio y narración
@@ -3470,9 +3519,13 @@
                         } else if (targetCat === 'trial') {
                              document.getElementById('pro-modal').classList.add('active');
                         } else {
-                            const validCats = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa'];
-                            if (validCats.includes(targetCat)) {
-                                openCategory(targetCat, targetCat === 'libros', true);
+                            const validCats = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
+                            let catBase = targetCat;
+                            if (targetCat.includes(':')) catBase = targetCat.split(':')[0];
+                            
+                            if (validCats.includes(catBase)) {
+                                if (catBase === 'habitos') toggleHabitos();
+                                else openCategory(catBase, catBase === 'libros', true);
                             }
                         }
                     }, 500);
@@ -3661,7 +3714,7 @@
                 }, 300);
 
                 // Etiquetas y Controles
-                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY' };
+                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'DÍA DE ENFOQUE' };
                 document.getElementById('header-cat').innerText = labels[cat] || 'LÚMINA';
 
                 const shareBtn = document.getElementById('main-share-btn');
@@ -3805,8 +3858,24 @@
             document.getElementById('loader').style.opacity = '1';
             
             try {
-                const response = await fetch(`${API}?cat=${currentCategory}`);
+                let url = `${API}?cat=${currentCategory}`;
+                if (currentCategory === 'extra') {
+                    const hash = window.location.hash;
+                    const match = hash.match(/#extra:(.+)/);
+                    const extraId = match ? match[1] : '';
+                    const uType = (localStorage.getItem('lumina_pro') === 'true') ? 'PRO' : (isTrialActive() ? 'TRIAL' : 'FREE');
+                    url = `${API}?action=extra&userType=${uType}${extraId ? '&id=' + extraId : ''}`;
+                }
+
+                const response = await fetch(url);
                 const data = await response.json();
+                
+                if (currentCategory === 'extra' && data.error) {
+                    showToast(data.error, "error");
+                    history.back();
+                    return;
+                }
+
                 setCache(currentCategory, data);
                 renderContent(data);
                 loadUserJournal(); // Cargar diario
@@ -3831,7 +3900,26 @@
         }
 
         function renderContent(data) {
-            if (currentCategory === 'libros') {
+            if (currentCategory === 'extra') {
+                document.getElementById('header-cat').innerText = (data.titulo || "DÍA DE ENFOQUE").toUpperCase();
+                document.getElementById('extra-story').innerText = data.historia || "";
+                document.getElementById('extra-thought').innerText = data.pensamiento || "";
+                document.getElementById('extra-quote').innerText = data.frase || "";
+                document.getElementById('extra-challenge').innerText = data.reto || "";
+                
+                const cta = document.getElementById('extra-cta');
+                if (data.cta_text && data.cta_url) {
+                    cta.innerText = data.cta_text.toUpperCase();
+                    cta.dataset.url = data.cta_url;
+                    cta.style.display = 'block';
+                } else {
+                    cta.style.display = 'none';
+                }
+                
+                document.getElementById('word-title').innerText = data.titulo;
+                document.getElementById('word-def').innerText = "CONTENIDO ESPECIAL";
+            } else if (currentCategory === 'libros') {
+
                 document.getElementById('lesson-date-full').innerText = document.getElementById('header-date').innerText;
                 document.getElementById('lesson-cat-label').innerText = (data.libro || "LIBRO").toUpperCase();
                 document.getElementById('lesson-day').innerText = `LECCIÓN ${data.dia} DE ${data.total}`;
@@ -4244,18 +4332,42 @@
                     </div>
                 `;
                 item.onclick = () => {
-                    toggleNotifications();
-                    if (link) {
-                        if (link.startsWith('#')) {
-                            // Enlace interno (ej: #pausa)
-                            openCategory(link.substring(1));
-                        } else {
-                            // Enlace externo
+                    const target = (link && link.startsWith('#')) ? link.substring(1) : cat;
+                    closeModals(true); 
+
+                    // --- ENRUTADOR INTELIGENTE DE NOTIFICACIONES ---
+                    const modals = {
+                        'settings': toggleSettings,
+                        'profile': toggleProfile,
+                        'info': toggleInfo,
+                        'habitos': toggleHabitos,
+                        'notifications': toggleNotifications,
+                        'pro': () => document.getElementById('pro-modal').classList.add('active'),
+                        'trial': () => document.getElementById('pro-modal').classList.add('active'),
+                        'success': () => document.getElementById('success-modal').classList.add('active'),
+                        'restore': () => { setPortalMode('recover'); document.getElementById('identity-portal').classList.add('active'); }
+                    };
+
+                    if (modals[target]) {
+                        modals[target]();
+                    } else if (target === 'hub') {
+                        showHub();
+                    } else {
+                        // Secciones estándar
+                        let catName = target;
+                        if (target.includes(':')) catName = target.split(':')[0];
+                        
+                        const validCats = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra'];
+                        if (validCats.includes(catName)) {
+                            openCategory(catName, catName === 'libros');
+                        } else if (!link) {
+                            // Si no hay nada claro, abrir la campana de nuevo por seguridad
+                            toggleNotifications(); 
+                        } else if (link && !link.startsWith('#')) {
                             window.open(link, '_blank');
                         }
-                    } else if (['palabras', 'afirmaciones', 'frases', 'libros', 'pausa'].includes(cat)) {
-                        openCategory(cat, cat === 'libros'); 
                     }
+                    
                     if (navigator.vibrate) navigator.vibrate(10);
                 };
                 list.appendChild(item);
