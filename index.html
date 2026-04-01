@@ -2507,7 +2507,8 @@
             localStorage.setItem('lumina_user_name', res.name);
             if (res.proKey) localStorage.setItem('lumina_pro_key', res.proKey);
             if (res.isPro) localStorage.setItem('lumina_pro', 'true');
-            if (res.birthday) localStorage.setItem('lumina_birthday', res.birthday);
+            // Sanitizar: tomar solo YYYY-MM-DD por si Sheets devuelve ISO timestamp
+            if (res.birthday) localStorage.setItem('lumina_birthday', String(res.birthday).substring(0, 10));
             if (res.data) pullSync(res.data);
             location.reload();
         }
@@ -2796,6 +2797,10 @@
 
             document.getElementById('profile-streak-val').innerText = localStorage.getItem('lumina_streak') || 0;
             document.getElementById('profile-medals-val').innerText = getMedalCount();
+
+            // Poblar campo de cumpleaños cada vez que se abre el modal
+            const bdayInput = document.getElementById('profile-birthday');
+            if (bdayInput) bdayInput.value = localStorage.getItem('lumina_birthday') || '';
             
             switchProfileTab('identidad');
         }
