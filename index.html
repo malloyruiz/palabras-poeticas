@@ -1160,28 +1160,30 @@
         /* Visibilidad Condicional por Categoría */
         .view-palabras #reto-del-dia { display: block !important; }
         .view-afirmaciones #reflexion-del-dia { display: block !important; }
-        /* Vista Extra (Día de Enfoque) */
-        .view-extra > .content-header, 
-        .view-extra .side-panel,
-        .view-extra #reto-del-dia,
-        .view-extra #reflexion-del-dia { display: none !important; }
-        .view-extra #extra-ui { display: block !important; padding-bottom: 80px; }
+        /* Vista Extra (Edición Especial) */
+        body.cat-extra .side-panel,
+        body.cat-extra #reto-del-dia,
+        body.cat-extra #reflexion-del-dia,
+        body.cat-extra #word-def { display: none !important; }
+        body.cat-extra #extra-ui { display: block !important; padding-bottom: 80px; }
+        body.cat-extra .word-display { margin-bottom: 0.5rem !important; }
+        body.cat-extra #word-title { font-size: clamp(1.8rem, 6vw, 3.2rem) !important; line-height: 1.1; word-break: break-word; }
         
-        .extra-story { font-size: 1.1rem; line-height: 1.8; margin-top: 35px; color: var(--text); font-weight: 300; opacity: 0.9; }
+        .extra-story { font-size: 1.1rem; line-height: 1.8; margin-top: 15px; color: var(--text); font-weight: 300; opacity: 0.9; }
         .extra-thought { 
-            margin: 40px 0; padding: 30px; 
+            margin: 20px 0; padding: 20px; 
             border-left: 3px solid var(--accent); 
             background: rgba(181, 131, 58, 0.05); 
             font-style: italic; font-family: 'Playfair Display', serif;
-            font-size: 1.25rem; line-height: 1.6; color: var(--accent);
+            font-size: 1.2rem; line-height: 1.6; color: var(--accent);
         }
         .extra-quote { 
-            text-align: center; margin: 50px 0; padding: 20px; 
+            text-align: center; margin: 20px 0; padding: 15px; 
             border-top: 1px solid rgba(128,128,128,0.1); border-bottom: 1px solid rgba(128,128,128,0.1); 
             font-size: 0.95rem; opacity: 0.6; letter-spacing: 1px; text-transform: uppercase;
         }
         .extra-challenge-box {
-            margin-top: 60px; padding: 40px; border-radius: 32px;
+            margin-top: 25px; padding: 25px; border-radius: 32px;
             background: var(--card-bg); border: 1px solid var(--card-border);
             text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02);
         }
@@ -1189,7 +1191,7 @@
         .extra-challenge-text { font-size: 1.1rem; font-family: 'Playfair Display', serif; font-style: italic; color: var(--text); line-height: 1.5; }
         
         .extra-cta {
-            margin-top: 30px; width: 100%; border-radius: 50px; padding: 18px; 
+            margin-top: 25px; width: 100%; border-radius: 50px; padding: 18px; 
             font-size: 0.8rem; letter-spacing: 2px; font-weight: 600; 
             background: var(--accent); color: #fff; border: none; cursor: pointer;
             transition: all 0.3s ease; text-transform: uppercase;
@@ -3115,6 +3117,25 @@
         }
 
         function speakCurrentWord() {
+            if (currentCategory === 'extra') {
+                const title = document.getElementById('word-title').innerText.trim();
+                const story = document.getElementById('extra-story').innerText.trim();
+                const thought = document.getElementById('extra-thought').innerText.trim();
+                const quote = document.getElementById('extra-quote').innerText.trim();
+                const challenge = document.getElementById('extra-challenge').innerText.trim();
+                
+                let fullText = `${title}. `;
+                if (story && story !== "---") fullText += `${story}. `;
+                if (thought && thought !== "---") fullText += `Pensamiento. ${thought}. `;
+                if (quote && quote !== "---") fullText += `Frase relacionada. ${quote}. `;
+                if (challenge && challenge !== "---") fullText += `Para terminar, el reto de hoy. ${challenge}. `;
+                
+                fullText += "Contenido original de Lúmina App.";
+                
+                speakText(fullText);
+                return;
+            }
+
             const titleElement = document.getElementById('word-title');
             const defElement = document.getElementById('word-def');
             let fullText = `${titleElement.innerText.trim()}. ${defElement.innerText.trim()}. `;
@@ -3126,6 +3147,7 @@
                     fullText += `${ex.innerText.trim()}. `;
                 });
             }
+            fullText += "Contenido original de Lúmina App.";
             speakText(fullText);
         }
 
@@ -3138,7 +3160,9 @@
             let fullText = `${title}. ${text}. `;
             if (prof) fullText += `Aplicación profesional: ${prof}. `;
             if (pers) fullText += `Aplicación personal: ${pers}. `;
-            if (refl) fullText += `Reflexión del día: ${refl}`;
+            if (refl) fullText += `Reflexión del día: ${refl}. `;
+            
+            fullText += "Contenido original de Lúmina App.";
             speakText(fullText);
         }
 
@@ -3686,8 +3710,9 @@
             
             trackCategoryVisit(cat); // Logro del Día
             currentCategory = cat;
-            document.body.className = 'cat-' + cat;
-            if (isPro) document.body.classList.add('pro-unlocked');
+            
+            // Unificamos el sistema de clases para garantizar que la visibilidad CSS funcione siempre
+            document.body.className = `cat-${cat} view-${cat} ${isPro ? 'pro-unlocked' : ''} ${localStorage.getItem('theme') === 'dark' ? 'dark-mode' : ''}`;
             if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
             
             // Si es acción del usuario, empujar al historial
@@ -3714,7 +3739,7 @@
                 }, 300);
 
                 // Etiquetas y Controles
-                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'DÍA DE ENFOQUE' };
+                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'EDICIÓN ESPECIAL' };
                 document.getElementById('header-cat').innerText = labels[cat] || 'LÚMINA';
 
                 const shareBtn = document.getElementById('main-share-btn');
@@ -3782,8 +3807,17 @@
                 if (shareBtn) shareBtn.style.display = 'none';
                 
                 const mui = document.getElementById('main-ui');
-                if (mui) mui.classList.remove('loaded');
+                if (mui) {
+                    mui.classList.remove('loaded');
+                    // Limpieza dinámica de contenidos para evitar que aparezcan en otras secciones
+                    const extraUI = document.getElementById('extra-ui');
+                    if (extraUI) extraUI.style.display = 'none';
+                }
                 
+                // Reset de clases del body para que las reglas de visibilidad no se queden "pegadas"
+                document.body.className = isPro ? 'pro-unlocked' : '';
+                if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
+
                 checkNotifications();
                 resetHero();
             };
@@ -3900,8 +3934,19 @@
         }
 
         function renderContent(data) {
+            const extraUI = document.getElementById('extra-ui');
+            const lessonUI = document.getElementById('lesson-ui');
+            const mainUI = document.getElementById('main-ui');
+            
+            // 1. Limpieza y preparación inicial de contenedores
+            if (extraUI) extraUI.style.display = (currentCategory === 'extra') ? 'block' : 'none';
+            if (lessonUI) lessonUI.style.display = (currentCategory === 'libros') ? 'block' : 'none';
+            
+            // 2. Renderizado condicional por categoría
             if (currentCategory === 'extra') {
-                document.getElementById('header-cat').innerText = (data.titulo || "DÍA DE ENFOQUE").toUpperCase();
+                document.getElementById('word-title').innerText = data.titulo || "Edición Especial";
+                document.getElementById('word-def').innerText = "";
+                
                 document.getElementById('extra-story').innerText = data.historia || "";
                 document.getElementById('extra-thought').innerText = data.pensamiento || "";
                 document.getElementById('extra-quote').innerText = data.frase || "";
@@ -3915,11 +3960,7 @@
                 } else {
                     cta.style.display = 'none';
                 }
-                
-                document.getElementById('word-title').innerText = data.titulo;
-                document.getElementById('word-def').innerText = "CONTENIDO ESPECIAL";
             } else if (currentCategory === 'libros') {
-
                 document.getElementById('lesson-date-full').innerText = document.getElementById('header-date').innerText;
                 document.getElementById('lesson-cat-label').innerText = (data.libro || "LIBRO").toUpperCase();
                 document.getElementById('lesson-day').innerText = `LECCIÓN ${data.dia} DE ${data.total}`;
@@ -3930,51 +3971,52 @@
                 document.getElementById('lesson-refl').innerText = data.reflexion;
                 document.getElementById('header-cat').innerText = data.libro;
             } else {
-                document.getElementById('word-title').innerText = data.palabra || data.word || data.afirmacion || data.frase;
+                // Categorías estándar: Palabras, Afirmaciones, Frases
+                document.getElementById('word-title').innerText = data.palabra || data.word || data.afirmacion || data.frase || "Lúmina";
                 document.getElementById('word-def').innerText = data.definicion || data.meaning || data.autor || "";
                 
                 const box = document.getElementById('example-list');
                 box.innerHTML = '';
                 if (data.ejemplo1 || data.ejemplo2) {
-                    const mui = document.getElementById('main-ui');
-                    if (mui) mui.classList.add('has-examples');
+                    if (mainUI) mainUI.classList.add('has-examples');
                     if (data.ejemplo1) addEx(data.ejemplo1);
                     if (data.ejemplo2) addEx(data.ejemplo2);
                 } else {
-                    const mui = document.getElementById('main-ui');
-                    if (mui) mui.classList.remove('has-examples');
+                    if (mainUI) mainUI.classList.remove('has-examples');
                 }
             }
+
             updateFavoriteIcon();
 
-            // Reto del Día (solo para palabras)
-            const retoEl = document.getElementById('reto-text');
-            if (retoEl) {
-                const reto = data.reto || (data.palabra ? `Usa la palabra "${data.palabra}" en una conversación real hoy.` : null);
-                if (reto) retoEl.innerText = reto;
-            }
+            // Retos y Reflexiones adicionales (fuera de la Edición Especial)
+            if (currentCategory !== 'extra') {
+                const retoEl = document.getElementById('reto-text');
+                if (retoEl) {
+                    const reto = data.reto || (data.palabra ? `Usa la palabra "${data.palabra}" en una conversación real hoy.` : null);
+                    if (reto) retoEl.innerText = reto;
+                }
 
-            // Pregunta de Reflexión (solo para afirmaciones)
-            const reflexionEl = document.getElementById('reflexion-text');
-            if (reflexionEl && currentCategory === 'afirmaciones') {
-                const preguntas = [
-                    "¿Qué parte de ti necesita escuchar esto hoy?",
-                    "¿Estás actuando desde el miedo o desde tus valores?",
-                    "¿Qué harías diferente hoy si creyeras esta afirmación completamente?",
-                    "¿Esta afirmación te desafía o te confirma algo que ya sabías?",
-                    "¿Qué obstáculo interno te impide vivir esta verdad?",
-                    "¿Cómo cambiaría tu día si aplicaras esto desde el amanecer?",
-                    "¿Esta afirmación te compromete a alguna acción concreta hoy?",
-                    "¿Qué diría tu yo de dentro de 5 años sobre este momento?",
-                    "¿Estás viviendo según lo que valoras, o según lo que temes perder?",
-                    "¿Esta afirmación cambia algo en cómo ves a las personas a tu alrededor?",
-                    "¿Qué hábito pequeño refuerza esta verdad en tu vida?",
-                    "¿Hay alguien en tu vida que encarne esta afirmación? ¿Qué aprendes de él?",
-                    "¿Qué parte de ti resiste esta idea? ¿Por qué?",
-                    "¿Cómo sería tu mundo interior si vivieras esta afirmación sin cuestionarla?"
-                ];
-                const dayIndex = Math.floor(Date.now() / 86400000) % preguntas.length;
-                reflexionEl.innerText = preguntas[dayIndex];
+                const reflexionEl = document.getElementById('reflexion-text');
+                if (reflexionEl && currentCategory === 'afirmaciones') {
+                    const preguntas = [
+                        "¿Qué parte de ti necesita escuchar esto hoy?",
+                        "¿Estás actuando desde el miedo o desde tus valores?",
+                        "¿Qué harías diferente hoy si creyeras esta afirmación completamente?",
+                        "¿Esta afirmación te desafía o te confirma algo que ya sabías?",
+                        "¿Qué obstáculo interno te impide vivir esta verdad?",
+                        "¿Cómo cambiaría tu día si aplicaras esto desde el amanecer?",
+                        "¿Esta afirmación te compromete a alguna acción concreta hoy?",
+                        "¿Qué diría tu yo de dentro de 5 años sobre este momento?",
+                        "¿Estás viviendo según lo que valoras, o según lo que temes perder?",
+                        "¿Esta afirmación cambia algo en cómo ves a las personas a tu alrededor?",
+                        "¿Qué hábito pequeño refuerza esta verdad en tu vida?",
+                        "¿Hay alguien en tu vida que encarne esta afirmación? ¿Qué aprendes de él?",
+                        "¿Qué parte de ti resiste esta idea? ¿Por qué?",
+                        "¿Cómo sería tu mundo interior si vivieras esta afirmación sin cuestionarla?"
+                    ];
+                    const dayIndex = Math.floor(Date.now() / 86400000) % preguntas.length;
+                    reflexionEl.innerText = preguntas[dayIndex];
+                }
             }
         }
 
@@ -4314,11 +4356,17 @@
                     libros: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>',
                     pausa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="4"></circle></svg>',
                     habitos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M12 10C12 10 9 6 4 6"/><path d="M12 10C12 10 15 6 20 6"/></svg>',
-                    extra: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
+                    extra: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 8-10 10L2 11z"></path><path d="M11 3l-4 8 5 10 5-10-4-8"></path></svg>',
+                    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+                    settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>',
+                    profile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
+                    pro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg>',
+                    trial: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg>',
+                    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>'
                 };
 
                 const iconHtml = `<div class="notif-icon-circle" style="width: 35px; height: 35px; background: rgba(181, 131, 58, 0.1); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                    <div style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2;">${icons[cat] || icons.extra}</div>
+                    <div style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2;">${icons[cat] || icons.info}</div>
                 </div>`;
 
                 item.innerHTML = `
@@ -5015,24 +5063,35 @@
         async function updateHubInfo() {
             try {
                 const isTrial = isTrialActive();
-                let fetchCat = 'libros';
-                let indexParam = "";
-                
-                const response = await fetch(`${API}?cat=${fetchCat}${indexParam}`);
-                const data = await response.json();
                 const container = document.getElementById('now-learning-hub');
                 if (!container) return;
+
+                const renderLeccion = (data) => {
+                    if (data && data.titulo) {
+                        const book = (data.libro && data.libro !== "Lúmina") ? data.libro.toUpperCase() : "";
+                        const progress = `LECCIÓN ${data.dia} DE ${data.total}`;
+                        container.innerHTML = `
+                            <div class="now-label">${isTrial ? 'PRUEBA EN CURSO' : 'SABIDURÍA EN CURSO'}</div>
+                            <div class="now-title">${data.titulo}</div>
+                            <div class="now-progress">${book ? book + ' &mdash; ' : ''}${progress}</div>
+                        `;
+                    }
+                };
+
+                // Uso inmediato del caché visual para evitar que el Hub quede en blanco
+                const cached = getCache('libros');
+                if (cached) renderLeccion(cached);
                 
-                if (data && data.titulo) {
-                    const book = (data.libro && data.libro !== "Lúmina") ? data.libro.toUpperCase() : "";
-                    const progress = `LECCIÓN ${data.dia} DE ${data.total}`;
-                    container.innerHTML = `
-                        <div class="now-label">${isTrial ? 'PRUEBA EN CURSO' : 'SABIDURÍA EN CURSO'}</div>
-                        <div class="now-title">${data.titulo}</div>
-                        <div class="now-progress">${book ? book + ' &mdash; ' : ''}${progress}</div>
-                    `;
-                }
-            } catch (e) { console.warn("No se pudo cargar info del hub."); }
+                let fetchCat = 'libros';
+                let indexParam = "";
+                const response = await fetch(`${API}?cat=${fetchCat}${indexParam}`);
+                const data = await response.json();
+                
+                renderLeccion(data);
+                
+            } catch (e) {
+                console.warn("No se pudo cargar info del hub desde la red, usando caché de respaldo.");
+            }
         }
 
         function updateHero(title, tag, x, y) {
