@@ -2591,10 +2591,22 @@
             clearTimeout(syncTimeout);
             syncTimeout = setTimeout(async () => {
                 const keys = [
+                    // Identidad y progreso
                     'lumina_user_name', 'lumina_mantra', 'lumina_streak', 
                     'lumina_medals', 'lumina_pausas_count', 'lumina_journal_history', 
                     'lumina_favs', 'lumina_pro', 'lumina_pro_key', 'lumina_trial_active', 
-                    'lumina_trial_start', 'lumina_trial_used', 'lumina_last_visit_ts'
+                    'lumina_trial_start', 'lumina_trial_used', 'lumina_last_visit_ts',
+                    // Plan y membresía
+                    'lumina_pro_type',         // LIFETIME o MONTHLY
+                    // Apariencia
+                    'theme', 'lumina_accent', 'lumina_accent_id', 'lumina_font_pair',
+                    // Audio y narración
+                    'lumina_voice', 'lumina_cloud_voice', 'lumina_sfx',
+                    'lumina_ambient', 'lumina_ambient_vol',
+                    // Suscripciones / notificaciones
+                    'lumina_sub_palabras', 'lumina_sub_afirmaciones',
+                    'lumina_sub_frases', 'lumina_sub_libros',
+                    'lumina_dismissed_notifs'  // Novedades ya descartadas
                 ];
                 const data = {};
                 keys.forEach(k => {
@@ -2949,6 +2961,7 @@
                 localStorage.setItem('lumina_cloud_voice', 'false');
             }
             updateSubscriptionUI();
+            pushSync();
         }
 
         let currentAudio = null;
@@ -4470,11 +4483,11 @@
                 player.load();
                 player.play().catch(e => {
                     console.warn("Reproducción bloqueada: requiere interacción inicial.");
-                    // Intentar reproducir de nuevo tras un breve delay si fue por interacción (ya estamos en un click handler)
                     setTimeout(() => player.play(), 50);
                 });
             }
             if (navigator.vibrate) navigator.vibrate(12);
+            pushSync();
         }
 
         function setAmbientVolume(val) {
@@ -4482,6 +4495,7 @@
             if (player) player.volume = val;
             localStorage.setItem('lumina_ambient_vol', val);
             document.querySelectorAll('.ambient-vol-slider').forEach(s => s.value = val);
+            pushSync();
         }
 
         function updateAmbientUI(activeType) {
@@ -4586,6 +4600,7 @@
             if (activeCircle) activeCircle.classList.add('active');
             
             if (navigator.vibrate) navigator.vibrate(5);
+            pushSync();
         }
 
         function setFontPair(id) {
@@ -4610,6 +4625,8 @@
             if (activeBtn) activeBtn.classList.add('active');
 
             if (navigator.vibrate) navigator.vibrate(5);
+            // Solo sincronizar si fue llamado por el usuario (no por applyCustomization al iniciar)
+            if (document.readyState === 'complete') pushSync();
         }
 
         function applyCustomization() {
@@ -4657,7 +4674,8 @@
                 }
                 
                 // Sincronizar notificaciones internas en segundo plano
-                setTimeout(checkNotifications, 500); 
+                setTimeout(checkNotifications, 500);
+                pushSync(); // Persistir preferencias de suscripción
                 
             } catch (e) {
                 console.warn("Sync OneSignal error:", e);
@@ -4737,6 +4755,7 @@
                 document.body.setAttribute('data-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
                 updateSubscriptionUI();
+                pushSync();
             };
 
             // Cambio de Tema FLUIDO (Con soporte para View Transitions API)
@@ -4757,6 +4776,7 @@
             
             populateVoices();
             updateSubscriptionUI();
+            pushSync();
         }
 
         function toggleUISounds() {
@@ -4765,6 +4785,7 @@
             localStorage.setItem('lumina_sfx', newVal);
             updateSubscriptionUI();
             if (newVal === 'true') playSound('click');
+            pushSync();
         }
 
         async function shareAsImage() {
