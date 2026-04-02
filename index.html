@@ -232,10 +232,11 @@
             display: flex; flex-direction: column; justify-content: flex-start;
             padding: 60px; border-left: 1px solid rgba(128,128,128,0.1);
             background: var(--bg); overflow-y: auto; height: 100vh; box-sizing: border-box;
+            width: 100%;
         }
         .hub-item { 
             position: relative; display: flex; align-items: flex-start; padding: 40px 0; border-bottom: 
-            1px solid rgba(128,128,128,0.1); cursor: pointer; transition: 0.5s; 
+            1px solid rgba(128,128,128,0.1); cursor: pointer; transition: 0.5s; width: 100%;
         }
         .hub-item:last-child { border-bottom: none; }
         .hub-item .item-num { font-size: 0.7rem; letter-spacing: 2px; opacity: 0.3; margin-right: 40px; font-weight: 600; margin-top: 15px; }
@@ -285,7 +286,7 @@
                 padding: 40px 30px 10px 30px; border-bottom: 1px solid rgba(128,128,128,0.1); 
             }
             .hub-hero h1 { font-size: 3.5rem; }
-            .hub-list { padding: 20px 30px 40px 30px; border-left: none; }
+            .hub-list { padding: 20px 30px 40px 30px; border-left: none; display: flex !important; flex-direction: column !important; }
             .hub-item { padding: 30px 0; }
             .hub-item .item-content h3 { font-size: 1.8rem; }
             .hub-item .item-content p { opacity: 0.4; transform: none; font-size: 0.8rem; }
@@ -307,9 +308,10 @@
         body.cat-libros .lesson-container { display: block; }
         body.cat-pausa .pausa-container { display: block; }
         
-        body.cat-libros #main-ui, body.cat-pausa #main-ui { display: block; max-width: 1100px; }
+        body.cat-libros #main-ui, body.cat-pausa #main-ui, body.cat-expansiones #main-ui { display: block; max-width: 1100px; }
         body.cat-libros #main-ui > .content-header, body.cat-libros #main-ui > .side-panel,
-        body.cat-pausa #main-ui > .content-header, body.cat-pausa #main-ui > .side-panel { display: none; }
+        body.cat-pausa #main-ui > .content-header, body.cat-pausa #main-ui > .side-panel,
+        body.cat-expansiones #main-ui > .content-header, body.cat-expansiones #main-ui > .side-panel { display: none; }
         
         body:not(.cat-libros) .lesson-container { display: none !important; }
         body:not(.cat-pausa) .pausa-container { display: none !important; }
@@ -407,6 +409,72 @@
             #btn-back-hub { top: 20px !important; left: 15px !important; }
             
             footer { margin-top: 50px; padding-top: 30px; }
+        }
+
+        /* --- SISTEMA DE GRILLA PARA EXPANSIONES Y PAUSAS --- */
+        .exp-grid, .pausa-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            padding-bottom: 100px;
+        }
+
+        .exp-card, .pausa-card {
+            background: rgba(181, 131, 58, 0.03);
+            border: 1px solid rgba(181, 131, 58, 0.1);
+            border-radius: 30px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            min-height: 210px;
+            box-sizing: border-box;
+        }
+
+        .exp-card:hover, .pausa-card:hover {
+            transform: translateY(-10px);
+            background: rgba(181, 131, 58, 0.06);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .exp-card.locked {
+            opacity: 0.7;
+            filter: grayscale(0.5);
+        }
+
+        /* BARRA DE PROGRESO DE LIBROS (NUEVO) */
+        .book-progress-wrapper {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .book-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(181, 131, 58, 0.3);
+        }
+
+        @media (max-width: 900px) {
+            .exp-grid, .pausa-grid {
+                grid-template-columns: 1fr;
+            }
+            .exp-card, .pausa-card {
+                padding: 30px;
+                min-height: 200px;
+            }
         }
 
         /* Modal Ajustes - Suscripciones */
@@ -1215,6 +1283,59 @@
         
         /* Iconografía SVGs */
         .p-icon { width: 32px; height: 32px; stroke: var(--accent); opacity: 0.8; }
+
+        /* --- ESTILOS DE EXPANSIONES --- */
+        .exp-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; padding-bottom: 40px; }
+        .exp-card { 
+            padding: 25px; border-radius: 24px; 
+            border: 1px solid var(--card-border); 
+            background: var(--card-bg);
+            cursor: pointer; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; align-items: center; justify-content: space-between;
+            position: relative; overflow: hidden;
+        }
+        .exp-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .exp-card.locked { opacity: 0.7; filter: grayscale(0.5); }
+        .exp-card .e-info { flex: 1; }
+        .exp-card h4 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 5px; color: var(--accent); }
+        .exp-card p { font-size: 0.8rem; opacity: 0.6; line-height: 1.5; margin: 0; }
+        .exp-card .e-badge { 
+            font-size: 0.6rem; letter-spacing: 1px; font-weight: 700; 
+            padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
+            background: rgba(181, 131, 58, 0.1); color: var(--accent); margin-top: 8px; display: inline-block;
+        }
+        .exp-card .e-icon { width: 35px; height: 35px; stroke: var(--accent); opacity: 0.8; margin-left: 20px; }
+
+        .book-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
+        .book-item {
+            padding: 20px 25px; border-radius: 18px; background: rgba(181,131,58,0.03);
+            border: 1px solid rgba(181,131,58,0.1); cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: space-between; gap: 15px;
+        }
+        .book-item:hover { background: rgba(181,131,58,0.06); border-color: var(--accent); transform: translateX(5px); }
+        .book-item .b-title { font-family: 'Playfair Display', serif; font-weight: 700; font-style: italic; font-size: 1.1rem; color: var(--accent); }
+        .book-item .b-arrow { opacity: 0.4; }
+
+        .lesson-nav-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 80px;
+            background: var(--bg); border-top: 1px solid var(--card-border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 25px;
+            z-index: 1002; backdrop-filter: blur(10px);
+        }
+        .btn-exp-nav {
+            padding: 12px 22px; border-radius: 30px; border: 1px solid rgba(128,128,128,0.2);
+            background: transparent; color: var(--text); font-size: 0.75rem; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-exp-nav:disabled { opacity: 0.2; cursor: default; }
+        .btn-exp-nav:not(:disabled):hover { border-color: var(--accent); color: var(--accent); background: rgba(181,131,58,0.05); }
+
+        .exp-locked-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.03);
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(2px); z-index: 5;
+        }
         
         .pausa-ambient-panel {
             margin-top: 30px; border-top: 1px dashed rgba(128,128,128,0.2); padding-top: 30px;
@@ -1332,6 +1453,7 @@
     <div id="app-viewport" style="display: grid; grid-template-columns: 100%; min-height: 100vh;">
     <!-- HUB EDITORIAL -->
     <div id="hub" class="seccion activa">
+        <!-- Panel Izquierdo: Hero (1.2fr) -->
         <div class="hub-hero">
             <div class="hero-bg-blur" id="hero-blur"></div>
             <div class="hub-controls">
@@ -1346,6 +1468,7 @@
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </button>
             </div>
+            
             <div class="hub-hero-inner" id="hero-container">
                 <div id="hub-user-greeting" style="font-size: 0.8rem; letter-spacing: 3px; color: var(--accent); opacity: 0; transform: translateY(-10px); transition: 0.8s ease; margin-bottom: 5px; font-weight: 600; text-transform: uppercase;"></div>
                 <div class="meta" style="margin-bottom: 20px;">BIENVENIDO A</div>
@@ -1353,7 +1476,6 @@
                 <p id="hero-tagline">CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL</p>
                 <div id="now-learning-hub"></div>
 
-                <!-- Botones integrados: Fijos en PC, debajo de la lección en Móvil -->
                 <div class="nav-fab-group">
                     <button class="btn-fab-item" onclick="toggleHabitos()" title="Mis Hábitos">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 20V10"/><path d="M12 10C12 10 9 6 4 6"/><path d="M12 10C12 10 15 6 20 6"/></svg>
@@ -1364,12 +1486,12 @@
                         PAUSA
                     </button>
                 </div>
-                
-                <!-- (El Panel de Hábitos se ha movido al Modal) -->
             </div>
         </div>
         
+        <!-- Panel Derecho: Lista (1fr) -->
         <div class="hub-list">
+            <!-- 01 Palabras -->
             <div class="hub-item" onmouseenter="updateHero('Palabras', 'Eleva tu lenguaje y expande los límites de tu conciencia.', 10, 20)" onclick="openCategory('palabras')">
                 <span class="item-num">01</span>
                 <div class="item-content">
@@ -1377,8 +1499,9 @@
                     <p class="hub-desc">La precisión en el lenguaje es la precisión en el pensamiento.</p>
                 </div>
                 <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
-</div>
+            </div>
 
+            <!-- 02 Afirmaciones -->
             <div class="hub-item" onmouseenter="updateHero('Afirmaciones', 'Reprograma tu mente y manifiesta tu poder interior.', 60, 30)" onclick="openCategory('afirmaciones', false)">
                 <span class="item-num">02</span>
                 <div class="item-content">
@@ -1388,6 +1511,7 @@
                 <svg class="item-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
             </div>
 
+            <!-- 03 Frases -->
             <div class="hub-item" onmouseenter="updateHero('Frases', 'Camina junto a los gigantes del pensamiento universal.', 20, 70)" onclick="openCategory('frases', false)">
                 <span class="item-num">03</span>
                 <div class="item-content">
@@ -1397,6 +1521,7 @@
                 <svg class="item-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             </div>
 
+            <!-- 04 Libros -->
             <div class="hub-item" onmouseenter="updateHero('Libros', 'Viajes literarios hacia la maestría y el autoconocimiento.', 70, 40)" onclick="openCategory('libros', true)">
                 <span class="item-num">04</span>
                 <div class="item-content">
@@ -1404,9 +1529,23 @@
                     <p class="hub-desc">Inmersión profunda en las mentes que cambiaron el mundo.</p>
                 </div>
                 <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-            </div> <!-- Fin item Libros -->
+            </div>
+
+            <!-- 05 Expansiones -->
+            <div class="hub-item" onmouseenter="updateHero('Expansiones', 'Series exclusivas de conocimiento profundo y transformación.', 40, 80)" onclick="openCategory('expansiones')">
+                <span class="item-num">05</span>
+                <div class="item-content">
+                    <h3>Expansiones <small class="pro-locked" style="position: relative; top: auto; right: auto; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; margin-left: 12px; vertical-align: middle; border: 1px solid rgba(181, 131, 58, 0.3); border-radius: 20px; padding: 2px 10px; color: var(--accent); font-weight: 400; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px;">Pro <svg viewBox="0 0 24 24" style="width: 10px; height: 10px; stroke: var(--accent); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></small></h3>
+                    <p class="hub-desc">Series temáticas y libros independientes desbloqueables.</p>
+                </div>
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2l-3.5 2v4l3.5 2 3.5-2v-4L12 2z"></path>
+                    <path d="M7.5 10l-3.5 2v4l3.5 2 3.5-2v-4l-3.5-2z"></path>
+                    <path d="M16.5 10l-3.5 2v4l3.5 2 3.5-2v-4l-3.5-2z"></path>
+                </svg>
+            </div>
             
-            <!-- BANNER PRO REFINADO (HUB) -->
+            <!-- Banner Pro Hub -->
             <div id="hub-pro-banner" style="background: var(--card-bg); border: 1px solid var(--card-border); margin: 25px; padding: 45px 35px; border-radius: 32px; text-align: center; margin-top: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
                 <div style="font-size: 0.6rem; letter-spacing: 4px; color: var(--accent); font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">LIBERA TU POTENCIAL</div>
                 <p style="font-size: 0.85rem; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; font-weight: 300;">
@@ -1509,20 +1648,22 @@
                     <div id="journal-save-status" style="font-size: 0.55rem; opacity: 0.3; text-align: right; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase;">Guardado automáticamente</div>
                 </div>
             </div>
-            <!-- VISTA DE PAUSA CONSCIENTE -->
-            <div class="pausa-container" id="pausa-ui" style="text-align: center; max-width: 600px; margin: 0 auto; padding-top: 40px; min-height: 80vh;">
+            <!-- VISTA DE PAUSA CONSCIENTE (SINCRONIZADA CON EXPANSIONES) -->
+            <div class="pausa-container" id="pausa-ui" style="display: none; padding-top: 40px; min-height: 80vh; width: 100%; max-width: 1100px; margin: 0 auto; box-sizing: border-box; grid-column: 1 / -1;">
                 
                 <!-- VISTA 1: Lista -->
                 <div id="pausa-view-list">
-                    <h1 style="font-family:'Playfair Display', serif; font-size: 3rem; font-style: italic; margin-bottom: 10px;">Pausa Consciente</h1>
-                    <p style="opacity: 0.6; font-size: 0.9rem; margin-bottom: 20px;">Elige el ancla que necesitas en este momento.</p>
-                    <div class="pausa-list" id="pausa-list-container">
+                    <div style="margin-bottom: 50px; text-align: left;">
+                        <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Pausa Consciente</h1>
+                        <p style="opacity: 0.6; font-size: 1rem; max-width: 500px; line-height: 1.6;">Elige el ancla que necesitas en este momento para volver al presente.</p>
+                    </div>
+                    <div class="pausa-grid" id="pausa-list-container">
                         <!-- Las opciones se inyectarán por JS -->
                     </div>
                 </div>
 
-                <!-- VISTA 2: Preparación -->
-                <div id="pausa-view-prep" style="display: none;">
+                <!-- VISTA 2: Preparación (CENTRADA) -->
+                <div id="pausa-view-prep" style="display: none; text-align: center; width: 100%;">
                     <div class="date-full" id="prep-title" style="margin-bottom: 20px;">---</div>
                     <h2 id="prep-phrase" style="font-family:'Playfair Display', serif; font-size: 2.2rem; font-style: italic; margin-bottom: 30px; opacity: 0.9; color: var(--accent);"></h2>
                     <div id="prep-guide" style="font-size: 0.9rem; line-height: 1.8; opacity: 0.7; margin-bottom: 40px; border-left: 2px solid var(--accent); padding-left: 20px; text-align: left; margin-left: auto; margin-right: auto; max-width: 400px;"></div>
@@ -1589,8 +1730,8 @@
                         <input class="ambient-vol-slider" type="range" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; max-width: 300px; margin: 15px auto 30px; accent-color: var(--accent); height: 4px; cursor: pointer; display: block;">
                     </div>
 
-                    <button class="btn-save" onclick="startPausaSession()" style="width: 100%; max-width: 300px; background: var(--accent); color: #fff; padding: 18px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; letter-spacing: 2px; border: none;">INICIAR PAUSA</button>
-                    <button onclick="renderPausaList()" style="display: block; width: 100%; max-width: 300px; margin: 15px auto 0; background: transparent; border: none; font-size: 0.75rem; letter-spacing: 2px; opacity: 0.6; cursor: pointer; text-transform: uppercase; color: var(--text);">VOLVER AL MENÚ</button>
+                    <button class="btn-save" onclick="startPausaSession()" style="width: 100%; max-width: 300px; background: var(--accent); color: #fff; padding: 18px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; letter-spacing: 2px; border: none; display: block; margin: 0 auto;">INICIAR PAUSA</button>
+                    <button onclick="renderPausaList()" style="display: block; width: 100%; max-width: 300px; margin: 20px auto 0; background: transparent; border: none; font-size: 0.75rem; letter-spacing: 2px; opacity: 0.6; cursor: pointer; text-transform: uppercase; color: var(--text);">VOLVER AL MENÚ</button>
                 </div>
 
                 <!-- VISTA 3: Sesión (Respiración) -->
@@ -1618,6 +1759,42 @@
                     </div>
                 </div>
 
+            </div>
+
+            <!-- VISTA DE EXPANSIONES (SIN MODALES) -->
+            <div class="expansions-container" id="expansions-ui" style="display: none; padding-top: 40px; min-height: 80vh; width: 100%; max-width: 1100px; margin: 0 auto; box-sizing: border-box; grid-column: 1 / -1;">
+                
+                <!-- VISTA 1: Galería de Categorías -->
+                <div id="exp-gallery-view">
+                    <div style="margin-bottom: 50px; text-align: left;">
+                        <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Expansiones</h1>
+                        <p style="opacity: 0.6; font-size: 1rem; max-width: 500px; line-height: 1.6;">Series exclusivas de conocimiento profundo y transformación bibliográfica.</p>
+                    </div>
+                    
+                    <div id="exp-list-container" class="exp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; padding-bottom: 100px;">
+                        <div style="padding: 100px; text-align: center; opacity: 0.3; grid-column: 1 / -1;">
+                            <div class="spinner" style="margin: 0 auto 20px;"></div>
+                            Cargando expansiones...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VISTA 2: Selección de Libros (DENTRO DE LA UI) -->
+                <div id="exp-books-view" style="display: none;">
+                    <button onclick="showExpGallery()" style="background:transparent; border:none; color:var(--accent); font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 30px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        VOLVER A EXPANSIONES
+                    </button>
+                    
+                    <div style="margin-bottom: 50px; text-align: left;">
+                        <h1 id="exp-detail-title" style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">---</h1>
+                        <p id="exp-detail-desc" style="opacity: 0.6; font-size: 1rem; max-width: 600px; line-height: 1.6;">---</p>
+                    </div>
+
+                    <div id="exp-books-container" class="exp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; padding-bottom: 100px;">
+                        <!-- Las tarjetas de libros se inyectarán aquí -->
+                    </div>
+                </div>
             </div>
         </main>
 
@@ -2208,6 +2385,79 @@
         </div>
     </div>
 
+
+    <!-- UI: LECTOR DE EXPANSIÓN (ALTA FIDELIDAD) -->
+    <div id="exp-read-ui" class="modal" style="background: var(--bg); z-index: 1700;">
+        <div class="modal-content" style="max-width: 900px; padding: 100px 30px 140px; min-height: 100vh; background: transparent; box-shadow: none; border: none; text-align: left;">
+            <div class="hero-bg-blur" style="left: 10%; top: -5%; opacity: 0.15; pointer-events: none;"></div>
+            
+            <button onclick="history.back()" style="background:transparent; border:none; color:var(--accent); position: fixed; top: 50px; left: 30px; z-index: 20; cursor: pointer; opacity: 0.6; transition: 0.3s;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+
+            <div id="exp-read-content">
+                <div class="content-header" style="margin-bottom: 50px; padding-left: 0;">
+                    <div class="date-full" id="exp-read-date" style="color: var(--accent); font-weight: 700; letter-spacing: 2px; font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px;">---</div>
+                    <div class="cat-label" id="exp-read-meta" style="letter-spacing: 4px; font-weight: 500; opacity: 0.6; font-size: 0.75rem; margin-bottom: 5px;">---</div>
+                    <div class="date-full" id="exp-read-progress" style="opacity: 0.4; font-size: 0.65rem; letter-spacing: 1px;">---</div>
+                    
+                    <h1 class="word-display" style="font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.1; margin: 15px 0; font-style: italic; font-weight: 900; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <span id="exp-read-title">---</span>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-speak" id="btn-speak-exp" onclick="speakExpContent()" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
+                            <button class="btn-fav" id="btn-fav-exp" onclick="toggleFavoriteExp()" title="Favorito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                        </div>
+                    </h1>
+                </div>
+                
+                <div class="lesson-body" id="exp-read-text" style="font-size: 1.25rem; line-height: 2; margin-bottom: 80px; opacity: 0.9;">---</div>
+
+                <!-- GRIND DE APLICACIONES (LADO A LADO) -->
+                <div class="lesson-apps" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 60px;">
+                    <div class="app-box" style="background: rgba(128,128,128,0.03); padding: 40px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.05);">
+                        <h4 style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px;">APLICACIÓN PROFESIONAL</h4>
+                        <p id="exp-read-app-prof" style="line-height: 1.7; font-size: 1rem; opacity: 0.85;">---</p>
+                    </div>
+                    <div class="app-box" style="background: rgba(128,128,128,0.03); padding: 40px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.05);">
+                        <h4 style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px;">APLICACIÓN PERSONAL</h4>
+                        <p id="exp-read-app-pers" style="line-height: 1.7; font-size: 1rem; opacity: 0.85;">---</p>
+                    </div>
+                </div>
+
+                <!-- REFLEXIÓN DEL DÍA (ESTILO DIARIO) -->
+                <div class="reflection-box" style="margin-top: 50px; padding: 50px 40px; background: rgba(181, 131, 58, 0.04); border-radius: 30px; text-align: left;">
+                    <div class="reto-label" style="font-size: 0.6rem; letter-spacing: 4px; margin-bottom: 20px; opacity: 0.8;">REFLEXIÓN DEL DÍA</div>
+                    <em id="exp-read-refl" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; line-height: 1.5; font-style: italic; color: var(--text); opacity: 0.9;">---</em>
+                </div>
+
+                <!-- DIARIO PERSONAL -->
+                <div style="margin-top: 50px; padding: 40px; border: 1px solid rgba(128,128,128,0.1); border-radius: 30px; background: rgba(128,128,128,0.02);">
+                    <div style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px; font-weight: 700;">MI DIARIO PERSONAL</div>
+                    <textarea id="exp-journal" oninput="saveExpJournal()" placeholder="Escribe aquí lo que esta lección ha despertado en ti..." style="width: 100%; background: transparent; border: none; color: var(--text); font-family: inherit; font-size: 1rem; line-height: 1.6; resize: none; min-height: 150px; outline: none;"></textarea>
+                    <div style="text-align: right; font-size: 0.5rem; opacity: 0.3; letter-spacing: 1px; margin-top: 15px; text-transform: uppercase;">Guardado automáticamente</div>
+                </div>
+
+                <!-- FOOTER DECORATIVO -->
+                <div style="margin-top: 100px; padding-top: 40px; border-top: 1px solid rgba(128,128,128,0.05); display: flex; justify-content: space-between; align-items: center; opacity: 0.4;">
+                    <div style="font-size: 0.6rem; letter-spacing: 2px; font-weight: 600;">LÚMINA v1.0</div>
+                    <button onclick="shareWord()" style="background:transparent; border:none; color:var(--text); cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></button>
+                </div>
+            </div>
+
+            <!-- NAVEGACIÓN FIJA INFERIOR -->
+            <div style="position: fixed; bottom: 0; left: 0; right: 0; padding: 30px; background: linear-gradient(0deg, var(--bg) 60%, transparent); display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;">
+                <button class="btn-fab-item" id="btn-exp-prev" onclick="expPrev()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    ANTERIOR
+                </button>
+                <button class="btn-fab-item" id="btn-exp-next" onclick="expNext()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px; background: var(--accent); color: #fff;">
+                    SIGUIENTE
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Perfil de Usuario (NUEVO) -->
     <div id="profile-modal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
@@ -2250,6 +2500,16 @@
                             <input type="text" id="pro-key-input-profile" placeholder="Código..." style="width: 100%; box-sizing: border-box; padding: 15px 20px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 1rem;">
                             <button id="btn-activate-pro-profile" class="btn-save" onclick="activateProProfile()" style="margin: 0; padding: 15px; font-size: 0.85rem; width: 100%; border-radius: 16px; background: var(--text); color: var(--bg); display: block;">ACTIVAR</button>
                             <p style="font-size: 0.65rem; opacity: 0.4; text-align: center; margin: 5px 0 0; line-height: 1.5;">¿Problemas con tu código? Escríbenos a<br><a href="mailto:dscarteleriadigital@gmail.com" style="color: var(--accent); opacity: 0.8; text-decoration: none;">dscarteleriadigital@gmail.com</a></p>
+                        </div>
+                    </div>
+
+                    <!-- CANJE DE EXPANSIONES (REUBICADO) -->
+                    <div id="profile-exp-activation" style="padding-top: 25px; border-top: 1px dashed rgba(181, 131, 58, 0.2); margin-top: 25px;">
+                        <span style="font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; display: block; margin-bottom: 12px;">CANJEAR EXPANSIÓN</span>
+                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Accede a series exclusivas y libros de conocimiento profundo.</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="exp-code-input" placeholder="Código de Libro..." style="flex: 1; min-width: 0; padding: 15px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 1rem;">
+                            <button class="btn-save" onclick="redeemExpansion()" style="margin: 0; padding: 0 25px; font-size: 0.75rem; border-radius: 16px; min-width: fit-content;">CANJEAR</button>
                         </div>
                     </div>
                 </div>
@@ -2639,37 +2899,24 @@
 
             clearTimeout(syncTimeout);
             syncTimeout = setTimeout(async () => {
-                const keys = [
-                    // Identidad y progreso
-                    'lumina_user_name', 'lumina_mantra', 'lumina_streak', 
-                    'lumina_medals', 'lumina_pausas_count', 'lumina_journal_history', 
-                    'lumina_favs', 'lumina_pro', 'lumina_pro_key', 'lumina_trial_active', 
-                    'lumina_trial_start', 'lumina_trial_used', 'lumina_last_visit_ts',
-                    // Plan y membresía
-                    'lumina_pro_type',         // LIFETIME o MONTHLY
-                    'lumina_library_unlocked', // Expansión de Biblioteca
-                    'lumina_expansions',      // Otros módulos futuros
-                    // Apariencia
-                    'theme', 'lumina_accent', 'lumina_accent_id', 'lumina_font_pair',
-                    // Audio y narración
-                    'lumina_voice', 'lumina_cloud_voice', 'lumina_sfx',
-                    'lumina_ambient', 'lumina_ambient_vol',
-                    // Suscripciones / notificaciones
-                    'lumina_sub_palabras', 'lumina_sub_afirmaciones',
-                    'lumina_sub_frases', 'lumina_sub_libros',
-                    'lumina_dismissed_notifs'  // Novedades ya descartadas
-                ];
                 const data = {};
-                keys.forEach(k => {
-                    const val = localStorage.getItem(k);
-                    if (val !== null) data[k] = val;
-                });
+                
+                // Recopilación dinámica de TODAS las llaves de Lúmina
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('lumina_') || key.startsWith('theme')) {
+                        data[key] = localStorage.getItem(key);
+                    }
+                }
 
                 const bday = localStorage.getItem('lumina_birthday') || "";
 
                 try {
                     await fetch(`${API}?action=user_sync&email=${encodeURIComponent(email)}&birthday=${encodeURIComponent(bday)}&data=${encodeURIComponent(JSON.stringify(data))}`);
-                } catch (e) { console.warn("Cloud Sync Failed", e); }
+                    console.log("Cloud Sync: Sabiduría resguardada con éxito.");
+                } catch (e) { 
+                    console.warn("Cloud Sync Failed", e); 
+                }
             }, 1500); 
         }
 
@@ -2772,6 +3019,261 @@
                 trialInd.style.display = 'none';
             }
         }
+        // --- LÓGICA DE EXPANSIONES ---
+        let currentExpId = null;
+        let currentExpBook = null;
+        let currentExpLessons = [];
+        let currentExpIdx = 0;
+
+        async function loadExpansions() {
+            const container = document.getElementById('exp-list-container');
+            const email = localStorage.getItem('lumina_user_email') || "";
+            const type = localStorage.getItem('lumina_pro_type') || 'FREE';
+            
+            try {
+                const resp = await fetch(`${API}?action=exp_list&email=${encodeURIComponent(email)}&userType=${type}`);
+                const list = await resp.json();
+                renderExpansions(list);
+            } catch (e) {
+                container.innerHTML = '<div style="padding:40px; text-align:center; opacity:0.6;">Error al cargar librería. Revisa tu conexión.</div>';
+            }
+        }
+
+        function renderExpansions(list) {
+            const container = document.getElementById('exp-list-container');
+            if (!list || list.length === 0) {
+                container.innerHTML = '<div style="padding:100px; text-align:center; opacity:0.4; grid-column: 1 / -1;">No hay expansiones disponibles actualmente.</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(exp => `
+                <div class="exp-card ${exp.unlocked ? '' : 'locked'}" 
+                     onclick="${exp.unlocked ? `openExpansion('${exp.id}', \`${exp.titulo}\`, \`${exp.descripcion}\`)` : `showToast('Esta expansión está bloqueada. Canjea un código en tu perfil.', 'info')`}">
+                    
+                    <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
+                    
+                    <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;">
+                        <span style="font-size: 0.65rem; color: var(--accent); letter-spacing: 3px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; display: block; opacity: 0.6;">${exp.unlocked ? 'Disponible' : 'Premium'}</span>
+                        <h4 style="font-family: 'Playfair Display', serif; font-size: 2rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.1;">${exp.titulo}</h4>
+                        <p style="opacity: 0.5; font-size: 0.95rem; line-height: 1.6; max-width: 90%; margin: 0; text-align: center;">${exp.descripcion}</p>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; justify-content: center; margin-top: 30px; position: relative; z-index: 2;">
+                        <div style="font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
+                            ${exp.unlocked ? 'EXPLORAR LIBROS <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> CANJEAR EN PERFIL'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function openExpansion(id, title, desc) {
+            currentExpId = id;
+            document.getElementById('exp-detail-title').innerText = title;
+            document.getElementById('exp-detail-desc').innerText = desc;
+            
+            const gallery = document.getElementById('exp-gallery-view');
+            const booksView = document.getElementById('exp-books-view');
+            const container = document.getElementById('exp-books-container');
+            
+            // Transición suave: Ocultamos galería, mostramos libros
+            gallery.style.display = 'none';
+            booksView.style.display = 'block';
+            container.innerHTML = '<div style="padding:100px; text-align:center; opacity:0.3; grid-column: 1 / -1;"><div class="spinner" style="margin: 0 auto 20px;"></div>Abriendo archivos...</div>';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            history.pushState({ modal: 'exp_books', id: id }, "", `#exp_${id}`);
+
+            try {
+                const email = localStorage.getItem('lumina_user_email') || "";
+                const respList = await fetch(`${API}?action=exp_list&email=${encodeURIComponent(email)}`);
+                const allExpansions = await respList.json();
+                const exp = allExpansions.find(e => e.id === id);
+                
+                if (!exp || !exp.libros || exp.libros.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; opacity:0.4; padding: 40px; grid-column: 1 / -1;">No hay libros definidos.</div>';
+                    return;
+                }
+
+                const respContent = await fetch(`${API}?action=exp_content&expId=${id}`);
+                const allContent = await respContent.json();
+                
+                container.innerHTML = exp.libros.map(bookName => {
+                    const meta = Array.isArray(allContent) ? allContent.find(c => c.book.trim().toLowerCase() === bookName.trim().toLowerCase()) : null;
+                    const totalLessons = Array.isArray(allContent) ? allContent.filter(c => c.book.trim().toLowerCase() === bookName.trim().toLowerCase()).length : 0;
+                    
+                    // Cálculo de progreso
+                    const savedProg = parseInt(localStorage.getItem(`lumina_exp_prog_${id}_${bookName.trim()}`)) || 0;
+                    const progressPercent = totalLessons > 0 ? Math.round(((savedProg + 1) / totalLessons) * 100) : 0;
+                    const progressLabel = totalLessons > 0 ? `LECCIÓN ${savedProg + 1} DE ${totalLessons}` : 'SIN CONTENIDO';
+
+                    return `
+                        <div class="exp-card" onclick="openBook('${id}', \`${bookName.trim()}\`)">
+                            <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
+                            
+                            <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                <span style="font-size: 0.6rem; color: var(--accent); letter-spacing: 2px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; opacity: 0.6;">${(meta && meta.autor) ? meta.autor : 'LÚMINA'}</span>
+                                <h4 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.2;">${bookName.trim()}</h4>
+                                <p style="opacity: 0.4; font-size: 0.8rem; line-height: 1.5; max-width: 90%; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${(meta && meta.descripcion) ? meta.descripcion : 'Continuar con el viaje de conocimiento.'}</p>
+                            </div>
+
+                            <div style="width: 100%; margin-top: 25px; position: relative; z-index: 2;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.55rem; letter-spacing: 1px; font-weight: 700; opacity: 0.5; margin-bottom: 8px; text-transform: uppercase;">
+                                    <span>PROGRESO</span>
+                                    <span>${progressLabel}</span>
+                                </div>
+                                <div class="book-progress-wrapper">
+                                    <div class="book-progress-fill" style="width: ${progressPercent}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (e) {
+                container.innerHTML = '<div style="text-align:center; opacity:0.4; padding: 40px; grid-column: 1 / -1;">Error al conectar con la sabiduría.</div>';
+            }
+        }
+
+        function showExpGallery() {
+            document.getElementById('exp-gallery-view').style.display = 'block';
+            document.getElementById('exp-books-view').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Al volver, limpiamos el hash o volvemos en el historial
+            if (history.state && history.state.modal === 'exp_books') history.back();
+        }
+
+        async function openBook(expId, bookName) {
+            currentExpBook = bookName;
+            const container = document.getElementById('exp-read-ui');
+            
+            try {
+                const resp = await fetch(`${API}?action=exp_content&expId=${expId}&book=${encodeURIComponent(bookName)}`);
+                currentExpLessons = await resp.json();
+                
+                if (Array.isArray(currentExpLessons) && currentExpLessons.length > 0) {
+                    // Recuperar progreso guardado (último índice)
+                    const savedIdx = parseInt(localStorage.getItem(`lumina_exp_prog_${expId}_${bookName}`)) || 0;
+                    currentExpIdx = savedIdx < currentExpLessons.length ? savedIdx : 0;
+                    
+                    renderExpansionContent();
+                    
+                    // Solo quitamos .active de otros modales, NO hacemos reset a Hub
+                    const otherModals = ['exp-modal', 'exp-detail-ui'];
+                    otherModals.forEach(id => {
+                        const m = document.getElementById(id);
+                        if (m) m.classList.remove('active');
+                    });
+                    
+                    container.classList.add('active');
+                    history.pushState({ modal: 'exp_read', expId: expId, book: bookName }, "", `#read_${expId}`);
+                    if (navigator.vibrate) navigator.vibrate(5);
+                } else {
+                    showToast("Este libro no tiene lecciones aún.", "info");
+                }
+            } catch (e) {
+                showToast("Error al cargar el libro.", "error");
+            }
+        }
+
+        function renderExpansionContent() {
+            const lesson = currentExpLessons[currentExpIdx];
+            if (!lesson) return;
+            
+            // Fecha Actual en formato Lúmina
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+            document.getElementById('exp-read-date').innerText = dateStr;
+
+            // Meta: LIBRO — AUTOR
+            const metaStr = `${currentExpBook.toUpperCase()} ${lesson.autor ? ' &mdash; ' + lesson.autor.toUpperCase() : ''}`;
+            document.getElementById('exp-read-meta').innerHTML = metaStr;
+
+            document.getElementById('exp-read-title').innerText = lesson.titulo;
+            document.getElementById('exp-read-text').innerHTML = lesson.contenido.replace(/\n/g, '<br>');
+            
+            document.getElementById('exp-read-app-prof').innerText = lesson.app_prof;
+            document.getElementById('exp-read-app-pers').innerText = lesson.app_pers;
+            
+            document.getElementById('exp-read-refl').innerText = lesson.refl;
+            document.getElementById('exp-read-progress').innerText = `LECCIÓN ${currentExpIdx + 1} DE ${currentExpLessons.length}`;
+            
+            // Guardar Progreso Automáticamente
+            localStorage.setItem(`lumina_exp_prog_${currentExpId}_${currentExpBook}`, currentExpIdx);
+            
+            document.getElementById('btn-exp-prev').disabled = (currentExpIdx === 0);
+            document.getElementById('btn-exp-next').disabled = (currentExpIdx === currentExpLessons.length - 1);
+            
+            loadExpJournal();
+            document.querySelector('#exp-read-ui .modal-content').scrollTo(0,0);
+        }
+
+        function saveExpJournal() {
+            const text = document.getElementById('exp-journal').value;
+            const key = `lumina_journal_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
+            localStorage.setItem(key, text);
+        }
+
+        function loadExpJournal() {
+            const key = `lumina_journal_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
+            document.getElementById('exp-journal').value = localStorage.getItem(key) || "";
+        }
+
+        async function speakExpContent() {
+            const lesson = currentExpLessons[currentExpIdx];
+            if (!lesson) return;
+            
+            let textToSpeak = `${lesson.titulo}. ${lesson.contenido}. `;
+            if (lesson.app_prof) textToSpeak += `Aplicación profesional: ${lesson.app_prof}. `;
+            if (lesson.app_pers) textToSpeak += `Aplicación personal: ${lesson.app_pers}. `;
+            if (lesson.refl) textToSpeak += `Reflexión del día: ${lesson.refl}. `;
+            
+            textToSpeak += "Contenido original de Lúmina.";
+            speakText(textToSpeak);
+        }
+
+        function expPrev() {
+            if (currentExpIdx > 0) {
+                currentExpIdx--;
+                renderExpansionContent();
+                playSound('click');
+            }
+        }
+
+        function expNext() {
+            if (currentExpIdx < currentExpLessons.length - 1) {
+                currentExpIdx++;
+                renderExpansionContent();
+                playSound('click');
+            }
+        }
+
+        async function redeemExpansion() {
+            const input = document.getElementById('exp-code-input');
+            const code = input.value.trim().toUpperCase();
+            const email = localStorage.getItem('lumina_user_email');
+            
+            if (!code) { showToast("Ingresa un código"); return; }
+            if (!email) { showToast("Inicia sesión para canjear", "info"); return; }
+            
+            showToast("Validando código...");
+            try {
+                const resp = await fetch(`${API}?action=exp_val&email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
+                const res = await resp.json();
+                
+                if (res.success) {
+                    showToast("¡Expansión desbloqueada! ✨", "success");
+                    input.value = '';
+                    loadExpansions(); // Recargar lista
+                    pushSync(); // Respaldar cambio
+                } else {
+                    showToast(res.error || "Código inválido", "error");
+                }
+            } catch (e) {
+                showToast("Error de conexión", "error");
+            }
+        }
+
 
         function toggleProfile() {
             const modal = document.getElementById('profile-modal');
@@ -3022,10 +3524,18 @@
             window.speechSynthesis.cancel();
             if (currentAudio) {
                 currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio.src = "";
+                currentAudio.load();
                 currentAudio = null;
             }
             document.body.classList.remove('speaking');
             isSpeaking = false;
+            
+            // UI Feedback: Resetear iconos
+            document.querySelectorAll('.btn-speak svg').forEach(svg => {
+                svg.innerHTML = '<path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>';
+            });
         }
 
         function speakText(text) {
@@ -3033,6 +3543,11 @@
                 stopAudio();
                 return;
             }
+
+            // Visual: Cambiar iconos a STOP
+            document.querySelectorAll('.btn-speak svg').forEach(svg => {
+                svg.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"></rect>';
+            });
 
             const voicePref = localStorage.getItem('lumina_voice');
             const useCloud = (voicePref === "CLOUD_VOICE" || localStorage.getItem('lumina_cloud_voice') === 'true');
@@ -3734,7 +4249,16 @@
                     hub.classList.add('hidden');
                     hub.classList.remove('saliendo');
                     
+                    
                     mainUI.classList.remove('hidden');
+                    
+                    // Mostrar sub-vistas según categoria
+                    document.getElementById('lesson-ui').style.display = (cat !== 'pausa' && cat !== 'expansiones') ? 'block' : 'none';
+                    document.getElementById('pausa-ui').style.display = (cat === 'pausa') ? 'block' : 'none';
+                    document.getElementById('expansions-ui').style.display = (cat === 'expansiones') ? 'block' : 'none';
+                    
+                    if (cat === 'expansiones') loadExpansions();
+                    
                     setTimeout(() => mainUI.classList.add('activa'), 50);
                 }, 300);
 
@@ -3817,6 +4341,13 @@
                 // Reset de clases del body para que las reglas de visibilidad no se queden "pegadas"
                 document.body.className = isPro ? 'pro-unlocked' : '';
                 if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
+
+                // Limpiar Expansiones si estaban abiertas
+                const expModals = ['exp-modal', 'exp-detail-ui', 'exp-read-ui'];
+                expModals.forEach(id => {
+                    const m = document.getElementById(id);
+                    if (m) m.classList.remove('active');
+                });
 
                 checkNotifications();
                 resetHero();
@@ -4236,7 +4767,7 @@
         }
 
         function closeModals(preventBack = false) {
-            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal'];
+            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui'];
             let anyClosed = false;
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -4246,7 +4777,7 @@
                 }
             });
             // Si cerramos manualmente y hay un hash de modal, volvemos atrás en el historial (a menos que se prevenga)
-            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos)/)) {
+            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos|expansiones)/)) {
                 history.back();
             }
         }
@@ -5201,20 +5732,26 @@
         function renderPausaList() {
             playSound('click');
             const container = document.getElementById('pausa-list-container');
-            container.innerHTML = '';
-            pausasData.forEach(p => {
-                const el = document.createElement('div');
-                el.className = 'pausa-list-item';
-                el.onclick = () => openPausaDetail(p.id);
-                el.innerHTML = `
-                    <div>
-                        <h3 class="p-title">${p.title}</h3>
-                        <p class="p-desc">${p.desc}</p>
+            if (!container) return;
+            
+            container.innerHTML = pausasData.map(p => `
+                <div class="pausa-card" onclick="openPausaDetail('${p.id}')">
+                    <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
+                    
+                    <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;">
+                        <div style="width: 50px; height: 50px; background: rgba(181, 131, 58, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; color: var(--accent);">
+                            ${p.icon.replace('class="p-icon"', 'style="width: 24px; height: 24px;"')}
+                        </div>
+                        <h4 style="font-family: 'Playfair Display', serif; font-size: 2rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.1;">${p.title}</h4>
+                        <p style="opacity: 0.5; font-size: 0.95rem; line-height: 1.6; max-width: 90%; margin: 0;">${p.desc}</p>
                     </div>
-                    <div style="display: flex; align-items: center; justify-content: center;">${p.icon}</div>
-                `;
-                container.appendChild(el);
-            });
+
+                    <div style="margin-top: 30px; font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; position: relative; z-index: 2;">
+                        COMENZAR SESIÓN <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </div>
+            `).join('');
+
             document.getElementById('pausa-view-list').style.display = 'block';
             document.getElementById('pausa-view-prep').style.display = 'none';
             document.getElementById('pausa-view-session').style.display = 'none';
