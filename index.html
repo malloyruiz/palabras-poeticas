@@ -347,37 +347,40 @@
         .reflection-box { margin-top: 60px; padding: 40px; background: rgba(181, 131, 58, 0.05); border-radius: 30px; text-align: center; }
         
         /* DIMENSIONES DE CAPTURA */
-        .capture-area.format-long { width: 400px !important; min-height: 711px !important; padding: 60px 40px !important; }
-        .capture-area.format-square { width: 400px !important; min-height: 400px !important; height: 400px !important; padding: 40px !important; }
-        .capture-area.format-square .cap-title-smart { margin-bottom: 10px; font-size: 0.95rem; }
-        .capture-area.format-square h4 { font-size: 1.8rem !important; }
+        .capture-area.format-long { width: 400px !important; min-height: 711px !important; padding: 60px 40px !important; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
+        .capture-area.format-square { width: 400px !important; min-height: 400px !important; height: 400px !important; padding: 35px !important; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
+        .capture-area.format-square .cap-title-smart { margin-bottom: 5px; font-size: 0.85rem; }
+        .capture-area.format-square h4 { font-size: 1.5rem !important; margin-bottom: 10px !important; }
+        .capture-area.format-square p, .capture-area.format-square .lesson-body { font-size: 0.85rem !important; line-height: 1.5 !important; }
+        .capture-area.format-square .cap-qr-wrapper { margin-top: 15px; }
+        .capture-area.format-square .cap-ex-list { margin-top: 15px; padding-top: 10px; }
         
-        .cap-qr-wrapper { margin-top: 25px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .cap-qr-wrapper { margin-top: 25px; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; z-index: 10; }
         .cap-qr-box { background: #fff; padding: 5px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 60px; height: 60px; }
         .cap-qr-link { font-size: 0.5rem; letter-spacing: 1px; opacity: 0.4; font-weight: 700; text-transform: uppercase; }
 
-        #mood-modal .modal-content { max-width: 380px; padding: 30px; text-align: center; }
+        #mood-modal .modal-content { max-width: 380px; padding: 25px; text-align: center; }
         
         /* TOGGLE SWITCH (COMPARTIR) */
         .toggle-switch {
-            width: 44px; height: 22px; background: rgba(128,128,128,0.2);
+            width: 46px; height: 24px; background: rgba(128,128,128,0.2);
             border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s;
             display: flex; align-items: center; padding: 0 4px;
         }
         .toggle-switch.active { background: var(--accent); }
         .toggle-knob {
-            width: 16px; height: 16px; background: white; border-radius: 50%;
+            width: 18px; height: 18px; background: white; border-radius: 50%;
             transition: 0.3s cubic-bezier(0.2, 0, 0, 1);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .mood-option { 
-            padding: 15px; border-radius: 12px; border: 1.5px solid rgba(128,128,128,0.1); 
-            cursor: pointer; transition: 0.3s; font-size: 0.65rem; font-weight: 700; 
+            padding: 12px; border-radius: 12px; border: 1.5px solid rgba(128,128,128,0.1); 
+            cursor: pointer; transition: 0.3s; font-size: 0.6rem; font-weight: 700; 
             letter-spacing: 1px; text-transform: uppercase; background: transparent; color: var(--text);
         }
         .mood-option:hover { border-color: var(--accent); background: rgba(181, 131, 58, 0.05); }
-        .mood-option.active { border-color: var(--accent); background: var(--accent); color: white; }
+        .mood-option.active { border-color: var(--accent); background: var(--accent) !important; color: white !important; }
         
         /* END BASE STYLES */
         .reflection-box em { font-family: 'Playfair Display', serif; font-size: 1.4rem;  display: block; margin-top: 15px; }
@@ -2859,39 +2862,39 @@
             <h3 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 10px; font-style: italic;">Estudio de Captura</h3>
             
             <!-- SECCIÓN FORMATO -->
-            <div style="margin: 20px 0; padding-bottom: 20px; border-bottom: 1px solid rgba(128,128,128,0.1);">
-                <div style="font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); margin-bottom: 15px; text-transform: uppercase;">1. Formato</div>
-                <div style="display: flex; gap: 10px;">
-                    <button id="btn-fmt-long" class="mood-option active" style="flex: 1; padding: 12px; font-size: 0.6rem;" onclick="setShareFormat('long')">Vertical (9:16)</button>
-                    <button id="btn-fmt-square" class="mood-option" style="flex: 1; padding: 12px; font-size: 0.6rem;" onclick="setShareFormat('square')">Cuadrado (1:1)</button>
+            <div style="margin: 15px 0; padding-bottom: 15px; border-bottom: 1px solid rgba(128,128,128,0.1);">
+                <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); margin-bottom: 10px; text-transform: uppercase;">1. Formato</div>
+                <div style="display: flex; gap: 8px;">
+                    <button id="btn-fmt-long" class="mood-option active" style="flex: 1; padding: 10px; font-size: 0.55rem;" onclick="setShareFormat('long')">Vertical (9:16)</button>
+                    <button id="btn-fmt-square" class="mood-option" style="flex: 1; padding: 10px; font-size: 0.55rem;" onclick="setShareFormat('square')">Cuadrado (1:1)</button>
                 </div>
             </div>
 
             <!-- SECCIÓN MOODS -->
-            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(128,128,128,0.1);">
-                <div style="font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); margin-bottom: 15px; text-transform: uppercase;">2. Estilo Visual</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div id="btn-mood-original" class="mood-option active" onclick="setShareMood('original')">Esenza</div>
-                    <div id="btn-mood-zen" class="mood-option" onclick="setShareMood('zen')">Zen</div>
-                    <div id="btn-mood-aurora" class="mood-option" onclick="setShareMood('aurora')">Aurora</div>
-                    <div id="btn-mood-nocturno" class="mood-option" onclick="setShareMood('nocturno')">Nocturno</div>
+            <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(128,128,128,0.1);">
+                <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); margin-bottom: 10px; text-transform: uppercase;">2. Estilo Visual</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button id="btn-mood-original" class="mood-option active" style="padding: 10px;" onclick="setShareMood('original')">Esenza</button>
+                    <button id="btn-mood-zen" class="mood-option" style="padding: 10px;" onclick="setShareMood('zen')">Zen</button>
+                    <button id="btn-mood-aurora" class="mood-option" style="padding: 10px;" onclick="setShareMood('aurora')">Aurora</button>
+                    <button id="btn-mood-nocturno" class="mood-option" style="padding: 10px;" onclick="setShareMood('nocturno')">Nocturno</button>
                 </div>
             </div>
 
             <!-- SECCIÓN QR -->
-            <div style="margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; padding: 0 5px;">
+            <div style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; padding: 0 5px;">
                 <div style="text-align: left;">
-                    <div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Incluir Código QR</div>
-                    <div style="font-size: 0.6rem; opacity: 0.5;">Enlace inteligente a la app</div>
+                    <div style="font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">Incluir Código QR</div>
+                    <div style="font-size: 0.55rem; opacity: 0.5;">Enlace inteligente a la app</div>
                 </div>
                 <div id="sw-share-qr" class="toggle-switch active" onclick="toggleShareQR()" style="background: var(--accent);">
-                    <div class="toggle-knob" style="transform: translateX(18px);"></div>
+                    <div class="toggle-knob" style="transform: translateX(20px);"></div>
                 </div>
             </div>
             
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-save" onclick="closeModals()" style="flex: 1; margin: 0; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); font-size: 0.7rem;">CANCELAR</button>
-                <button class="btn-save" onclick="executeAdvancedShare()" style="flex: 1.5; margin: 0; font-size: 0.7rem;">GENERAR</button>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-save" onclick="closeModals()" style="flex: 1; margin: 0; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); font-size: 0.65rem; height: 45px;">CANCELAR</button>
+                <button class="btn-save" onclick="executeAdvancedShare()" style="flex: 1.5; margin: 0; font-size: 0.65rem; height: 45px;">GENERAR</button>
             </div>
         </div>
     </div>
@@ -6021,9 +6024,9 @@
             const sw = document.getElementById('sw-share-qr');
             if (sw) {
                 sw.classList.toggle('active', shareQRActive);
-                sw.style.background = shareQRActive ? 'var(--accent)' : 'rgba(128,128,128,0.2)';
+                sw.style.background = shareQRActive ? 'var(--accent)' : 'rgba(128,128,128,0.4)';
                 const knob = sw.querySelector('.toggle-knob');
-                if (knob) knob.style.transform = shareQRActive ? 'translateX(18px)' : 'translateX(0)';
+                if (knob) knob.style.transform = shareQRActive ? 'translateX(22px)' : 'translateX(0)';
             }
             if (typeof playSound === 'function') playSound('click');
         }
@@ -6111,11 +6114,11 @@
                     const files = [];
 
                     document.getElementById('cap-lib-title').innerText = currentExpBook;
-                    document.getElementById('cap-lib-meta').innerText = "LA PORTADA — SERIE DE EXPLORACIÓN";
+                    document.getElementById('cap-lib-meta').innerText = "La Portada — Serie de Exploración — Lúminapp";
                     files.push(new File([await captureToBlob(area)], "Lumina_1_Portada.png", { type: "image/png" }));
 
                     document.getElementById('cap-lib-title').innerText = lesson ? lesson.titulo : "";
-                    document.getElementById('cap-lib-meta').innerText = `LECCIÓN ${currentExpIdx + 1} — LA SABIDURÍA`;
+                    document.getElementById('cap-lib-meta').innerText = `Lección ${currentExpIdx + 1} — La Sabiduría — Lúminapp`;
                     files.push(new File([await captureToBlob(area)], "Lumina_2_Sabiduria.png", { type: "image/png" }));
 
                     if (reflection) {
@@ -6156,11 +6159,11 @@
                 const cached = getCache('libros');
                 if (cached) {
                     document.getElementById('cap-lib-title').innerText = cached.titulo || "";
-                    const meta = (cached.autor || "").toUpperCase() + ` — LECCIÓN ${cached.dia}`;
+                    const meta = (cached.libro || "Lúmina") + ` — Lección ${cached.dia} — Lúminapp`;
                     document.getElementById('cap-lib-meta').innerText = meta;
                 }
             } else {
-                document.getElementById('cap-date').innerText = document.getElementById('header-date').innerText;
+                document.getElementById('cap-date').innerText = (document.getElementById('header-date').innerText).replace('PALABRAS', '').replace('AFIRMACIONES', '').replace('FRASES', '') + ' — Lúminapp';
                 document.getElementById('cap-cat').innerText = document.getElementById('header-cat').innerText;
                 document.getElementById('cap-word').innerText = document.getElementById('word-title').innerText;
                 document.getElementById('cap-def').innerText = document.getElementById('word-def').innerText;
