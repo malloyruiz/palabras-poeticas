@@ -382,21 +382,23 @@
         .mood-option:hover { border-color: var(--accent); background: rgba(181, 131, 58, 0.05); }
         .mood-option.active { border-color: var(--accent); background: var(--accent) !important; color: white !important; }
         
-        /* ESTILOS DE MOODS (CAPTURA) */
-        .capture-area.mood-original { background: #f5f1e8; color: #1a1a1a; }
-        .capture-area.mood-zen { background: #ffffff; color: #2c3e50; border: 1px solid #eee; }
-        .capture-area.mood-zen .cap-title-smart { color: #7f8c8d; }
-        .capture-area.mood-zen h4 { font-family: 'Lora', serif; font-weight: 400; }
+        /* ESTILOS DE MOODS (CAPTURA) - USAMOS !IMPORTANT PARA SOBREESCRIBIR INLINE STYLES DE LOS TEMPLATES */
+        .capture-area.mood-original { background: #f5f1e8 !important; color: #1a1a1a !important; }
+        .capture-area.mood-zen { background: #ffffff !important; color: #2c3e50 !important; border: 1px solid #eee !important; }
+        .capture-area.mood-zen .cap-title-smart { color: #7f8c8d !important; }
+        .capture-area.mood-zen h4 { font-family: 'Lora', serif !important; font-weight: 400 !important; }
         
-        .capture-area.mood-aurora { background: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%); color: #2d3436; }
-        .capture-area.mood-aurora .cap-title-smart { color: #636e72; }
-        .capture-area.mood-aurora h4 { color: #2d3436; text-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .capture-area.mood-aurora { background: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%) !important; color: #2d3436 !important; }
+        .capture-area.mood-aurora .cap-title-smart { color: #636e72 !important; }
+        .capture-area.mood-aurora h4 { color: #2d3436 !important; text-shadow: 0 2px 10px rgba(0,0,0,0.03) !important; }
         
-        .capture-area.mood-nocturno { background: #0f172a; color: #f1f5f9; }
-        .capture-area.mood-nocturno .cap-title-smart { color: #94a3b8; }
-        .capture-area.mood-nocturno .cap-ex-item { border-left-color: #38bdf8; color: #cbd5e1; }
-        .capture-area.mood-nocturno .cap-qr-box { background: #f1f5f9; }
-        .capture-area.mood-nocturno .cap-qr-link { color: #94a3b8; }
+        .capture-area.mood-nocturno { background: #0f172a !important; color: #f1f5f9 !important; }
+        .capture-area.mood-nocturno .cap-title-smart { color: #94a3b8 !important; }
+        .capture-area.mood-nocturno .cap-ex-item { border-left-color: #38bdf8 !important; color: #cbd5e1 !important; }
+        .capture-area.mood-nocturno .cap-qr-box { background: #f1f5f9 !important; }
+        .capture-area.mood-nocturno .cap-qr-link { color: #94a3b8 !important; }
+
+        .hidden-capture { position: fixed; top: 0; left: 0; opacity: 0; pointer-events: none; z-index: -100; }
 
         /* END BASE STYLES */
         .reflection-box em { font-family: 'Playfair Display', serif; font-size: 1.4rem;  display: block; margin-top: 15px; }
@@ -5270,7 +5272,7 @@
         }
 
         function closeModals(preventBack = false) {
-            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui'];
+            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'mood-modal'];
             let anyClosed = false;
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -6203,11 +6205,23 @@
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         await navigator.share({ files: [file], title: 'Lúmina App', text: smartTitle });
                     } else {
-                        const link = document.createElement('a'); link.download = file.name; link.href = URL.createObjectURL(blob); link.click();
+                        const link = document.createElement('a'); 
+                        link.download = `Lumina_${new Date().getTime()}.png`; 
+                        link.href = URL.createObjectURL(blob); 
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
                         showToast("Card guardada ✅");
                     }
+                } else {
+                    throw new Error("Blob failed");
                 }
-            } catch (e) { showToast("Error al capturar.", "error"); }
+            } catch (e) { 
+                console.error("Capture Error:", e);
+                showToast("Error al capturar. Intenta de nuevo.", "error"); 
+            } finally {
+                closeModals(true); // Siempre cerrar para no dejar atrapado al usuario
+            }
         }
 
         async function captureToBlob(area) {
@@ -6662,8 +6676,8 @@
                 <button class="btn-confirm btn-confirm-yes" id="btn-confirm-action">SÍ, CONTINUAR</button>
             </div>
         </div>
-    <!-- ÁREAS DE CAPTURA (OCULTAS) -->
-    <div style="position: absolute; left: -9999px; top: -9999px;">
+    <!-- ÁREAS DE CAPTURA (OCULTAS PERO PRESENTES PARA RENDER) -->
+    <div class="hidden-capture">
         <!-- Captura de Habitos (Alta Fidelidad) -->
         <div id="capture-area-habitos" class="capture-area" style="width: 400px; padding: 40px; background: #f5f1e8; border-radius: 30px; color: #1a1a1a; font-family: 'Inter', sans-serif; text-align: center;">
             <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
