@@ -789,68 +789,7 @@
         .notif-info p { margin: 0; font-size: 0.85rem; opacity: 0.6; line-height: 1.5; }
         .btn-dismiss-notif { position: absolute; top: 18px; right: 15px; padding: 8px; opacity: 0.2; transition: 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-dismiss-notif:hover { opacity: 1; color: var(--accent); }
-        .btn-dismiss-notif svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; }
-
-        /* Estilos para Captura */
-        #capture-area {
-            position: fixed; top: -5000px; left: -5000px;
-            width: 800px; background: #f5f1e8; color: #1a1a1a;
-            padding: 80px; box-sizing: border-box; display: flex; flex-direction: column;
-            font-family: 'Inter', sans-serif; text-align: left;
-        }
-        .cap-date { color: #b5833a; font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
-        .cap-cat { font-size: 0.9rem; letter-spacing: 5px; opacity: 0.4; text-transform: uppercase; margin-bottom: 50px; font-weight: 300; }
-        .cap-word { font-family: 'Playfair Display', serif; font-size: 4.5rem; font-weight: 700; font-style: italic; line-height: 1.1; margin-bottom: 40px; letter-spacing: -1px; }
-        .cap-def { font-size: 1.8rem; line-height: 1.6; font-weight: 300; opacity: 0.9; margin-bottom: 50px; }
-        .cap-ex-list { display: flex; flex-direction: column; gap: 30px; }
-        .cap-ex-item { font-size: 1.3rem; font-style: italic; color: rgba(26,26,26,0.5); border-left: 3px solid #b5833a; padding-left: 25px; }
-        .cap-footer { margin-top: 80px; padding-top: 40px; border-top: 1px solid rgba(0,0,0,0.05); font-size: 0.8rem; opacity: 0.2; letter-spacing: 4px; }
-
-        /* Captura específica para Libros */
-        #capture-area-libros {
-            position: fixed; top: -5005px; left: -5005px;
-            width: 800px; background: #f5f1e8; color: #1a1a1a;
-            padding: 80px; box-sizing: border-box; display: flex; flex-direction: column;
-            font-family: 'Inter', sans-serif; text-align: left;
-        }
-        .cap-lib-head { font-family: 'Playfair Display', serif; font-size: 8rem; font-weight: 700; font-style: italic; line-height: 0.9; margin-bottom: 25px; letter-spacing: -4px; }
-        .cap-lib-tag { font-size: 1rem; letter-spacing: 5px; opacity: 0.4; line-height: 1.6; margin-bottom: 35px; text-transform: uppercase; max-width: 600px; }
-        .cap-lib-sep { height: 1px; background: rgba(0,0,0,0.1); margin-bottom: 45px; }
-        .cap-lib-label { color: #b5833a; font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-bottom: 25px; }
-        .cap-lib-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 400; font-style: italic; line-height: 1.2; margin-bottom: 12px; }
-        .cap-lib-meta { font-size: 0.9rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase; }
-
-        .btn-share-main { opacity: 0.6; transition: 0.3s; }
-        .btn-share-main:hover { opacity: 1; transform: scale(1.05); }
-
-        /* Captura específica para Extra */
-        #capture-area-extra {
-            position: fixed; top: -5010px; left: -5010px;
-            width: 800px; background: #f5f1e8; color: #1a1a1a;
-            padding: 80px; box-sizing: border-box; display: flex; flex-direction: column;
-            font-family: 'Inter', sans-serif; text-align: left;
-        }
-        .cap-extra-tag { color: #b5833a; font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 700; margin-bottom: 40px; }
-        .cap-extra-story { font-size: 1.6rem; line-height: 1.8; font-weight: 300; opacity: 0.9; margin-bottom: 40px; }
-        .cap-extra-thought { padding: 40px; border-left: 4px solid #b5833a; background: rgba(181, 131, 58, 0.05); font-family: 'Playfair Display', serif; font-style: italic; font-size: 2rem; color: #b5833a; margin-bottom: 40px; }
-        .cap-extra-challenge { text-align: center; padding: 40px; border-radius: 40px; border: 1px solid rgba(0,0,0,0.1); }
-        .cap-extra-challenge-h3 { font-size: 0.8rem; letter-spacing: 5px; opacity: 0.4; text-transform: uppercase; margin-bottom: 20px; }
-        .cap-extra-challenge-text { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; }
-
-        /* Captura para Hábitos (Perfil) */
-        #capture-area-habitos {
-            position: fixed; top: -5015px; left: -5015px;
-            width: 800px; background: #f5f1e8; color: #1a1a1a;
-            padding: 80px; box-sizing: border-box; display: flex; flex-direction: column;
-            font-family: 'Inter', sans-serif; text-align: left;
-        }
-        .cap-hab-head { font-family: 'Playfair Display', serif; font-size: 4rem; font-style: italic; font-weight: 900; margin-bottom: 10px; }
-        .cap-hab-sub { font-size: 1rem; letter-spacing: 3px; opacity: 0.4; text-transform: uppercase; margin-bottom: 60px; }
-        .cap-hab-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-bottom: 60px; }
-        .cap-hab-item { text-align: center; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
-        .cap-hab-val { font-size: 3.5rem; font-weight: 800; color: #b5833a; display: block; margin-bottom: 5px; }
-        .cap-hab-label { font-size: 0.8rem; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; font-weight: 700; }
-        .cap-hab-footer { margin-top: auto; padding-top: 40px; border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; opacity: 0.3; font-size: 0.8rem; letter-spacing: 3px; }
+        .btn-dismiss-notif svg { width: 16px; height: 16px; stroke: currentColor; fi        /* END LEGACY CAPTURA PURGE */ize: 0.8rem; letter-spacing: 3px; }
 
         /* Estilos para PWA Update (Toast) */
         pwa-update {
@@ -4905,6 +4844,11 @@
             updateProExtraUI();
             updateFavoriteIcon();
 
+            // PRE-CAPTURA EN SEGUNDO PLANO (Para que el compartir sea instantáneo)
+            setTimeout(() => {
+                prepareShareBlob(currentCategory);
+            }, 800); 
+
             // Retos y Reflexiones adicionales (fuera de la Edición Especial)
             if (currentCategory !== 'extra') {
                 const retoEl = document.getElementById('reto-text');
@@ -5866,23 +5810,11 @@
                 if (navigator.vibrate) navigator.vibrate(12);
                 if (window.OneSignal && OneSignal.User && OneSignal.Notifications) {
                     btn.classList.add('busy');
-
                     const permission = OneSignal.Notifications.permission;
-                    const nativePermission = OneSignal.Notifications.permissionNative; // 'granted', 'denied', 'default'
-                    
-                    if (nativePermission === 'denied') {
-                        alert("Has bloqueado las notificaciones en tu navegador. Por favor, habilítalas en la configuración del sitio para recibir alertas.");
-                        return;
-                    }
-
                     if (!permission) {
-                        // Solicitar permiso si no lo hay (modal OneSignal)
                         await OneSignal.Slidedown.promptDefault();
                     } else {
-                        // Optimismo UI
                         btn.classList.toggle('active');
-
-                        // SYNC REAL
                         const sub = OneSignal.User.PushSubscription;
                         if (sub) {
                             if (sub.optedIn) await sub.optOut();
@@ -5890,7 +5822,7 @@
                         }
                     }
                 } else {
-                    alert("Cargando sistema de alertas... intenta en un momento.");
+                    alert("Cargando sistema de alertas...");
                 }
             } catch (e) { 
                 console.warn("TogglePush error:", e);
@@ -5898,7 +5830,6 @@
                 setTimeout(() => {
                     if (btn) btn.classList.remove('busy');
                     updateSubscriptionUI();
-                    // Sincronizar notificaciones internas en segundo plano
                     setTimeout(checkNotifications, 500);
                 }, 1000);
             }
@@ -5907,20 +5838,34 @@
         function toggleTheme() {
             const current = document.body.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
             const newTheme = current === 'dark' ? 'light' : 'dark';
-            
             const change = () => {
                 document.body.setAttribute('data-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
                 updateSubscriptionUI();
                 pushSync();
             };
+            if (document.startViewTransition) document.startViewTransition(change);
+            else change();
+        }
 
-            // Cambio de Tema FLUIDO (Con soporte para View Transitions API)
-            if (document.startViewTransition) {
-                document.startViewTransition(change);
-            } else {
-                change();
-            }
+        function toggleCloudVoice() {
+            const isCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
+            const newVal = isCloud ? 'false' : 'true';
+            localStorage.setItem('lumina_cloud_voice', newVal);
+            if (newVal === 'true') localStorage.setItem('lumina_voice', 'CLOUD_VOICE');
+            else localStorage.removeItem('lumina_voice');
+            populateVoices();
+            updateSubscriptionUI();
+            pushSync();
+        }
+
+        function toggleUISounds() {
+            const current = localStorage.getItem('lumina_sfx') !== 'false';
+            const newVal = current ? 'false' : 'true';
+            localStorage.setItem('lumina_sfx', newVal);
+            updateSubscriptionUI();
+            if (newVal === 'true') playSound('click');
+            pushSync();
         }
 
         function toMixedCase(str) {
@@ -5942,50 +5887,20 @@
             return list[Math.floor(Math.random() * list.length)];
         }
 
-        function toggleCloudVoice() {
-            const isCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
-            const newVal = isCloud ? 'false' : 'true';
-            localStorage.setItem('lumina_cloud_voice', newVal);
-            // Si activamos la nube, ponerla como voz activa
-            if (newVal === 'true') localStorage.setItem('lumina_voice', 'CLOUD_VOICE');
-            else localStorage.removeItem('lumina_voice'); // Volver al default
-            
-            populateVoices();
-            updateSubscriptionUI();
-            pushSync();
-        }
+        window._luminaShareBlob = null;
+        window._luminaShareFname = "";
 
-        function toggleUISounds() {
-            const current = localStorage.getItem('lumina_sfx') !== 'false';
-            const newVal = current ? 'false' : 'true';
-            localStorage.setItem('lumina_sfx', newVal);
-            updateSubscriptionUI();
-            if (newVal === 'true') playSound('click');
-            pushSync();
-        }
-
-        async function shareAsImage(typeArg) {
-            const cat = typeArg || currentCategory;
-            window._pendingShareType = cat;
-            
-            if (navigator.vibrate) navigator.vibrate(15);
-            showToast("Preparando composición...");
-
+        async function prepareShareBlob(cat) {
             const area = document.getElementById('capture-area-standard');
             if (!area) return;
 
-            // 1. Limpiar y Preparar Datos
             const titleEl = document.getElementById('cap-main-title');
             const bodyEl = document.getElementById('cap-body-text');
-            const extraEl = document.getElementById('cap-extra-list');
             const headerEl = document.getElementById('cap-header-smart');
             const footerEl = document.getElementById('cap-footer-date');
             
-            extraEl.innerHTML = ''; // Limpiar extras
             headerEl.innerText = getSmartTitle(cat);
-            footerEl.innerText = new Date().getFullYear();
-
-            // 2. Llenado Dinámico según categoría
+            
             if (cat === 'habitos') {
                 titleEl.innerText = "Mi Disciplina";
                 const streak = document.getElementById('streak-val')?.innerText || "0";
@@ -5994,24 +5909,24 @@
                     <div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px;"><strong>${streak}</strong><br><small>RACHA</small></div>
                     <div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px;"><strong>${medals}</strong><br><small>LOGROS</small></div>
                 </div>`;
+                footerEl.innerText = new Date().getFullYear();
             } else if (cat === 'libros' || cat === 'exp') {
                 const isExp = cat === 'exp';
                 titleEl.innerText = isExp ? (currentExpBook || "Exploración") : (getCache('libros')?.titulo || "Lectura");
-                const meta = isExp ? `Lección ${currentExpIdx + 1}` : (getCache('libros')?.libro || "Lúmina");
-                bodyEl.innerText = meta + " — Lúminapp";
+                bodyEl.innerText = (isExp ? `Lección ${currentExpIdx + 1}` : (getCache('libros')?.libro || "Lúmina")) + " — Lúminapp";
+                footerEl.innerText = new Date().getFullYear();
             } else if (cat === 'extra') {
                 titleEl.innerText = document.getElementById('extra-story')?.innerText || "Relato";
                 bodyEl.innerText = document.getElementById('extra-thought')?.innerText || "";
+                footerEl.innerText = new Date().getFullYear();
             } else {
                 const wordVal = document.getElementById('word-title')?.innerText || "";
                 titleEl.innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
                 bodyEl.innerText = document.getElementById('word-def')?.innerText || "";
-                
                 let rawDate = document.getElementById('header-date')?.innerText || "";
                 footerEl.innerText = toMixedCase(rawDate.replace('PALABRAS', '').replace('AFIRMACIONES', '').replace('FRASES', '').trim());
             }
 
-            // 3. Generar QR
             const qrBox = document.getElementById('standard-qr-box');
             if (qrBox) {
                 qrBox.innerHTML = '';
@@ -6021,27 +5936,43 @@
                 });
             }
 
-            // 4. Capturar y Compartir
-            try {
-                // Pequeño delay para que el QR renderice
-                await new Promise(r => setTimeout(r, 100));
-                
-                const canvas = await html2canvas(area, {
-                    backgroundColor: "#f5f1e8", scale: 2, useCORS: true, allowTaint: true
-                });
-                
-                canvas.toBlob(async (blob) => {
-                    if (!blob) return;
-                    const fname = `Lumina_${Date.now()}.png`;
-                    const file = new File([blob], fname, { type: 'image/png' });
+            setTimeout(async () => {
+                try {
+                    const canvas = await html2canvas(area, { backgroundColor: "#f5f1e8", scale: 2, useCORS: true, allowTaint: true });
+                    canvas.toBlob((blob) => {
+                        window._luminaShareBlob = blob;
+                        window._luminaShareFname = `Lumina_${Date.now()}.png`;
+                    }, 'image/png');
+                } catch (e) { console.warn("Pre-capture failed", e); }
+            }, 300);
+        }
 
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({ files: [file], title: 'Lúmina', text: headerEl.innerText });
-                    } else {
-                        const link = document.createElement('a');
-                        link.download = fname; link.href = URL.createObjectURL(blob);
-                        document.body.appendChild(link); link.click(); document.body.removeChild(link);
-                        showToast("Imagen guardada ✅");
+        async function shareAsImage(typeArg) {
+            const cat = typeArg || currentCategory;
+            if (navigator.vibrate) navigator.vibrate(15);
+            const doShare = async (blob, fname) => {
+                if (!blob) return;
+                const file = new File([blob], fname, { type: 'image/png' });
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: 'Lúmina', text: getSmartTitle(cat) });
+                } else {
+                    const link = document.createElement('a');
+                    link.download = fname; link.href = URL.createObjectURL(blob);
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                    showToast("Imagen guardada ✅");
+                }
+            };
+            if (window._luminaShareBlob) {
+                await doShare(window._luminaShareBlob, window._luminaShareFname);
+            } else {
+                showToast("Preparando composición...");
+                await prepareShareBlob(cat);
+                setTimeout(() => {
+                    if (window._luminaShareBlob) doShare(window._luminaShareBlob, window._luminaShareFname);
+                    else showToast("Reintenta en un momento.", "error");
+                }, 800);
+            }
+
                     }
                 }, 'image/png');
             } catch (e) {
@@ -6496,43 +6427,6 @@
         </div>
     <!-- ÁREAS DE CAPTURA (OCULTAS PERO PRESENTES PARA RENDER) -->
     <div class="hidden-capture">
-        <!-- Captura de Habitos (Alta Fidelidad) -->
-        <div id="capture-area-habitos" class="capture-area" style="width: 400px; padding: 40px; background: #f5f1e8; border-radius: 30px; color: #1a1a1a; font-family: 'Inter', sans-serif; text-align: center;">
-            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
-                <img src="icon-192.png" style="width: 40px; height: 40px; margin-right: 12px; border-radius: 10px;">
-                <span style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; font-style: italic;">Lúmina App</span>
-            </div>
-            
-            <div style="background: rgba(181, 131, 58, 0.05); padding: 30px; border-radius: 25px; border: 1.5px solid rgba(181, 131, 58, 0.12);">
-                <div class="cap-title-smart">Mis Hábitos</div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div style="background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
-                        <svg style="width: 24px; height: 24px; color: #b5833a; margin-bottom: 8px;" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
-                        <div style="font-size: 1.8rem; font-weight: 900; color: #1a1a1a;" id="cap-hab-streak">0</div>
-                        <div style="font-size: 0.7rem; font-weight: 700; color: #b5833a; letter-spacing: 2px; text-transform: uppercase;">Racha</div>
-                    </div>
-                    <div style="background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
-                        <svg style="width: 24px; height: 24px; color: #b5833a; margin-bottom: 8px;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                        <div style="font-size: 1.8rem; font-weight: 900; color: #1a1a1a;" id="cap-hab-medals">0</div>
-                        <div style="font-size: 0.7rem; font-weight: 700; color: #b5833a; letter-spacing: 2px; text-transform: uppercase;">Logros</div>
-                    </div>
-                </div>
-                
-                <div style="background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 25px;">
-                    <svg style="width: 24px; height: 24px; color: #b5833a; margin-bottom: 8px;" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-                    <div style="font-size: 1.8rem; font-weight: 900; color: #1a1a1a;" id="cap-hab-pausas">0</div>
-                    <div style="font-size: 0.7rem; font-weight: 700; color: #b5833a; letter-spacing: 2px; text-transform: uppercase;">Pausas</div>
-                </div>
-
-                <div style="border-top: 1px solid rgba(181, 131, 58, 0.15); padding-top: 20px;">
-                    <div style="font-size: 0.65rem; font-weight: 700; color: #b5833a; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.6;">Esta Semana</div>
-                    <div id="cap-hab-visual" style="display: flex; justify-content: center; gap: 12px; margin-bottom: 10px;"></div>
-                </div>
-            </div>
-            
-           <!-- ÁREA DE CAPTURA UNIFICADA (OCULTA) -->
-    <div class="hidden-capture">
         <div id="capture-area-standard" class="capture-area">
             <div class="cap-title-smart" id="cap-header-smart">LÚMINA</div>
             <h4 id="cap-main-title">---</h4>
@@ -6551,16 +6445,6 @@
             </div>
         </div>
     </div>
-            <div style="margin-top: 30px; font-size: 0.6rem; letter-spacing: 4px; opacity: 0.4; font-weight: 800; text-transform: uppercase;">LÚMINA © <span id="cap-hab-date">2024</span></div>
-        </div>
-        <!-- Captura de Libros / Expansiones (Carrusel) -->
-        <div id="capture-area-libros" class="capture-area" style="width: 400px; min-height: 450px; padding: 40px; background: #f5f1e8; border-radius: 30px; color: #1a1a1a; font-family: 'Inter', sans-serif; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <div style="margin-bottom: 25px;">
-                <img src="icon-192.png" style="width: 35px; height: 35px; border-radius: 8px;">
-            </div>
-            <div class="cap-title-smart">VIAJE INTERPERSONAL</div>
-            <h4 id="cap-lib-title" style="font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 900; line-height: 1.2; margin-bottom: 15px; font-style: italic;"></h4>
-            <div id="cap-lib-meta" class="cap-sub" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase;"></div>
             <div style="margin-top: 35px; font-size: 0.55rem; letter-spacing: 3px; opacity: 0.3; font-weight: 800; text-transform: uppercase;">LÚMINA © APP</div>
         </div>
 
