@@ -5904,9 +5904,21 @@
                 bodyEl.textContent = subtitle;
                 footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'extra') {
-                titleEl.innerText = document.getElementById('extra-story')?.innerText || "Relato";
-                bodyEl.innerText = document.getElementById('extra-thought')?.innerText || "";
-                footerEl.innerText = new Date().getFullYear();
+                titleEl.textContent = document.getElementById('word-title')?.innerText || "Edición Especial";
+                
+                // Pensamiento central en cursiva elegante (vía CSS inline para la captura)
+                const thought = document.getElementById('extra-thought')?.innerText || "";
+                bodyEl.innerHTML = `<div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.4rem; line-height:1.5; color:var(--accent); margin-bottom:20px;">"${thought}"</div>`;
+                
+                const challenge = document.getElementById('extra-challenge')?.innerText || "";
+                const extraList = document.getElementById('cap-extra-list');
+                if (extraList && challenge) {
+                    extraList.innerHTML = `<div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px; border:1px solid rgba(181,131,58,0.1); text-align:center;">
+                        <small style="letter-spacing:2px; font-weight:700; color:var(--accent); display:block; margin-bottom:5px; font-size:0.5rem; text-transform:uppercase;">RETO DEL DÍA</small>
+                        <div style="font-size:0.9rem; opacity:0.8;">${challenge}</div>
+                    </div>`;
+                }
+                footerEl.textContent = new Date().getFullYear();
             } else {
                 const wordVal = document.getElementById('word-title')?.innerText || "";
                 titleEl.innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
