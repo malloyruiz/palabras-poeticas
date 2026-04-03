@@ -346,59 +346,30 @@
         .app-box p { font-size: 1rem; line-height: 1.7; opacity: 0.8; white-space: pre-line; }
         .reflection-box { margin-top: 60px; padding: 40px; background: rgba(181, 131, 58, 0.05); border-radius: 30px; text-align: center; }
         
-        /* DIMENSIONES DE CAPTURA */
-        .capture-area.format-long { width: 400px !important; min-height: 711px !important; padding: 60px 40px !important; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
-        .capture-area.format-square { width: 400px !important; min-height: 400px !important; height: 400px !important; padding: 35px !important; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
-        .capture-area.format-square .cap-title-smart { margin-bottom: 5px; font-size: 0.85rem; }
-        .capture-area.format-square h4 { font-size: 1.5rem !important; margin-bottom: 10px !important; }
-        .capture-area.format-square p, .capture-area.format-square .lesson-body { font-size: 0.85rem !important; line-height: 1.5 !important; }
-        .capture-area.format-square .cap-qr-wrapper { margin-top: 15px; }
-        .capture-area.format-square .cap-ex-list { margin-top: 15px; padding-top: 10px; }
+        /* DIME        /* --- SISTEMA DE CAPTURA SIMPLIFICADO --- */
+        .capture-area { 
+            width: 400px !important; 
+            min-height: 711px !important; 
+            padding: 60px 40px !important; 
+            background: #f5f1e8 !important; 
+            color: #1a1a1a !important;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            box-sizing: border-box; 
+            border-radius: 30px;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+        }
+        .cap-title-smart { font-size: 0.7rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 25px; font-weight: 700; text-transform: uppercase; }
+        .capture-area h4 { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; font-style: italic; margin: 0 0 20px 0; line-height: 1.1; }
+        .capture-area p, .cap-ex-item { font-size: 1.1rem; line-height: 1.6; opacity: 0.9; margin-bottom: 20px; }
         
-        .cap-qr-wrapper { margin-top: 25px; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; z-index: 10; }
+        .cap-qr-wrapper { margin-top: 25px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .cap-qr-box { background: #fff; padding: 5px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 60px; height: 60px; }
         .cap-qr-link { font-size: 0.5rem; letter-spacing: 1px; opacity: 0.4; font-weight: 700; text-transform: uppercase; }
 
-        #mood-modal .modal-content { max-width: 380px; padding: 25px; text-align: center; }
-        
-        /* TOGGLE SWITCH (COMPARTIR) */
-        .toggle-switch {
-            width: 46px; height: 24px; background: rgba(128,128,128,0.2);
-            border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; padding: 0 4px;
-        }
-        .toggle-switch.active { background: var(--accent); }
-        .toggle-knob {
-            width: 18px; height: 18px; background: white; border-radius: 50%;
-            transition: 0.3s cubic-bezier(0.2, 0, 0, 1);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .mood-option { 
-            padding: 12px; border-radius: 12px; border: 1.5px solid rgba(128,128,128,0.1); 
-            cursor: pointer; transition: 0.3s; font-size: 0.6rem; font-weight: 700; 
-            letter-spacing: 1px; text-transform: uppercase; background: transparent; color: var(--text);
-        }
-        .mood-option:hover { border-color: var(--accent); background: rgba(181, 131, 58, 0.05); }
-        .mood-option.active { border-color: var(--accent); background: var(--accent) !important; color: white !important; }
-        
-        /* ESTILOS DE MOODS (CAPTURA) - USAMOS !IMPORTANT PARA SOBREESCRIBIR INLINE STYLES DE LOS TEMPLATES */
-        .capture-area.mood-original { background: #f5f1e8 !important; color: #1a1a1a !important; }
-        .capture-area.mood-zen { background: #ffffff !important; color: #2c3e50 !important; border: 1px solid #eee !important; }
-        .capture-area.mood-zen .cap-title-smart { color: #7f8c8d !important; }
-        .capture-area.mood-zen h4 { font-family: 'Lora', serif !important; font-weight: 400 !important; }
-        
-        .capture-area.mood-aurora { background: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%) !important; color: #2d3436 !important; }
-        .capture-area.mood-aurora .cap-title-smart { color: #636e72 !important; }
-        .capture-area.mood-aurora h4 { color: #2d3436 !important; text-shadow: 0 2px 10px rgba(0,0,0,0.03) !important; }
-        
-        .capture-area.mood-nocturno { background: #0f172a !important; color: #f1f5f9 !important; }
-        .capture-area.mood-nocturno .cap-title-smart { color: #94a3b8 !important; }
-        .capture-area.mood-nocturno .cap-ex-item { border-left-color: #38bdf8 !important; color: #cbd5e1 !important; }
-        .capture-area.mood-nocturno .cap-qr-box { background: #f1f5f9 !important; }
-        .capture-area.mood-nocturno .cap-qr-link { color: #94a3b8 !important; }
-
-        .hidden-capture { position: fixed; top: 0; left: 0; opacity: 0; pointer-events: none; z-index: -100; }
+        .hidden-capture { position: fixed; top: 0; left: 0; opacity: 0; pointer-events: none; z-index: -100; }none; z-index: -100; }
 
         /* END BASE STYLES */
         .reflection-box em { font-family: 'Playfair Display', serif; font-size: 1.4rem;  display: block; margin-top: 15px; }
@@ -5952,6 +5923,25 @@
             }
         }
 
+        function toMixedCase(str) {
+            if (!str || typeof str !== 'string') return "";
+            return str.toLowerCase().split(' ').filter(w => w).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+
+        function getSmartTitle(cat) {
+            const titles = {
+                'palabras': ['El Verbo de Hoy', 'Vocablo de Poder', 'Esencia Lectora'],
+                'afirmaciones': ['Mi Mantra de Hoy', 'Decreto de Luz', 'Voluntad Interna'],
+                'frases': ['Sabiduría de Titanes', 'Eco de la Historia', 'Sentencia Eterna'],
+                'libros': ['Viaje Interpersonal', 'Exploración Profunda', 'Maestría Diaria'],
+                'exp': ['Nuevos Horizontes', 'Estudio Profundo', 'Búsqueda de Luz'],
+                'extra': ['Revelación Exclusiva', 'Luz del Extra', 'Sabiduría Especial'],
+                'habitos': ['Racha de Constancia', 'Fuego del Hábito', 'Evolución Constante']
+            };
+            const list = titles[cat] || ['Lúmina App', 'Momento de Luz'];
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
         function toggleCloudVoice() {
             const isCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
             const newVal = isCloud ? 'false' : 'true';
@@ -5975,193 +5965,89 @@
         }
 
         async function shareAsImage(typeArg) {
-            window._pendingShareType = typeArg;
+            const cat = typeArg || currentCategory;
+            window._pendingShareType = cat;
+            
             if (navigator.vibrate) navigator.vibrate(15);
-            await executeAdvancedShare(); // Acción Directa y esperada
-        }
-
-        function getSmartTitle(cat) {
-            const titles = {
-                'palabras': ['El Verbo de Hoy', 'Vocablo de Poder', 'Esencia Lectora'],
-                'afirmaciones': ['Mi Mantra de Hoy', 'Decreto de Luz', 'Voluntad Interna'],
-                'frases': ['Sabiduría de Titanes', 'Eco de la Historia', 'Sentencia Eterna'],
-                'libros': ['Viaje Interpersonal', 'Exploración Profunda', 'Maestría Diaria'],
-                'exp': ['Nuevos Horizontes', 'Estudio Profundo', 'Búsqueda de Luz'],
-                'extra': ['Revelación Exclusiva', 'Luz del Extra', 'Sabiduría Especial'],
-                'habitos': ['Racha de Constancia', 'Fuego del Hábito', 'Evolución Constante']
-            };
-            const list = titles[cat] || ['Lúmina App', 'Momento de Luz'];
-            return list[Math.floor(Math.random() * list.length)];
-        }
-
-        async function executeAdvancedShare() {
-            const typeArg = window._pendingShareType;
-            const mood = 'original';
-            const format = 'long';
-            const shareQRActive = true;
             showToast("Preparando composición...");
 
-            const isHabitos = typeArg === 'habitos';
-            const isLibros = currentCategory === 'libros' || typeArg === 'exp';
-            const isExtra = typeArg === 'extra';
-            const isCarousel = typeArg === 'exp'; 
+            const area = document.getElementById('capture-area-standard');
+            if (!area) return;
+
+            // 1. Limpiar y Preparar Datos
+            const titleEl = document.getElementById('cap-main-title');
+            const bodyEl = document.getElementById('cap-body-text');
+            const extraEl = document.getElementById('cap-extra-list');
+            const headerEl = document.getElementById('cap-header-smart');
+            const footerEl = document.getElementById('cap-footer-date');
             
-            let areaId = 'capture-area';
-            if (isLibros) areaId = 'capture-area-libros';
-            if (isExtra) areaId = 'capture-area-extra';
-            if (isHabitos) areaId = 'capture-area-habitos';
-            
-            const area = document.getElementById(areaId);
-            const smartTitle = getSmartTitle(typeArg || currentCategory);
+            extraEl.innerHTML = ''; // Limpiar extras
+            headerEl.innerText = getSmartTitle(cat);
+            footerEl.innerText = new Date().getFullYear();
 
-            // 1. Aplicar Mood y Formato
-            area.className = `capture-area mood-${mood} format-${format}`;
-            const titleEl = area.querySelector('.cap-title-smart');
-            if (titleEl) titleEl.innerText = smartTitle;
-
-            // 2. Gestionar QR
-            let qrWrapper = area.querySelector('.cap-qr-wrapper');
-            if (!qrWrapper) {
-                qrWrapper = document.createElement('div');
-                qrWrapper.className = 'cap-qr-wrapper';
-                qrWrapper.innerHTML = `
-                    <div class="cap-qr-box" id="${areaId}-qr-box" style="background:#fff; padding:5px; border-radius:8px;"></div>
-                    <div class="cap-qr-link">LUMINAPP.TODAY</div>
-                `;
-                area.appendChild(qrWrapper);
-            }
-            qrWrapper.style.display = shareQRActive ? 'flex' : 'none';
-
-            if (shareQRActive) {
-                const qrBox = document.getElementById(`${areaId}-qr-box`);
-                if (qrBox) {
-                    qrBox.innerHTML = '';
-                    const deepLink = "https://luminapp.today/#" + (typeArg || currentCategory);
-                    new QRCode(qrBox, {
-                        text: deepLink,
-                        width: 60,
-                        height: 60,
-                        colorDark: mood === 'nocturno' ? "#ffffff" : "#1a1a1a",
-                        colorLight: mood === 'nocturno' ? "#0f172a" : "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.H
-                    });
-                }
-            }
-
-            // 3. Llenar Datos y Capturar
-            if (isCarousel) {
-                try {
-                    const lesson = currentExpLessons[currentExpIdx];
-                    const reflection = localStorage.getItem(`lumina_note_exp_${currentExpId}_${currentExpIdx}`) || "";
-                    const files = [];
-
-                    document.getElementById('cap-lib-title').innerText = currentExpBook;
-                    document.getElementById('cap-lib-meta').innerText = "La Portada — Serie de Exploración — Lúminapp";
-                    files.push(new File([await captureToBlob(area)], "Lumina_1_Portada.png", { type: "image/png" }));
-
-                    document.getElementById('cap-lib-title').innerText = lesson ? lesson.titulo : "";
-                    document.getElementById('cap-lib-meta').innerText = `Lección ${currentExpIdx + 1} — La Sabiduría — Lúminapp`;
-                    files.push(new File([await captureToBlob(area)], "Lumina_2_Sabiduria.png", { type: "image/png" }));
-
-                    if (reflection) {
-                        const contentEl = document.getElementById('cap-lib-title').nextElementSibling;
-                        const prevHtml = contentEl.innerHTML;
-                        contentEl.innerHTML = `<div style="font-family:'Playfair Display',serif; font-style:italic; font-size:1.1rem; line-height:1.6; padding:10px;">"${reflection}"</div>`;
-                        files.push(new File([await captureToBlob(area)], "Lumina_3_Reflexion.png", { type: "image/png" }));
-                        contentEl.innerHTML = prevHtml;
-                    }
-
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files })) {
-                        await navigator.share({ files, title: 'Lúmina Story', text: smartTitle });
-                    } else {
-                        files.forEach((f, i) => {
-                            const link = document.createElement('a'); link.download = f.name; link.href = URL.createObjectURL(f);
-                            setTimeout(() => link.click(), i * 500);
-                        });
-                        showToast("Carrusel guardado ✅");
-                    }
-                } catch (e) { showToast("Error en carrusel.", "error"); }
-                return;
-            }
-
-            // Single Image Logic
-            if (isHabitos) {
-                document.getElementById('cap-hab-streak').innerText = document.getElementById('streak-val').innerText;
-                document.getElementById('cap-hab-medals').innerText = document.getElementById('medals-val').innerText;
-                document.getElementById('cap-hab-pausas').innerText = document.getElementById('pausas-val').innerText;
-                const liveVisual = document.getElementById('profile-racha-visual');
-                const capVisual = document.getElementById('cap-hab-visual');
-                if (liveVisual && capVisual) capVisual.innerHTML = liveVisual.innerHTML;
-                document.getElementById('cap-hab-date').innerText = new Date().getFullYear();
-            } else if (isExtra) {
-                document.getElementById('cap-extra-story').innerText = document.getElementById('extra-story').innerText || "";
-                document.getElementById('cap-extra-thought').innerText = document.getElementById('extra-thought').innerText || "";
-                document.getElementById('cap-extra-challenge-text').innerText = document.getElementById('extra-challenge').innerText || "";
-            } else if (isLibros) {
-                const cached = getCache('libros');
-                if (cached) {
-                    document.getElementById('cap-lib-title').innerText = cached.titulo || "";
-                    const meta = toMixedCase(cached.libro || "Lúmina") + ` — Lección ${cached.dia} — Lúminapp`;
-                    document.getElementById('cap-lib-meta').innerText = meta;
-                }
+            // 2. Llenado Dinámico según categoría
+            if (cat === 'habitos') {
+                titleEl.innerText = "Mi Disciplina";
+                const streak = document.getElementById('streak-val')?.innerText || "0";
+                const medals = document.getElementById('medals-val')?.innerText || "0";
+                bodyEl.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; text-align:center; margin-top:20px;">
+                    <div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px;"><strong>${streak}</strong><br><small>RACHA</small></div>
+                    <div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px;"><strong>${medals}</strong><br><small>LOGROS</small></div>
+                </div>`;
+            } else if (cat === 'libros' || cat === 'exp') {
+                const isExp = cat === 'exp';
+                titleEl.innerText = isExp ? (currentExpBook || "Exploración") : (getCache('libros')?.titulo || "Lectura");
+                const meta = isExp ? `Lección ${currentExpIdx + 1}` : (getCache('libros')?.libro || "Lúmina");
+                bodyEl.innerText = meta + " — Lúminapp";
+            } else if (cat === 'extra') {
+                titleEl.innerText = document.getElementById('extra-story')?.innerText || "Relato";
+                bodyEl.innerText = document.getElementById('extra-thought')?.innerText || "";
             } else {
-                let rawDate = document.getElementById('header-date').innerText;
-                const cleanDate = toMixedCase(rawDate.replace('PALABRAS', '').replace('AFIRMACIONES', '').replace('FRASES', '').trim());
-                document.getElementById('cap-date').innerText = cleanDate + ' — Lúminapp';
-                document.getElementById('cap-cat').innerText = toMixedCase(document.getElementById('header-cat').innerText);
+                const wordVal = document.getElementById('word-title')?.innerText || "";
+                titleEl.innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
+                bodyEl.innerText = document.getElementById('word-def')?.innerText || "";
                 
-                const wordVal = document.getElementById('word-title').innerText;
-                // Si está todo en mayúsculas (común en afirmaciones), lo pasamos a Mixed Case para estilo
-                document.getElementById('cap-word').innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
-                
-                document.getElementById('cap-def').innerText = document.getElementById('word-def').innerText;
-                const exList = document.getElementById('cap-ex-list'); exList.innerHTML = '';
-                document.querySelectorAll('.example-item').forEach(el => {
-                    const item = document.createElement('div'); item.className = 'cap-ex-item'; item.innerText = el.innerText;
-                    exList.appendChild(item);
+                let rawDate = document.getElementById('header-date')?.innerText || "";
+                footerEl.innerText = toMixedCase(rawDate.replace('PALABRAS', '').replace('AFIRMACIONES', '').replace('FRASES', '').trim());
+            }
+
+            // 3. Generar QR
+            const qrBox = document.getElementById('standard-qr-box');
+            if (qrBox) {
+                qrBox.innerHTML = '';
+                new QRCode(qrBox, {
+                    text: `https://luminapp.today/#${cat}`,
+                    width: 60, height: 60, colorDark: "#1a1a1a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
                 });
             }
 
+            // 4. Capturar y Compartir
             try {
-                const blob = await captureToBlob(area);
-                if (blob) {
+                // Pequeño delay para que el QR renderice
+                await new Promise(r => setTimeout(r, 100));
+                
+                const canvas = await html2canvas(area, {
+                    backgroundColor: "#f5f1e8", scale: 2, useCORS: true, allowTaint: true
+                });
+                
+                canvas.toBlob(async (blob) => {
+                    if (!blob) return;
                     const fname = `Lumina_${Date.now()}.png`;
                     const file = new File([blob], fname, { type: 'image/png' });
-                    
-                    // Intentar compartir archivo (Mobile)
+
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({ 
-                            files: [file], 
-                            title: 'Lúmina App', 
-                            text: smartTitle 
-                        });
+                        await navigator.share({ files: [file], title: 'Lúmina', text: headerEl.innerText });
                     } else {
-                        // Fallback: Descarga directa
-                        const link = document.createElement('a'); 
-                        link.download = fname; 
-                        link.href = URL.createObjectURL(blob); 
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
+                        const link = document.createElement('a');
+                        link.download = fname; link.href = URL.createObjectURL(blob);
+                        document.body.appendChild(link); link.click(); document.body.removeChild(link);
                         showToast("Imagen guardada ✅");
                     }
-                } else {
-                    throw new Error("Blob failed");
-                }
-            } catch (e) { 
-                console.error("Capture Error:", e);
-                showToast("Error al capturar. Intenta de nuevo.", "error"); 
-            } finally {
-                closeModals(true); 
+                }, 'image/png');
+            } catch (e) {
+                console.error("Share Error:", e);
+                showToast("Error al generar. Reintenta.", "error");
             }
-        }
-
-        async function captureToBlob(area) {
-            const originalBg = window.getComputedStyle(area).backgroundColor;
-            const canvas = await html2canvas(area, {
-                backgroundColor: originalBg, scale: 2, logging: false, useCORS: true, allowTaint: true
-            });
-            return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         }
 
         function shareWord() {
@@ -6645,6 +6531,26 @@
                 </div>
             </div>
             
+           <!-- ÁREA DE CAPTURA UNIFICADA (OCULTA) -->
+    <div class="hidden-capture">
+        <div id="capture-area-standard" class="capture-area">
+            <div class="cap-title-smart" id="cap-header-smart">LÚMINA</div>
+            <h4 id="cap-main-title">---</h4>
+            <div id="cap-main-content">
+                <p id="cap-body-text">---</p>
+                <div id="cap-extra-list" style="margin-top: 20px;"></div>
+            </div>
+            
+            <div class="cap-qr-wrapper">
+                <div class="cap-qr-box" id="standard-qr-box"></div>
+                <div class="cap-qr-link">LUMINAPP.TODAY</div>
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 0.65rem; opacity: 0.3; letter-spacing: 2px;">
+                <span id="cap-footer-date">---</span> — Lúminapp
+            </div>
+        </div>
+    </div>
             <div style="margin-top: 30px; font-size: 0.6rem; letter-spacing: 4px; opacity: 0.4; font-weight: 800; text-transform: uppercase;">LÚMINA © <span id="cap-hab-date">2024</span></div>
         </div>
         <!-- Captura de Libros / Expansiones (Carrusel) -->
