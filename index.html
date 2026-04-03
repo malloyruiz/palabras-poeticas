@@ -5976,7 +5976,8 @@
 
         async function shareAsImage(typeArg) {
             window._pendingShareType = typeArg;
-            executeAdvancedShare(); // Acción Directa
+            if (navigator.vibrate) navigator.vibrate(15);
+            await executeAdvancedShare(); // Acción Directa y esperada
         }
 
         function getSmartTitle(cat) {
@@ -6124,17 +6125,25 @@
             try {
                 const blob = await captureToBlob(area);
                 if (blob) {
-                    const file = new File([blob], `Lumina_${new Date().getTime()}.png`, { type: 'image/png' });
+                    const fname = `Lumina_${Date.now()}.png`;
+                    const file = new File([blob], fname, { type: 'image/png' });
+                    
+                    // Intentar compartir archivo (Mobile)
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({ files: [file], title: 'Lúmina App', text: smartTitle });
+                        await navigator.share({ 
+                            files: [file], 
+                            title: 'Lúmina App', 
+                            text: smartTitle 
+                        });
                     } else {
+                        // Fallback: Descarga directa
                         const link = document.createElement('a'); 
-                        link.download = `Lumina_${new Date().getTime()}.png`; 
+                        link.download = fname; 
                         link.href = URL.createObjectURL(blob); 
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                        showToast("Card guardada ✅");
+                        showToast("Imagen guardada ✅");
                     }
                 } else {
                     throw new Error("Blob failed");
@@ -6143,7 +6152,7 @@
                 console.error("Capture Error:", e);
                 showToast("Error al capturar. Intenta de nuevo.", "error"); 
             } finally {
-                closeModals(true); // Siempre cerrar para no dejar atrapado al usuario
+                closeModals(true); 
             }
         }
 
