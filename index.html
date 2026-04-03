@@ -32,6 +32,7 @@
     <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
     
     <!-- PWABuilder Components -->
@@ -344,6 +345,19 @@
         .app-box h4 { font-size: 0.7rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 15px; }
         .app-box p { font-size: 1rem; line-height: 1.7; opacity: 0.8; white-space: pre-line; }
         .reflection-box { margin-top: 60px; padding: 40px; background: rgba(181, 131, 58, 0.05); border-radius: 30px; text-align: center; }
+        
+        /* DIMENSIONES DE CAPTURA */
+        .capture-area.format-long { width: 400px !important; min-height: 711px !important; padding: 60px 40px !important; }
+        .capture-area.format-square { width: 400px !important; min-height: 400px !important; height: 400px !important; padding: 40px !important; }
+        .capture-area.format-square .cap-title-smart { margin-bottom: 10px; font-size: 0.95rem; }
+        .capture-area.format-square h4 { font-size: 1.8rem !important; }
+        
+        .cap-qr-wrapper { margin-top: 25px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .cap-qr-box { background: #fff; padding: 5px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 60px; height: 60px; }
+        .cap-qr-link { font-size: 0.5rem; letter-spacing: 1px; opacity: 0.4; font-weight: 700; text-transform: uppercase; }
+
+        #mood-modal .modal-content { max-width: 380px; padding: 30px; text-align: center; }
+        /* END BASE STYLES */
         .reflection-box em { font-family: 'Playfair Display', serif; font-size: 1.4rem;  display: block; margin-top: 15px; }
         
         /* Reto del Día */
@@ -2629,7 +2643,7 @@
                         <button class="btn-fav" id="btn-fav-exp" onclick="toggleFavoriteExp()" title="Favorito">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                         </button>
-                        <button class="btn-fav" id="btn-share-exp" onclick="shareWord()" title="Compartir sabiduría">
+                        <button class="btn-fav" id="btn-share-exp" onclick="shareAsImage('exp')" title="Compartir sabiduría">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         </button>
                     </div>
@@ -2660,12 +2674,6 @@
                     <div style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px; font-weight: 700;">MI DIARIO PERSONAL</div>
                     <textarea id="exp-journal" oninput="saveExpJournal()" placeholder="Escribe aquí lo que esta lección ha despertado en ti..." style="width: 100%; background: transparent; border: none; color: var(--text); font-family: inherit; font-size: 1rem; line-height: 1.6; resize: none; min-height: 150px; outline: none;"></textarea>
                     <div style="text-align: right; font-size: 0.5rem; opacity: 0.3; letter-spacing: 1px; margin-top: 15px; text-transform: uppercase;">Guardado automáticamente</div>
-                </div>
-
-                <!-- FOOTER DECORATIVO -->
-                <div style="margin-top: 100px; padding-top: 40px; border-top: 1px solid rgba(128,128,128,0.05); display: flex; justify-content: space-between; align-items: center; opacity: 0.4;">
-                    <div style="font-size: 0.6rem; letter-spacing: 2px; font-weight: 600;">LÚMINA v1.0</div>
-                    <button onclick="shareWord()" style="background:transparent; border:none; color:var(--text); cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button>
                 </div>
             </div>
 
@@ -2823,7 +2831,46 @@
             <button class="btn-save" onclick="toggleProfile()" style="width: 100%; padding: 18px; border-radius: 50px; font-size: 0.8rem; letter-spacing: 2px; margin-top: 30px;">GUARDAR Y CERRAR</button>
         </div>
     </div>
+    <!-- MODAL SELECTOR DE ESTILO (MOODS) -->
+    <div id="mood-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 10px; font-style: italic;">Estudio de Captura</h3>
+            
+            <!-- SECCIÓN FORMATO -->
+            <div style="margin: 20px 0; padding-bottom: 20px; border-bottom: 1px solid rgba(128,128,128,0.1);">
+                <div style="font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); margin-bottom: 15px; text-transform: uppercase;">1. Formato</div>
+                <div style="display: flex; gap: 10px;">
+                    <button id="btn-fmt-long" class="mood-option active" style="flex: 1; padding: 12px; font-size: 0.6rem;" onclick="setShareFormat('long')">Vertical (9:16)</button>
+                    <button id="btn-fmt-square" class="mood-option" style="flex: 1; padding: 12px; font-size: 0.6rem;" onclick="setShareFormat('square')">Cuadrado (1:1)</button>
+                </div>
+            </div>
 
+            <!-- SECCIÓN MOODS -->
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(128,128,128,0.1);">
+                <div style="font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); margin-bottom: 15px; text-transform: uppercase;">2. Estilo Visual</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div id="btn-mood-original" class="mood-option active" onclick="setShareMood('original')">Esenza</div>
+                    <div id="btn-mood-zen" class="mood-option" onclick="setShareMood('zen')">Zen</div>
+                    <div id="btn-mood-aurora" class="mood-option" onclick="setShareMood('aurora')">Aurora</div>
+                    <div id="btn-mood-nocturno" class="mood-option" onclick="setShareMood('nocturno')">Nocturno</div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN QR -->
+            <div style="margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; padding: 0 5px;">
+                <div style="text-align: left;">
+                    <div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Incluir Código QR</div>
+                    <div style="font-size: 0.6rem; opacity: 0.5;">Enlace inteligente a la app</div>
+                </div>
+                <div class="toggle-switch" onclick="toggleShareQR()" id="sw-share-qr" class="active" style="background: var(--accent);"><div class="toggle-knob" style="transform: translateX(20px);"></div></div>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-save" onclick="closeModals()" style="flex: 1; margin: 0; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); font-size: 0.7rem;">CANCELAR</button>
+                <button class="btn-save" onclick="executeAdvancedShare()" style="flex: 1.5; margin: 0; font-size: 0.7rem;">GENERAR</button>
+            </div>
+        </div>
+    </div>
     <script>
         const API = "https://script.google.com/macros/s/AKfycbxH7lP92TiRom-3bTiYnwfE6Z-sfDR5wcfaO4gTN0TD6EwuBYMtdCs4b06RFbqqnyw/exec";
         let portalMode = 'login';
@@ -3300,6 +3347,7 @@
                         </div>
                         
                         <h4 style="font-family: 'Playfair Display', serif; font-size: 2rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.1; text-align: center;">${exp.titulo}</h4>
+                        ${exp.tema ? `<div style="font-size: 0.6rem; letter-spacing: 3px; color: var(--accent); opacity: 0.5; text-transform: uppercase; margin: -5px 0 15px 0; font-weight: 700; text-align:center;">${exp.tema}</div>` : ''}
                         
                         ${(() => {
                             const bookSource = exp.LibrosIncluded || (exp.descripcion.match(/Contiene:?\s*(.*)/i) || [])[1];
@@ -3350,8 +3398,18 @@
 
         async function openExpansion(id, title, desc) {
             currentExpId = id;
+            
+            const exp = (allExpansions && allExpansions.length > 0) ? allExpansions.find(e => e.id === id) : null;
             document.getElementById('exp-detail-title').innerText = title;
             document.getElementById('exp-detail-desc').innerText = desc;
+            
+            // Renderizamos Tema si existe
+            const detailTitle = document.getElementById('exp-detail-title');
+            if (exp && exp.tema) {
+                const oldTema = document.getElementById('exp-detail-tema');
+                if (oldTema) oldTema.remove();
+                detailTitle.insertAdjacentHTML('afterend', `<div id="exp-detail-tema" style="font-size: 0.65rem; letter-spacing: 3px; color: var(--accent); opacity: 0.6; text-transform: uppercase; margin-bottom: 15px; font-weight: 700;">${exp.tema}</div>`);
+            }
             
             // Renderizamos insignias en el detalle desde el caché global
             const detailHeader = document.querySelector('#exp-books-view .exp-header');
@@ -3453,6 +3511,7 @@
         }
 
         async function openBook(expId, bookName) {
+            currentExpId = expId;
             currentExpBook = bookName;
             const container = document.getElementById('exp-read-ui');
             
@@ -3513,8 +3572,29 @@
             document.getElementById('btn-exp-prev').disabled = (currentExpIdx === 0);
             document.getElementById('btn-exp-next').disabled = (currentExpIdx === currentExpLessons.length - 1);
             
+            updateExpFavUI();
             loadExpJournal();
             document.querySelector('#exp-read-ui .modal-content').scrollTo(0,0);
+        }
+
+        function toggleFavoriteExp() {
+            const lesson = currentExpLessons[currentExpIdx];
+            if(!lesson) return;
+            const key = `lumina_exp_fav_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
+            const isFav = localStorage.getItem(key) === 'true';
+            localStorage.setItem(key, !isFav);
+            updateExpFavUI();
+            playSound('click');
+        }
+
+        function updateExpFavUI() {
+            const lesson = currentExpLessons[currentExpIdx];
+            if(!lesson) return;
+            const key = `lumina_exp_fav_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
+            const isFav = localStorage.getItem(key) === 'true';
+            const btn = document.getElementById('btn-fav-exp');
+            if (isFav) btn.classList.add('active');
+            else btn.classList.remove('active');
         }
 
         function saveExpJournal() {
@@ -4568,7 +4648,20 @@
                     
                     if (cat === 'expansiones') loadExpansions();
                     
-                    setTimeout(() => mainUI.classList.add('activa'), 50);
+                    setTimeout(() => {
+                        mainUI.classList.add('activa');
+                        
+                        // Ocultar botones de la cabecera principal en Pausas
+                        const refreshBtn = document.getElementById('btn-refresh-word');
+                        const trialBtn = document.getElementById('btn-start-trial');
+                        if (cat === 'pausa') {
+                            if (refreshBtn) refreshBtn.style.display = 'none';
+                            if (trialBtn) trialBtn.style.display = 'none';
+                        } else {
+                            if (refreshBtn && isPro) refreshBtn.style.display = 'flex';
+                            if (trialBtn && !isPro) trialBtn.style.display = 'flex';
+                        }
+                    }, 50);
                 }, 300);
 
                 // Etiquetas y Controles
@@ -5876,10 +5969,54 @@
             pushSync();
         }
 
+        let currentShareFormat = 'long';
+        let currentShareMood = 'original';
+        let shareQRActive = true;
+
+        function setShareFormat(fmt) {
+            currentShareFormat = fmt;
+            document.getElementById('btn-fmt-long').classList.toggle('active', fmt === 'long');
+            document.getElementById('btn-fmt-square').classList.toggle('active', fmt === 'square');
+            if (typeof playSound === 'function') playSound('click');
+        }
+
+        function setShareMood(mood) {
+            currentShareMood = mood;
+            document.querySelectorAll('#mood-modal .mood-option').forEach(el => {
+                if (el.innerText.toLowerCase().includes(mood.toLowerCase())) el.classList.add('active');
+                else if (el.id && el.id.startsWith('btn-mood')) el.classList.remove('active');
+            });
+            if (typeof playSound === 'function') playSound('click');
+        }
+
+        function toggleShareQR() {
+            shareQRActive = !shareQRActive;
+            const sw = document.getElementById('sw-share-qr');
+            if (sw) {
+                sw.style.background = shareQRActive ? 'var(--accent)' : 'rgba(128,128,128,0.2)';
+                sw.querySelector('.toggle-knob').style.transform = shareQRActive ? 'translateX(20px)' : 'translateX(0)';
+            }
+            if (typeof playSound === 'function') playSound('click');
+        }
+
         async function shareAsImage(typeArg) {
+            window._pendingShareType = typeArg;
+            document.getElementById('mood-modal').classList.add('active');
+            history.pushState({ modal: 'mood' }, "", "#mood");
+        }
+
+        async function executeAdvancedShare() {
+            const typeArg = window._pendingShareType;
+            const mood = currentShareMood;
+            const format = currentShareFormat;
+            
+            closeModals(true);
+            showToast("Preparando composición...");
+
             const isHabitos = typeArg === 'habitos';
-            const isLibros = currentCategory === 'libros';
-            const isExtra = currentCategory === 'extra';
+            const isLibros = currentCategory === 'libros' || typeArg === 'exp';
+            const isExtra = typeArg === 'extra';
+            const isCarousel = typeArg === 'exp'; 
             
             let areaId = 'capture-area';
             if (isLibros) areaId = 'capture-area-libros';
@@ -5887,85 +6024,128 @@
             if (isHabitos) areaId = 'capture-area-habitos';
             
             const area = document.getElementById(areaId);
-            const btn = isHabitos ? event.currentTarget : document.getElementById('main-share-btn');
-            
-            // 1. Llenar datos según el contexto
+            const smartTitle = getSmartTitle(typeArg || currentCategory);
+
+            // 1. Aplicar Mood y Formato
+            area.className = `capture-area mood-${mood} format-${format}`;
+            const titleEl = area.querySelector('.cap-title-smart');
+            if (titleEl) titleEl.innerText = smartTitle;
+
+            // 2. Gestionar QR
+            let qrWrapper = area.querySelector('.cap-qr-wrapper');
+            if (!qrWrapper) {
+                qrWrapper = document.createElement('div');
+                qrWrapper.className = 'cap-qr-wrapper';
+                qrWrapper.innerHTML = `
+                    <div class="cap-qr-box" id="${areaId}-qr-box"></div>
+                    <div class="cap-qr-link">LUMINAPP.TODAY</div>
+                `;
+                area.appendChild(qrWrapper);
+            }
+            qrWrapper.style.display = shareQRActive ? 'flex' : 'none';
+
+            if (shareQRActive) {
+                const qrBox = document.getElementById(`${areaId}-qr-box`);
+                if (qrBox) {
+                    qrBox.innerHTML = '';
+                    const deepLink = "https://luminapp.today/#" + (typeArg || currentCategory);
+                    new QRCode(qrBox, {
+                        text: deepLink,
+                        width: 60,
+                        height: 60,
+                        colorDark: mood === 'nocturno' ? "#ffffff" : "#1a1a1a",
+                        colorLight: mood === 'nocturno' ? "#0f172a" : "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }
+            }
+
+            // 3. Llenar Datos y Capturar
+            if (isCarousel) {
+                try {
+                    const lesson = currentExpLessons[currentExpIdx];
+                    const reflection = localStorage.getItem(`lumina_note_exp_${currentExpId}_${currentExpIdx}`) || "";
+                    const files = [];
+
+                    document.getElementById('cap-lib-title').innerText = currentExpBook;
+                    document.getElementById('cap-lib-meta').innerText = "LA PORTADA — SERIE DE EXPLORACIÓN";
+                    files.push(new File([await captureToBlob(area)], "Lumina_1_Portada.png", { type: "image/png" }));
+
+                    document.getElementById('cap-lib-title').innerText = lesson ? lesson.titulo : "";
+                    document.getElementById('cap-lib-meta').innerText = `LECCIÓN ${currentExpIdx + 1} — LA SABIDURÍA`;
+                    files.push(new File([await captureToBlob(area)], "Lumina_2_Sabiduria.png", { type: "image/png" }));
+
+                    if (reflection) {
+                        const contentEl = document.getElementById('cap-lib-title').nextElementSibling;
+                        const prevHtml = contentEl.innerHTML;
+                        contentEl.innerHTML = `<div style="font-family:'Playfair Display',serif; font-style:italic; font-size:1.1rem; line-height:1.6; padding:10px;">"${reflection}"</div>`;
+                        files.push(new File([await captureToBlob(area)], "Lumina_3_Reflexion.png", { type: "image/png" }));
+                        contentEl.innerHTML = prevHtml;
+                    }
+
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files })) {
+                        await navigator.share({ files, title: 'Lúmina Story', text: smartTitle });
+                    } else {
+                        files.forEach((f, i) => {
+                            const link = document.createElement('a'); link.download = f.name; link.href = URL.createObjectURL(f);
+                            setTimeout(() => link.click(), i * 500);
+                        });
+                        showToast("Carrusel guardado ✅");
+                    }
+                } catch (e) { showToast("Error en carrusel.", "error"); }
+                return;
+            }
+
+            // Single Image Logic
             if (isHabitos) {
                 document.getElementById('cap-hab-streak').innerText = document.getElementById('streak-val').innerText;
                 document.getElementById('cap-hab-medals').innerText = document.getElementById('medals-val').innerText;
                 document.getElementById('cap-hab-pausas').innerText = document.getElementById('pausas-val').innerText;
+                const liveVisual = document.getElementById('profile-racha-visual');
+                const capVisual = document.getElementById('cap-hab-visual');
+                if (liveVisual && capVisual) capVisual.innerHTML = liveVisual.innerHTML;
                 document.getElementById('cap-hab-date').innerText = new Date().getFullYear();
             } else if (isExtra) {
-                document.getElementById('cap-extra-story').innerText = document.getElementById('extra-story').innerText;
-                document.getElementById('cap-extra-thought').innerText = document.getElementById('extra-thought').innerText;
-                document.getElementById('cap-extra-challenge-text').innerText = document.getElementById('extra-challenge').innerText;
+                document.getElementById('cap-extra-story').innerText = document.getElementById('extra-story').innerText || "";
+                document.getElementById('cap-extra-thought').innerText = document.getElementById('extra-thought').innerText || "";
+                document.getElementById('cap-extra-challenge-text').innerText = document.getElementById('extra-challenge').innerText || "";
             } else if (isLibros) {
                 const cached = getCache('libros');
                 if (cached) {
                     document.getElementById('cap-lib-title').innerText = cached.titulo || "";
-                    const author = cached.autor || "";
-                    const meta = author ? `${cached.libro} — ${author} — LECCIÓN ${cached.dia} DE ${cached.total}` : `${cached.libro} — LECCIÓN ${cached.dia} DE ${cached.total}`;
-                    document.getElementById('cap-lib-meta').innerText = meta.toUpperCase();
+                    const meta = (cached.autor || "").toUpperCase() + ` — LECCIÓN ${cached.dia}`;
+                    document.getElementById('cap-lib-meta').innerText = meta;
                 }
             } else {
                 document.getElementById('cap-date').innerText = document.getElementById('header-date').innerText;
                 document.getElementById('cap-cat').innerText = document.getElementById('header-cat').innerText;
                 document.getElementById('cap-word').innerText = document.getElementById('word-title').innerText;
                 document.getElementById('cap-def').innerText = document.getElementById('word-def').innerText;
-                
-                const exList = document.getElementById('cap-ex-list');
-                exList.innerHTML = '';
+                const exList = document.getElementById('cap-ex-list'); exList.innerHTML = '';
                 document.querySelectorAll('.example-item').forEach(el => {
-                    const item = document.createElement('div');
-                    item.className = 'cap-ex-item';
-                    item.innerText = el.innerText;
+                    const item = document.createElement('div'); item.className = 'cap-ex-item'; item.innerText = el.innerText;
                     exList.appendChild(item);
                 });
             }
 
-            btn.style.opacity = '0.3';
-            btn.disabled = true;
-            if (navigator.vibrate) navigator.vibrate(15);
-
             try {
-                const canvas = await html2canvas(area, {
-                    backgroundColor: '#f5f1e8',
-                    scale: 2,
-                    logging: false,
-                    useCORS: true,
-                    allowTaint: true
-                });
+                const blob = await captureToBlob(area);
+                const file = new File([blob], `Lumina_${new Date().getTime()}.png`, { type: 'image/png' });
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: 'Lúmina App', text: smartTitle });
+                } else {
+                    const link = document.createElement('a'); link.download = file.name; link.href = URL.createObjectURL(blob); link.click();
+                    showToast("Card guardada ✅");
+                }
+            } catch (e) { showToast("Error al capturar.", "error"); }
+        }
 
-                canvas.toBlob(async (blob) => {
-                    const file = new File([blob], `Lumina_${new Date().getTime()}.png`, { type: 'image/png' });
-                    
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try {
-                            await navigator.share({
-                                files: [file],
-                                title: 'Lúmina App',
-                                text: 'Comparte un momento de sabiduría'
-                            });
-                        } catch (err) {
-                            if (err.name !== 'AbortError') console.error("Error share:", err);
-                        }
-                    } else {
-                        const link = document.createElement('a');
-                        link.download = `Lumina_${new Date().getTime()}.png`;
-                        link.href = canvas.toDataURL("image/png");
-                        link.click();
-                        alert("Imagen guardada en tu dispositivo.");
-                    }
-                    btn.style.opacity = '1';
-                    btn.disabled = false;
-                }, 'image/png');
-
-            } catch (e) {
-                console.error("Capture Error:", e);
-                btn.style.opacity = '1';
-                btn.disabled = false;
-                alert("Error al generar la captura.");
-            }
+        async function captureToBlob(area) {
+            const originalBg = window.getComputedStyle(area).backgroundColor;
+            const canvas = await html2canvas(area, {
+                backgroundColor: originalBg, scale: 2, logging: false, useCORS: true, allowTaint: true
+            });
+            return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         }
 
         function shareWord() {
@@ -6412,6 +6592,93 @@
                 <button class="btn-confirm btn-confirm-yes" id="btn-confirm-action">SÍ, CONTINUAR</button>
             </div>
         </div>
+    <!-- ÁREAS DE CAPTURA (OCULTAS) -->
+    <div style="position: absolute; left: -9999px; top: -9999px;">
+        <!-- Captura de Habitos (Alta Fidelidad) -->
+        <div id="capture-area-habitos" class="capture-area" style="width: 400px; padding: 40px; background: #f5f1e8; border-radius: 30px; color: #1a1a1a; font-family: 'Inter', sans-serif; text-align: center;">
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                <img src="icon-192.png" style="width: 40px; height: 40px; margin-right: 12px; border-radius: 10px;">
+                <span style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; font-style: italic;">Lúmina App</span>
+            </div>
+            
+            <div style="background: rgba(181, 131, 58, 0.05); padding: 30px; border-radius: 25px; border: 1.5px solid rgba(181, 131, 58, 0.12);">
+                <div class="cap-title-smart">Mis Hábitos</div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div style="background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                        <svg style="width: 24px; height: 24px; color: #b5833a; margin-bottom: 8px;" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
+                        <div style="font-size: 1.8rem; font-weight: 900; color: #1a1a1a;" id="cap-hab-streak">0</div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: #b5833a; letter-spacing: 2px; text-transform: uppercase;">Racha</div>
+                    </div>
+                    <div style="background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                        <svg style="width: 24px; height: 24px; color: #b5833a; margin-bottom: 8px;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                        <div style="font-size: 1.8rem; font-weight: 900; color: #1a1a1a;" id="cap-hab-medals">0</div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: #b5833a; letter-spacing: 2px; text-transform: uppercase;">Logros</div>
+                    </div>
+                </div>
+                
+                <div style="background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 25px;">
+                    <svg style="width: 24px; height: 24px; color: #b5833a; margin-bottom: 8px;" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #1a1a1a;" id="cap-hab-pausas">0</div>
+                    <div style="font-size: 0.7rem; font-weight: 700; color: #b5833a; letter-spacing: 2px; text-transform: uppercase;">Pausas</div>
+                </div>
+
+                <div style="border-top: 1px solid rgba(181, 131, 58, 0.15); padding-top: 20px;">
+                    <div style="font-size: 0.65rem; font-weight: 700; color: #b5833a; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.6;">Esta Semana</div>
+                    <div id="cap-hab-visual" style="display: flex; justify-content: center; gap: 12px; margin-bottom: 10px;"></div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 0.6rem; letter-spacing: 4px; opacity: 0.4; font-weight: 800; text-transform: uppercase;">LÚMINA © <span id="cap-hab-date">2024</span></div>
+        </div>
+        <!-- Captura de Libros / Expansiones (Carrusel) -->
+        <div id="capture-area-libros" class="capture-area" style="width: 400px; min-height: 450px; padding: 40px; background: #f5f1e8; border-radius: 30px; color: #1a1a1a; font-family: 'Inter', sans-serif; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div style="margin-bottom: 25px;">
+                <img src="icon-192.png" style="width: 35px; height: 35px; border-radius: 8px;">
+            </div>
+            <div class="cap-title-smart">VIAJE INTERPERSONAL</div>
+            <h4 id="cap-lib-title" style="font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 900; line-height: 1.2; margin-bottom: 15px; font-style: italic;"></h4>
+            <div id="cap-lib-meta" class="cap-sub" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase;"></div>
+            <div style="margin-top: 35px; font-size: 0.55rem; letter-spacing: 3px; opacity: 0.3; font-weight: 800; text-transform: uppercase;">LÚMINA © APP</div>
+        </div>
+
+        <!-- Captura General (Palabras, Frases, Afirmaciones) -->
+        <div id="capture-area" class="capture-area" style="width: 400px; min-height: 520px; padding: 50px 40px; background: #f5f1e8; border-radius: 30px; color: #1a1a1a; font-family: 'Inter', sans-serif; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: center;">
+            <div class="cap-title-smart">SABIDURÍA DE HOY</div>
+            
+            <div style="border: 1.5px solid rgba(181, 131, 58, 0.15); padding: 35px 25px; border-radius: 25px; position: relative; background: rgba(181, 131, 58, 0.02);">
+                <div id="cap-date" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 20px; font-weight: 700; text-transform: uppercase;">VIERNES 03 ABRIL</div>
+                <h4 id="cap-word" style="font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 15px; font-style: italic;"></h4>
+                <div id="cap-cat" class="cap-sub" style="font-size: 0.7rem; letter-spacing: 3px; font-weight: 800; color: #b5833a; text-transform: uppercase; margin-bottom: 25px;">PALABRAS</div>
+                <p id="cap-def" style="font-size: 0.95rem; line-height: 1.6; opacity: 0.7; margin-bottom: 0;"></p>
+                
+                <div id="cap-ex-list" style="margin-top: 25px; border-top: 1px dashed rgba(181,131,58,0.2); padding-top: 20px;">
+                    <!-- Ejemplos -->
+                </div>
+            </div>
+            
+            <div style="margin-top: 35px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <img src="icon-192.png" style="width: 25px; height: 25px; border-radius: 5px; opacity: 0.8;">
+                <span style="font-size: 0.6rem; letter-spacing: 3px; opacity: 0.4; font-weight: 800; text-transform: uppercase;">LÚMINA APP</span>
+            </div>
+        </div>
+
+        <!-- Captura de Edición Especial -->
+        <div id="capture-area-extra" class="capture-area" style="width: 400px; min-height: 550px; padding: 50px 40px; background: #f5f1e8; border-radius: 30px; color: #1a1a1a; font-family: 'Inter', sans-serif; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+            <div class="cap-title-smart">REVELACIÓN ESPECIAL</div>
+            
+            <div style="background: rgba(0,0,0,0.02); padding: 30px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.1);">
+                <div id="cap-extra-story" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; margin-bottom: 25px; line-height: 1.4;"></div>
+                <div id="cap-extra-thought" style="font-size: 0.9rem; opacity: 0.6; line-height: 1.6; margin-bottom: 30px;"></div>
+                <div style="padding: 20px; background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                    <div style="font-size: 0.6rem; letter-spacing: 2px; color: #b5833a; font-weight: 800; margin-bottom: 10px; text-transform: uppercase;">EL DESAFÍO</div>
+                    <div id="cap-extra-challenge-text" style="font-size: 0.85rem; font-weight: 600;"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 35px; font-size: 0.55rem; letter-spacing: 4px; opacity: 0.3; font-weight: 800; text-transform: uppercase;">LÚMINA © BEYOND</div>
+        </div>
+    </div>
     <audio id="ambient-player" loop style="display:none;"></audio>
 </body>
 </html>
