@@ -198,6 +198,17 @@
         .btn-fav svg { width: 20px; height: 20px; stroke: var(--accent); transition: 0.3s; }
         .btn-fav.active svg { fill: var(--accent); stroke: var(--accent); }
 
+        .content-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+        .content-actions .btn-speak { margin: 0; padding: 10px; opacity: 0.5; transition: 0.3s; }
+        .content-actions .btn-speak:hover { opacity: 1; transform: scale(1.1); }
+        .content-actions .btn-fav { margin: 0; background: rgba(181, 131, 58, 0.05); }
+
         /* --- HUB FOOTER --- */
         .btn-icon { background: transparent !important; border: none !important; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none !important; -webkit-tap-highlight-color: transparent; }
         .btn-icon svg { width: 24px; height: 24px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: 0.3s; pointer-events: none; }
@@ -220,8 +231,16 @@
         .hub-hero { 
             flex: 1; padding: 60px 80px; position: sticky; top: 0; height: 100vh;
             padding-top: calc(60px + env(titlebar-area-height, 0px)); /* Soporte WCO */
-            display: flex; flex-direction: column; justify-content: space-between;
+            display: flex; flex-direction: column; justify-content: flex-start; /* Cambiado de space-between */
             box-sizing: border-box; overflow: hidden;
+        }
+        .hub-controls {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-bottom: 30px;
         }
         /* Eliminado redundancia de hero-bg-blur para usar la versión animada arriba */
         .hub-hero-inner { position: relative; z-index: 2; transition: 0.8s ease; }
@@ -283,15 +302,15 @@
             #hub { grid-template-columns: 1fr; overflow-y: auto; display: block; }
             .hub-hero { 
                 position: static !important; height: auto !important; min-height: auto !important;
-                padding: 40px 30px 10px 30px; border-bottom: 1px solid rgba(128,128,128,0.1); 
+                padding: 70px 30px 20px 30px; border-bottom: 1px solid rgba(128,128,128,0.1); 
             }
             .hub-hero h1 { font-size: 3.5rem; }
             .hub-list { padding: 20px 30px 40px 30px; border-left: none; display: flex !important; flex-direction: column !important; }
             .hub-item { padding: 30px 0; }
             .hub-item .item-content h3 { font-size: 1.8rem; }
-            .hub-item .item-content p { opacity: 0.4; transform: none; font-size: 0.8rem; }
+            .hub-item .item-content p { opacity: 0.4; transform: none; font-size: 0.8rem; max-width: 100% !important; }
             .hub-item .item-num { margin-right: 20px; }
-            #now-learning-hub { padding-bottom: 10px; margin-top: 10px; padding-top: 15px; }
+            #now-learning-hub { padding-bottom: 10px; margin-top: 10px; padding-top: 15px; max-width: 100% !important; }
         }
 
         #now-learning-hub {
@@ -418,7 +437,7 @@
             gap: 30px;
             padding-bottom: 100px;
         }
-        .exp-header { margin-bottom: 50px; text-align: left; transition: all 0.5s ease; }
+        .exp-header { margin-bottom: 50px; text-align: left; transition: all 0.5s ease; width: 100%; }
         .exp-header h1 { 
             font-family: 'Playfair Display', serif; 
             font-size: 3.5rem; 
@@ -427,6 +446,7 @@
             font-weight: 900; 
             line-height: 1.1;
             word-wrap: break-word;
+            max-width: 100% !important;
         }
         @media (max-width: 600px) {
             .exp-header h1 { font-size: 2.2rem; }
@@ -1715,16 +1735,19 @@
             <div class="content-header">
                 <div class="date-full" id="header-date">---</div>
                 <div class="cat-label" id="header-cat">PALABRA DE HOY</div>
-                <h1 class="word-display" style="display: flex; align-items: center; flex-wrap: wrap;">
-                    <span id="word-title">---</span>
-                    <button class="btn-speak" id="btn-speak-word" onclick="speakCurrentWord()" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
-                    <button class="btn-fav" id="btn-fav-main" onclick="toggleFavorite()" title="Favorito">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                <h1 class="word-display" id="word-title" style="margin-bottom: 10px;">---</h1>
+                
+                <div class="content-actions">
+                    <button class="btn-speak" id="btn-speak-word" onclick="speakCurrentWord()" title="Escuchar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                     </button>
-                    <button class="btn-fav btn-share-main" id="main-share-btn" onclick="shareAsImage()" title="Compartir sabiduría" style="display: none; margin-left: 10px;">
+                    <button class="btn-fav" id="btn-fav-main" onclick="toggleFavorite()" title="Favorito">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
+                    <button class="btn-fav btn-share-main" id="main-share-btn" onclick="shareAsImage()" title="Compartir sabiduría" style="display: none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                     </button>
-                </h1>
+                </div>
                 <p class="definition" id="word-def">---</p>
             </div>
             
@@ -1772,16 +1795,19 @@
                     <div class="date-full" id="lesson-date-full"></div>
                     <div class="cat-label" id="lesson-cat-label"></div>
                     <div class="date-full" style="opacity: 0.4;" id="lesson-day"></div>
-                    <h1 class="word-display" style="margin-top: 10px; display: flex; align-items: center; flex-wrap: wrap;">
-                        <span id="lesson-title">Cargando...</span>
-                        <button class="btn-speak" id="btn-speak-lesson" onclick="speakCurrentLesson()" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
-                        <button class="btn-fav" id="btn-fav-lesson" onclick="toggleFavorite()" title="Favorito">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    <h1 class="word-display" id="lesson-title" style="margin-top: 10px; margin-bottom: 10px;">Cargando...</h1>
+                    
+                    <div class="content-actions">
+                        <button class="btn-speak" id="btn-speak-lesson" onclick="speakCurrentLesson()" title="Escuchar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                         </button>
-                        <button class="btn-fav btn-share-main" onclick="shareAsImage()" title="Compartir sabiduría" style="margin-left: 10px;">
+                        <button class="btn-fav" id="btn-fav-lesson" onclick="toggleFavorite()" title="Favorito">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
+                        <button class="btn-fav btn-share-main" onclick="shareAsImage()" title="Compartir sabiduría">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         </button>
-                    </h1>
+                    </div>
                 </div>
                 <div class="lesson-body content-body" id="lesson-text"></div>
                 <div class="lesson-apps">
@@ -1923,9 +1949,9 @@
                 
                 <!-- VISTA 1: Galería de Categorías -->
                 <div id="exp-gallery-view">
-                    <div class="exp-header">
+                    <div class="exp-header" style="max-width: 100%;">
                         <h1>Expansiones</h1>
-                        <p style="opacity: 0.6; font-size: 1rem; max-width: 500px; line-height: 1.6;">Series exclusivas de conocimiento profundo y transformación bibliográfica.</p>
+                        <p style="opacity: 0.6; font-size: 1rem; max-width: 100%; line-height: 1.6;">Series exclusivas de conocimiento profundo y transformación bibliográfica.</p>
                     </div>
                     
                     <div id="exp-list-container" class="exp-grid">
@@ -1943,9 +1969,9 @@
                         VOLVER A EXPANSIONES
                     </button>
                     
-                    <div class="exp-header">
+                    <div class="exp-header" style="max-width: 100%;">
                         <h1 id="exp-detail-title">---</h1>
-                        <p id="exp-detail-desc" style="opacity: 0.6; font-size: 1rem; max-width: 600px; line-height: 1.6;">---</p>
+                        <p id="exp-detail-desc" style="opacity: 0.6; font-size: 1rem; max-width: 100%; line-height: 1.6;">---</p>
                     </div>
 
                     <div id="exp-books-container" class="exp-grid">
@@ -2139,7 +2165,7 @@
                 <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Mis Hábitos</h2>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn-icon" onclick="shareAsImage('habitos')" title="Compartir logros" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                     </button>
                     <button class="btn-icon" onclick="toggleHabitos()" title="Cerrar" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
                         <svg viewBox="0 0 24 24" style="stroke: currentColor;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -2594,13 +2620,19 @@
                     <div class="cat-label" id="exp-read-meta" style="letter-spacing: 4px; font-weight: 500; opacity: 0.6; font-size: 0.75rem; margin-bottom: 5px;">---</div>
                     <div class="date-full" id="exp-read-progress" style="opacity: 0.4; font-size: 0.65rem; letter-spacing: 1px;">---</div>
                     
-                    <h1 class="word-display" style="font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.1; margin: 15px 0; font-style: italic; font-weight: 900; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                        <span id="exp-read-title">---</span>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="btn-speak" id="btn-speak-exp" onclick="speakExpContent()" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
-                            <button class="btn-fav" id="btn-fav-exp" onclick="toggleFavoriteExp()" title="Favorito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
-                        </div>
-                    </h1>
+                    <h1 class="word-display" id="exp-read-title" style="margin: 15px 0 10px; font-style: italic; font-weight: 900;">---</h1>
+                    
+                    <div class="content-actions">
+                        <button class="btn-speak" id="btn-speak-exp" onclick="speakExpContent()" title="Escuchar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        </button>
+                        <button class="btn-fav" id="btn-fav-exp" onclick="toggleFavoriteExp()" title="Favorito">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
+                        <button class="btn-fav" id="btn-share-exp" onclick="shareWord()" title="Compartir sabiduría">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="lesson-body" id="exp-read-text" style="font-size: 1.25rem; line-height: 2; margin-bottom: 80px; opacity: 0.9;">---</div>
@@ -2633,7 +2665,7 @@
                 <!-- FOOTER DECORATIVO -->
                 <div style="margin-top: 100px; padding-top: 40px; border-top: 1px solid rgba(128,128,128,0.05); display: flex; justify-content: space-between; align-items: center; opacity: 0.4;">
                     <div style="font-size: 0.6rem; letter-spacing: 2px; font-weight: 600;">LÚMINA v1.0</div>
-                    <button onclick="shareWord()" style="background:transparent; border:none; color:var(--text); cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></button>
+                    <button onclick="shareWord()" style="background:transparent; border:none; color:var(--text); cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button>
                 </div>
             </div>
 
@@ -3213,6 +3245,7 @@
             }
         }
         // --- LÓGICA DE EXPANSIONES ---
+        let allExpansions = []; // Caché global para optimizar navegación
         let currentExpId = null;
         let currentExpBook = null;
         let currentExpLessons = [];
@@ -3225,8 +3258,8 @@
             
             try {
                 const resp = await fetch(`${API}?action=exp_list&email=${encodeURIComponent(email)}&userType=${type}`);
-                const list = await resp.json();
-                renderExpansions(list);
+                allExpansions = await resp.json();
+                renderExpansions(allExpansions);
             } catch (e) {
                 container.innerHTML = '<div style="padding:40px; text-align:center; opacity:0.6;">Error al cargar librería. Revisa tu conexión.</div>';
             }
@@ -3239,36 +3272,59 @@
                 return;
             }
 
-            container.innerHTML = list.map(exp => `
+            container.innerHTML = list.map(exp => {
+                const totalExp = exp.totalLessons || 0;
+                let completedExp = 0;
+                
+                // Calculamos progreso global si está desbloqueada
+                if (exp.unlocked && exp.libros) {
+                    exp.libros.forEach(book => {
+                        const savedProg = parseInt(localStorage.getItem(`lumina_exp_prog_${exp.id}_${book.trim()}`)) || 0;
+                        completedExp += (savedProg + 1); // +1 porque el índice es 0-based
+                    });
+                }
+                
+                const expProgressPercent = totalExp > 0 ? Math.round((completedExp / totalExp) * 100) : 0;
+                const hasProgress = exp.unlocked && completedExp > 1; // Solo mostrar si ha empezado al menos una lección
+
+                return `
                 <div class="exp-card ${exp.unlocked ? '' : 'locked'}" 
                      onclick="${exp.unlocked ? `openExpansion('${exp.id}', \`${exp.titulo}\`, \`${exp.descripcion}\`)` : `showToast('Esta expansión está bloqueada. Canjea un código en tu perfil.', 'info')`}">
                     
                     <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
                     
-                    <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;">
-                        <span style="font-size: 0.65rem; color: var(--accent); letter-spacing: 3px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; display: block; opacity: 0.6;">${exp.unlocked ? 'Disponible' : 'Premium'}</span>
-                        <h4 style="font-family: 'Playfair Display', serif; font-size: 2rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.1;">${exp.titulo}</h4>
+                    <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 12px;">
+                            <span style="font-size: 0.65rem; color: var(--accent); letter-spacing: 3px; font-weight: 700; text-transform: uppercase; opacity: 0.6;">${exp.unlocked ? 'Disponible' : 'Premium'}</span>
+                            ${hasProgress ? `<span style="font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; color: var(--accent); opacity: 0.8;">${expProgressPercent}% COMPLETADO</span>` : ''}
+                        </div>
+                        
+                        <h4 style="font-family: 'Playfair Display', serif; font-size: 2rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.1; text-align: center;">${exp.titulo}</h4>
                         
                         ${(() => {
-                            // Intentamos obtener los libros de LibrosIncluded o de la descripción (Contiene: ...)
                             const bookSource = exp.LibrosIncluded || (exp.descripcion.match(/Contiene:?\s*(.*)/i) || [])[1];
                             const description = bookSource ? exp.descripcion.replace(/Contiene:?.*$/i, '').trim() : exp.descripcion;
                             
                             return `
                                 <p style="opacity: 0.5; font-size: 0.95rem; line-height: 1.6; max-width: 90%; margin: 0; text-align: center;">${description}</p>
-                                <!-- INSIGNIAS DE LIBROS INCLUIDOS -->
                                 ${renderPackBadges(bookSource)}
                             `;
                         })()}
                     </div>
                     
-                    <div style="display: flex; align-items: center; justify-content: center; margin-top: 30px; position: relative; z-index: 2;">
-                        <div style="font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
+                    <div style="display: flex; flex-direction: column; width: 100%; margin-top: 30px; position: relative; z-index: 2;">
+                        <div style="font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px;">
                             ${exp.unlocked ? 'EXPLORAR LIBROS <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> CANJEAR EN PERFIL'}
                         </div>
+                        ${hasProgress ? `
+                        <div class="book-progress-wrapper" style="height: 3px; background: rgba(128,128,128,0.1);">
+                            <div class="book-progress-fill" style="width: ${expProgressPercent}%"></div>
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function renderPackBadges(librosIncluded) {
@@ -3297,18 +3353,13 @@
             document.getElementById('exp-detail-title').innerText = title;
             document.getElementById('exp-detail-desc').innerText = desc;
             
-            // Renderizamos insignias en el detalle (Opcional, pero recomendado para consistencia)
+            // Renderizamos insignias en el detalle desde el caché global
             const detailHeader = document.querySelector('#exp-books-view .exp-header');
-            if (detailHeader) {
-                // Buscamos si ya hay insignias para no duplicar
+            if (detailHeader && allExpansions.length > 0) {
                 const oldBadges = detailHeader.querySelector('.exp-pack-content');
                 if (oldBadges) oldBadges.remove();
                 
-                // Necesitamos el objeto exp para sacar LibrosIncluded
-                const email = localStorage.getItem('lumina_user_email') || "";
-                const resp = await fetch(`${API}?action=exp_list&email=${encodeURIComponent(email)}`);
-                const list = await resp.json();
-                const exp = list.find(e => e.id === id);
+                const exp = allExpansions.find(e => e.id === id);
                 if (exp) {
                     const bookSource = exp.LibrosIncluded || (exp.descripcion.match(/Contiene:?\s*(.*)/i) || [])[1];
                     const cleanDesc = bookSource ? exp.descripcion.replace(/Contiene:?.*$/i, '').trim() : exp.descripcion;
@@ -3328,9 +3379,9 @@
             gallery.style.display = 'none';
             booksView.style.display = 'block';
             
-            // Ocultamos el botón principal de volver al hub para no solapar con el nuevo botón
+            // Garantizar que el botón de volver al hub esté visible
             const backHub = document.getElementById('btn-back-hub');
-            if (backHub) backHub.style.display = 'none';
+            if (backHub) backHub.style.setProperty('display', 'flex', 'important');
 
             container.innerHTML = '<div style="padding:100px; text-align:center; opacity:0.3; grid-column: 1 / -1;"><div class="spinner" style="margin: 0 auto 20px;"></div>Abriendo archivos...</div>';
             
@@ -3371,9 +3422,9 @@
                             </div>
 
                             <div style="width: 100%; margin-top: 25px; position: relative; z-index: 2;">
-                                <div style="display: flex; justify-content: space-between; font-size: 0.55rem; letter-spacing: 1px; font-weight: 700; opacity: 0.5; margin-bottom: 8px; text-transform: uppercase;">
-                                    <span>PROGRESO</span>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.55rem; letter-spacing: 1px; font-weight: 700; opacity: 0.5; margin-bottom: 10px; text-transform: uppercase;">
                                     <span>${progressLabel}</span>
+                                    <span>${progressPercent}%</span>
                                 </div>
                                 <div class="book-progress-wrapper">
                                     <div class="book-progress-fill" style="width: ${progressPercent}%"></div>
@@ -4535,7 +4586,7 @@
                     btn.id = 'btn-back-hub';
                     btn.className = 'btn-icon';
                     btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
-                    btn.onclick = () => history.back(); // Usar historial nativo
+                    btn.onclick = () => showHub(); // Usar función determinista para volver al hub
                     document.body.appendChild(btn);
                 }
                 btn.style.setProperty('display', 'flex', 'important');
