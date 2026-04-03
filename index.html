@@ -3442,7 +3442,12 @@
             
             updateExpFavUI();
             loadExpJournal();
-            document.querySelector('#exp-read-ui .modal-content').scrollTo(0,0);
+            document.querySelector('#exp-read-ui .modal-content').scrollTo(0, 0);
+            
+            // Pre-captura en segundo plano para compartir instantáneamente
+            if (typeof prepareShareBlob === 'function') {
+                setTimeout(() => prepareShareBlob('exp'), 800);
+            }
         }
 
         function toggleFavoriteExp() {
@@ -5096,6 +5101,9 @@
                 history.pushState({ modal: 'habitos' }, "", "#habitos");
                 playSound('click');
                 if (navigator.vibrate) navigator.vibrate(10);
+                
+                // Pre-captura para compartir instantáneamente
+                setTimeout(() => prepareShareBlob('habitos'), 500);
             }
         }
 
@@ -5855,19 +5863,46 @@
             headerEl.innerText = getSmartTitle(cat);
             
             if (cat === 'habitos') {
-                titleEl.innerText = "Mi Disciplina";
-                const streak = document.getElementById('streak-val')?.innerText || "0";
-                const medals = document.getElementById('medals-val')?.innerText || "0";
-                bodyEl.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; text-align:center; margin-top:20px;">
-                    <div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px;"><strong>${streak}</strong><br><small>RACHA</small></div>
-                    <div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px;"><strong>${medals}</strong><br><small>LOGROS</small></div>
-                </div>`;
-                footerEl.innerText = new Date().getFullYear();
+                titleEl.textContent = "Estado de Disciplina";
+                const streak = document.getElementById('streak-val')?.textContent || "0";
+                const medals = document.getElementById('medals-val')?.textContent || "0";
+                const pausas = document.getElementById('pausas-val')?.textContent || "0";
+                
+                bodyEl.textContent = "Mis hitos de sabiduría acumulados hasta hoy en Lúmina.";
+                
+                const extraList = document.getElementById('cap-extra-list');
+                if (extraList) {
+                    extraList.innerHTML = `<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; text-align:center; margin-top:20px;">
+                        <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
+                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:var(--accent);">${streak}</div>
+                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Racha</div>
+                        </div>
+                        <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
+                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:var(--accent);">${medals}</div>
+                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Logros</div>
+                        </div>
+                        <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
+                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:var(--accent);">${pausas}</div>
+                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Pausas</div>
+                        </div>
+                    </div>`;
+                }
+                footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'libros' || cat === 'exp') {
                 const isExp = cat === 'exp';
-                titleEl.innerText = isExp ? (currentExpBook || "Exploración") : (getCache('libros')?.titulo || "Lectura");
-                bodyEl.innerText = (isExp ? `Lección ${currentExpIdx + 1}` : (getCache('libros')?.libro || "Lúmina")) + " — Lúminapp";
-                footerEl.innerText = new Date().getFullYear();
+                const titleNode = isExp ? document.getElementById('exp-read-title') : document.getElementById('lesson-title');
+                const metaNode = isExp ? null : document.getElementById('lesson-cat-label');
+                
+                titleEl.textContent = titleNode ? titleNode.innerText : (isExp ? "Lección" : "Lectura");
+                
+                let subtitle = "";
+                if (isExp) {
+                    subtitle = (currentExpBook || "Exploración") + " — LÚMINA";
+                } else {
+                    subtitle = (metaNode ? metaNode.innerText : "Lúmina") + " — LÚMINA";
+                }
+                bodyEl.textContent = subtitle;
+                footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'extra') {
                 titleEl.innerText = document.getElementById('extra-story')?.innerText || "Relato";
                 bodyEl.innerText = document.getElementById('extra-thought')?.innerText || "";
