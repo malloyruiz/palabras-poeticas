@@ -369,7 +369,14 @@
         .cap-qr-box { background: #fff; padding: 5px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 60px; height: 60px; }
         .cap-qr-link { font-size: 0.5rem; letter-spacing: 1px; opacity: 0.4; font-weight: 700; text-transform: uppercase; }
 
-        .hidden-capture { position: fixed; top: 0; left: 0; opacity: 0; pointer-events: none; z-index: -100; }none; z-index: -100; }
+        .hidden-capture { 
+            position: fixed; 
+            top: -9999px; 
+            left: -9999px; 
+            opacity: 0; 
+            pointer-events: none; 
+            z-index: -100; 
+        }
 
         /* END BASE STYLES */
         .reflection-box em { font-family: 'Playfair Display', serif; font-size: 1.4rem;  display: block; margin-top: 15px; }
@@ -2054,60 +2061,6 @@
             </div>
         </footer>
 
-        <!-- ÁREA OCULTA PARA CAPTURA -->
-        <div id="capture-area">
-            <div class="cap-date" id="cap-date"></div>
-            <div class="cap-cat" id="cap-cat"></div>
-            <div class="cap-word" id="cap-word"></div>
-            <div class="cap-def" id="cap-def"></div>
-            <div class="cap-ex-list" id="cap-ex-list"></div>
-            <div class="cap-footer">LÚMINA v1.0</div>
-        </div>
-
-        <div id="capture-area-libros">
-            <div class="cap-lib-head">Libros</div>
-            <div class="cap-lib-tag">Viajes literarios hacia la maestría y el autoconocimiento.</div>
-            <div class="cap-lib-sep"></div>
-            <div class="cap-lib-label">SABIDURÍA EN CURSO</div>
-            <div class="cap-lib-title" id="cap-lib-title"></div>
-            <div class="cap-lib-meta" id="cap-lib-meta"></div>
-            <div class="cap-footer" style="margin-top: 60px;">LÚMINA v1.0</div>
-        </div>
-
-        <div id="capture-area-habitos">
-            <div class="cap-hab-head">Mis Logros</div>
-            <div class="cap-hab-sub">MI CAMINO HACIA LA MAESTRÍA EN LÚMINA</div>
-            <div class="cap-hab-grid">
-                <div class="cap-hab-item">
-                    <span class="cap-hab-val" id="cap-hab-streak">0</span>
-                    <span class="cap-hab-label">Días de Racha</span>
-                </div>
-                <div class="cap-hab-item">
-                    <span class="cap-hab-val" id="cap-hab-medals">0</span>
-                    <span class="cap-hab-label">Medallas</span>
-                </div>
-                <div class="cap-hab-item">
-                    <span class="cap-hab-val" id="cap-hab-pausas">0</span>
-                    <span class="cap-hab-label">Min. de Paz</span>
-                </div>
-            </div>
-            <div class="cap-hab-footer">
-                <span>LÚMINA APPS</span>
-                <span id="cap-hab-date">2024</span>
-            </div>
-        </div>
-
-        <div id="capture-area-extra">
-            <div class="cap-extra-tag">Edición Especial — Maestría Diaria</div>
-            <div class="cap-extra-story" id="cap-extra-story"></div>
-            <div class="cap-extra-thought" id="cap-extra-thought"></div>
-            <div class="cap-extra-challenge">
-                <div class="cap-extra-challenge-h3">EL RETO DEL DÍA</div>
-                <div class="cap-extra-challenge-text" id="cap-extra-challenge-text"></div>
-            </div>
-            <div class="cap-footer">LÚMINA v1.0</div>
-        </div>
-    </div>
 
     <!-- Modal Novedades -->
     <div id="notif-modal" class="modal notif-modal">
@@ -6408,16 +6361,18 @@
             <a id="popup-btn" class="popup-btn" target="_blank"></a>
         </div>
     </div>
-        <div id="toast" class="toast"><span>Mensaje</span></div>
+    
+    <div id="toast" class="toast"><span>Mensaje</span></div>
 
-        <!-- Confirm Toast -->
-        <div id="confirm-toast" class="confirm-toast">
-            <div class="confirm-msg" id="confirm-msg">¿Estás seguro?</div>
-            <div class="confirm-btns">
-                <button class="btn-confirm btn-confirm-no" onclick="hideConfirm()">CANCELAR</button>
-                <button class="btn-confirm btn-confirm-yes" id="btn-confirm-action">SÍ, CONTINUAR</button>
-            </div>
+    <!-- Confirm Toast -->
+    <div id="confirm-toast" class="confirm-toast">
+        <div class="confirm-msg" id="confirm-msg">¿Estás seguro?</div>
+        <div class="confirm-btns">
+            <button class="btn-confirm btn-confirm-no" onclick="hideConfirm()">CANCELAR</button>
+            <button class="btn-confirm btn-confirm-yes" id="btn-confirm-action">SÍ, CONTINUAR</button>
         </div>
+    </div>
+
     <!-- ÁREAS DE CAPTURA (OCULTAS PERO PRESENTES PARA RENDER) -->
     <div class="hidden-capture">
         <div id="capture-area-standard" class="capture-area">
@@ -6438,46 +6393,7 @@
             </div>
         </div>
     </div>
-            <div style="margin-top: 35px; font-size: 0.55rem; letter-spacing: 3px; opacity: 0.3; font-weight: 800; text-transform: uppercase;">LÚMINA © APP</div>
-        </div>
 
-        <!-- Captura General (Palabras, Frases, Afirmaciones) -->
-        <div id="capture-area" class="capture-area" style="width: 400px; min-height: 520px; padding: 50px 40px; background: #f5f1e8; border-radius: 30px; color: #1a1a1a; font-family: 'Inter', sans-serif; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: center;">
-            <div class="cap-title-smart">SABIDURÍA DE HOY</div>
-            
-            <div style="border: 1.5px solid rgba(181, 131, 58, 0.15); padding: 35px 25px; border-radius: 25px; position: relative; background: rgba(181, 131, 58, 0.02);">
-                <div id="cap-date" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 20px; font-weight: 700; text-transform: uppercase;">VIERNES 03 ABRIL</div>
-                <h4 id="cap-word" style="font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 15px; font-style: italic;"></h4>
-                <div id="cap-cat" class="cap-sub" style="font-size: 0.7rem; letter-spacing: 3px; font-weight: 800; color: #b5833a; text-transform: uppercase; margin-bottom: 25px;">PALABRAS</div>
-                <p id="cap-def" style="font-size: 0.95rem; line-height: 1.6; opacity: 0.7; margin-bottom: 0;"></p>
-                
-                <div id="cap-ex-list" style="margin-top: 25px; border-top: 1px dashed rgba(181,131,58,0.2); padding-top: 20px;">
-                    <!-- Ejemplos -->
-                </div>
-            </div>
-            
-            <div style="margin-top: 35px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <img src="icon-192.png" style="width: 25px; height: 25px; border-radius: 5px; opacity: 0.8;">
-                <span style="font-size: 0.6rem; letter-spacing: 3px; opacity: 0.4; font-weight: 800; text-transform: uppercase;">LÚMINA APP</span>
-            </div>
-        </div>
-
-        <!-- Captura de Edición Especial -->
-        <div id="capture-area-extra" class="capture-area" style="width: 400px; min-height: 550px; padding: 50px 40px; background: #f5f1e8; border-radius: 30px; color: #1a1a1a; font-family: 'Inter', sans-serif; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-            <div class="cap-title-smart">REVELACIÓN ESPECIAL</div>
-            
-            <div style="background: rgba(0,0,0,0.02); padding: 30px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.1);">
-                <div id="cap-extra-story" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; margin-bottom: 25px; line-height: 1.4;"></div>
-                <div id="cap-extra-thought" style="font-size: 0.9rem; opacity: 0.6; line-height: 1.6; margin-bottom: 30px;"></div>
-                <div style="padding: 20px; background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
-                    <div style="font-size: 0.6rem; letter-spacing: 2px; color: #b5833a; font-weight: 800; margin-bottom: 10px; text-transform: uppercase;">EL DESAFÍO</div>
-                    <div id="cap-extra-challenge-text" style="font-size: 0.85rem; font-weight: 600;"></div>
-                </div>
-            </div>
-
-            <div style="margin-top: 35px; font-size: 0.55rem; letter-spacing: 4px; opacity: 0.3; font-weight: 800; text-transform: uppercase;">LÚMINA © BEYOND</div>
-        </div>
-    </div>
     <audio id="ambient-player" loop style="display:none;"></audio>
 </body>
 </html>
