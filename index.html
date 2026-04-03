@@ -414,9 +414,24 @@
         /* --- SISTEMA DE GRILLA PARA EXPANSIONES Y PAUSAS --- */
         .exp-grid, .pausa-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 30px;
             padding-bottom: 100px;
+        }
+        .exp-header { margin-bottom: 50px; text-align: left; transition: all 0.5s ease; }
+        .exp-header h1 { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 3.5rem; 
+            font-style: italic; 
+            margin: 0; 
+            font-weight: 900; 
+            line-height: 1.1;
+            word-wrap: break-word;
+        }
+        @media (max-width: 600px) {
+            .exp-header h1 { font-size: 2.2rem; }
+            .exp-grid { grid-template-columns: 1fr !important; gap: 20px; }
+            .exp-card { padding: 25px; }
         }
 
         .exp-card, .pausa-card {
@@ -442,6 +457,54 @@
             background: rgba(181, 131, 58, 0.06);
             border-color: var(--accent);
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        /* --- ESTILOS DE INSIGNIAS DE SABIDURÍA (NUEVO) --- */
+        .exp-pack-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 25px;
+            margin-bottom: 5px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+        .pack-badge {
+            background: rgba(181, 131, 58, 0.05);
+            border: 1px solid rgba(181, 131, 58, 0.15);
+            padding: 8px 16px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        .pack-badge:hover {
+            background: rgba(181, 131, 58, 0.12);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .pack-badge svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--accent);
+            opacity: 0.8;
+            stroke-width: 2.2;
+            fill: none;
+        }
+        .pack-badge span {
+            font-size: 0.65rem;
+            color: var(--text);
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        [data-theme="dark"] .pack-badge {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.12);
         }
 
         .exp-card.locked {
@@ -583,6 +646,42 @@
         .auth-label { font-size: 0.58rem; letter-spacing: 3px; opacity: 0.4; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; display: block; color: var(--accent); }
         .auth-input { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.15); background: rgba(255,255,255,0.03); color: var(--text); font-family: 'Inter', sans-serif; outline: none; box-sizing: border-box; font-size: 1rem; transition: var(--transition); }
         .auth-input:focus { border-color: var(--accent); background: rgba(181, 131, 58, 0.05); }
+        
+        /* --- BOTÓN EXTRA PRO (MAESTRÍA DIARIA) --- */
+        .btn-extra-wisdom {
+            background: rgba(181, 131, 58, 0.05);
+            border: 1.5px dashed var(--accent);
+            color: var(--accent);
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 40px;
+            display: none; /* Se activa pro programáticamente */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: fit-content;
+        }
+        .btn-extra-wisdom svg { transition: transform 0.6s ease; }
+        .btn-extra-wisdom:hover {
+            background: rgba(181, 131, 58, 0.12);
+            transform: translateY(-3px);
+            border-style: solid;
+        }
+        .btn-extra-wisdom:hover svg { transform: rotate(180deg); }
+        .btn-extra-wisdom:active { transform: scale(0.95) translateY(0); }
+        .btn-extra-wisdom:disabled {
+            opacity: 0.3;
+            cursor: default;
+            border-style: solid;
+            filter: grayscale(1);
+            pointer-events: none;
+        }
         .auth-link { color: var(--text); opacity: 0.4; font-size: 0.75rem; text-decoration: none; border-bottom: 1px solid transparent; transition: 0.3s; cursor: pointer; }
         .auth-link:hover { opacity: 1; border-color: var(--accent); color: var(--accent); }
         
@@ -673,8 +772,37 @@
         .cap-lib-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 400; font-style: italic; line-height: 1.2; margin-bottom: 12px; }
         .cap-lib-meta { font-size: 0.9rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase; }
 
-        .btn-share-main { margin-top: 20px; opacity: 0.6; transition: 0.3s; }
+        .btn-share-main { opacity: 0.6; transition: 0.3s; }
         .btn-share-main:hover { opacity: 1; transform: scale(1.05); }
+
+        /* Captura específica para Extra */
+        #capture-area-extra {
+            position: fixed; top: -5010px; left: -5010px;
+            width: 800px; background: #f5f1e8; color: #1a1a1a;
+            padding: 80px; box-sizing: border-box; display: flex; flex-direction: column;
+            font-family: 'Inter', sans-serif; text-align: left;
+        }
+        .cap-extra-tag { color: #b5833a; font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 700; margin-bottom: 40px; }
+        .cap-extra-story { font-size: 1.6rem; line-height: 1.8; font-weight: 300; opacity: 0.9; margin-bottom: 40px; }
+        .cap-extra-thought { padding: 40px; border-left: 4px solid #b5833a; background: rgba(181, 131, 58, 0.05); font-family: 'Playfair Display', serif; font-style: italic; font-size: 2rem; color: #b5833a; margin-bottom: 40px; }
+        .cap-extra-challenge { text-align: center; padding: 40px; border-radius: 40px; border: 1px solid rgba(0,0,0,0.1); }
+        .cap-extra-challenge-h3 { font-size: 0.8rem; letter-spacing: 5px; opacity: 0.4; text-transform: uppercase; margin-bottom: 20px; }
+        .cap-extra-challenge-text { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; }
+
+        /* Captura para Hábitos (Perfil) */
+        #capture-area-habitos {
+            position: fixed; top: -5015px; left: -5015px;
+            width: 800px; background: #f5f1e8; color: #1a1a1a;
+            padding: 80px; box-sizing: border-box; display: flex; flex-direction: column;
+            font-family: 'Inter', sans-serif; text-align: left;
+        }
+        .cap-hab-head { font-family: 'Playfair Display', serif; font-size: 4rem; font-style: italic; font-weight: 900; margin-bottom: 10px; }
+        .cap-hab-sub { font-size: 1rem; letter-spacing: 3px; opacity: 0.4; text-transform: uppercase; margin-bottom: 60px; }
+        .cap-hab-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-bottom: 60px; }
+        .cap-hab-item { text-align: center; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        .cap-hab-val { font-size: 3.5rem; font-weight: 800; color: #b5833a; display: block; margin-bottom: 5px; }
+        .cap-hab-label { font-size: 0.8rem; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; font-weight: 700; }
+        .cap-hab-footer { margin-top: auto; padding-top: 40px; border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; opacity: 0.3; font-size: 0.8rem; letter-spacing: 3px; }
 
         /* Estilos para PWA Update (Toast) */
         pwa-update {
@@ -1042,10 +1170,25 @@
             padding: 25px;
             border-bottom: 1px solid rgba(128,128,128,0.1);
             text-align: left;
+            position: relative;
+            transition: var(--transition);
         }
+        .journal-history-item:hover { background: rgba(181, 131, 58, 0.02); }
         .journal-history-date { font-size: 0.65rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase; margin-bottom: 8px; }
-        .journal-history-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; margin-bottom: 10px; color: var(--accent); }
+        .journal-history-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; margin-bottom: 10px; color: var(--accent); max-width: 85%; }
         .journal-history-note { font-size: 0.9rem; opacity: 0.8; line-height: 1.6; }
+        
+        .btn-delete-journal {
+            position: absolute; top: 25px; right: 25px;
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(128,128,128,0.05); color: var(--text);
+            opacity: 0.2; cursor: pointer; transition: all 0.3s ease;
+            border: none;
+        }
+        .journal-history-item:hover .btn-delete-journal { opacity: 0.6; }
+        .btn-delete-journal:hover { opacity: 1 !important; background: rgba(220, 53, 69, 0.1); color: #dc3545; transform: scale(1.1); }
+        .btn-delete-journal svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
         /* --- AMBIENTE AUDIO REFINADO --- */
         .ambient-grid {
@@ -1578,6 +1721,9 @@
                     <button class="btn-fav" id="btn-fav-main" onclick="toggleFavorite()" title="Favorito">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                     </button>
+                    <button class="btn-fav btn-share-main" id="main-share-btn" onclick="shareAsImage()" title="Compartir sabiduría" style="display: none; margin-left: 10px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    </button>
                 </h1>
                 <p class="definition" id="word-def">---</p>
             </div>
@@ -1593,11 +1739,19 @@
                 <div class="reto-label">⚡ Reto del Día</div>
                 <em id="reto-text" class="reto-text">Usa la palabra de hoy en una conversación real.</em>
             </div>
-
+            
             <!-- PREGUNTA DE REFLEXIÓN (solo Afirmaciones) -->
             <div id="reflexion-del-dia" style="grid-column: 1 / -1; margin-top: 20px; padding: 40px; background: rgba(181,131,58,0.05); border-radius: 30px; text-align: center;">
                 <div class="reto-label">💭 Pregunta de Reflexión</div>
                 <em id="reflexion-text" class="reto-text">¿Qué parte de ti necesita escuchar esto hoy?</em>
+            </div>
+
+            <!-- BOTÓN EXTRA PRO (MAESTRÍA DIARIA) -->
+            <div id="pro-extra-container" style="grid-column: 1 / -1; display: flex; justify-content: center; width: 100%; margin-top: 20px;">
+                <button id="btn-extra-wisdom" class="btn-extra-wisdom" onclick="loadNextExtra()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>Ver otra (0/5)</span>
+                </button>
             </div>
 
             <!-- SECCIÓN EXTRA (DÍA DE ENFOQUE) -->
@@ -1623,6 +1777,9 @@
                         <button class="btn-speak" id="btn-speak-lesson" onclick="speakCurrentLesson()" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
                         <button class="btn-fav" id="btn-fav-lesson" onclick="toggleFavorite()" title="Favorito">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
+                        <button class="btn-fav btn-share-main" onclick="shareAsImage()" title="Compartir sabiduría" style="margin-left: 10px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         </button>
                     </h1>
                 </div>
@@ -1766,12 +1923,12 @@
                 
                 <!-- VISTA 1: Galería de Categorías -->
                 <div id="exp-gallery-view">
-                    <div style="margin-bottom: 50px; text-align: left;">
-                        <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Expansiones</h1>
+                    <div class="exp-header">
+                        <h1>Expansiones</h1>
                         <p style="opacity: 0.6; font-size: 1rem; max-width: 500px; line-height: 1.6;">Series exclusivas de conocimiento profundo y transformación bibliográfica.</p>
                     </div>
                     
-                    <div id="exp-list-container" class="exp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; padding-bottom: 100px;">
+                    <div id="exp-list-container" class="exp-grid">
                         <div style="padding: 100px; text-align: center; opacity: 0.3; grid-column: 1 / -1;">
                             <div class="spinner" style="margin: 0 auto 20px;"></div>
                             Cargando expansiones...
@@ -1786,12 +1943,12 @@
                         VOLVER A EXPANSIONES
                     </button>
                     
-                    <div style="margin-bottom: 50px; text-align: left;">
-                        <h1 id="exp-detail-title" style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">---</h1>
+                    <div class="exp-header">
+                        <h1 id="exp-detail-title">---</h1>
                         <p id="exp-detail-desc" style="opacity: 0.6; font-size: 1rem; max-width: 600px; line-height: 1.6;">---</p>
                     </div>
 
-                    <div id="exp-books-container" class="exp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; padding-bottom: 100px;">
+                    <div id="exp-books-container" class="exp-grid">
                         <!-- Las tarjetas de libros se inyectarán aquí -->
                     </div>
                 </div>
@@ -1902,9 +2059,6 @@
                 <span id="trial-indicator" style="font-size: 0.65rem; margin-bottom: 8px; display: none; font-weight: 700; background: var(--accent); color: var(--bg); padding: 4px 12px; border-radius: 20px; box-shadow: 0 4px 15px rgba(181, 131, 58, 0.2);">DÍA 1/14 DE PRUEBA</span>
                 <span style="font-size: 0.6rem; opacity: 0.3;">LÚMINA v1.0</span>
             </div>
-            <button class="btn-icon btn-share-main" id="main-share-btn" onclick="shareAsImage()" title="Compartir sabiduría" style="display: none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-            </button>
         </footer>
 
         <!-- ÁREA OCULTA PARA CAPTURA -->
@@ -1925,6 +2079,40 @@
             <div class="cap-lib-title" id="cap-lib-title"></div>
             <div class="cap-lib-meta" id="cap-lib-meta"></div>
             <div class="cap-footer" style="margin-top: 60px;">LÚMINA v1.0</div>
+        </div>
+
+        <div id="capture-area-habitos">
+            <div class="cap-hab-head">Mis Logros</div>
+            <div class="cap-hab-sub">MI CAMINO HACIA LA MAESTRÍA EN LÚMINA</div>
+            <div class="cap-hab-grid">
+                <div class="cap-hab-item">
+                    <span class="cap-hab-val" id="cap-hab-streak">0</span>
+                    <span class="cap-hab-label">Días de Racha</span>
+                </div>
+                <div class="cap-hab-item">
+                    <span class="cap-hab-val" id="cap-hab-medals">0</span>
+                    <span class="cap-hab-label">Medallas</span>
+                </div>
+                <div class="cap-hab-item">
+                    <span class="cap-hab-val" id="cap-hab-pausas">0</span>
+                    <span class="cap-hab-label">Min. de Paz</span>
+                </div>
+            </div>
+            <div class="cap-hab-footer">
+                <span>LÚMINA APPS</span>
+                <span id="cap-hab-date">2024</span>
+            </div>
+        </div>
+
+        <div id="capture-area-extra">
+            <div class="cap-extra-tag">Edición Especial — Maestría Diaria</div>
+            <div class="cap-extra-story" id="cap-extra-story"></div>
+            <div class="cap-extra-thought" id="cap-extra-thought"></div>
+            <div class="cap-extra-challenge">
+                <div class="cap-extra-challenge-h3">EL RETO DEL DÍA</div>
+                <div class="cap-extra-challenge-text" id="cap-extra-challenge-text"></div>
+            </div>
+            <div class="cap-footer">LÚMINA v1.0</div>
         </div>
     </div>
 
@@ -1949,9 +2137,14 @@
         <div class="modal-content" style="max-width: 450px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                 <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Mis Hábitos</h2>
-                <button class="btn-icon" onclick="toggleHabitos()" title="Cerrar" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
-                    <svg viewBox="0 0 24 24" style="stroke: currentColor;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-icon" onclick="shareAsImage('habitos')" title="Compartir logros" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                    </button>
+                    <button class="btn-icon" onclick="toggleHabitos()" title="Cerrar" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
+                        <svg viewBox="0 0 24 24" style="stroke: currentColor;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
             </div>
 
             <!-- PANEL DE HÁBITOS (MIGRADO) -->
@@ -3055,7 +3248,18 @@
                     <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;">
                         <span style="font-size: 0.65rem; color: var(--accent); letter-spacing: 3px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; display: block; opacity: 0.6;">${exp.unlocked ? 'Disponible' : 'Premium'}</span>
                         <h4 style="font-family: 'Playfair Display', serif; font-size: 2rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.1;">${exp.titulo}</h4>
-                        <p style="opacity: 0.5; font-size: 0.95rem; line-height: 1.6; max-width: 90%; margin: 0; text-align: center;">${exp.descripcion}</p>
+                        
+                        ${(() => {
+                            // Intentamos obtener los libros de LibrosIncluded o de la descripción (Contiene: ...)
+                            const bookSource = exp.LibrosIncluded || (exp.descripcion.match(/Contiene:?\s*(.*)/i) || [])[1];
+                            const description = bookSource ? exp.descripcion.replace(/Contiene:?.*$/i, '').trim() : exp.descripcion;
+                            
+                            return `
+                                <p style="opacity: 0.5; font-size: 0.95rem; line-height: 1.6; max-width: 90%; margin: 0; text-align: center;">${description}</p>
+                                <!-- INSIGNIAS DE LIBROS INCLUIDOS -->
+                                ${renderPackBadges(bookSource)}
+                            `;
+                        })()}
                     </div>
                     
                     <div style="display: flex; align-items: center; justify-content: center; margin-top: 30px; position: relative; z-index: 2;">
@@ -3067,10 +3271,54 @@
             `).join('');
         }
 
+        function renderPackBadges(librosIncluded) {
+            if (!librosIncluded) return '';
+            // Limpia "Contiene:" o similar si el usuario lo mandó en el string
+            let cleanData = librosIncluded.replace(/Contiene:?|Incluye:?|Incluidos:?/gi, '').trim();
+            const books = cleanData.split(/[,;|\n]/).map(b => b.trim()).filter(b => b);
+            if (books.length === 0) return '';
+            
+            const badgeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
+            
+            return `
+                <div class="exp-pack-content">
+                    ${books.map(b => `
+                        <div class="pack-badge">
+                            ${badgeIcon}
+                            <span>${b}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
         async function openExpansion(id, title, desc) {
             currentExpId = id;
             document.getElementById('exp-detail-title').innerText = title;
             document.getElementById('exp-detail-desc').innerText = desc;
+            
+            // Renderizamos insignias en el detalle (Opcional, pero recomendado para consistencia)
+            const detailHeader = document.querySelector('#exp-books-view .exp-header');
+            if (detailHeader) {
+                // Buscamos si ya hay insignias para no duplicar
+                const oldBadges = detailHeader.querySelector('.exp-pack-content');
+                if (oldBadges) oldBadges.remove();
+                
+                // Necesitamos el objeto exp para sacar LibrosIncluded
+                const email = localStorage.getItem('lumina_user_email') || "";
+                const resp = await fetch(`${API}?action=exp_list&email=${encodeURIComponent(email)}`);
+                const list = await resp.json();
+                const exp = list.find(e => e.id === id);
+                if (exp) {
+                    const bookSource = exp.LibrosIncluded || (exp.descripcion.match(/Contiene:?\s*(.*)/i) || [])[1];
+                    const cleanDesc = bookSource ? exp.descripcion.replace(/Contiene:?.*$/i, '').trim() : exp.descripcion;
+                    
+                    document.getElementById('exp-detail-desc').innerText = cleanDesc;
+                    if (bookSource) {
+                        detailHeader.insertAdjacentHTML('beforeend', renderPackBadges(bookSource));
+                    }
+                }
+            }
             
             const gallery = document.getElementById('exp-gallery-view');
             const booksView = document.getElementById('exp-books-view');
@@ -3079,6 +3327,11 @@
             // Transición suave: Ocultamos galería, mostramos libros
             gallery.style.display = 'none';
             booksView.style.display = 'block';
+            
+            // Ocultamos el botón principal de volver al hub para no solapar con el nuevo botón
+            const backHub = document.getElementById('btn-back-hub');
+            if (backHub) backHub.style.display = 'none';
+
             container.innerHTML = '<div style="padding:100px; text-align:center; opacity:0.3; grid-column: 1 / -1;"><div class="spinner" style="margin: 0 auto 20px;"></div>Abriendo archivos...</div>';
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3138,6 +3391,11 @@
         function showExpGallery() {
             document.getElementById('exp-gallery-view').style.display = 'block';
             document.getElementById('exp-books-view').style.display = 'none';
+            
+            // Restauramos el botón lateral si existe
+            const backHub = document.getElementById('btn-back-hub');
+            if (backHub) backHub.style.display = 'flex';
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
             // Al volver, limpiamos el hash o volvemos en el historial
             if (history.state && history.state.modal === 'exp_books') history.back();
@@ -3702,7 +3960,7 @@
             document.getElementById('header-date').innerText = formatted;
         }
 
-        async function checkEmergencyPopup() {
+        async function checkEmergencyPopups() {
             try {
                 const userType = localStorage.getItem('lumina_pro') === 'true' ? 'PRO' : 
                                  (localStorage.getItem('lumina_trial_active') === 'true' ? 'TRIAL' : 'FREE');
@@ -4267,7 +4525,7 @@
                 document.getElementById('header-cat').innerText = labels[cat] || 'LÚMINA';
 
                 const shareBtn = document.getElementById('main-share-btn');
-                if (shareBtn) shareBtn.style.display = ['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat) ? 'block' : 'none';
+                if (shareBtn) shareBtn.style.display = ['palabras', 'afirmaciones', 'frases', 'libros', 'extra'].includes(cat) ? 'block' : 'none';
 
                 if (cat === 'libros') requestWakeLock();
 
@@ -4402,14 +4660,16 @@
             }
         });
 
-        async function fetchContent() {
+        let currentIdx = -1; // Índice actual del contenido (para Extras PRO)
+
+        async function fetchContent(index = null) {
             let cacheKey = currentCategory;
             const cached = getCache(cacheKey);
             const cacheDate = localStorage.getItem('lumina_cache_date_' + cacheKey);
             const today = new Date().toDateString();
 
-            // 1. Mostrar caché inmediatamente (Si es de hoy)
-            if (cached && cacheDate === today) {
+            // 1. Mostrar caché inmediatamente (Si es de hoy y no pedimos uno específico)
+            if (index === null && cached && cacheDate === today) {
                 renderContent(cached);
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('main-ui').classList.add('loaded');
@@ -4418,12 +4678,14 @@
                 return;
             }
 
-            // 2. Si no hay caché de hoy, intentar Red
+            // 2. Si es Red o pedimos uno específico
             document.getElementById('loader').classList.remove('hidden');
             document.getElementById('loader').style.opacity = '1';
             
             try {
                 let url = `${API}?cat=${currentCategory}`;
+                if (index !== null) url += `&index=${index}`;
+
                 if (currentCategory === 'extra') {
                     const hash = window.location.hash;
                     const match = hash.match(/#extra:(.+)/);
@@ -4441,7 +4703,7 @@
                     return;
                 }
 
-                setCache(currentCategory, data);
+                if (index === null) setCache(currentCategory, data);
                 renderContent(data);
                 loadUserJournal(); // Cargar diario
                 checkOnline();
@@ -4506,6 +4768,9 @@
                 document.getElementById('word-title').innerText = data.palabra || data.word || data.afirmacion || data.frase || "Lúmina";
                 document.getElementById('word-def').innerText = data.definicion || data.meaning || data.autor || "";
                 
+                // Actualizar estado de Extras PRO
+                currentIdx = data.index;
+
                 const box = document.getElementById('example-list');
                 box.innerHTML = '';
                 if (data.ejemplo1 || data.ejemplo2) {
@@ -4517,6 +4782,7 @@
                 }
             }
 
+            updateProExtraUI();
             updateFavoriteIcon();
 
             // Retos y Reflexiones adicionales (fuera de la Edición Especial)
@@ -4547,8 +4813,58 @@
                     ];
                     const dayIndex = Math.floor(Date.now() / 86400000) % preguntas.length;
                     reflexionEl.innerText = preguntas[dayIndex];
-                }
             }
+        }
+    }
+    
+    // --- SISTEMA EXTRAS PRO (MAESTRÍA DIARIA) ---
+        function getProExtraCount(cat) {
+            const today = new Date().toISOString().split('T')[0];
+            const key = `lumina_extra_count_${today}_${cat}`;
+            return parseInt(localStorage.getItem(key)) || 0;
+        }
+
+        function updateProExtraUI() {
+            const btn = document.getElementById('btn-extra-wisdom');
+            const dailyCats = ['palabras', 'afirmaciones', 'frases'];
+            
+            if (isPro && dailyCats.includes(currentCategory)) {
+                const count = getProExtraCount(currentCategory);
+                btn.style.display = 'flex';
+                btn.querySelector('span').innerText = `Ver otra (${count}/5)`;
+                btn.disabled = count >= 5;
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        async function loadNextExtra() {
+            if (!isPro) {
+                document.getElementById('pro-modal').classList.add('active');
+                return;
+            }
+            const cat = currentCategory;
+            const count = getProExtraCount(cat);
+            
+            if (count >= 5) {
+                showToast("Has alcanzado el límite de sabiduría extra por hoy.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-extra-wisdom');
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+
+            // Incrementar contador
+            const today = new Date().toISOString().split('T')[0];
+            const key = `lumina_extra_count_${today}_${cat}`;
+            localStorage.setItem(key, count + 1);
+
+            // Cargar el siguiente índice (usamos un salto aleatorio o secuencial para variedad)
+            const nextIdx = currentIdx + Math.floor(Math.random() * 50) + 1;
+            fetchContent(nextIdx);
+            
+            if (navigator.vibrate) navigator.vibrate(20);
         }
 
         // --- SISTEMA DE FAVORITOS ---
@@ -5098,6 +5414,17 @@
             }
         }
 
+        function deleteJournalEntry(key) {
+            showConfirm("¿Eliminar esta entrada permanentemente del diario?", () => {
+                localStorage.removeItem(key);
+                pushSync();
+                renderJournalHistory();
+                loadUserJournal(); // Limpiar si borramos la de hoy
+                showToast("Reflexión eliminada");
+                if (navigator.vibrate) navigator.vibrate(12);
+            });
+        }
+
         function renderJournalHistory() {
             const list = document.getElementById('profile-journal-list');
             if (!list) return;
@@ -5134,12 +5461,31 @@
                     if (!isNaN(testDate)) displayDate = getSpanishDate(testDate, true);
                 }
 
+                // Generar key para borrar (lumina_note_CAT_DATESTRING)
+                // Usamos el timestamp para buscar la key original en localStorage
+                let storageKey = "";
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k.startsWith('lumina_note_')) {
+                        try {
+                            const tmp = JSON.parse(localStorage.getItem(k));
+                            if (tmp.timestamp === n.timestamp) {
+                                storageKey = k;
+                                break;
+                            }
+                        } catch(e) {}
+                    }
+                }
+
                 const item = document.createElement('div');
                 item.className = 'journal-history-item';
                 item.innerHTML = `
                     <div class="journal-history-date">${displayDate}</div>
                     <div class="journal-history-title">${n.title}</div>
                     <div class="journal-history-note">${n.notes.replace(/\n/g, '<br>')}</div>
+                    <button class="btn-delete-journal" onclick="deleteJournalEntry('${storageKey}')" title="Eliminar reflexión">
+                        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 `;
                 list.appendChild(item);
             });
@@ -5479,18 +5825,33 @@
             pushSync();
         }
 
-        async function shareAsImage() {
+        async function shareAsImage(typeArg) {
+            const isHabitos = typeArg === 'habitos';
             const isLibros = currentCategory === 'libros';
-            const areaId = isLibros ? 'capture-area-libros' : 'capture-area';
-            const area = document.getElementById(areaId);
-            const btn = document.getElementById('main-share-btn');
+            const isExtra = currentCategory === 'extra';
             
-            // 1. Llenar datos
-            if (isLibros) {
+            let areaId = 'capture-area';
+            if (isLibros) areaId = 'capture-area-libros';
+            if (isExtra) areaId = 'capture-area-extra';
+            if (isHabitos) areaId = 'capture-area-habitos';
+            
+            const area = document.getElementById(areaId);
+            const btn = isHabitos ? event.currentTarget : document.getElementById('main-share-btn');
+            
+            // 1. Llenar datos según el contexto
+            if (isHabitos) {
+                document.getElementById('cap-hab-streak').innerText = document.getElementById('streak-val').innerText;
+                document.getElementById('cap-hab-medals').innerText = document.getElementById('medals-val').innerText;
+                document.getElementById('cap-hab-pausas').innerText = document.getElementById('pausas-val').innerText;
+                document.getElementById('cap-hab-date').innerText = new Date().getFullYear();
+            } else if (isExtra) {
+                document.getElementById('cap-extra-story').innerText = document.getElementById('extra-story').innerText;
+                document.getElementById('cap-extra-thought').innerText = document.getElementById('extra-thought').innerText;
+                document.getElementById('cap-extra-challenge-text').innerText = document.getElementById('extra-challenge').innerText;
+            } else if (isLibros) {
                 const cached = getCache('libros');
                 if (cached) {
                     document.getElementById('cap-lib-title').innerText = cached.titulo || "";
-                    // Si el cache tiene autor, usarlo, si no omitir o usar libro
                     const author = cached.autor || "";
                     const meta = author ? `${cached.libro} — ${author} — LECCIÓN ${cached.dia} DE ${cached.total}` : `${cached.libro} — LECCIÓN ${cached.dia} DE ${cached.total}`;
                     document.getElementById('cap-lib-meta').innerText = meta.toUpperCase();
@@ -5914,9 +6275,9 @@
             const mainUI = document.getElementById('main-ui');
             const hub = document.getElementById('hub');
             
-            // Limpiar estados previos de vista
+            // Limpiar estados previos de vista (Cierre preventivo de todas las capas del Main UI)
             if (mainUI) {
-                mainUI.classList.remove('view-pausa', 'view-libros', 'view-palabras', 'view-afirmaciones', 'view-frases');
+                mainUI.classList.remove('view-pausa', 'view-libros', 'view-palabras', 'view-afirmaciones', 'view-frases', 'view-expansiones', 'view-extra');
                 mainUI.classList.add('view-' + cat);
             }
 
@@ -5925,6 +6286,11 @@
             
             if (specialCmds.includes(cat)) {
                 if (cat === 'pausa') {
+                    // Sincronizar visibilidad local para evitar solapamientos
+                    if (document.getElementById('lesson-ui')) document.getElementById('lesson-ui').style.display = 'none';
+                    if (document.getElementById('expansions-ui')) document.getElementById('expansions-ui').style.display = 'none';
+                    if (document.getElementById('pausa-ui')) document.getElementById('pausa-ui').style.display = 'block';
+
                     renderPausaList();
                     // Navegación desde Hub si es necesario
                     if (hub && !hub.classList.contains('hidden')) {
