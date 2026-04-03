@@ -3446,7 +3446,7 @@
             
             // Pre-captura en segundo plano para compartir instantáneamente
             if (typeof prepareShareBlob === 'function') {
-                setTimeout(() => prepareShareBlob('exp'), 800);
+                setTimeout(() => prepareShareBlob('exp'), 500);
             }
         }
 
@@ -4805,7 +4805,7 @@
             // PRE-CAPTURA EN SEGUNDO PLANO (Para que el compartir sea instantáneo)
             setTimeout(() => {
                 prepareShareBlob(currentCategory);
-            }, 800); 
+            }, 500); 
 
             // Retos y Reflexiones adicionales (fuera de la Edición Especial)
             if (currentCategory !== 'extra') {
@@ -5850,15 +5850,31 @@
 
         window._luminaShareBlob = null;
         window._luminaShareFname = "";
+        let isCapturing = false;
 
         async function prepareShareBlob(cat) {
+            if (isCapturing) return; // Evitar saturación de procesos
+            
+            // Limpiar blob anterior para evitar compartir datos obsoletos
+            window._luminaShareBlob = null;
+            
             const area = document.getElementById('capture-area-standard');
             if (!area) return;
+            
+            isCapturing = true;
 
             const titleEl = document.getElementById('cap-main-title');
             const bodyEl = document.getElementById('cap-body-text');
             const headerEl = document.getElementById('cap-header-smart');
             const footerEl = document.getElementById('cap-footer-date');
+            const extraList = document.getElementById('cap-extra-list');
+            
+            // Limpieza total antes de nueva captura
+            if (extraList) extraList.innerHTML = '';
+            if (bodyEl) {
+                bodyEl.innerHTML = ''; 
+                bodyEl.textContent = '---';
+            }
             
             headerEl.innerText = getSmartTitle(cat);
             
@@ -5890,18 +5906,29 @@
                 footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'libros' || cat === 'exp') {
                 const isExp = cat === 'exp';
-                const titleNode = isExp ? document.getElementById('exp-read-title') : document.getElementById('lesson-title');
-                const metaNode = isExp ? null : document.getElementById('lesson-cat-label');
+                const lesson = isExp ? currentExpLessons[currentExpIdx] : getCache('libros');
                 
-                titleEl.textContent = titleNode ? titleNode.innerText : (isExp ? "Lección" : "Lectura");
+                // 1. Título de la Lección como protagonista
+                titleEl.textContent = lesson?.titulo || (isExp ? "Lección" : "Lectura");
                 
-                let subtitle = "";
-                if (isExp) {
-                    subtitle = (currentExpBook || "Exploración") + " — LÚMINA";
-                } else {
-                    subtitle = (metaNode ? metaNode.innerText : "Lúmina") + " — LÚMINA";
+                // 2. Indicador de Progreso (Lección X de Y)
+                const current = isExp ? (currentExpIdx + 1) : (lesson?.dia || 1);
+                const total = isExp ? currentExpLessons.length : (lesson?.total || 1);
+                bodyEl.innerHTML = `<div style="font-size:0.7rem; letter-spacing:2px; font-weight:700; color:var(--accent); text-transform:uppercase; margin-top:10px;">Lección ${current} de ${total}</div>`;
+                
+                // 3. Identidad del Libro y Autor
+                const bookName = isExp ? currentExpBook : (lesson?.libro || "Lúmina");
+                const author = lesson?.autor || (isExp ? null : null); // Intentar capturar de ambos
+                const extraList = document.getElementById('cap-extra-list');
+                
+                if (extraList) {
+                    extraList.innerHTML = `<div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px; border:1px solid rgba(181,131,58,0.1); text-align:center; margin-top:20px;">
+                        <div style="font-family:'Playfair Display', serif; font-size:1.1rem; font-style:italic; color:var(--text); opacity:0.9;">
+                            ${bookName}${author ? ' &mdash; ' + author : ''}
+                        </div>
+                    </div>`;
                 }
-                bodyEl.textContent = subtitle;
+                
                 footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'extra') {
                 titleEl.textContent = document.getElementById('word-title')?.innerText || "Edición Especial";
@@ -5943,7 +5970,11 @@
                         window._luminaShareBlob = blob;
                         window._luminaShareFname = `Lumina_${Date.now()}.png`;
                     }, 'image/png');
-                } catch (e) { console.warn("Pre-capture failed", e); }
+                } catch (e) {
+                    console.warn("Pre-capture failed", e);
+                } finally {
+                    isCapturing = false;
+                }
             }, 300);
         }
 
