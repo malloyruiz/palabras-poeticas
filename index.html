@@ -357,6 +357,28 @@
         .cap-qr-link { font-size: 0.5rem; letter-spacing: 1px; opacity: 0.4; font-weight: 700; text-transform: uppercase; }
 
         #mood-modal .modal-content { max-width: 380px; padding: 30px; text-align: center; }
+        
+        /* TOGGLE SWITCH (COMPARTIR) */
+        .toggle-switch {
+            width: 44px; height: 22px; background: rgba(128,128,128,0.2);
+            border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; padding: 0 4px;
+        }
+        .toggle-switch.active { background: var(--accent); }
+        .toggle-knob {
+            width: 16px; height: 16px; background: white; border-radius: 50%;
+            transition: 0.3s cubic-bezier(0.2, 0, 0, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mood-option { 
+            padding: 15px; border-radius: 12px; border: 1.5px solid rgba(128,128,128,0.1); 
+            cursor: pointer; transition: 0.3s; font-size: 0.65rem; font-weight: 700; 
+            letter-spacing: 1px; text-transform: uppercase; background: transparent; color: var(--text);
+        }
+        .mood-option:hover { border-color: var(--accent); background: rgba(181, 131, 58, 0.05); }
+        .mood-option.active { border-color: var(--accent); background: var(--accent); color: white; }
+        
         /* END BASE STYLES */
         .reflection-box em { font-family: 'Playfair Display', serif; font-size: 1.4rem;  display: block; margin-top: 15px; }
         
@@ -2862,7 +2884,9 @@
                     <div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Incluir Código QR</div>
                     <div style="font-size: 0.6rem; opacity: 0.5;">Enlace inteligente a la app</div>
                 </div>
-                <div class="toggle-switch" onclick="toggleShareQR()" id="sw-share-qr" class="active" style="background: var(--accent);"><div class="toggle-knob" style="transform: translateX(20px);"></div></div>
+                <div id="sw-share-qr" class="toggle-switch active" onclick="toggleShareQR()" style="background: var(--accent);">
+                    <div class="toggle-knob" style="transform: translateX(18px);"></div>
+                </div>
             </div>
             
             <div style="display: flex; gap: 10px;">
@@ -5975,16 +5999,19 @@
 
         function setShareFormat(fmt) {
             currentShareFormat = fmt;
-            document.getElementById('btn-fmt-long').classList.toggle('active', fmt === 'long');
-            document.getElementById('btn-fmt-square').classList.toggle('active', fmt === 'square');
+            const btnL = document.getElementById('btn-fmt-long');
+            const btnS = document.getElementById('btn-fmt-square');
+            if (btnL) btnL.className = (fmt === 'long' ? 'mood-option active' : 'mood-option');
+            if (btnS) btnS.className = (fmt === 'square' ? 'mood-option active' : 'mood-option');
             if (typeof playSound === 'function') playSound('click');
         }
 
         function setShareMood(mood) {
             currentShareMood = mood;
-            document.querySelectorAll('#mood-modal .mood-option').forEach(el => {
-                if (el.innerText.toLowerCase().includes(mood.toLowerCase())) el.classList.add('active');
-                else if (el.id && el.id.startsWith('btn-mood')) el.classList.remove('active');
+            const moods = ['original', 'zen', 'aurora', 'nocturno'];
+            moods.forEach(m => {
+                const btn = document.getElementById(`btn-mood-${m}`);
+                if (btn) btn.className = (m === mood ? 'mood-option active' : 'mood-option');
             });
             if (typeof playSound === 'function') playSound('click');
         }
@@ -5993,8 +6020,10 @@
             shareQRActive = !shareQRActive;
             const sw = document.getElementById('sw-share-qr');
             if (sw) {
+                sw.classList.toggle('active', shareQRActive);
                 sw.style.background = shareQRActive ? 'var(--accent)' : 'rgba(128,128,128,0.2)';
-                sw.querySelector('.toggle-knob').style.transform = shareQRActive ? 'translateX(20px)' : 'translateX(0)';
+                const knob = sw.querySelector('.toggle-knob');
+                if (knob) knob.style.transform = shareQRActive ? 'translateX(18px)' : 'translateX(0)';
             }
             if (typeof playSound === 'function') playSound('click');
         }
@@ -6003,6 +6032,20 @@
             window._pendingShareType = typeArg;
             document.getElementById('mood-modal').classList.add('active');
             history.pushState({ modal: 'mood' }, "", "#mood");
+        }
+
+        function getSmartTitle(cat) {
+            const titles = {
+                'palabras': ['EL VERBO DE HOY', 'VOCABLO DE PODER', 'ESENCIA LECTORA'],
+                'afirmaciones': ['MI MANTRA DE HOY', 'DECRETO DE LUZ', 'VOLUNTAD INTERNA'],
+                'frases': ['SABIDURÍA DE TITANES', 'ECO DE LA HISTORIA', 'SENTENCIA ETERNA'],
+                'libros': ['VIAJE INTERPERSONAL', 'EXPLORACIÓN PROFUNDA', 'MAESTRÍA DIARIA'],
+                'exp': ['NUEVOS HORIZONTES', 'ESTUDIO PROFUNDO', 'BÚSQUEDA DE LUZ'],
+                'extra': ['REVELACIÓN EXCLUSIVA', 'LUZ DEL EXTRA', 'SABIDURÍA ESPECIAL'],
+                'habitos': ['RACHA DE CONSTANCIA', 'FUEGO DEL HÁBITO', 'EVOLUCIÓN CONSTANTE']
+            };
+            const list = titles[cat] || ['LÚMINA APP', 'MOMENTO DE LUZ'];
+            return list[Math.floor(Math.random() * list.length)];
         }
 
         async function executeAdvancedShare() {
@@ -6037,7 +6080,7 @@
                 qrWrapper = document.createElement('div');
                 qrWrapper.className = 'cap-qr-wrapper';
                 qrWrapper.innerHTML = `
-                    <div class="cap-qr-box" id="${areaId}-qr-box"></div>
+                    <div class="cap-qr-box" id="${areaId}-qr-box" style="background:#fff; padding:5px; border-radius:8px;"></div>
                     <div class="cap-qr-link">LUMINAPP.TODAY</div>
                 `;
                 area.appendChild(qrWrapper);
@@ -6130,12 +6173,14 @@
 
             try {
                 const blob = await captureToBlob(area);
-                const file = new File([blob], `Lumina_${new Date().getTime()}.png`, { type: 'image/png' });
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'Lúmina App', text: smartTitle });
-                } else {
-                    const link = document.createElement('a'); link.download = file.name; link.href = URL.createObjectURL(blob); link.click();
-                    showToast("Card guardada ✅");
+                if (blob) {
+                    const file = new File([blob], `Lumina_${new Date().getTime()}.png`, { type: 'image/png' });
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({ files: [file], title: 'Lúmina App', text: smartTitle });
+                    } else {
+                        const link = document.createElement('a'); link.download = file.name; link.href = URL.createObjectURL(blob); link.click();
+                        showToast("Card guardada ✅");
+                    }
                 }
             } catch (e) { showToast("Error al capturar.", "error"); }
         }
