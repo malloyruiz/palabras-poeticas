@@ -382,6 +382,22 @@
         .mood-option:hover { border-color: var(--accent); background: rgba(181, 131, 58, 0.05); }
         .mood-option.active { border-color: var(--accent); background: var(--accent) !important; color: white !important; }
         
+        /* ESTILOS DE MOODS (CAPTURA) */
+        .capture-area.mood-original { background: #f5f1e8; color: #1a1a1a; }
+        .capture-area.mood-zen { background: #ffffff; color: #2c3e50; border: 1px solid #eee; }
+        .capture-area.mood-zen .cap-title-smart { color: #7f8c8d; }
+        .capture-area.mood-zen h4 { font-family: 'Lora', serif; font-weight: 400; }
+        
+        .capture-area.mood-aurora { background: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%); color: #2d3436; }
+        .capture-area.mood-aurora .cap-title-smart { color: #636e72; }
+        .capture-area.mood-aurora h4 { color: #2d3436; text-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        
+        .capture-area.mood-nocturno { background: #0f172a; color: #f1f5f9; }
+        .capture-area.mood-nocturno .cap-title-smart { color: #94a3b8; }
+        .capture-area.mood-nocturno .cap-ex-item { border-left-color: #38bdf8; color: #cbd5e1; }
+        .capture-area.mood-nocturno .cap-qr-box { background: #f1f5f9; }
+        .capture-area.mood-nocturno .cap-qr-link { color: #94a3b8; }
+
         /* END BASE STYLES */
         .reflection-box em { font-family: 'Playfair Display', serif; font-size: 1.4rem;  display: block; margin-top: 15px; }
         
@@ -6039,15 +6055,15 @@
 
         function getSmartTitle(cat) {
             const titles = {
-                'palabras': ['EL VERBO DE HOY', 'VOCABLO DE PODER', 'ESENCIA LECTORA'],
-                'afirmaciones': ['MI MANTRA DE HOY', 'DECRETO DE LUZ', 'VOLUNTAD INTERNA'],
-                'frases': ['SABIDURÍA DE TITANES', 'ECO DE LA HISTORIA', 'SENTENCIA ETERNA'],
-                'libros': ['VIAJE INTERPERSONAL', 'EXPLORACIÓN PROFUNDA', 'MAESTRÍA DIARIA'],
-                'exp': ['NUEVOS HORIZONTES', 'ESTUDIO PROFUNDO', 'BÚSQUEDA DE LUZ'],
-                'extra': ['REVELACIÓN EXCLUSIVA', 'LUZ DEL EXTRA', 'SABIDURÍA ESPECIAL'],
-                'habitos': ['RACHA DE CONSTANCIA', 'FUEGO DEL HÁBITO', 'EVOLUCIÓN CONSTANTE']
+                'palabras': ['El Verbo de Hoy', 'Vocablo de Poder', 'Esencia Lectora'],
+                'afirmaciones': ['Mi Mantra de Hoy', 'Decreto de Luz', 'Voluntad Interna'],
+                'frases': ['Sabiduría de Titanes', 'Eco de la Historia', 'Sentencia Eterna'],
+                'libros': ['Viaje Interpersonal', 'Exploración Profunda', 'Maestría Diaria'],
+                'exp': ['Nuevos Horizontes', 'Estudio Profundo', 'Búsqueda de Luz'],
+                'extra': ['Revelación Exclusiva', 'Luz del Extra', 'Sabiduría Especial'],
+                'habitos': ['Racha de Constancia', 'Fuego del Hábito', 'Evolución Constante']
             };
-            const list = titles[cat] || ['LÚMINA APP', 'MOMENTO DE LUZ'];
+            const list = titles[cat] || ['Lúmina App', 'Momento de Luz'];
             return list[Math.floor(Math.random() * list.length)];
         }
 
@@ -6159,13 +6175,19 @@
                 const cached = getCache('libros');
                 if (cached) {
                     document.getElementById('cap-lib-title').innerText = cached.titulo || "";
-                    const meta = (cached.libro || "Lúmina") + ` — Lección ${cached.dia} — Lúminapp`;
+                    const meta = toMixedCase(cached.libro || "Lúmina") + ` — Lección ${cached.dia} — Lúminapp`;
                     document.getElementById('cap-lib-meta').innerText = meta;
                 }
             } else {
-                document.getElementById('cap-date').innerText = (document.getElementById('header-date').innerText).replace('PALABRAS', '').replace('AFIRMACIONES', '').replace('FRASES', '') + ' — Lúminapp';
-                document.getElementById('cap-cat').innerText = document.getElementById('header-cat').innerText;
-                document.getElementById('cap-word').innerText = document.getElementById('word-title').innerText;
+                let rawDate = document.getElementById('header-date').innerText;
+                const cleanDate = toMixedCase(rawDate.replace('PALABRAS', '').replace('AFIRMACIONES', '').replace('FRASES', '').trim());
+                document.getElementById('cap-date').innerText = cleanDate + ' — Lúminapp';
+                document.getElementById('cap-cat').innerText = toMixedCase(document.getElementById('header-cat').innerText);
+                
+                const wordVal = document.getElementById('word-title').innerText;
+                // Si está todo en mayúsculas (común en afirmaciones), lo pasamos a Mixed Case para estilo
+                document.getElementById('cap-word').innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
+                
                 document.getElementById('cap-def').innerText = document.getElementById('word-def').innerText;
                 const exList = document.getElementById('cap-ex-list'); exList.innerHTML = '';
                 document.querySelectorAll('.example-item').forEach(el => {
