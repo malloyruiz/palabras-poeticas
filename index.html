@@ -216,6 +216,43 @@
         .content-actions .btn-speak:hover { opacity: 1; transform: scale(1.1); }
         .content-actions .btn-fav { margin: 0; background: rgba(181, 131, 58, 0.05); }
 
+        /* --- WISDOM BOXES (Retos y Reflexiones) --- */
+        .reto-del-dia, .reflexion-del-dia {
+            grid-column: 1 / -1; 
+            margin-top: 25px; 
+            padding: 35px; 
+            background: rgba(181, 131, 58, 0.03); 
+            border: 1px solid rgba(181, 131, 58, 0.08);
+            border-radius: 28px; 
+            text-align: center;
+            transition: var(--transition);
+            display: none; 
+            position: relative;
+            overflow: hidden;
+        }
+        .wisdom-box-active { display: block !important; animation: modalFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reto-label { 
+            font-size: 0.65rem; 
+            letter-spacing: 3px; 
+            font-weight: 700; 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .reto-text { 
+            font-family: 'Playfair Display', serif; 
+            font-style: italic; 
+            font-size: 1.2rem; 
+            line-height: 1.6; 
+            color: var(--text);
+            max-width: 80%;
+            margin: 0 auto;
+        }
+
         /* --- HUB FOOTER --- */
         .btn-icon { background: transparent !important; border: none !important; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none !important; -webkit-tap-highlight-color: transparent; }
         .btn-icon svg { width: 24px; height: 24px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: 0.3s; pointer-events: none; }
@@ -2300,16 +2337,16 @@
                 </div>
             </div>
             
-            <!-- RETO DEL DÍA (solo Palabras) -->
-            <div id="reto-del-dia" style="grid-column: 1 / -1; margin-top: 20px; padding: 40px; background: rgba(181,131,58,0.05); border-radius: 30px; text-align: center;">
+            <!-- RETO DEL DÍA -->
+            <div id="reto-del-dia" class="reto-del-dia">
                 <div class="reto-label">⚡ Reto del Día</div>
-                <em id="reto-text" class="reto-text">Usa la palabra de hoy en una conversación real.</em>
+                <div id="reto-text" class="reto-text">---</div>
             </div>
             
-            <!-- PREGUNTA DE REFLEXIÓN (solo Afirmaciones) -->
-            <div id="reflexion-del-dia" style="grid-column: 1 / -1; margin-top: 20px; padding: 40px; background: rgba(181,131,58,0.05); border-radius: 30px; text-align: center;">
+            <!-- PREGUNTA DE REFLEXIÓN -->
+            <div id="reflexion-del-dia" class="reflexion-del-dia">
                 <div class="reto-label">💭 Pregunta de Reflexión</div>
-                <em id="reflexion-text" class="reto-text">¿Qué parte de ti necesita escuchar esto hoy?</em>
+                <div id="reflexion-text" class="reto-text">---</div>
             </div>
 
             <!-- BOTÓN EXTRA PRO (MAESTRÍA DIARIA) -->
@@ -4736,6 +4773,11 @@
         }
 
         function speakCurrentWord() {
+            const retoTxt = document.getElementById('reto-text')?.innerText || "";
+            const reflexionTxt = document.getElementById('reflexion-text')?.innerText || "";
+            const isRetoVisible = document.getElementById('reto-del-dia')?.classList.contains('wisdom-box-active');
+            const isReflexionVisible = document.getElementById('reflexion-del-dia')?.classList.contains('wisdom-box-active');
+
             if (currentCategory === 'extra') {
                 const title = document.getElementById('word-title').innerText.trim();
                 const story = document.getElementById('extra-story').innerText.trim();
@@ -4766,6 +4808,14 @@
                     fullText += `${ex.innerText.trim()}. `;
                 });
             }
+
+            // Integración de Reto/Reflexión en el audio
+            if (isRetoVisible && retoTxt) {
+                fullText += `El reto del día es el siguiente: ${retoTxt}. `;
+            } else if (isReflexionVisible && reflexionTxt) {
+                fullText += `Pregunta de reflexión: ${reflexionTxt}. `;
+            }
+
             fullText += "Contenido original de Lúmina App.";
             speakText(fullText);
         }
@@ -5773,34 +5823,62 @@
 
             // Retos y Reflexiones adicionales (fuera de la Edición Especial)
             if (currentCategory !== 'extra') {
+                const retoBox = document.getElementById('reto-del-dia');
                 const retoEl = document.getElementById('reto-text');
-                if (retoEl) {
-                    const reto = data.reto || (data.palabra ? `Usa la palabra "${data.palabra}" en una conversación real hoy.` : null);
-                    if (reto) retoEl.innerText = reto;
+                const reflexionBox = document.getElementById('reflexion-del-dia');
+                const reflexionEl = document.getElementById('reflexion-text');
+
+                // Reset visual
+                if (retoBox) retoBox.classList.remove('wisdom-box-active');
+                if (reflexionBox) reflexionBox.classList.remove('wisdom-box-active');
+
+                // 1. Lógica de Reto Dinámico (Solo Frases - Columna C)
+                if (currentCategory === 'frases') {
+                    const reto = data.challenge || data.reto;
+                    if (reto && retoEl && retoBox) {
+                        retoEl.innerText = reto;
+                        retoBox.classList.add('wisdom-box-active');
+                    }
                 }
 
-                const reflexionEl = document.getElementById('reflexion-text');
-                if (reflexionEl && currentCategory === 'afirmaciones') {
-                    const preguntas = [
-                        "¿Qué parte de ti necesita escuchar esto hoy?",
-                        "¿Estás actuando desde el miedo o desde tus valores?",
-                        "¿Qué harías diferente hoy si creyeras esta afirmación completamente?",
-                        "¿Esta afirmación te desafía o te confirma algo que ya sabías?",
-                        "¿Qué obstáculo interno te impide vivir esta verdad?",
-                        "¿Cómo cambiaría tu día si aplicaras esto desde el amanecer?",
-                        "¿Esta afirmación te compromete a alguna acción concreta hoy?",
-                        "¿Qué diría tu yo de dentro de 5 años sobre este momento?",
-                        "¿Estás viviendo según lo que valoras, o según lo que temes perder?",
-                        "¿Esta afirmación cambia algo en cómo ves a las personas a tu alrededor?",
-                        "¿Qué hábito pequeño refuerza esta verdad en tu vida?",
-                        "¿Hay alguien en tu vida que encarne esta afirmación? ¿Qué aprendes de él?",
-                        "¿Qué parte de ti resiste esta idea? ¿Por qué?",
-                        "¿Cómo sería tu mundo interior si vivieras esta afirmación sin cuestionarla?"
-                    ];
-                    const dayIndex = Math.floor(Date.now() / 86400000) % preguntas.length;
-                    reflexionEl.innerText = preguntas[dayIndex];
+                // 2. Lógica de Reto Tradicional (Solo Palabras - Hardcoded o data.reto)
+                if (currentCategory === 'palabras') {
+                    const reto = data.reto || (data.palabra ? `Usa la palabra "${data.palabra}" en una conversación real hoy.` : null);
+                    if (reto && retoEl && retoBox) {
+                        retoEl.innerText = reto;
+                        retoBox.classList.add('wisdom-box-active');
+                    }
+                }
+
+                // 3. Lógica de Reflexión (Solo Afirmaciones - Columna C o fallback)
+                if (currentCategory === 'afirmaciones') {
+                    const challengeVal = data.challenge || data.reto;
+                    if (challengeVal && reflexionEl && reflexionBox) {
+                        reflexionEl.innerText = challengeVal;
+                        reflexionBox.classList.add('wisdom-box-active');
+                    } else if (reflexionEl && reflexionBox) {
+                        const preguntas = [
+                            "¿Qué parte de ti necesita escuchar esto hoy?",
+                            "¿Estás actuando desde el miedo o desde tus valores?",
+                            "¿Qué harías diferente hoy si creyeras esta afirmación completamente?",
+                            "¿Esta afirmación te desafía o te confirma algo que ya sabías?",
+                            "¿Qué obstáculo interno te impide vivir esta verdad?",
+                            "¿Cómo cambiaría tu día si aplicaras esto desde el amanecer?",
+                            "¿Esta afirmación te compromete a alguna acción concreta hoy?",
+                            "¿Qué diría tu yo de dentro de 5 años sobre este momento?",
+                            "¿Estás viviendo según lo que valoras, o según lo que temes perder?",
+                            "¿Esta afirmación cambia algo en cómo ves a las personas a tu alrededor?",
+                            "¿Qué hábito pequeño refuerza esta verdad en tu vida?",
+                            "¿Hay alguien en tu vida que encarne esta afirmación? ¿Qué aprendes de él?",
+                            "¿Qué parte de ti resiste esta idea? ¿Por qué?",
+                            "¿Cómo sería tu mundo interior si vivieras esta afirmación sin cuestionarla?"
+                        ];
+                        const dayIndex = Math.floor(Date.now() / 86400000) % preguntas.length;
+                        reflexionEl.innerText = preguntas[dayIndex];
+                        reflexionBox.classList.add('wisdom-box-active');
+                    }
+                }
             }
-        }
     }
     
     // --- SISTEMA EXTRAS PRO (MAESTRÍA DIARIA) ---
@@ -7515,7 +7593,7 @@
                         btn.id = 'btn-back-hub';
                         btn.className = 'btn-icon';
                         btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
-                        btn.onclick = () => history.back();
+                        btn.onclick = () => showHub();
                         document.body.appendChild(btn);
                     }
                     btn.style.setProperty('display', 'flex', 'important');
