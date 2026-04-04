@@ -33,6 +33,7 @@
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
     
     <!-- PWABuilder Components -->
@@ -76,7 +77,7 @@
             --text-dim: rgba(26, 26, 26, 0.4);
             --card-bg: #f7f3eb;
             --card-border: rgba(181, 131, 58, 0.1);
-            --transition: 0.5s cubic-bezier(0.2, 0, 0, 1);
+            --transition: 0.3s cubic-bezier(0.2, 0, 0, 1);
         }
 
         [data-theme="dark"] {
@@ -97,9 +98,12 @@
             color: #fff;
         }
 
-        /* Ocultar barras de scroll para diseño premium */
-        ::-webkit-scrollbar { display: none; }
-        * { -ms-overflow-style: none; scrollbar-width: none; }
+        /* OCULTAR BARRAS DE SCROLL (DISEÑO PREMIUM) */
+        *::-webkit-scrollbar { display: none !important; }
+        html, body, * { 
+            -ms-overflow-style: none !important; 
+            scrollbar-width: none !important; 
+        }
 
         html, body {
             margin: 0; padding: 0; min-height: 100vh;
@@ -135,7 +139,7 @@
             width: 100%; max-width: 1100px;
             display: grid; grid-template-columns: 1fr; gap: 80px;
             opacity: 0;
-            transition: 0.8s cubic-bezier(0.2, 0, 0, 1);
+            transition: 0.4s cubic-bezier(0.2, 0, 0, 1);
             margin: 0 auto; /* Centrado horizontal */
             padding: 50px; padding-top: calc(120px + env(titlebar-area-height, 0px));
             align-items: start; box-sizing: border-box;
@@ -244,7 +248,7 @@
             margin-bottom: 30px;
         }
         /* Eliminado redundancia de hero-bg-blur para usar la versión animada arriba */
-        .hub-hero-inner { position: relative; z-index: 2; transition: 0.8s ease; }
+        .hub-hero-inner { position: relative; z-index: 2; transition: 0.4s ease; }
         .hub-hero h1 { font-family: 'Playfair Display', serif; font-size: 6rem; margin: 0; font-style: italic; letter-spacing: -2px; font-weight: 900; }
         .hub-hero p { letter-spacing: 4px; opacity: 0.4; font-size: 0.8rem; margin-top: 20px; max-width: 400px; line-height: 1.8; }
 
@@ -324,7 +328,7 @@
 
         
         /* Lesson & Pausa UI Modes */
-        .lesson-container, .pausa-container { display: none; text-align: left; animation: fadeIn 1s ease; }
+        .lesson-container, .pausa-container { display: none; text-align: left; animation: fadeIn 0.4s ease; }
         body.cat-libros .lesson-container { display: block; }
         body.cat-pausa .pausa-container { display: block; }
         
@@ -360,6 +364,10 @@
             border-radius: 30px;
             font-family: 'Inter', sans-serif;
             position: relative;
+            /* Forzado de colores para captura (siempre modo claro) */
+            --bg: #f5f1e8;
+            --text: #1a1a1a;
+            --accent: #b5833a;
         }
         .cap-title-smart { font-size: 0.7rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 25px; font-weight: 700; text-transform: uppercase; }
         .capture-area h4 { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; font-style: italic; margin: 0 0 20px 0; line-height: 1.1; }
@@ -581,7 +589,7 @@
             height: 100%;
             background: var(--accent);
             width: 0%;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 0 10px rgba(181, 131, 58, 0.3);
         }
 
@@ -616,12 +624,12 @@
 
         /* App-Like Section Transitions (Cinematic) */
         .seccion {
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
-                        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
-                        filter 0.8s ease;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        filter 0.4s ease;
             opacity: 0;
             transform: scale(0.98);
-            filter: blur(10px);
+            filter: blur(5px);
             pointer-events: none;
             grid-area: 1 / 1;
             width: 100%;
@@ -637,7 +645,7 @@
         .seccion.saliendo {
             opacity: 0 !important;
             transform: translateY(-20px) scale(1.02) !important;
-            filter: blur(10px) !important;
+            filter: blur(5px) !important;
         }
 
         @keyframes floatBlur {
@@ -650,7 +658,7 @@
         .hero-bg-blur {
             position: absolute; width: 450px; height: 450px;
             background: var(--accent); opacity: 0.2; filter: blur(100px);
-            border-radius: 50%; transition: 1.5s ease;
+            border-radius: 50%; transition: 0.7s ease;
             pointer-events: none; z-index: 0;
             animation: floatBlur 20s infinite ease-in-out;
         }
@@ -1029,6 +1037,20 @@
             pointer-events: none; border: 1px solid rgba(255,255,255,0.1);
         }
         #exit-toast.active { transform: translateX(-50%) translateY(0); }
+
+        /* --- TOAST NOTIFICACIÓN (REFINADO) --- */
+        .toast {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: var(--card-bg); color: var(--text); padding: 12px 25px; border-radius: 25px;
+            font-size: 0.75rem; letter-spacing: 1px; z-index: 12000; 
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none; border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px); opacity: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .toast.active { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.success { border-color: #4ade80; color: #4ade80; }
+        .toast.error { border-color: #f87171; color: #f87171; }
 
         /* --- CONFIRM TOAST (PREMIUM) --- */
         .confirm-toast {
@@ -1575,6 +1597,56 @@
             text-transform: uppercase; font-family: 'Outfit', sans-serif;
         }
         .btn-portal-open:hover { background: var(--accent); color: white; transform: translateY(-2px); }
+
+        /* --- QR SCANNER UI (PREMIUM) --- */
+        .qr-scanner-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 10000; display: none; flex-direction: column;
+            align-items: center; justify-content: center; padding: 20px;
+            color: white; text-align: center;
+        }
+        .qr-scanner-modal.active { display: flex; animation: fadeIn 0.4s ease; }
+        .scanner-container {
+            width: 100%; max-width: 400px; aspect-ratio: 1/1;
+            background: #000; border-radius: 40px; overflow: hidden;
+            position: relative; border: 2px solid rgba(181, 131, 58, 0.4);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+            margin-bottom: 30px;
+        }
+        #reader { width: 100% !important; height: 100% !important; border: none !important; }
+        #reader video { object-fit: cover !important; }
+        .scanner-overlay {
+            position: absolute; inset: 0; z-index: 10; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .scanner-frame {
+            width: 260px; height: 260px; border: 2px solid var(--accent);
+            border-radius: 30px; position: relative;
+            box-shadow: 0 0 0 2000px rgba(0,0,0,0.4);
+        }
+        .scanner-line {
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: var(--accent); box-shadow: 0 0 20px var(--accent);
+            animation: scanLine 2.5s ease-in-out infinite; z-index: 11;
+        }
+        @keyframes scanLine {
+            0% { top: 10%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 90%; opacity: 0; }
+        }
+        .scanner-hint {
+            font-family: 'Outfit', sans-serif; font-size: 0.85rem; letter-spacing: 1px;
+            opacity: 0.7; max-width: 280px; line-height: 1.6; margin-top: 10px;
+        }
+        .btn-close-scanner {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 15px 40px; border-radius: 50px; cursor: pointer;
+            font-size: 0.75rem; letter-spacing: 2px; font-weight: 700;
+            margin-top: 30px; transition: 0.3s; text-transform: uppercase;
+        }
+        .btn-close-scanner:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
 
         /* Full Width Wrappers & Dual Layouts */
         .landing-section-wrapper { width: 100%; position: relative; }
@@ -2764,6 +2836,27 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN: SISTEMA Y ENERGÍA -->
+            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">SISTEMA Y ENERGÍA</div>
+            
+            <div class="sub-option" onclick="toggleWakeLock()" style="cursor:pointer; margin-bottom: 15px;">
+                <div style="display: flex; flex-direction: column;">
+                    <span>Mantener Pantalla Encendida</span>
+                    <small style="font-size: 0.6rem; opacity: 0.5;">Evita que el dispositivo entre en reposo</small>
+                </div>
+                <div class="toggle-sub" id="sub-wake-lock"></div>
+            </div>
+
+            <div class="sub-option" onclick="showScanner()" style="cursor:pointer; margin-bottom: 25px; border-top: 1px solid rgba(181,131,58,0.1); padding-top: 15px;">
+                <div style="display: flex; flex-direction: column;">
+                    <span>Escáner de Sabiduría</span>
+                    <small style="font-size: 0.6rem; opacity: 0.5;">Escanea QRs para abrir pantallas compartidas</small>
+                </div>
+                <div style="color: var(--accent); opacity: 0.8;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
+                </div>
+            </div>
+
             <!-- SECCIÓN: NOTIFICACIONES -->
             <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">NOTIFICACIONES</div>
 
@@ -2802,6 +2895,25 @@
 
             <button class="btn-save" onclick="toggleSettings()" style="background:none; border: none; color: var(--text); opacity: 0.4; font-size: 0.8rem; margin-top: 15px;">CERRAR VENTANA</button>
         </div>
+    </div>
+
+    <!-- Modal del Escáner QR -->
+    <div id="qr-scanner-modal" class="qr-scanner-modal">
+        <h2 style="font-family:'Playfair Display', serif; font-size: 2.2rem; font-style: italic; margin-bottom: 5px;">Escanear Lúmina</h2>
+        <p class="scanner-hint" style="margin-bottom: 25px; opacity: 0.6; font-size: 0.85rem;">Apunta con la cámara al código QR de otro dispositivo para abrir el contenido instantáneamente.</p>
+        
+        <div class="scanner-container">
+            <div id="reader"></div>
+            <div class="scanner-overlay">
+                <div class="scanner-frame">
+                    <div class="scanner-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="scanner-status" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase;">Iniciando cámara...</div>
+        
+        <button class="btn-close-scanner" onclick="stopScanner()">CANCELAR ESCANEO</button>
     </div>
 
     <!-- Modal Instalación Multiplataforma -->
@@ -4002,15 +4114,52 @@
             else btn.classList.remove('active');
         }
 
+        let expJournalDebounce;
         function saveExpJournal() {
-            const text = document.getElementById('exp-journal').value;
-            const key = `lumina_journal_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
-            localStorage.setItem(key, text);
+            clearTimeout(expJournalDebounce);
+            expJournalDebounce = setTimeout(() => {
+                const text = document.getElementById('exp-journal').value;
+                const title = document.getElementById('exp-read-title').innerText;
+                const now = new Date();
+                const dateKey = now.toDateString();
+                const dateDisplay = getSpanishDate(now, true);
+                const key = `lumina_journal_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
+                
+                if (text.trim() === "") {
+                    localStorage.removeItem(key);
+                } else {
+                    localStorage.setItem(key, JSON.stringify({
+                        title: title,
+                        notes: text,
+                        date: dateDisplay,
+                        timestamp: now.getTime(),
+                        cat: 'exp',
+                        book: currentExpBook,
+                        lessonIdx: currentExpIdx
+                    }));
+                }
+                pushSync(); // Sincronizar inmediatamente tras el guardado
+            }, 1000);
         }
 
         function loadExpJournal() {
             const key = `lumina_journal_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
-            document.getElementById('exp-journal').value = localStorage.getItem(key) || "";
+            const saved = localStorage.getItem(key);
+            const input = document.getElementById('exp-journal');
+            if (input) {
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        input.value = data.notes || "";
+                    } catch (e) {
+                        // Migración: Si era texto plano (formato antiguo), recuperarlo
+                        input.value = saved;
+                        saveExpJournal(); // Convertir al nuevo formato
+                    }
+                } else {
+                    input.value = "";
+                }
+            }
         }
 
         async function speakExpContent() {
@@ -5010,7 +5159,7 @@
         // --- SISTEMA DE NAVEGACIÓN (TIPO APP) ---
         let lastBackPress = 0;
 
-        async function openCategory(cat, isLocked = false, isUserAction = true) {
+        async function openCategory(cat, isLocked = false, isUserAction = true, fullHash = null) {
             if (isLocked && !isPro) {
                 document.getElementById('pro-modal').classList.add('active');
                 history.pushState({ modal: 'pro' }, "", "#pro");
@@ -5026,7 +5175,8 @@
             
             // Si es acción del usuario, empujar al historial
             if (isUserAction) {
-                history.pushState({ cat: cat }, "", "#" + cat);
+                const targetHash = (fullHash && fullHash !== cat) ? fullHash : cat;
+                history.pushState({ cat: cat }, "", "#" + targetHash);
             }
 
             const hub = document.getElementById('hub');
@@ -5076,7 +5226,7 @@
                 const shareBtn = document.getElementById('main-share-btn');
                 if (shareBtn) shareBtn.style.display = ['palabras', 'afirmaciones', 'frases', 'libros', 'extra'].includes(cat) ? 'block' : 'none';
 
-                if (cat === 'libros') requestWakeLock();
+                if (cat === 'libros' || cat === 'expansiones') requestWakeLock();
 
                 let btn = document.getElementById('btn-back-hub');
                 if (!btn) {
@@ -5211,6 +5361,19 @@
 
         let currentIdx = -1; // Índice actual del contenido (para Extras PRO)
 
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    const mui = document.getElementById('main-ui');
+                    if (mui) mui.classList.add('loaded');
+                    loadUserJournal(); // Asegurar carga de diario al finalizar loader
+                }, 400);
+            }
+        }
+
         async function fetchContent(index = null) {
             let cacheKey = currentCategory;
             const cached = getCache(cacheKey);
@@ -5220,10 +5383,7 @@
             // 1. Mostrar caché inmediatamente (Si es de hoy y no pedimos uno específico)
             if (index === null && cached && cacheDate === today) {
                 renderContent(cached);
-                document.getElementById('loader').classList.add('hidden');
-                document.getElementById('main-ui').classList.add('loaded');
-                loadUserJournal(); // Cargar diario
-                checkOnline();
+                hideLoader();
                 return;
             }
 
@@ -5248,6 +5408,7 @@
                 
                 if (currentCategory === 'extra' && data.error) {
                     showToast(data.error, "error");
+                    hideLoader();
                     history.back();
                     return;
                 }
@@ -5266,13 +5427,7 @@
                 checkOnline(); // Forzar banner si falla la red
             }
 
-            document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('loader').classList.add('hidden');
-                const mui = document.getElementById('main-ui');
-                if (mui) mui.classList.add('loaded');
-                loadUserJournal(); // Cargar diario
-            }, 400);
+            hideLoader();
         }
 
         function renderContent(data) {
@@ -5811,7 +5966,7 @@
                         
                         const validCats = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra'];
                         if (validCats.includes(catName)) {
-                            openCategory(catName, catName === 'libros');
+                            openCategory(catName, catName === 'libros', true, target);
                         } else if (!link) {
                             // Si no hay nada claro, abrir la campana de nuevo por seguridad
                             toggleNotifications(); 
@@ -5953,6 +6108,7 @@
                     }));
                 }
                 if(status) status.innerText = "Guardado.";
+                pushSync(); // Asegurar sincronización en la nube
             }, 1000);
         }
 
@@ -5990,7 +6146,7 @@
             const notes = [];
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (key.startsWith('lumina_note_')) {
+                if (key.startsWith('lumina_note_') || key.startsWith('lumina_journal_')) {
                     try {
                         const n = JSON.parse(localStorage.getItem(key));
                         // Re-validación del formato de fecha para notas antiguas si no tienen timestamp
@@ -6023,7 +6179,7 @@
                 let storageKey = "";
                 for (let i = 0; i < localStorage.length; i++) {
                     const k = localStorage.key(i);
-                    if (k.startsWith('lumina_note_')) {
+                    if (k.startsWith('lumina_note_') || k.startsWith('lumina_journal_')) {
                         try {
                             const tmp = JSON.parse(localStorage.getItem(k));
                             if (tmp.timestamp === n.timestamp) {
@@ -6129,6 +6285,14 @@
                     if (isSub) btn.classList.add('active');
                     else btn.classList.remove('active');
                 });
+
+                // Sincronizar Wake Lock
+                const wakeLockBtn = document.getElementById('sub-wake-lock');
+                if (wakeLockBtn) {
+                    const isWakeLocked = localStorage.getItem('lumina_wake_lock') === 'true';
+                    if (isWakeLocked) wakeLockBtn.classList.add('active');
+                    else wakeLockBtn.classList.remove('active');
+                }
 
                 if (window.OneSignal && OneSignal.User && OneSignal.User.getTags) {
                     const tags = await OneSignal.User.getTags();
@@ -6361,6 +6525,23 @@
             pushSync();
         }
 
+        function toggleWakeLock() {
+            const current = localStorage.getItem('lumina_wake_lock') === 'true';
+            const newVal = !current;
+            localStorage.setItem('lumina_wake_lock', newVal);
+            updateSubscriptionUI();
+            
+            if (newVal) {
+                requestWakeLock();
+                showToast("Pantalla siempre encendida activada", "success");
+            } else {
+                releaseWakeLock();
+                showToast("Gestión de energía restaurada", "info");
+            }
+            if (navigator.vibrate) navigator.vibrate(12);
+            pushSync();
+        }
+
         function toMixedCase(str) {
             if (!str || typeof str !== 'string') return "";
             return str.toLowerCase().split(' ').filter(w => w).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -6422,15 +6603,15 @@
                 if (extraList) {
                     extraList.innerHTML = `<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; text-align:center; margin-top:20px;">
                         <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
-                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:var(--accent);">${streak}</div>
+                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:#b5833a;">${streak}</div>
                             <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Racha</div>
                         </div>
                         <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
-                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:var(--accent);">${medals}</div>
+                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:#b5833a;">${medals}</div>
                             <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Logros</div>
                         </div>
                         <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
-                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:var(--accent);">${pausas}</div>
+                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:#b5833a;">${pausas}</div>
                             <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Pausas</div>
                         </div>
                     </div>`;
@@ -6446,16 +6627,16 @@
                 // 2. Indicador de Progreso (Lección X de Y)
                 const current = isExp ? (currentExpIdx + 1) : (lesson?.dia || 1);
                 const total = isExp ? currentExpLessons.length : (lesson?.total || 1);
-                bodyEl.innerHTML = `<div style="font-size:0.7rem; letter-spacing:2px; font-weight:700; color:var(--accent); text-transform:uppercase; margin-top:10px;">Lección ${current} de ${total}</div>`;
+                bodyEl.innerHTML = `<div style="font-size:0.7rem; letter-spacing:2px; font-weight:700; color:#b5833a; text-transform:uppercase; margin-top:10px;">Lección ${current} de ${total}</div>`;
                 
                 // 3. Identidad del Libro y Autor
                 const bookName = isExp ? currentExpBook : (lesson?.libro || "Lúmina");
-                const author = lesson?.autor || (isExp ? null : null); // Intentar capturar de ambos
+                const author = lesson?.autor || (isExp ? "Lúmina" : "Lúmina"); 
                 const extraList = document.getElementById('cap-extra-list');
                 
                 if (extraList) {
                     extraList.innerHTML = `<div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px; border:1px solid rgba(181,131,58,0.1); text-align:center; margin-top:20px;">
-                        <div style="font-family:'Playfair Display', serif; font-size:1.1rem; font-style:italic; color:var(--text); opacity:0.9;">
+                        <div style="font-family:'Playfair Display', serif; font-size:1.1rem; font-style:italic; color:#1a1a1a; opacity:0.9;">
                             ${bookName}${author ? ' &mdash; ' + author : ''}
                         </div>
                     </div>`;
@@ -6467,14 +6648,14 @@
                 
                 // Pensamiento central en cursiva elegante (vía CSS inline para la captura)
                 const thought = document.getElementById('extra-thought')?.innerText || "";
-                bodyEl.innerHTML = `<div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.4rem; line-height:1.5; color:var(--accent); margin-bottom:20px;">"${thought}"</div>`;
+                bodyEl.innerHTML = `<div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.4rem; line-height:1.5; color:#b5833a; margin-bottom:20px;">"${thought}"</div>`;
                 
                 const challenge = document.getElementById('extra-challenge')?.innerText || "";
                 const extraList = document.getElementById('cap-extra-list');
                 if (extraList && challenge) {
                     extraList.innerHTML = `<div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px; border:1px solid rgba(181,131,58,0.1); text-align:center;">
-                        <small style="letter-spacing:2px; font-weight:700; color:var(--accent); display:block; margin-bottom:5px; font-size:0.5rem; text-transform:uppercase;">RETO DEL DÍA</small>
-                        <div style="font-size:0.9rem; opacity:0.8;">${challenge}</div>
+                        <small style="letter-spacing:2px; font-weight:700; color:#b5833a; display:block; margin-bottom:5px; font-size:0.5rem; text-transform:uppercase;">RETO DEL DÍA</small>
+                        <div style="font-size:0.9rem; opacity:0.8; color:#1a1a1a;">${challenge}</div>
                     </div>`;
                 }
                 footerEl.textContent = new Date().getFullYear();
@@ -6634,15 +6815,18 @@
         // PWA Wake Lock
         let wakeLock = null;
         async function requestWakeLock() {
+            if (!('wakeLock' in navigator)) return;
             try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                }
+                if (wakeLock !== null) return;
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLock.addEventListener('release', () => { wakeLock = null; });
             } catch (err) { console.warn("WakeLock error:", err); }
         }
+
         function releaseWakeLock() {
-            if (wakeLock) {
-                wakeLock.release().then(() => wakeLock = null);
+            if (localStorage.getItem('lumina_wake_lock') === 'true' && currentCategory !== 'hub') return;
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => { wakeLock = null; });
             }
         }
 
@@ -6680,6 +6864,10 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
+            initAmbient();
+            updateProExtraUI();
+            if (localStorage.getItem('lumina_wake_lock') === 'true') requestWakeLock();
+            
             // Soporte para abrir modal desde notificaciones o links externos
             const params = new URLSearchParams(window.location.search);
             if (params.get('modal') === 'habitos' || window.location.hash === '#habitos') {
@@ -6778,6 +6966,7 @@
             playSound('click');
             document.getElementById('pausa-view-prep').style.display = 'none';
             document.getElementById('pausa-view-session').style.display = 'flex';
+            requestWakeLock();
             
             remainingSeconds = currentPausaTime * 60;
             updatePausaTimerUI();
@@ -6889,6 +7078,86 @@
             if (profilePVal) profilePVal.innerText = pausasCount;
         });
 
+
+        // --- LÓGICA DE ESCÁNER QR DE SABIDURÍA ---
+        let html5QrCode;
+        async function showScanner() {
+            closeModals(true); 
+            const modal = document.getElementById('qr-scanner-modal');
+            if (!modal) return;
+            
+            modal.classList.add('active');
+            const status = document.getElementById('scanner-status');
+            status.innerText = "Iniciando cámara...";
+
+            try {
+                // Instanciar solo si no existe
+                if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+                
+                const config = { 
+                    fps: 15, 
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0
+                };
+
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    onScanSuccess
+                );
+                status.innerText = "Buscando código...";
+                if (navigator.vibrate) navigator.vibrate(10);
+            } catch (err) {
+                console.warn("Error QR Scanner:", err);
+                status.innerText = "Error: Acceso a cámara denegado.";
+                showToast("Revisa los permisos de cámara", "error");
+                setTimeout(stopScanner, 2000);
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            // Feedback de éxito
+            if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+            
+            // Procesar el texto para encontrar la categoría
+            // Formatos: luminapp.today/#libros, lmn://pausa, o solo 'frases'
+            let cat = decodedText.toLowerCase();
+            if (cat.includes('#')) cat = cat.split('#')[1];
+            else if (cat.includes('://')) cat = cat.split('://')[1];
+            else if (cat.includes('/')) cat = cat.split('/').pop();
+
+            const validCats = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'expansiones', 'habitos', 'perfil', 'ajusts'];
+            
+            // Mapeo de alias comunes
+            const alias = { 'ajustes': 'settings', 'perfil': 'profile', 'ajusts': 'settings' };
+            const finalCat = alias[cat] || cat;
+
+            if (validCats.includes(finalCat) || ['settings', 'profile'].includes(finalCat)) {
+                stopScanner();
+                showToast("Reflejando pantalla...");
+                setTimeout(() => openCategory(finalCat), 300);
+            } else {
+                // Si no es un QR reconocido, mostramos un aviso pero seguimos escaneando
+                const status = document.getElementById('scanner-status');
+                status.innerText = "Código no reconocido.";
+                status.style.color = "var(--accent)";
+                setTimeout(() => { if(status) status.style.color = "white"; }, 1500);
+            }
+        }
+
+        async function stopScanner() {
+            try {
+                if (html5QrCode && html5QrCode.isScanning) {
+                    await html5QrCode.stop();
+                }
+            } catch (e) {
+                console.warn("Error al detener cámara:", e);
+            } finally {
+                document.getElementById('qr-scanner-modal').classList.remove('active');
+                if (document.getElementById('scanner-status')) document.getElementById('scanner-status').innerText = "";
+            }
+        }
+
         // Intercepción en openCategory para Comandos Universales
         const originalOpenCategory = openCategory;
         openCategory = function(cat, isLocked = false, isUserAction = true) {
@@ -6920,6 +7189,7 @@
                     }
                     if (mainUI) mainUI.classList.add('view-pausa');
                     document.getElementById('header-cat').innerText = 'PAUSA CONSCIENTE';
+                    requestWakeLock(); // Activar pre-pausa
                 }
                 if (cat === 'profile') toggleProfile();
                 if (cat === 'settings') toggleSettings();
