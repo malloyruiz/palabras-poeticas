@@ -1544,23 +1544,461 @@
         }
         .time-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        /* --- SISTEMA DE TOAST PREMIUM --- */
-        .toast {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: rgba(26, 26, 26, 0.9); color: white; padding: 12px 25px;
-            border-radius: 50px; font-size: 0.85rem; z-index: 6000;
-            transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1.5);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: none;
-            display: flex; align-items: center; gap: 10px; opacity: 0;
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            white-space: nowrap;
+        /* --- LANDING PAGE PREMIUM (FINAL STOIC-MODERN) --- */
+        #landing-ui {
+            background: #fff;
+            color: #1a1a1a;
+            position: relative; z-index: 5000;
+            overflow-x: hidden;
+            font-family: var(--font-body);
         }
-        .toast.active { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .toast.error { background: rgba(239, 68, 68, 0.9); }
-        .toast.success { background: rgba(16, 185, 129, 0.9); }
+        .landing-nav {
+            position: sticky; top: 0; width: 100%; padding: 20px 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(20px) brightness(1.1);
+            -webkit-backdrop-filter: blur(20px) brightness(1.1);
+            z-index: 5100; box-sizing: border-box;
+            border-bottom: 1px solid rgba(181, 131, 58, 0.1);
+        }
+        .landing-logo-container { display: flex; align-items: center; gap: 15px; transition: 0.3s; cursor: pointer; }
+        .landing-logo { height: 75px; transition: 0.3s; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.05)); }
+        .logo-text { 
+            font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 900; 
+            font-style: italic; color: var(--text); letter-spacing: -1px;
+            margin-bottom: 5px;
+        }
+        .btn-portal-open {
+            background: white; border: 2px solid var(--accent); color: var(--accent);
+            padding: 12px 28px; border-radius: 50px; cursor: pointer; font-weight: 700;
+            font-size: 0.75rem; letter-spacing: 2px; transition: 0.3s;
+            text-transform: uppercase; font-family: 'Outfit', sans-serif;
+        }
+        .btn-portal-open:hover { background: var(--accent); color: white; transform: translateY(-2px); }
+
+        /* Full Width Wrappers & Dual Layouts */
+        .landing-section-wrapper { width: 100%; position: relative; }
+        .bg-white { background: #fff; }
+        .bg-light { background: #fdfaf5; } 
+        .bg-dark { background: #1a1a1a; color: #fff; }
+        .bg-rock { background: #f5f5f5; }
+
+        .landing-dual-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1.2fr; 
+            gap: 80px; 
+            align-items: center; 
+        }
+        @media (max-width: 900px) {
+            .landing-dual-grid { grid-template-columns: 1fr; gap: 40px; }
+            .landing-nav { padding: 15px 25px; }
+            .landing-logo { height: 60px; }
+            .logo-text { font-size: 1.8rem; }
+        }
+
+        .landing-hero {
+            position: relative;
+            min-height: 85vh; 
+            background: url('file:///C:/Users/pc/.gemini/antigravity/brain/76f568a0-2162-41b5-b36f-f2449a80501c/lumina_marble_texture_1775250456194.png') center/cover fixed;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center; overflow: hidden;
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.9) 100%);
+            z-index: 1;
+        }
+        .hero-carousel-container {
+            position: relative; z-index: 10; width: 100%; max-width: 900px;
+            padding: 40px; box-sizing: border-box;
+        }
+        .hero-slide {
+            display: none;
+            animation: fadeInHero 1.2s cubic-bezier(0.2, 0, 0, 1) forwards;
+        }
+        .hero-slide.active { display: block; }
+
+        @keyframes fadeInHero {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .landing-hero h1 {
+            font-family: 'Playfair Display', serif; font-size: clamp(3.5rem, 10vw, 6.5rem);
+            margin: 0; font-style: italic; font-weight: 900; line-height: 1;
+            color: var(--text);
+        }
+        .landing-hero p {
+            max-width: 650px; font-size: 1.4rem; opacity: 0.8; margin: 35px auto;
+            line-height: 1.6; font-weight: 300; color: #333; font-family: 'Outfit', sans-serif;
+        }
+        .hero-dots {
+            display: flex; gap: 10px; justify-content: center; margin-top: 40px;
+        }
+        .hero-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: rgba(181, 131, 58, 0.2);
+            transition: 0.3s; cursor: pointer;
+        }
+        .hero-dot.active { background: var(--accent); width: 25px; border-radius: 10px; }
+        .btn-cta-gold {
+            background: var(--accent); color: white; border: none;
+            padding: 22px 55px; border-radius: 50px; font-size: 0.95rem;
+            font-weight: 700; letter-spacing: 2px; cursor: pointer;
+            box-shadow: 0 15px 40px rgba(181, 131, 58, 0.3);
+            transition: 0.4s cubic-bezier(0.2, 0, 0, 1.5);
+            text-transform: uppercase; font-family: 'Outfit', sans-serif;
+        }
+        .btn-cta-gold:hover { transform: scale(1.05) translateY(-5px); box-shadow: 0 20px 50px rgba(181, 131, 58, 0.4); }
+
+        .landing-section { padding: 90px 40px; max-width: 1200px; margin: 0 auto; box-sizing: border-box; }
+        .section-tag { 
+            color: var(--accent); font-weight: 700; letter-spacing: 5px; font-size: 0.75rem; 
+            text-transform: uppercase; margin-bottom: 25px; font-family: 'Outfit', sans-serif; 
+        }
+        .bg-dark .section-tag { color: var(--accent); opacity: 1; }
+        .landing-section h2 { font-family: 'Playfair Display', serif; font-size: 3.8rem; margin-bottom: 30px; font-style: italic; line-height: 1.1; }
+
+        /* Modular Learning */
+        .modular-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
+        .modular-card { 
+            background: rgba(255, 255, 255, 0.9); padding: 50px 40px; border-radius: 24px; 
+            border: 2px solid var(--accent);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.03);
+            transition: 0.4s;
+        }
+        .modular-card:hover { transform: translateY(-7px); border-color: #d4af37; }
+        .modular-card h3 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 20px; font-style: italic; }
+        .modular-card p { opacity: 0.7; line-height: 1.8; font-size: 1rem; font-family: 'Outfit', sans-serif; font-weight: 300; letter-spacing: 0.3px; }
+
+        /* library-carousel (Storytel Style) */
+        .library-carousel { display: flex; gap: 40px; overflow-x: auto; padding-bottom: 50px; scroll-snap-type: x mandatory; margin-top: 50px; }
+        .book-card-mock {
+            min-width: 240px; height: 360px; background: white; 
+            border: 3px solid var(--accent);
+            display: flex; flex-direction: column; justify-content: space-between; 
+            box-sizing: border-box; scroll-snap-align: start; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); transition: 0.5s;
+            border-radius: 12px; overflow: hidden;
+        }
+        .book-card-mock:hover { transform: translateY(-15px) scale(1.05); border-color: #fff; box-shadow: 0 30px 70px rgba(181, 131, 58, 0.2); }
+
+        /* Dual Sections & Hub Mirror Components */
+        .hub-pilar-item { 
+            border-left: 3px solid var(--accent); 
+            padding-left: 20px; 
+            margin-bottom: 30px; 
+            transition: 0.3s;
+            text-align: left;
+        }
+        .hub-pilar-item:hover { transform: translateX(10px); }
+        .hub-pilar-item strong { 
+            display: block; font-family: 'Playfair Display', serif; 
+            font-size: 1.25rem; font-style: italic; margin-bottom: 5px; 
+            color: var(--text); 
+        }
+        .hub-pilar-item span { 
+            font-family: 'Outfit', sans-serif; font-size: 0.95rem; 
+            opacity: 0.6; line-height: 1.7; display: block;
+            font-weight: 300;
+        }
+
+        .timeline-demo {
+            border-left: 2px solid rgba(181, 131, 58, 0.2);
+            padding-left: 30px;
+            margin-left: 10px;
+            position: relative;
+        }
+        .timeline-node {
+            position: relative;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 15px;
+            border: 1px solid rgba(181, 131, 58, 0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            text-align: left;
+        }
+        .timeline-node::before {
+            content: '';
+            position: absolute; left: -41px; top: 25px;
+            width: 20px; height: 20px;
+            border-radius: 50%; background: #fff;
+            border: 4px solid var(--accent);
+            z-index: 2;
+        }
+        .node-tag { color: var(--accent); font-weight: 800; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; font-family: 'Outfit', sans-serif; }
+        .node-title { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; opacity: 0.8; }
+
+        /* Pricing */
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-top: 60px; }
+        .price-card { 
+            background: #fff; border: 2px solid rgba(181, 131, 58, 0.1); 
+            padding: 70px 45px; border-radius: 35px;
+            text-align: center; transition: 0.5s;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.02);
+        }
+        .price-card.featured { border: 3px solid var(--accent); transform: scale(1.08); box-shadow: 0 40px 80px rgba(181, 131, 58, 0.15); z-index: 10; }
+        .p-name { color: var(--accent); font-weight: 800; letter-spacing: 4px; font-size: 0.75rem; margin-bottom: 20px; text-transform: uppercase; font-family: 'Outfit', sans-serif; }
+        .p-price { font-family: 'Playfair Display', serif; font-size: 4rem; margin-bottom: 35px; font-weight: 900; }
+        .p-features { list-style: none; padding: 0; margin-bottom: 45px; text-align: left; font-size: 1rem; }
+        .p-features li { padding: 15px 0; border-bottom: 1px solid rgba(181, 131, 58, 0.1); display: flex; align-items: center; gap: 15px; font-family: 'Outfit', sans-serif; font-weight: 300; }
+        .p-features li::before { content: '▸'; color: var(--accent); font-weight: 900; font-size: 1.2rem; }
+
+        /* Store Badges */
+        .store-badges { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 50px; }
+        .store-badge { 
+            font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; color: rgba(0,0,0,0.4);
+            transition: 0.3s; cursor: default; background: white;
+        }
+        .store-badge:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-3px); }
+
+        footer.landing-footer { 
+            border-top: 1px solid rgba(181, 131, 58, 0.2); 
+            padding: 60px 40px; text-align: center; 
+            background: rgba(255, 255, 255, 0.5); 
+            backdrop-filter: blur(10px);
+        }
+        .footer-logo { height: 50px; opacity: 0.8; margin-bottom: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+
+        @media (max-width: 768px) {
+            .landing-hero h1 { font-size: 3rem; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .price-card.featured { transform: none; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- LANDING PAGE (USUARIOS NO LOGUEADOS) -->
+    <div id="landing-ui" style="display: none;">
+        <nav class="landing-nav" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+            <div class="landing-logo-container">
+                <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="landing-logo">
+                <span class="logo-text">Lúmina</span>
+            </div>
+            <button class="btn-portal-open" onclick="setPortalMode('login'); document.getElementById('login-portal').style.display='flex';">Entrar</button>
+        </nav>
+
+        <header class="landing-hero" id="landing-hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-carousel-container" id="hero-carousel">
+                <!-- Slide 1 (Default) -->
+                <div class="hero-slide active">
+                    <div class="section-tag">Tu dosis diaria de serenidad</div>
+                    <h1>Tu refugio de sabiduría diaria.</h1>
+                    <p>Dosis precisas de filosofía, disciplina y crecimiento personal para transformar tu mente sin requerir horas de lectura.</p>
+                </div>
+                <!-- Slide 2 (Propuesta) -->
+                <div class="hero-slide">
+                    <div class="section-tag">Aprendizaje con Propósito</div>
+                    <h1>Conecta con los Gigantes.</h1>
+                    <p>Explora las mentes que definieron la historia y extrae lecciones prácticas para navegar tu mundo moderno con claridad.</p>
+                </div>
+                
+                <button class="btn-cta-gold" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">COMENZAR MI PRUEBA DE 14 DÍAS</button>
+                
+                <div class="hero-dots" id="hero-dots">
+                    <div class="hero-dot active" onclick="setHeroSlide(0)"></div>
+                    <div class="hero-dot" onclick="setHeroSlide(1)"></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="landing-section-wrapper bg-white">
+            <section class="landing-section">
+                <div class="landing-dual-grid">
+                    <!-- Izquierda: Metodología -->
+                    <div style="text-align: left;">
+                        <div class="section-tag">Metodología</div>
+                        <h2>Joyas de Sabiduría Independientes</h2>
+                        <p style="opacity: 0.6; line-height: 1.8; font-family: 'Outfit', sans-serif; font-weight: 300; margin-bottom: 30px;">Nuestro <strong>Aprendizaje Modular</strong> convierte grandes obras en lecciones de impacto inmediato. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
+                        
+                        <div class="modular-card" style="padding: 30px; margin-bottom: 20px; border-width: 1px;">
+                            <h3 style="font-size: 1.6rem;">Lecciones Atómicas</h3>
+                            <p style="font-size: 0.9rem;">Cada perla de conocimiento incluye su propia aplicación personal, profesional y una reflexión profunda diseñada para cuestionar tus sesgos.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Derecha: Pilares -->
+                    <div style="background: rgba(181, 131, 58, 0.02); padding: 50px; border-radius: 40px; border: 1px solid rgba(181, 131, 58, 0.05);">
+                        <div class="section-tag">Sobre Lúmina</div>
+                        <p style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.4rem; margin-bottom: 40px; line-height: 1.4;">"Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria."</p>
+                        
+                        <div class="hub-pilar-item">
+                            <strong>Palabras y Afirmaciones</strong>
+                            <span>Precisión verbal y reprogramación consciente para la resiliencia ante el caos.</span>
+                        </div>
+                        <div class="hub-pilar-item">
+                            <strong>Frases y Sabiduría</strong>
+                            <span>El consejo de los gigantes para navegar los desafíos de la vida contemporánea.</span>
+                        </div>
+                        <div class="hub-pilar-item">
+                            <strong>Libros Maestros</strong>
+                            <span>Inmersión profunda en las mentes universales, destilada en lecciones accionables.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="landing-section-wrapper bg-dark">
+            <section class="landing-section">
+                <div class="landing-dual-grid">
+                    <!-- Izquierda: Biblioteca -->
+                    <div>
+                        <div class="section-tag" style="color: var(--accent);">Biblioteca Premium</div>
+                        <h2 style="color: #white; font-size: 3rem;">Explora los clásicos</h2>
+                        <div class="library-carousel" style="margin-top: 30px; gap: 20px;">
+                            <div class="book-card-mock" style="min-width: 180px; height: 270px; border-width: 2px;">
+                                <img src="file:///C:/Users/pc/.gemini/antigravity/brain/76f568a0-2162-41b5-b36f-f2449a80501c/lumina_book_cover_meditaciones_1775248304078.png" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                            <div class="book-card-mock" style="min-width: 180px; height: 270px; border-width: 2px;">
+                                <img src="file:///C:/Users/pc/.gemini/antigravity/brain/76f568a0-2162-41b5-b36f-f2449a80501c/lumina_book_cover_brevedad_vida_1775248331251.png" style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                        </div>
+                        <p style="font-family: 'Outfit', sans-serif; font-size: 0.9rem; opacity: 0.5; margin-top: 30px;">Acceso completo a nuestra selección editorial con tu suscripción Pro.</p>
+                    </div>
+
+                    <!-- Derecha: Mi Viaje -->
+                    <div style="text-align: left;">
+                        <div class="section-tag" style="color: var(--accent);">Mi Viaje</div>
+                        <h2 style="color: #white; margin-bottom: 40px;">Tu Camino a la Maestría</h2>
+                        
+                        <div class="timeline-demo">
+                            <div class="timeline-node">
+                                <div class="node-tag">HOY — LIBROS</div>
+                                <div class="node-title">Sexto: Meditaciones (Marco Aurelio)</div>
+                            </div>
+                            <div class="timeline-node" style="opacity: 0.4;">
+                                <div class="node-tag">MAÑANA</div>
+                                <div class="node-title">Sétimo: La Brevedad de la Vida (Séneca)</div>
+                            </div>
+                            <div class="timeline-node" style="opacity: 0.2; margin-bottom: 0;">
+                                <div class="node-tag">LUNES</div>
+                                <div class="node-title">Octavo: Manual para la Vida (Epicteto)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="landing-section-wrapper bg-rock">
+            <section class="landing-section" style="padding-top: 100px; padding-bottom: 100px;">
+                <div class="section-tag">Contenido Exclusivo</div>
+                <h2 style="font-size: 3.5rem; margin-bottom: 60px;">Eleva tu sabiduría con<br>nuestras <span style="font-style: italic; color: var(--accent);">Expansiones</span></h2>
+                
+                <div class="landing-dual-grid" style="gap: 40px;">
+                    <div class="modular-card" style="text-align: left; padding: 40px; border-color: var(--accent); background: #fff;">
+                        <div style="font-size: 2.5rem; margin-bottom: 20px;">🏛️</div>
+                        <h4 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; margin-bottom: 15px;">Fuerza Stoica</h4>
+                        <p style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; opacity: 0.7; line-height: 1.6;">Una inmersión profunda en la disciplina de Marco Aurelio y Epicteto. Templanza y fortaleza para el mundo moderno.</p>
+                        <div class="node-tag" style="margin-top: 25px;">MÁS DE 50 LECCIONES</div>
+                    </div>
+                    <div class="modular-card" style="text-align: left; padding: 40px; border-color: var(--accent); background: #fff;">
+                        <div style="font-size: 2.5rem; margin-bottom: 20px;">⚖️</div>
+                        <h4 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; margin-bottom: 15px;">Liderazgo Consciente</h4>
+                        <p style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; opacity: 0.7; line-height: 1.6;">Sabiduría atemporal aplicada a la toma de decisiones, la gestión de equipos y la visión estratégica profesional.</p>
+                        <div class="node-tag" style="margin-top: 25px;">EDICIÓN ESPECIAL</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 60px; padding: 30px; border-radius: 20px; background: rgba(181, 131, 58, 0.05); border: 1px dashed var(--accent);">
+                    <p style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; letter-spacing: 1px; color: var(--accent); font-weight: 700;">PROXIMAMENTE: PAZ MENTAL Y MINDFULNESS ESTOICO</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="landing-section-wrapper bg-white">
+            <section class="landing-section">
+                <div class="section-tag">Características</div>
+                <h2>Una experiencia diseñada para ti</h2>
+                <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px; margin-top: 50px;">
+                    <div class="feature-item" style="padding: 35px; border-radius: 30px; border: 1px solid rgba(181, 131, 58, 0.1);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;"><path d="M12 1L9 9l-8 3 8 3 3 8 3-8 8-3-8-3-3-8z"/></svg>
+                        <h4 style="font-size: 1.3rem;">Atmósfera</h4>
+                        <p>Controla sonidos, fuentes y colores para tu lectura.</p>
+                    </div>
+                    <div class="feature-item" style="padding: 35px; border-radius: 30px; border: 1px solid rgba(181, 131, 58, 0.1);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        <h4 style="font-size: 1.3rem;">Voces Pro</h4>
+                        <p>Narración fluida y natural (TTS) para cada lección.</p>
+                    </div>
+                    <div class="feature-item" style="padding: 35px; border-radius: 30px; border: 1px solid rgba(181, 131, 58, 0.1);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.5 1.5"/><path d="M14 11l5 5"/></svg>
+                        <h4 style="font-size: 1.3rem;">Diario</h4>
+                        <p>Reflexiona, guarda favoritos y responde los retos.</p>
+                    </div>
+                    <div class="feature-item" style="padding: 35px; border-radius: 30px; border: 1px solid rgba(181, 131, 58, 0.1);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        <h4 style="font-size: 1.3rem;">Modo Noche</h4>
+                        <p>Adaptable para proteger tu visión en la oscuridad.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="landing-section-wrapper bg-white">
+            <section class="landing-section">
+                <div class="section-tag">Membresía</div>
+                <h2>Elige tu camino</h2>
+                <div class="pricing-grid">
+                    <div class="price-card">
+                        <div class="p-name">GRATIS</div>
+                        <div class="p-price">$0</div>
+                        <ul class="p-features">
+                            <li>Palabra del Día</li>
+                            <li>Afirmación Diaria</li>
+                            <li>Frase Célebre</li>
+                        </ul>
+                        <button class="btn-portal-open" style="width: 100%; border-color: #ddd; color: #666;" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">EMPEZAR GRATIS</button>
+                    </div>
+                    <div class="price-card featured">
+                        <div class="p-name">PRO MENSUAL</div>
+                        <div class="p-price">$2.99<small style="font-size: 0.8rem; opacity: 0.5;">/mes</small></div>
+                        <ul class="p-features">
+                            <li>Todo lo gratuito</li>
+                            <li>Acceso a todos los Libros</li>
+                            <li>5 Refrescos diarios de contenido</li>
+                            <li>Voz Premium Ilimitada</li>
+                        </ul>
+                        <button class="btn-cta-gold" style="width: 100%; padding: 15px;" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">PROBAR 14 DÍAS</button>
+                    </div>
+                    <div class="price-card">
+                        <div class="p-name">PRO VITALICIO</div>
+                        <div class="p-price">$49.99</div>
+                        <ul class="p-features">
+                            <li>Todo lo de Pro Mensual</li>
+                            <li>Todas las Expansiones actuales</li>
+                            <li>Futuros lanzamientos incluidos</li>
+                            <li>Un solo pago para siempre</li>
+                        </ul>
+                        <button class="btn-portal-open" style="width: 100%;" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">ADQUIRIR DE POR VIDA</button>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 60px; padding: 60px 40px; border-radius: 40px; border: 2px dashed var(--accent); background: rgba(181, 131, 58, 0.03);">
+                    <div class="section-tag" style="margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Acceso Universal</div>
+                    <h3 style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.8rem; margin-bottom: 20px;">Lúmina en todas tus pantallas</h3>
+                    <p style="font-family: 'Outfit', sans-serif; font-weight: 300; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">Acceso multiplataforma: Navegadores, Android, Apple, AppGallery, Galaxy Store, y escritorio.</p>
+                    <div class="store-badges">
+                        <div class="store-badge">Android</div>
+                        <div class="store-badge">Apple iOS</div>
+                        <div class="store-badge">AppGallery</div>
+                        <div class="store-badge">Microsoft Store</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="landing-footer">
+            <div class="landing-logo-container" style="justify-content: center; margin-bottom: 20px;">
+                <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="footer-logo" style="height: 50px; margin-bottom: 0;">
+                <span class="logo-text" style="font-size: 2rem;">Lúmina</span>
+            </div>
+            <p class="footer-text">&copy; 2026 Lúmina — Sabiduría y Transformación Personal</p>
+        </footer>
+    </div>
 
     <div id="offline-banner">MODO OFFLINE — VIENDO CONTENIDO GUARDADO</div>
     <div class="atm-motes" id="atm-motes"></div>
@@ -2751,17 +3189,109 @@
         let trialDay = 0;
 
         // --- SISTEMA DE IDENTIDAD SEGURO (FASE 2) ---
-        // (portalMode y recoveryStep ya inicializados arriba)
-
         async function checkUserSession() {
             const email = localStorage.getItem('lumina_user_email');
+            const landing = document.getElementById('landing-ui');
+            const loader = document.getElementById('loader');
+
             if (!email) {
-                document.getElementById('login-portal').style.display = 'flex';
-                setPortalMode('login');
-                document.getElementById('loader').classList.add('hidden');
+                if (landing) landing.style.display = 'block';
+                if (loader) loader.classList.add('hidden');
+                // Al no haber usuario, disparamos la inicialización de la landing (carrusel, etc)
+                if (typeof checkLandingInit === 'function') await checkLandingInit();
                 return false;
             }
+            
+            if (landing) landing.style.display = 'none';
             return true;
+        }
+
+        // --- LÓGICA DE LANDING PAGE Y CARRUSEL ---
+        let heroicSlides = [];
+        let currentHeroSlide = 0;
+        let heroTimer = null;
+
+        async function checkLandingInit() {
+            console.log("Iniciando componentes de Landing Page...");
+            await fetchLandingData();
+            initLandingCarousel();
+        }
+
+        async function fetchLandingData() {
+            try {
+                const resp = await fetch(`${API}?action=landing_data`);
+                const data = await resp.json();
+                if (data.success && data.hero && data.hero.length > 0) {
+                    heroicSlides = data.hero;
+                }
+            } catch (e) {
+                console.warn("Fallo al cargar slides dinámicos, usando fallback.", e);
+            }
+        }
+
+        function initLandingCarousel() {
+            const container = document.getElementById('hero-carousel');
+            const dotContainer = document.getElementById('hero-dots');
+            if (!container) return;
+
+            // Si tenemos slides de GAS, los inyectamos. Si no, usamos los que ya están en el HTML.
+            if (heroicSlides.length > 0) {
+                container.innerHTML = '';
+                heroicSlides.forEach((slide, idx) => {
+                    const slideDiv = document.createElement('div');
+                    slideDiv.className = `hero-slide ${idx === 0 ? 'active' : ''}`;
+                    slideDiv.innerHTML = `
+                        <div class="section-tag">${slide.tag || 'Lúmina'}</div>
+                        <h1>${slide.title}</h1>
+                        <p>${slide.desc}</p>
+                    `;
+                    container.appendChild(slideDiv);
+                });
+                
+                // Botón CTA persistente (se añade después de los slides para que no rote)
+                const cta = document.createElement('button');
+                cta.className = "btn-cta-gold";
+                cta.innerText = "COMENZAR MI PRUEBA DE 14 DÍAS";
+                cta.onclick = () => { setPortalMode('signup'); document.getElementById('login-portal').style.display='flex'; };
+                container.appendChild(cta);
+
+                // Re-render dots
+                if (dotContainer) {
+                    dotContainer.innerHTML = '';
+                    heroicSlides.forEach((_, idx) => {
+                        const dot = document.createElement('div');
+                        dot.className = `hero-dot ${idx === 0 ? 'active' : ''}`;
+                        dot.onclick = () => setHeroSlide(idx);
+                        dotContainer.appendChild(dot);
+                    });
+                }
+            }
+
+            startHeroTimer();
+        }
+
+        function setHeroSlide(idx) {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.hero-dot');
+            if (slides.length === 0) return;
+
+            currentHeroSlide = (idx + slides.length) % slides.length;
+
+            slides.forEach((s, i) => s.classList.toggle('active', i === currentHeroSlide));
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentHeroSlide));
+            
+            // Reiniciar timer para que no salte justo después de un clic manual
+            startHeroTimer();
+        }
+
+        function startHeroTimer() {
+            if (heroTimer) clearInterval(heroTimer);
+            heroTimer = setInterval(() => {
+                const slides = document.querySelectorAll('.hero-slide');
+                if (slides.length > 1) {
+                    setHeroSlide(currentHeroSlide + 1);
+                }
+            }, 6000);
         }
 
         function setPortalMode(mode) {
@@ -3002,7 +3532,7 @@
         function logoutUser() {
             showConfirm("¿Estás seguro de cerrar sesión? Se limpiarán los datos locales.", () => {
                 localStorage.clear();
-                location.reload();
+                window.location.href = window.location.origin + window.location.pathname;
             });
         }
 
@@ -3129,6 +3659,8 @@
                     statusMsg.innerText = trialActive ? "✨ Periodo de Prueba Activo" : "✨ ¡Eres Miembro Pro!";
                     statusMsg.style.color = "#4ade80";
                 }
+                
+                // El carrusel y landing init ahora son globales
                 
                 const activationSection = document.getElementById('profile-pro-activation');
                 const infoSection = document.getElementById('profile-pro-info');
