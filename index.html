@@ -352,7 +352,30 @@
         .app-box p { font-size: 1rem; line-height: 1.7; opacity: 0.8; white-space: pre-line; }
         .reflection-box { margin-top: 60px; padding: 40px; background: rgba(181, 131, 58, 0.05); border-radius: 30px; text-align: center; }
         
-        /* DIME        /* --- SISTEMA DE CAPTURA SIMPLIFICADO --- */
+        /* --- SISTEMA DE CAPTURA SIMPLIFICADO --- */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #offline-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5000;
+        }
         .capture-area { 
             width: 400px !important; 
             min-height: 711px !important; 
@@ -455,6 +478,16 @@
 
         .font-pair-btn .pair-name { font-size: 0.85rem; font-weight: 600; }
         .font-pair-btn .pair-desc { font-size: 0.65rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* --- LIMPIEZA TOTAL PARA GUESTS (LANDING MODE) --- */
+        body.is-guest #app-viewport, 
+        body.is-guest #update-banner, 
+        body.is-guest #lumina-popup,
+        body.is-guest #confirm-toast,
+        body.is-guest #toast { 
+            display: none !important; 
+        }
+        body.is-guest { background-color: #fff; } /* Fondo blanco para evitar el beige al final */
 
         @media (max-width: 600px) {
             .color-picker { gap: 10px; justify-content: space-between; }
@@ -806,7 +839,8 @@
         .notif-info p { margin: 0; font-size: 0.85rem; opacity: 0.6; line-height: 1.5; }
         .btn-dismiss-notif { position: absolute; top: 18px; right: 15px; padding: 8px; opacity: 0.2; transition: 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-dismiss-notif:hover { opacity: 1; color: var(--accent); }
-        .btn-dismiss-notif svg { width: 16px; height: 16px; stroke: currentColor; fi        /* END LEGACY CAPTURA PURGE */ize: 0.8rem; letter-spacing: 3px; }
+        .btn-dismiss-notif svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+        .legacy-capture-label { font-size: 0.8rem; letter-spacing: 3px; }
 
         /* Estilos para PWA Update (Toast) */
         pwa-update {
@@ -1649,6 +1683,26 @@
             margin-top: 30px; transition: 0.3s; text-transform: uppercase;
         }
         .btn-close-scanner:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+        
+        /* --- FEEDBACK DE PENSAMIENTO (SPARKLE) --- */
+        .thought-sparkle {
+            position: absolute; pointer-events: none; z-index: 9999;
+            color: var(--accent); font-size: 1.2rem;
+            animation: sparkleFloat 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        @keyframes sparkleFloat {
+            0% { transform: translate(-50%, 0) scale(0.5) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(-50%, -50px) scale(1.2) rotate(20deg); opacity: 0; }
+        }
+        .input-save-glow {
+            animation: saveGlow 0.8s ease;
+        }
+        @keyframes saveGlow {
+            0% { box-shadow: 0 0 0 0 rgba(181, 131, 58, 0); }
+            50% { box-shadow: 0 0 15px 2px rgba(181, 131, 58, 0.3); }
+            100% { box-shadow: 0 0 0 0 rgba(181, 131, 58, 0); }
+        }
 
         /* Full Width Wrappers & Dual Layouts */
         .landing-section-wrapper { width: 100%; position: relative; }
@@ -1673,7 +1727,7 @@
         .landing-hero {
             position: relative;
             min-height: 85vh; 
-            background: url('file:///C:/Users/pc/.gemini/antigravity/brain/76f568a0-2162-41b5-b36f-f2449a80501c/lumina_marble_texture_1775250456194.png') center/cover fixed;
+            background: url('https://github.com/malloyruiz/palabras-poeticas/blob/964f8da12b183e1e40bf3c70500448e977873acd/images/lumina_marble_texture_1775250456194.png?raw=true') center/cover fixed;
             display: flex; flex-direction: column; justify-content: center;
             align-items: center; text-align: center; overflow: hidden;
         }
@@ -1850,7 +1904,10 @@
                 <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="landing-logo">
                 <span class="logo-text">Lúmina</span>
             </div>
-            <button class="btn-portal-open" onclick="setPortalMode('login'); document.getElementById('login-portal').style.display='flex';">Entrar</button>
+            <div style="display: flex; gap: 15px;">
+                <button class="btn-portal-open" style="background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">Suscríbete ahora</button>
+                <button class="btn-portal-open" onclick="setPortalMode('login'); document.getElementById('login-portal').style.display='flex';">Entrar</button>
+            </div>
         </nav>
 
         <header class="landing-hero" id="landing-hero">
@@ -1921,7 +1978,7 @@
                     <!-- Izquierda: Biblioteca -->
                     <div>
                         <div class="section-tag" style="color: var(--accent);">Biblioteca Premium</div>
-                        <h2 style="color: #white; font-size: 3rem;">Explora los clásicos</h2>
+                        <h2 style="color: white; font-size: 3rem;">Explora los clásicos</h2>
                         <div class="library-carousel" style="margin-top: 30px; gap: 20px;">
                             <div class="book-card-mock" style="min-width: 180px; height: 270px; border-width: 2px;">
                                 <img src="file:///C:/Users/pc/.gemini/antigravity/brain/76f568a0-2162-41b5-b36f-f2449a80501c/lumina_book_cover_meditaciones_1775248304078.png" style="width:100%; height:100%; object-fit:cover;">
@@ -1936,7 +1993,7 @@
                     <!-- Derecha: Mi Viaje -->
                     <div style="text-align: left;">
                         <div class="section-tag" style="color: var(--accent);">Mi Viaje</div>
-                        <h2 style="color: #white; margin-bottom: 40px;">Tu Camino a la Maestría</h2>
+                        <h2 style="color: white; margin-bottom: 40px;">Tu Camino a la Maestría</h2>
                         
                         <div class="timeline-demo">
                             <div class="timeline-node">
@@ -3315,17 +3372,30 @@
         async function checkUserSession() {
             const email = localStorage.getItem('lumina_user_email');
             const landing = document.getElementById('landing-ui');
+            const hub = document.getElementById('hub');
+            const mainUI = document.getElementById('main-ui');
+            const app = document.getElementById('app-viewport');
             const loader = document.getElementById('loader');
 
             if (!email) {
+                console.log("No hay sesión. Mostrando Landing Page.");
+                document.body.classList.add('is-guest');
                 if (landing) landing.style.display = 'block';
+                if (app) app.style.display = 'none';
+                
+                if (hub) hub.classList.add('hidden');
+                if (mainUI) mainUI.classList.add('hidden');
+                
                 if (loader) loader.classList.add('hidden');
-                // Al no haber usuario, disparamos la inicialización de la landing (carrusel, etc)
                 if (typeof checkLandingInit === 'function') await checkLandingInit();
                 return false;
             }
             
+            document.body.classList.remove('is-guest');
             if (landing) landing.style.display = 'none';
+            if (hub) hub.classList.remove('hidden');
+            if (mainUI) mainUI.classList.remove('hidden');
+            if (app) app.style.display = 'grid';
             return true;
         }
 
@@ -3357,26 +3427,29 @@
             const dotContainer = document.getElementById('hero-dots');
             if (!container) return;
 
-            // Si tenemos slides de GAS, los inyectamos. Si no, usamos los que ya están en el HTML.
+            // Si tenemos slides de GAS, los inyectamos.
             if (heroicSlides.length > 0) {
-                container.innerHTML = '';
+                // Eliminar solo los slides antiguos, no los controles
+                const oldSlides = container.querySelectorAll('.hero-slide');
+                oldSlides.forEach(s => s.remove());
+
+                // Inyectar nuevos slides antes del botón CTA o al inicio
+                const firstControl = container.querySelector('.btn-cta-gold, .hero-dots');
+                
                 heroicSlides.forEach((slide, idx) => {
                     const slideDiv = document.createElement('div');
                     slideDiv.className = `hero-slide ${idx === 0 ? 'active' : ''}`;
                     slideDiv.innerHTML = `
                         <div class="section-tag">${slide.tag || 'Lúmina'}</div>
-                        <h1>${slide.title}</h1>
+                        <h1 style="font-family: 'Playfair Display', serif; font-style: italic;">${slide.title}</h1>
                         <p>${slide.desc}</p>
                     `;
-                    container.appendChild(slideDiv);
+                    if (firstControl) {
+                        container.insertBefore(slideDiv, firstControl);
+                    } else {
+                        container.appendChild(slideDiv);
+                    }
                 });
-                
-                // Botón CTA persistente (se añade después de los slides para que no rote)
-                const cta = document.createElement('button');
-                cta.className = "btn-cta-gold";
-                cta.innerText = "COMENZAR MI PRUEBA DE 14 DÍAS";
-                cta.onclick = () => { setPortalMode('signup'); document.getElementById('login-portal').style.display='flex'; };
-                container.appendChild(cta);
 
                 // Re-render dots
                 if (dotContainer) {
@@ -4149,6 +4222,7 @@
                         lessonIdx: currentExpIdx
                     }));
                 }
+                triggerSaveVisual('exp-journal'); // Feedback visual
                 pushSync(); // Sincronizar inmediatamente tras el guardado
             }, 1000);
         }
@@ -4254,6 +4328,7 @@
                 const val = document.getElementById('user-mantra-input').value;
                 localStorage.setItem('lumina_mantra', val);
                 if (status) status.innerText = "Mantra Guardado";
+                triggerSaveVisual('user-mantra-input'); // Feedback visual
                 pushSync();
             }, 800);
         }
@@ -4262,6 +4337,7 @@
             const input = document.getElementById('user-name-input');
             if (input) {
                 localStorage.setItem('lumina_user_name', input.value.trim());
+                triggerSaveVisual('user-name-input'); // Feedback visual
                 pushSync();
             }
         }
@@ -4322,6 +4398,33 @@
             if (bdayInput) bdayInput.value = localStorage.getItem('lumina_birthday') || '';
             
             switchProfileTab('identidad');
+        }
+
+        // --- FEEDBACK SENSORIAL DE GUARDADO (IDEA 3) ---
+        function triggerSaveVisual(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            
+            // Añadir pulso de brillo al input
+            el.classList.remove('input-save-glow');
+            void el.offsetWidth; // Force reflow
+            el.classList.add('input-save-glow');
+            
+            // Crear la chispa "Sparkle"
+            const sparkle = document.createElement('div');
+            sparkle.className = 'thought-sparkle';
+            sparkle.innerHTML = '✨';
+            
+            // Posicionar sobre el input
+            const rect = el.getBoundingClientRect();
+            sparkle.style.left = (rect.left + (rect.width / 2)) + 'px';
+            sparkle.style.top = (rect.top + 20) + 'px';
+            
+            document.body.appendChild(sparkle);
+            if (navigator.vibrate) navigator.vibrate(5);
+            
+            // Limpieza
+            setTimeout(() => sparkle.remove(), 1200);
         }
 
         function switchProfileTab(tab) {
@@ -4888,7 +4991,7 @@
                             label: 'Minutos de Paz',
                             data: pData,
                             borderColor: accent,
-                            backgroundColor: accent + '22', // Transparente
+                            backgroundColor: isDark ? accent + '44' : accent + '22', // Más visible en modo noche
                             fill: true,
                             tension: 0.4, // Curva suave (Smooth)
                             borderWidth: 3,
@@ -4932,7 +5035,7 @@
                         x: { 
                             grid: { display: false },
                             ticks: { 
-                                color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)',
+                                color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.3)', // Aumento contraste modo noche
                                 font: { size: 9, weight: '600' }
                             }
                         },
@@ -5066,7 +5169,12 @@
         async function init() {
             // 1. Verificar Identidad (Cloud First)
             const hasUser = await checkUserSession();
-            if (!hasUser) return;
+            
+            // Si no hay usuario, checkUserSession ya inició la Landing Page.
+            if (!hasUser) {
+                console.log("Modo Invitado: Landing Page Activa.");
+                return;
+            }
 
             try {
                 const loader = document.getElementById('loader');
@@ -6277,6 +6385,7 @@
                     }));
                 }
                 if(status) status.innerText = "Guardado.";
+                triggerSaveVisual('journal-input'); // Feedback visual
                 pushSync(); // Asegurar sincronización en la nube
             }, 1000);
         }
@@ -6668,6 +6777,7 @@
                 document.body.setAttribute('data-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
                 updateSubscriptionUI();
+                setTimeout(renderHabitsCharts, 100); // REFRESCAR GRÁFICOS
                 pushSync();
             };
             if (document.startViewTransition) document.startViewTransition(change);
@@ -7382,6 +7492,13 @@
                     }
                     if (mainUI) mainUI.classList.add('view-pausa');
                     document.getElementById('header-cat').innerText = 'PAUSA CONSCIENTE';
+
+                    // Corrección: Ocultar botón de refrescar palabra en Pausas
+                    const refreshBtn = document.getElementById('btn-refresh-word');
+                    const trialBtn = document.getElementById('btn-start-trial');
+                    if (refreshBtn) refreshBtn.style.display = 'none';
+                    if (trialBtn) trialBtn.style.display = 'none';
+
                     requestWakeLock(); // Activar pre-pausa
                 }
                 if (cat === 'profile') toggleProfile();
