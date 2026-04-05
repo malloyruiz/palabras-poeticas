@@ -2232,6 +2232,26 @@
                 grid-template-columns: 1fr !important;
             }
         }
+
+        /* ESTILOS PARA ACCIONES DE FIN DE PAUSA */
+        .pausa-end-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 600px) {
+            .pausa-end-actions {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+            .pausa-end-actions button {
+                width: 100%;
+                max-width: 320px;
+                margin: 0 !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2874,9 +2894,13 @@
                     <h2 style="font-family:'Playfair Display', serif; font-size: 3rem; font-style: italic; margin-bottom: 20px; color: var(--accent);">Has vuelto.</h2>
                     <p style="opacity: 0.7; font-size: 1rem; margin-bottom: 50px; line-height: 1.6;">El mundo no se ha movido, pero tú estás más presente.<br>Gracias por dedicarte este tiempo.</p>
                     
-                    <div style="display: flex; gap: 15px; justify-content: center;">
-                        <button class="btn-save" onclick="savePausaHabit()" style="background: var(--accent); color: white; padding: 15px 30px; border-radius: 50px; font-weight: 500; font-size: 0.8rem; letter-spacing: 1px;">GUARDAR COMO HÁBITO</button>
-                        <button class="btn-save" onclick="renderPausaList()" style="background: transparent; border: 1px solid rgba(128,128,128,0.3); color: var(--text); padding: 15px 30px; border-radius: 50px; font-weight: 500; font-size: 0.8rem; letter-spacing: 1px;">CONTINUAR</button>
+                    <div class="pausa-end-actions">
+                        <button class="btn-save" onclick="savePausaHabit()" style="background: var(--accent); color: white; padding: 15px 30px; border-radius: 50px; font-weight: 500; font-size: 0.8rem; letter-spacing: 1px; margin: 0;">GUARDAR COMO HÁBITO</button>
+                        <button class="btn-save" onclick="renderPausaList()" style="background: transparent; border: 1px solid rgba(128,128,128,0.3); color: var(--text); padding: 15px 30px; border-radius: 50px; font-weight: 500; font-size: 0.8rem; letter-spacing: 1px; margin: 0;">CONTINUAR</button>
+                        <button class="btn-save" onclick="shareAsImage('pausa')" style="background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 15px 30px; border-radius: 50px; font-weight: 500; font-size: 0.8rem; letter-spacing: 1px; margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                            COMPARTIR
+                        </button>
                     </div>
                 </div>
 
@@ -6637,6 +6661,46 @@
             return list[Math.floor(Math.random() * list.length)];
         }
 
+        function getSmartCopy(cat) {
+            const domain = "https://luminapp.today";
+            const url = `${domain}/#${cat}`;
+            
+            if (cat === 'habitos') {
+                const streak = document.getElementById('streak-val')?.textContent || "0";
+                return `¡Llevo una racha de ${streak} días de disciplina en Lúmina! 🔥 Mantén el hábito encendido. ${url}`;
+            }
+            
+            if (cat === 'libros' || cat === 'exp') {
+                const isExp = (cat === 'exp');
+                const lesson = isExp ? (typeof currentExpLessons !== 'undefined' ? currentExpLessons[currentExpIdx] : null) : getCache('libros');
+                const bookName = isExp ? (typeof currentExpBook !== 'undefined' ? currentExpBook : "Libro") : (lesson?.libro || "Su sabiduría");
+                return `Me estoy sumergiendo en 📚 ${bookName} en Lúmina. ¡Acompáñame en este viaje de sabiduría! 👇 ${url}`;
+            }
+            
+            if (cat === 'palabras') {
+                const word = document.getElementById('word-title')?.innerText || "";
+                return `He descubierto la palabra '${word}' en Lúmina. Expande tu léxico y claridad mental. ✨ ${url}`;
+            }
+            
+            if (cat === 'afirmaciones') {
+                let text = document.getElementById('word-title')?.innerText || "";
+                if (text.length > 65) text = text.substring(0, 62) + "...";
+                return `Mi decreto de hoy: "${text}" 🌱 Reprograma tu mente en Lúmina: ${url}`;
+            }
+            
+            if (cat === 'frases') {
+                const author = document.getElementById('word-def')?.innerText || "Grandes sabios";
+                return `Inspiración atemporal de ${author} en Lúmina. 🏛️ Explora la sabiduría profunda en: ${url}`;
+            }
+            
+            if (cat === 'pausa') {
+                const title = window._lastPausaTitle || "una pausa consciente";
+                return `Me he tomado un momento de paz con la meditación "${title}" en Lúmina. 🌿 Encuentra tu centro: ${url}`;
+            }
+
+            return `Explorando sabiduría diaria en Lúmina. ✨ ${domain}`;
+        }
+
         window._luminaShareBlob = null;
         window._luminaShareFname = "";
         let isCapturing = false;
@@ -6735,6 +6799,12 @@
                     </div>`;
                 }
                 footerEl.textContent = new Date().getFullYear();
+            } else if (cat === 'pausa') {
+                titleEl.textContent = window._lastPausaTitle || "Pausa Consciente";
+                bodyEl.innerHTML = `<div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.4rem; line-height:1.5; color:#b5833a; margin-bottom:20px;">
+                    "Un momento para volver al presente y renovar la energía."
+                </div>`;
+                footerEl.textContent = new Date().getFullYear();
             } else {
                 const wordVal = document.getElementById('word-title')?.innerText || "";
                 titleEl.innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
@@ -6774,7 +6844,11 @@
                 if (!blob) return;
                 const file = new File([blob], fname, { type: 'image/png' });
                 if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'Lúmina', text: getSmartTitle(cat) });
+                    await navigator.share({ 
+                        files: [file], 
+                        title: 'Lúmina', 
+                        text: getSmartCopy(cat) 
+                    });
                 } else {
                     const link = document.createElement('a');
                     link.download = fname; link.href = URL.createObjectURL(blob);
@@ -6795,12 +6869,12 @@
         }
 
         function shareWord() {
-            const text = `"${document.getElementById('word-title').innerText}" - De Lúmina (${currentCategory})`;
+            const copyText = getSmartCopy(currentCategory);
             if (navigator.vibrate) navigator.vibrate(15);
             if (navigator.share) {
-                navigator.share({ title: 'Lúmina App', text: text, url: window.location.href });
+                navigator.share({ title: 'Lúmina App', text: copyText, url: window.location.href });
             } else {
-                navigator.clipboard.writeText(text).then(() => alert("Copiado al portapapeles."));
+                navigator.clipboard.writeText(copyText).then(() => showToast("Copiado al portapapeles."));
             }
         }
 
@@ -7011,6 +7085,9 @@
             document.getElementById('prep-phrase').innerText = `"${data.phrase}"`;
             document.getElementById('prep-guide').innerHTML = data.guide;
 
+            // Persistencia para el copy inteligente
+            window._lastPausaTitle = data.title;
+
             document.getElementById('pausa-view-list').style.display = 'none';
             document.getElementById('pausa-view-prep').style.display = 'block';
             setPausaTime(currentPausaTime); // Reset visual chips
@@ -7138,6 +7215,9 @@
             clearInterval(breathInterval);
             document.getElementById('pausa-view-session').style.display = 'none';
             document.getElementById('pausa-view-end').style.display = 'block';
+
+            // Preparar captura de pantalla para compartir
+            setTimeout(() => prepareShareBlob('pausa'), 500);
         }
 
         function savePausaHabit() {
