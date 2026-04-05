@@ -519,9 +519,7 @@
         /* --- LIMPIEZA TOTAL PARA GUESTS (LANDING MODE) --- */
         body.is-guest #app-viewport, 
         body.is-guest #update-banner, 
-        body.is-guest #lumina-popup,
-        body.is-guest #confirm-toast,
-        body.is-guest #toast { 
+        body.is-guest #lumina-popup { 
             display: none !important; 
         }
         body.is-guest { background-color: #fff; } /* Fondo blanco para evitar el beige al final */
@@ -1919,16 +1917,28 @@
 
         footer.landing-footer { 
             border-top: 1px solid rgba(181, 131, 58, 0.1); 
-            padding: 30px 40px 10px 40px; text-align: center; 
+            padding: 40px 40px; text-align: center; 
             background: rgba(255, 255, 255, 0.5); 
             backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        @media (max-width: 600px) {
+            footer.landing-footer {
+                flex-direction: column;
+                padding: 40px 20px 80px 20px;
+            }
         }
         .footer-logo { height: 50px; opacity: 0.8; margin-bottom: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
 
         @media (max-width: 768px) {
-            .landing-hero h1 { font-size: 3rem; }
-            .pricing-grid { grid-template-columns: 1fr; }
-            .price-card.featured { transform: none; }
+            .landing-hero h1 { font-size: 2.8rem !important; }
+            .pricing-grid { grid-template-columns: 1fr !important; }
+            .price-card.featured { transform: none !important; }
         }
 
         /* --- STORYTEL-STYLE CARDS (LUMINA LINEA GRAFICA) --- */
@@ -2137,32 +2147,89 @@
             opacity: 0.4;
         }
 
-        /* Responsive Dual Grid Landing (Vertical Centered) */
-        .landing-dual-grid.v-center {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
-            gap: 60px;
+        /* --- MOBILE NAV & HAMBURGER --- */
+        .btn-hamburger {
+            display: none;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            z-index: 5200;
         }
-        .landing-dual-grid.v-top {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: flex-start;
-            gap: 60px;
+        .btn-hamburger svg { width: 30px; height: 30px; stroke: var(--accent); }
+
+        .mobile-nav-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            height: 100vh;
+            background: #fff;
+            z-index: 5150;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            transition: 0.4s cubic-bezier(0.2, 0, 0, 1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+        }
+        .mobile-nav-drawer.active { right: 0; }
+        .mobile-nav-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+            z-index: 5140;
+            display: none;
+        }
+        .mobile-nav-overlay.active { display: block; }
+
+        @media (max-width: 1024px) {
+            .landing-nav .nav-desktop-actions { display: none !important; }
+            .btn-hamburger { display: block !important; }
+            
+            .features-grid-refined {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
         }
 
         @media (max-width: 900px) {
-            .landing-dual-grid.v-center {
+            .landing-dual-grid.v-top {
                 grid-template-columns: 1fr !important;
-                text-align: center !important;
+                gap: 40px;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
             }
-            .landing-journey-wrapper {
-                order: 2;
-                margin-top: 50px;
+            .exp-info-right { order: 1; width: 100%; text-align: center; }
+            .landing-journey-wrapper { 
+                order: 2; 
+                margin-top: 40px; 
+                width: 100%;
+                max-width: 100%;
             }
-            .landing-dual-grid.v-center .exp-info-right {
-                order: 1;
-                text-align: center !important;
+            .landing-journey-container { height: 350px; }
+            
+            .landing-section h2 { font-size: 2.2rem; text-align: center; }
+            .landing-hero h1 { font-size: 3.2rem; }
+            
+            .footer-logo { height: 40px; }
+            footer.landing-footer { padding: 30px 20px 80px 20px; }
+        }
+
+        @media (max-width: 600px) {
+            .features-grid-refined {
+                grid-template-columns: 1fr !important;
+            }
+            .price-card {
+                padding: 40px 25px;
+            }
+            .story-grid {
+                grid-template-columns: 1fr;
+            }
+            .modular-grid {
+                grid-template-columns: 1fr !important;
             }
         }
     </style>
@@ -2171,16 +2238,25 @@
 
     <!-- LANDING PAGE (USUARIOS NO LOGUEADOS) -->
     <div id="landing-ui" style="display: none;">
-        <nav class="landing-nav" onclick="window.scrollTo({top:0, behavior:'smooth'})">
-            <div class="landing-logo-container">
+        <nav class="landing-nav">
+            <div class="landing-logo-container" onclick="window.scrollTo({top:0, behavior:'smooth'})">
                 <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="landing-logo">
                 <span class="logo-text">Lúmina</span>
             </div>
-            <div style="display: flex; gap: 15px;">
+            <div style="display: flex; gap: 15px;" class="nav-desktop-actions">
                 <button class="btn-portal-open" style="background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="openAuth('signup')">Suscríbete ahora</button>
                 <button class="btn-portal-open" onclick="openAuth('login')">Entrar</button>
             </div>
+            <button class="btn-hamburger" onclick="toggleMobileNav(event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
         </nav>
+
+        <div class="mobile-nav-overlay" id="mobile-nav-overlay" onclick="toggleMobileNav()"></div>
+        <div class="mobile-nav-drawer" id="mobile-nav-drawer">
+            <button class="btn-portal-open" style="display:block !important; width: 220px;" onclick="openAuth('signup'); toggleMobileNav()">Suscríbete ahora</button>
+            <button class="btn-portal-open" style="display:block !important; width: 220px; background: white; border: 2px solid var(--accent); color: var(--accent);" onclick="openAuth('login'); toggleMobileNav()">Entrar</button>
+        </div>
 
         <header class="landing-hero" id="landing-hero">
             <div class="hero-overlay"></div>
@@ -2428,7 +2504,7 @@
                     <div class="section-tag" style="margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Acceso Universal</div>
                     <h3 style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.8rem; margin-bottom: 20px;">Lúmina en todas tus pantallas</h3>
                     <p style="font-family: 'Outfit', sans-serif; font-weight: 300; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">Acceso multiplataforma: Navegadores, Android, Apple, AppGallery, Galaxy Store, y escritorio.</p>
-                    <div class="store-badges">
+                    <div class="store-badges" onclick="document.getElementById('install-modal').classList.add('active')" style="cursor: pointer;">
                         <div class="store-badge">Android</div>
                         <div class="store-badge">Apple iOS</div>
                         <div class="store-badge">AppGallery</div>
@@ -2443,7 +2519,10 @@
                 <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="footer-logo" style="height: 50px; margin-bottom: 0;">
                 <span class="logo-text" style="font-size: 2rem;">Lúmina</span>
             </div>
-            <p class="footer-text" style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 0;">&copy; 2026 Lúmina — Sabiduría y Transformación Personal</p>
+            <p style="font-size: 0.75rem; opacity: 0.5; margin: 0; display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <span>&copy; 2026 Lúmina</span>
+                <span style="opacity: 0.8;">Sabiduría y Transformación Personal</span>
+            </p>
         </footer>
     </div>
 
@@ -2942,6 +3021,22 @@
             }
         }
 
+        // --- MOBILE NAV TOGGLE ---
+        function toggleMobileNav(e) {
+            if (e) e.stopPropagation();
+            const drawer = document.getElementById('mobile-nav-drawer');
+            const overlay = document.getElementById('mobile-nav-overlay');
+            if (drawer) drawer.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+            
+            // Bloqueamos scroll de fondo
+            if (drawer && drawer.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
         function initLandingCarousel() {
             const container = document.getElementById('hero-carousel');
             const dotContainer = document.getElementById('hero-dots');
@@ -3346,7 +3441,21 @@
         }
 
         function saveBirthday() {
-            const bday = document.getElementById('profile-birthday').value;
+            const bdayInput = document.getElementById('profile-birthday');
+            const bday = bdayInput.value;
+            
+            if (!bday) {
+                showToast("Por favor ingresa una fecha válida", "error");
+                return;
+            }
+
+            const selectedDate = new Date(bday);
+            const today = new Date();
+            if (selectedDate > today) {
+                showToast("La fecha no puede ser en el futuro", "error");
+                return;
+            }
+
             localStorage.setItem('lumina_birthday', bday);
             pushSync();
             showToast("Cumpleaños actualizado ✨", "success");
@@ -3365,18 +3474,40 @@
                 // Recopilación dinámica de TODAS las llaves de Lúmina
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
-                    if (key.startsWith('lumina_') || key.startsWith('theme')) {
+                    if (key && (key.startsWith('lumina_') || key.startsWith('theme'))) {
                         data[key] = localStorage.getItem(key);
                     }
                 }
 
                 const bday = localStorage.getItem('lumina_birthday') || "";
+                const dataString = JSON.stringify(data);
 
                 try {
-                    await fetch(`${API}?action=user_sync&email=${encodeURIComponent(email)}&birthday=${encodeURIComponent(bday)}&data=${encodeURIComponent(JSON.stringify(data))}`);
-                    console.log("Cloud Sync: Sabiduría resguardada con éxito.");
+                    // Usamos POST para evitar límites de URL con data pesada
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'user_sync');
+                    formData.append('email', email);
+                    formData.append('birthday', bday);
+                    formData.append('data', dataString);
+
+                    // Eliminamos no-cors para permitir visibilidad de errores (El Backend v3.5 ya maneja OPTIONS/CORS)
+                    const response = await fetch(API, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const resSync = await response.json();
+                    if (resSync.success) {
+                        console.log("Cloud Sync: Sabiduría resguardada con éxito.");
+                    } else {
+                        console.warn("Cloud Sync Warning:", resSync.error);
+                    }
                 } catch (e) { 
-                    console.warn("Cloud Sync Failed", e); 
+                    console.warn("Cloud Sync Network Error", e); 
+                    // Fallback a GET si falla el POST por alguna razón de red extrema
+                    try {
+                        fetch(`${API}?action=user_sync&email=${encodeURIComponent(email)}&birthday=${encodeURIComponent(bday)}&data=${encodeURIComponent(dataString)}`, { mode: 'no-cors' });
+                    } catch(err) {}
                 }
             }, 1500); 
         }
@@ -3990,7 +4121,17 @@
 
             // Poblar campo de cumpleaños cada vez que se abre el modal
             const bdayInput = document.getElementById('profile-birthday');
-            if (bdayInput) bdayInput.value = localStorage.getItem('lumina_birthday') || '';
+            if (bdayInput) {
+                bdayInput.value = localStorage.getItem('lumina_birthday') || '';
+                // Sincronizar al cambiar
+                if (!bdayInput.dataset.listener) {
+                    bdayInput.addEventListener('change', () => {
+                        localStorage.setItem('lumina_birthday', bdayInput.value);
+                        pushSync();
+                    });
+                    bdayInput.dataset.listener = 'true';
+                }
+            }
             
             switchProfileTab('identidad');
         }
@@ -5390,12 +5531,26 @@
                 if (retoBox) retoBox.classList.remove('wisdom-box-active');
                 if (reflexionBox) reflexionBox.classList.remove('wisdom-box-active');
 
-                // 1. Lógica de Reto Dinámico (Solo Frases - Columna C)
-                if (currentCategory === 'frases') {
+                // 1. Lógica de Reto Dinámico (Frases y Afirmaciones - Columna C)
+                if (currentCategory === 'frases' || currentCategory === 'afirmaciones') {
                     const reto = data.challenge || data.reto;
-                    if (reto && retoEl && retoBox) {
-                        retoEl.innerText = reto;
-                        retoBox.classList.add('wisdom-box-active');
+                    const el = (currentCategory === 'frases') ? retoEl : reflexionEl;
+                    const box = (currentCategory === 'frases') ? retoBox : reflexionBox;
+
+                    if (reto && el && box) {
+                        el.innerText = reto;
+                        box.classList.add('wisdom-box-active');
+                    } else if (currentCategory === 'afirmaciones' && reflexionEl && reflexionBox) {
+                        // Fallback para afirmaciones si no hay reto en Col C
+                        const preguntas = [
+                            "¿Qué parte de ti necesita escuchar esto hoy?",
+                            "¿Estás actuando desde el miedo o desde tus valores?",
+                            "¿Qué harías diferente hoy si creyeras esta afirmación completamente?",
+                            "¿Cómo cambiaría tu día si aplicaras esto desde el amanecer?"
+                        ];
+                        const dayIndex = Math.floor(Date.now() / 86400000) % preguntas.length;
+                        reflexionEl.innerText = preguntas[dayIndex];
+                        reflexionBox.classList.add('wisdom-box-active');
                     }
                 }
 
