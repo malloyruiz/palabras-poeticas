@@ -6,6 +6,9 @@
     <title>Lúmina — Palabras y Sabiduría</title>
     <meta name="description" content="Inspiración diaria con palabras bellas, sabiduría y crecimiento personal para alimentar el alma.">
     <link rel="canonical" href="https://luminapp.today">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.dicebear.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
@@ -146,6 +149,23 @@
             padding: 50px; padding-top: calc(120px + env(titlebar-area-height, 0px));
             align-items: start; box-sizing: border-box;
         }
+        @keyframes rotate-360 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .rotating { animation: rotate-360 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Animación Pro (Icono <=> Intentos) cada 2s */
+        @keyframes pro-view-alternate-1 { 0%, 45% { opacity: 1; transform: scale(1); } 50%, 95% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes pro-view-alternate-2 { 0%, 45% { opacity: 0; transform: scale(0.8); } 50%, 95% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.8); } }
+        
+        .btn-pro-wisdom { position: relative; overflow: hidden; }
+        .pro-icon-view { animation: pro-view-alternate-1 4s infinite; display: flex; align-items: center; justify-content: center; }
+        .pro-count-view { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700; opacity: 0;
+            animation: pro-view-alternate-2 4s infinite;
+            color: var(--accent);
+        }
+        
         main.loaded { opacity: 1; }
 
         @media (min-width: 1024px) {
@@ -191,10 +211,11 @@
 
         /* Footer y Controles */
         footer {
-            margin-top: 100px; width: 100%; max-width: 1100px;
+            margin-top: 50px; width: 100%; max-width: inherit;
             display: flex; justify-content: space-between; align-items: center;
-            border-top: 1px solid rgba(128,128,128,0.1); padding-top: 40px;
-        }        .btn-speak svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2; }
+            border-top: 1px solid rgba(128,128,128,0.1); padding: 30px 0;
+        }
+        .btn-speak svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2; }
         
         .btn-fav {
             background: rgba(181, 131, 58, 0.05); border: none; width: 44px; height: 44px;
@@ -215,6 +236,11 @@
         .content-actions .btn-speak { margin: 0; padding: 10px; opacity: 0.5; transition: 0.3s; }
         .content-actions .btn-speak:hover { opacity: 1; transform: scale(1.1); }
         .content-actions .btn-fav { margin: 0; background: rgba(181, 131, 58, 0.05); }
+
+        /* Avatares DiceBear */
+        .user-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; transition: 0.5s cubic-bezier(0.4,0,0.2,1); opacity: 0; }
+        .user-avatar.loaded { opacity: 1; }
+        .avatar-container { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 
         /* --- WISDOM BOXES (Retos y Reflexiones) --- */
         .reto-del-dia, .reflexion-del-dia {
@@ -476,7 +502,21 @@
             pointer-events: none !important; 
         }
         
-        #btn-back-hub { position: fixed; top: 30px; left: 30px; z-index: 1550; padding: 12px; border-radius: 50%; border: 1px solid rgba(128,128,128,0.1); background: transparent !important; }
+        .btn-back-glass { 
+            position: fixed; top: 30px; left: 30px; z-index: 1550; 
+            width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.1); /* Sutil transparencia blanca */
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15); /* Borde ligero */
+            color: var(--text); cursor: pointer; transition: 0.4s cubic-bezier(0.2, 0, 0, 1.5);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08); /* Sombra suave */
+        }
+        .btn-back-glass:hover { transform: scale(1.1); background: rgba(255,255,255,0.15); border-color: var(--accent); color: var(--accent); }
+        .btn-back-glass:active { transform: scale(0.9); }
+        .btn-back-glass svg { width: 24px; height: 24px; }
+
+        #btn-back-hub { display: none; } /* Managed dynamically by class */
 
         .content-header { text-align: left; margin-bottom: 40px; padding-left: 60px; transition: padding 0.5s; }
         .content-body { padding-left: 60px; transition: padding 0.5s; }
@@ -543,12 +583,33 @@
             footer { margin-top: 50px; padding-top: 30px; }
         }
 
-        /* --- SISTEMA DE GRILLA PARA EXPANSIONES Y PAUSAS --- */
-        .exp-grid, .pausa-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
+        /* --- SISTEMA DE GRILLA PARA PAUSAS (MALLA FLUIDA) --- */
+        .pausa-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+            gap: 35px !important;
             padding-bottom: 100px;
+            width: 100% !important;
+        }
+
+        /* --- SISTEMA DE GRILLA PARA EXPANSIONES (2 COLUMNAS PARA LECTURA) --- */
+        .exp-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 35px !important;
+            padding-bottom: 100px;
+            width: 100% !important;
+        }
+
+        @media (min-width: 1600px) {
+            .pausa-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+            }
+            .exp-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 40px !important;
+            }
+            .responsive-mesh { max-width: 1600px !important; }
         }
         .exp-header { margin-bottom: 50px; text-align: left; transition: all 0.5s ease; width: 100%; }
         .exp-header h1 { 
@@ -665,7 +726,7 @@
 
         @media (max-width: 900px) {
             .exp-grid, .pausa-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr !important;
             }
             .exp-card, .pausa-card {
                 padding: 30px;
@@ -1427,8 +1488,8 @@
         .view-pausa #reto-del-dia, 
         .view-pausa #reflexion-del-dia { display: none !important; }
         
-        .view-pausa { display: flex !important; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 60px !important; }
-        .view-pausa #pausa-ui { display: block !important; width: 100%; max-width: 600px; margin: 0 auto; }
+        .view-pausa { display: block !important; padding-top: 60px !important; }
+        .view-pausa #pausa-ui, .view-expansiones #expansions-ui { display: block !important; width: 100% !important; max-width: 1400px !important; margin: 0 auto !important; }
         
         /* Botón de volver flotante */
         #btn-back-hub { display: none; }
@@ -1437,8 +1498,7 @@
             top: 30px !important;
             left: 30px !important;
             z-index: 1001;
-            background: var(--bg);
-            backdrop-filter: blur(10px);
+            /* Se elimina background: var(--bg) para restaurar el efecto glass de .btn-back-glass */
             border-radius: 50%;
             width: 45px;
             height: 45px;
@@ -1455,9 +1515,7 @@
         .view-libros #reflexion-del-dia { display: none !important; }
         .view-libros #lesson-ui { display: block !important; }
 
-        /* Visibilidad Condicional por Categoría */
-        .view-palabras #reto-del-dia { display: block !important; }
-        .view-afirmaciones #reflexion-del-dia { display: block !important; }
+        /* Visibilidad Condicional por Categoría (Se maneja por JS en openCategory) */
         /* Vista Extra (Edición Especial) */
         body.cat-extra .side-panel,
         body.cat-extra #reto-del-dia,
@@ -2705,6 +2763,13 @@
                     <button class="btn-fav btn-share-main" id="main-share-btn" onclick="shareAsImage()" title="Compartir sabiduría" style="display: none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                     </button>
+                    <!-- BOTÓN EXTRA PRO (MAESTRÍA DIARIA) - INTEGRADO EN ACCIONES -->
+                    <button class="btn-fav btn-pro-wisdom" id="btn-refresh-word" onclick="loadNextExtra()" title="Generar otra sabiduría" style="display: none;">
+                        <div class="pro-icon-view">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                        </div>
+                        <div class="pro-count-view" id="pro-count-display">0/5</div>
+                    </button>
                 </div>
                 <p class="definition" id="word-def">---</p>
             </div>
@@ -2725,14 +2790,6 @@
             <div id="reflexion-del-dia" class="reflexion-del-dia">
                 <div class="reto-label">💭 Pregunta de Reflexión</div>
                 <div id="reflexion-text" class="reto-text">---</div>
-            </div>
-
-            <!-- BOTÓN EXTRA PRO (MAESTRÍA DIARIA) -->
-            <div id="pro-extra-container" style="grid-column: 1 / -1; display: flex; justify-content: center; width: 100%; margin-top: 20px;">
-                <button id="btn-extra-wisdom" class="btn-extra-wisdom" onclick="loadNextExtra()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                    <span>Ver otra (0/5)</span>
-                </button>
             </div>
 
             <!-- SECCIÓN EXTRA (DÍA DE ENFOQUE) -->
@@ -2790,13 +2847,18 @@
                 </div>
             </div>
             <!-- VISTA DE PAUSA CONSCIENTE (SINCRONIZADA CON EXPANSIONES) -->
-            <div class="pausa-container" id="pausa-ui" style="display: none; padding-top: 40px; min-height: 80vh; width: 100%; max-width: 1100px; margin: 0 auto; box-sizing: border-box; grid-column: 1 / -1;">
+            <div class="pausa-container responsive-mesh" id="pausa-ui" style="display: none; padding-top: 40px; min-height: 80vh; width: 100% !important; max-width: 1400px !important; margin: 0 auto !important; box-sizing: border-box; grid-column: 1 / -1;">
                 
                 <!-- VISTA 1: Lista -->
                 <div id="pausa-view-list">
                     <div style="margin-bottom: 50px; text-align: left;">
                         <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Pausa Consciente</h1>
-                        <p style="opacity: 0.6; font-size: 1rem; max-width: 500px; line-height: 1.6;">Elige el ancla que necesitas en este momento para volver al presente.</p>
+                        <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6;">Elige el ancla que necesitas en este momento para volver al presente.</p>
+                    </div>
+
+                    <div class="pausa-tabs" style="display: flex; gap: 15px; margin-bottom: 40px; border-bottom: 1px solid rgba(181, 131, 58, 0.1); padding-bottom: 15px;">
+                        <button class="tab-btn active" id="tab-med-pausa" onclick="renderPausaList('meditacion')" style="background: none; border: none; color: var(--text); font-size: 0.75rem; letter-spacing: 2px; font-weight: 700; cursor: pointer; opacity: 0.4; transition: 0.3s; padding: 10px 20px; border-radius: 50px;">MEDITACIÓN</button>
+                        <button class="tab-btn" id="tab-resp-pausa" onclick="renderPausaList('respiracion')" style="background: none; border: none; color: var(--text); font-size: 0.75rem; letter-spacing: 2px; font-weight: 700; cursor: pointer; opacity: 0.4; transition: 0.3s; padding: 10px 20px; border-radius: 50px;">RESPIRACIÓN</button>
                     </div>
                     <div class="pausa-grid" id="pausa-list-container">
                         <!-- Las opciones se inyectarán por JS -->
@@ -2871,8 +2933,11 @@
                         <input class="ambient-vol-slider" type="range" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; max-width: 300px; margin: 15px auto 30px; accent-color: var(--accent); height: 4px; cursor: pointer; display: block;">
                     </div>
 
-                    <button class="btn-save" onclick="startPausaSession()" style="width: 100%; max-width: 300px; background: var(--accent); color: #fff; padding: 18px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; letter-spacing: 2px; border: none; display: block; margin: 0 auto;">INICIAR PAUSA</button>
-                    <button onclick="renderPausaList()" style="display: block; width: 100%; max-width: 300px; margin: 20px auto 0; background: transparent; border: none; font-size: 0.75rem; letter-spacing: 2px; opacity: 0.6; cursor: pointer; text-transform: uppercase; color: var(--text);">VOLVER AL MENÚ</button>
+                    <button id="btn-start-pausa" class="btn-save" onclick="startPausaSession()" style="width: 100%; max-width: 300px; background: var(--accent); color: #fff; padding: 18px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; letter-spacing: 2px; border: none; display: block; margin: 0 auto;">INICIAR SESIÓN</button>
+                    <button onclick="sharePausaLink()" style="display: block; width: 100%; max-width: 300px; margin: 15px auto 0; background: transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--accent); padding: 10px; border-radius: 20px; font-size: 0.65rem; letter-spacing: 2px; cursor: pointer; text-transform: uppercase;">Compartir Enlace</button>
+                    <button class="btn-back-glass" onclick="renderPausaList()" style="position: absolute; top: 30px; left: 30px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </button>
                 </div>
 
                 <!-- VISTA 3: Sesión (Respiración) -->
@@ -2907,7 +2972,7 @@
             </div>
 
             <!-- VISTA DE EXPANSIONES (SIN MODALES) -->
-            <div class="expansions-container" id="expansions-ui" style="display: none; padding-top: 40px; min-height: 80vh; width: 100%; max-width: 1100px; margin: 0 auto; box-sizing: border-box; grid-column: 1 / -1;">
+            <div class="expansions-container responsive-mesh" id="expansions-ui" style="display: none; padding-top: 40px; min-height: 80vh; width: 100%; max-width: 1400px; margin: 0 auto; box-sizing: border-box; grid-column: 1 / -1;">
                 
                 <!-- VISTA 1: Galería de Categorías -->
                 <div id="exp-gallery-view">
@@ -2926,9 +2991,8 @@
 
                 <!-- VISTA 2: Selección de Libros (DENTRO DE LA UI) -->
                 <div id="exp-books-view" style="display: none;">
-                    <button onclick="showExpGallery()" style="background:transparent; border:none; color:var(--accent); font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 30px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                        VOLVER A EXPANSIONES
+                    <button onclick="showExpGallery()" class="btn-back-glass" style="position: absolute; top: 30px; left: 30px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                     </button>
                     
                     <div class="exp-header" style="max-width: 100%;">
@@ -3000,7 +3064,6 @@
             const loader = document.getElementById('loader');
 
             if (!email) {
-                console.log("No hay sesión. Mostrando Landing Page.");
                 document.body.classList.add('is-guest');
                 if (landing) landing.style.display = 'block';
                 if (app) app.style.display = 'none';
@@ -3027,7 +3090,6 @@
         let heroTimer = null;
 
         async function checkLandingInit() {
-            console.log("Iniciando componentes de Landing Page...");
             await fetchLandingData();
             initLandingCarousel();
             initLandingJourney();
@@ -3439,8 +3501,14 @@
             error.style.display = 'block';
         }
 
-        function logoutUser() {
-            showConfirm("¿Estás seguro de cerrar sesión? Se limpiarán los datos locales.", () => {
+        async function logoutUser() {
+            showConfirm("¿Estás seguro de cerrar sesión? Se sincronizarán tus cambios antes de salir.", async () => {
+                const loader = document.getElementById('loader');
+                if (loader) loader.classList.remove('hidden');
+                
+                // Guardar una última vez antes de limpiar
+                await pushSync(true);
+                
                 localStorage.clear();
                 window.location.href = window.location.origin + window.location.pathname;
             });
@@ -3487,34 +3555,28 @@
 
         // Sincronización de Salida (Push)
         let syncTimeout;
-        function pushSync() {
+        function pushSync(force = false) {
             const email = localStorage.getItem('lumina_user_email');
             if (!email) return;
 
-            clearTimeout(syncTimeout);
-            syncTimeout = setTimeout(async () => {
+            const performSync = async () => {
                 const data = {};
-                
-                // Recopilación dinámica de TODAS las llaves de Lúmina
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (key && (key.startsWith('lumina_') || key.startsWith('theme'))) {
                         data[key] = localStorage.getItem(key);
                     }
                 }
-
                 const bday = localStorage.getItem('lumina_birthday') || "";
                 const dataString = JSON.stringify(data);
 
                 try {
-                    // Usamos POST para evitar límites de URL con data pesada
                     const formData = new URLSearchParams();
                     formData.append('action', 'user_sync');
                     formData.append('email', email);
                     formData.append('birthday', bday);
                     formData.append('data', dataString);
 
-                    // Eliminamos no-cors para permitir visibilidad de errores (El Backend v3.5 ya maneja OPTIONS/CORS)
                     const response = await fetch(API, {
                         method: 'POST',
                         body: formData
@@ -3522,18 +3584,22 @@
                     
                     const resSync = await response.json();
                     if (resSync.success) {
-                        console.log("Cloud Sync: Sabiduría resguardada con éxito.");
-                    } else {
-                        console.warn("Cloud Sync Warning:", resSync.error);
+                        // Log sutil para confirmar seguridad de datos
+                        console.log("Sincronización: Sabiduría resguardada.");
                     }
                 } catch (e) { 
-                    console.warn("Cloud Sync Network Error", e); 
-                    // Fallback a GET si falla el POST por alguna razón de red extrema
-                    try {
-                        fetch(`${API}?action=user_sync&email=${encodeURIComponent(email)}&birthday=${encodeURIComponent(bday)}&data=${encodeURIComponent(dataString)}`, { mode: 'no-cors' });
-                    } catch(err) {}
+                    // Fallback silencioso
+                    try { fetch(`${API}?action=user_sync&email=${encodeURIComponent(email)}&birthday=${encodeURIComponent(bday)}&data=${encodeURIComponent(dataString)}`, { mode: 'no-cors' }); } catch(err) {}
                 }
-            }, 1500); 
+            };
+
+            if (force) {
+                clearTimeout(syncTimeout);
+                return performSync();
+            }
+
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(performSync, 2000); 
         }
 
         function pullSync(jsonString) {
@@ -4100,10 +4166,23 @@
             if (mantraInput) mantraInput.value = localStorage.getItem('lumina_mantra') || "";
 
             const emailEl = document.getElementById('profile-email');
+            const savedEmail = localStorage.getItem('lumina_user_email') || localStorage.getItem('lumina_user_name') || 'invitado';
+            
             if (emailEl) {
-                const savedEmail = localStorage.getItem('lumina_user_email');
-                emailEl.innerText = savedEmail || (localStorage.getItem('lumina_pro_key') ? "Usuario Pro" : "Usuario Estándar");
+                emailEl.innerText = localStorage.getItem('lumina_user_email') || (localStorage.getItem('lumina_pro_key') ? "Usuario Pro" : "Usuario Estándar");
             }
+
+            // Actualizar Avatares (DiceBear Shapes) con paleta Lúmina
+            const avatarUrl = `https://api.dicebear.com/9.x/shapes/svg?seed=${encodeURIComponent(savedEmail)}&backgroundColor=b5833a,ffecd2`;
+            const profileAvatar = document.getElementById('profile-avatar-img');
+            const settingsAvatar = document.getElementById('settings-avatar-img');
+            
+            if (profileAvatar) {
+                profileAvatar.src = avatarUrl;
+                const loader = document.getElementById('avatar-loader');
+                profileAvatar.onload = () => { profileAvatar.classList.add('loaded'); if (loader) loader.style.display = 'none'; };
+            }
+            if (settingsAvatar) settingsAvatar.src = avatarUrl;
 
             const planBadge = document.getElementById('profile-plan-badge');
             if (planBadge) {
@@ -4949,9 +5028,7 @@
             // 1. Verificar Identidad (Cloud First)
             const hasUser = await checkUserSession();
             
-            // Si no hay usuario, checkUserSession ya inició la Landing Page.
             if (!hasUser) {
-                console.log("Modo Invitado: Landing Page Activa.");
                 return;
             }
 
@@ -5222,14 +5299,12 @@
                 return;
             }
             
-            trackCategoryVisit(cat); // Logro del Día
+            trackCategoryVisit(cat);
             currentCategory = cat;
             
-            // Unificamos el sistema de clases para garantizar que la visibilidad CSS funcione siempre
             document.body.className = `cat-${cat} view-${cat} ${isPro ? 'pro-unlocked' : ''} ${localStorage.getItem('theme') === 'dark' ? 'dark-mode' : ''}`;
             if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
             
-            // Si es acción del usuario, empujar al historial
             if (isUserAction) {
                 const targetHash = (fullHash && fullHash !== cat) ? fullHash : cat;
                 history.pushState({ cat: cat }, "", "#" + targetHash);
@@ -5238,72 +5313,94 @@
             const hub = document.getElementById('hub');
             const mainUI = document.getElementById('main-ui');
             
-            const doOpen = () => {
-                window.scrollTo(0, 0); // Scroll inteligente
+            const renderCategory = () => {
+                window.scrollTo(0, 0);
                 
-                // Transición App-Like
+                // Toggle de visibilidad de contenedores principales
                 hub.classList.remove('activa');
-                hub.classList.add('saliendo');
+                hub.classList.add('hidden');
+                mainUI.classList.remove('hidden');
+                mainUI.classList.add('activa');
                 
-                setTimeout(() => {
-                    hub.classList.add('hidden');
-                    hub.classList.remove('saliendo');
-                    
-                    
-                    mainUI.classList.remove('hidden');
-                    
-                    // Mostrar sub-vistas según categoria
-                    document.getElementById('lesson-ui').style.display = (cat !== 'pausa' && cat !== 'expansiones') ? 'block' : 'none';
-                    document.getElementById('pausa-ui').style.display = (cat === 'pausa') ? 'block' : 'none';
-                    document.getElementById('expansions-ui').style.display = (cat === 'expansiones') ? 'block' : 'none';
-                    
-                    if (cat === 'expansiones') loadExpansions();
-                    
-                    setTimeout(() => {
-                        mainUI.classList.add('activa');
-                        
-                        // Ocultar botones de la cabecera principal en Pausas
-                        const refreshBtn = document.getElementById('btn-refresh-word');
-                        const trialBtn = document.getElementById('btn-start-trial');
-                        if (cat === 'pausa') {
-                            if (refreshBtn) refreshBtn.style.display = 'none';
-                            if (trialBtn) trialBtn.style.display = 'none';
-                        } else {
-                            if (refreshBtn && isPro) refreshBtn.style.display = 'flex';
-                            if (trialBtn && !isPro) trialBtn.style.display = 'flex';
-                        }
-                    }, 50);
-                }, 300);
+                // Mostrar solo la sub-vista requerida
+                const subViews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui'];
+                subViews.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = (id.startsWith(cat) || (cat === 'pausa' && id === 'pausa-ui') || (cat === 'expansiones' && id === 'expansions-ui') || (['palabras','afirmaciones','frases','libros'].includes(cat) && id === 'lesson-ui')) ? 'block' : 'none';
+                });
 
-                // Etiquetas y Controles
-                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'EDICIÓN ESPECIAL' };
-                document.getElementById('header-cat').innerText = labels[cat] || 'LÚMINA';
+                // Botón de Maestría Diaria (Pro)
+                const refreshBtn = document.getElementById('btn-refresh-word');
+                const trialBtn = document.getElementById('btn-start-trial');
+                if (refreshBtn) {
+                    const isProVisible = ['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat) && isPro;
+                    refreshBtn.style.display = isProVisible ? 'flex' : 'none';
+                    if (isProVisible) {
+                        const currentCount = getProExtraCount(cat);
+                        const countEl = document.getElementById('pro-count-display');
+                        if (countEl) countEl.innerText = `${currentCount}/5`;
+                    }
+                }
+                if (trialBtn) {
+                    trialBtn.style.display = (['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat) && !isPro) ? 'flex' : 'none';
+                }
 
+                // Elementos estructurales y widgets (Reseteo inicial)
+                const structural = ['content-header', 'side-panel', 'reto-del-dia', 'reflexion-del-dia'];
+                structural.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.style.display = 'none'; // Se activa dinámicamente en renderContent
+                    if (id === 'content-header' || id === 'side-panel') {
+                        el.style.display = (['palabras', 'afirmaciones', 'frases', 'libros', 'extra'].includes(cat)) ? 'block' : 'none';
+                    }
+                });
+
+                // Lógica de carga específica
+                if (cat === 'pausa') {
+                    if (!window.location.hash.includes(':')) {
+                        renderPausaList();
+                    }
+                } else if (cat === 'expansiones') {
+                    if (typeof loadExpansions === 'function') loadExpansions();
+                }
+
+                // Header Label dinámico
+                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'EDICIÓN ESPECIAL', 'pausa': 'PAUSA CONSCIENTE', 'expansiones': 'EXPANSIONES' };
+                const headerCat = document.getElementById('header-cat');
+                if (headerCat) headerCat.innerText = labels[cat] || 'LÚMINA';
+
+                // Botón Compartir
                 const shareBtn = document.getElementById('main-share-btn');
                 if (shareBtn) shareBtn.style.display = ['palabras', 'afirmaciones', 'frases', 'libros', 'extra'].includes(cat) ? 'block' : 'none';
 
-                if (cat === 'libros' || cat === 'expansiones') requestWakeLock();
-
-                let btn = document.getElementById('btn-back-hub');
-                if (!btn) {
-                    btn = document.createElement('button');
-                    btn.id = 'btn-back-hub';
-                    btn.className = 'btn-icon';
-                    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
-                    btn.onclick = () => showHub(); // Usar función determinista para volver al hub
-                    document.body.appendChild(btn);
+                // Botón de retorno (GLASS)
+                let backBtn = document.getElementById('btn-back-hub');
+                if (!backBtn) {
+                    backBtn = document.createElement('button');
+                    backBtn.id = 'btn-back-hub';
+                    backBtn.className = 'btn-back-glass';
+                    backBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+                    backBtn.onclick = () => showHub(); 
+                    document.body.appendChild(backBtn);
                 }
-                btn.style.setProperty('display', 'flex', 'important');
-                
-                fetchContent();
+                backBtn.style.setProperty('display', 'flex', 'important');
+
+                if (cat === 'libros' || cat === 'expansiones') requestWakeLock();
+                if (!['pausa', 'expansiones'].includes(cat)) {
+                    if (typeof fetchContent === 'function') fetchContent();
+                }
             };
 
-            if (navigator.vibrate) navigator.vibrate(12);
-
+            if (navigator.vibrate) navigator.vibrate(10);
+            
             if (document.startViewTransition) {
-                document.startViewTransition(() => doOpen());
+                document.startViewTransition(() => {
+                    renderCategory();
+                    return Promise.resolve();
+                });
             } else {
-                doOpen();
+                renderCategory();
             }
         }
 
@@ -5312,10 +5409,6 @@
                 history.pushState({ cat: 'hub' }, "", "#hub");
             }
             
-            if (navigator.vibrate) navigator.vibrate(10);
-            releaseWakeLock();
-
-            // Detener audio si venimos de pausa
             if (currentCategory === 'pausa') {
                 toggleAmbient('none');
             }
@@ -5323,19 +5416,14 @@
             const hub = document.getElementById('hub');
             const mainUI = document.getElementById('main-ui');
 
-            const doShow = () => {
+            const applyShowHub = () => {
                 window.scrollTo(0, 0);
                 
                 mainUI.classList.remove('activa');
-                mainUI.classList.add('saliendo');
-
-                setTimeout(() => {
-                    mainUI.classList.add('hidden');
-                    mainUI.classList.remove('saliendo');
-                    
-                    hub.classList.remove('hidden');
-                    setTimeout(() => hub.classList.add('activa'), 50);
-                }, 300);
+                mainUI.classList.add('hidden');
+                
+                hub.classList.remove('hidden');
+                hub.classList.add('activa');
 
                 const btn = document.getElementById('btn-back-hub');
                 if (btn) btn.style.setProperty('display', 'none', 'important');
@@ -5343,12 +5431,13 @@
                 const shareBtn = document.getElementById('main-share-btn');
                 if (shareBtn) shareBtn.style.display = 'none';
                 
-                const mui = document.getElementById('main-ui');
-                if (mui) {
-                    mui.classList.remove('loaded');
-                    // Limpieza dinámica de contenidos para evitar que aparezcan en otras secciones
-                    const extraUI = document.getElementById('extra-ui');
-                    if (extraUI) extraUI.style.display = 'none';
+                if (mainUI) {
+                    mainUI.classList.remove('loaded');
+                    const subviews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'pro-extra-container'];
+                    subviews.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.style.display = 'none';
+                    });
                 }
                 
                 // Reset de clases del body para que las reglas de visibilidad no se queden "pegadas"
@@ -5362,14 +5451,18 @@
                     if (m) m.classList.remove('active');
                 });
 
-                checkNotifications();
+                if (typeof checkNotifications === 'function') checkNotifications();
                 resetHero();
             };
+            if (navigator.vibrate) navigator.vibrate(8);
 
             if (document.startViewTransition) {
-                document.startViewTransition(() => doShow());
+                document.startViewTransition(() => {
+                    applyShowHub();
+                    return Promise.resolve();
+                });
             } else {
-                doShow();
+                applyShowHub();
             }
         }
 
@@ -5389,8 +5482,12 @@
             // 2. Navegación normal entre categorías
             if (state && state.cat && state.cat !== 'hub') {
                 openCategory(state.cat, state.cat === 'libros', false);
-            } else if (hash === '#pausa') {
+            } else if (hash.startsWith('#pausa')) {
+                const sub = hash.split(':')[1];
                 openCategory('pausa', false, false);
+                if (sub) {
+                    setTimeout(() => openPausaDetail(sub), 100);
+                }
             } else {
                 showHub(false);
                 if (hash === "" || hash === "#hub") {
@@ -5632,16 +5729,18 @@
         }
 
         function updateProExtraUI() {
-            const btn = document.getElementById('btn-extra-wisdom');
-            const dailyCats = ['palabras', 'afirmaciones', 'frases'];
+            const btn = document.getElementById('btn-refresh-word');
+            const countEl = document.getElementById('pro-count-display');
+            const dailyCats = ['palabras', 'afirmaciones', 'frases', 'libros'];
             
             if (isPro && dailyCats.includes(currentCategory)) {
-                const count = getProExtraCount(currentCategory);
-                btn.style.display = 'flex';
-                btn.querySelector('span').innerText = `Ver otra (${count}/5)`;
-                btn.disabled = count >= 5;
+                if (btn) btn.style.display = 'flex';
+                if (countEl) {
+                    const count = getProExtraCount(currentCategory);
+                    countEl.innerText = `${count}/5`;
+                }
             } else {
-                btn.style.display = 'none';
+                if (btn) btn.style.display = 'none';
             }
         }
 
@@ -5658,9 +5757,10 @@
                 return;
             }
 
-            const btn = document.getElementById('btn-extra-wisdom');
+            const btn = document.getElementById('btn-refresh-word');
             btn.disabled = true;
             btn.style.opacity = "0.5";
+            btn.classList.add('rotating'); // Añadir animación de refresco si existe
 
             // Incrementar contador
             const today = new Date().toISOString().split('T')[0];
@@ -5671,6 +5771,16 @@
             const nextIdx = currentIdx + Math.floor(Math.random() * 50) + 1;
             fetchContent(nextIdx);
             
+            // Actualizar contador en el badge inmediatamente
+            const countEl = document.getElementById('pro-count-display');
+            if (countEl) countEl.innerText = `${count + 1}/5`;
+            
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.classList.remove('rotating');
+            }, 1000);
+
             if (navigator.vibrate) navigator.vibrate(20);
         }
 
@@ -6801,8 +6911,9 @@
                 footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'pausa') {
                 titleEl.textContent = window._lastPausaTitle || "Pausa Consciente";
+                const phrase = window._lastPausaPhrase || "Un momento para volver al presente y renovar la energía.";
                 bodyEl.innerHTML = `<div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.4rem; line-height:1.5; color:#b5833a; margin-bottom:20px;">
-                    "Un momento para volver al presente y renovar la energía."
+                    "${phrase}"
                 </div>`;
                 footerEl.textContent = new Date().getFullYear();
             } else {
@@ -7007,8 +7118,9 @@
         // --- SISTEMA DE URL Y BOTÓN ATRÁS (HARDWARE) ---
         window.addEventListener('hashchange', () => {
             // Si el usuario presiona "Atrás" en Android, el hash desaparece o cambia.
-            // Si el hash ya no contiene un modal válido, cerramos todos los modales.
-            if (!window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos)/)) {
+            // Si el hash ya no contiene un modal válido ni una ruta de navegación interna, cerramos todos los modales.
+            const isSubNav = window.location.hash.startsWith('#pausa') || window.location.hash.startsWith('#exp');
+            if (!isSubNav && !window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos)/)) {
                 closeModals(true); 
             }
         });
@@ -7029,31 +7141,66 @@
                 }, 800); 
             }
 
-            if (window.location.hash === '#pausa') {
-                setTimeout(() => openCategory('pausa', false, false), 500);
+            const hash = window.location.hash;
+            if (hash.startsWith('#pausa')) {
+                const sub = hash.split(':')[1];
+                setTimeout(() => {
+                    openCategory('pausa', false, false);
+                    if (sub) openPausaDetail(sub);
+                }, 500);
             }
         });
 
         // --- LÓGICA DE PAUSA CONSCIENTE ---
-        const pausasData = [
+        const meditacionesData = [
             { id: 'emocional', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="4"></circle></svg>', title: 'Pausa Emocional', desc: 'Cuando estás alterado.', phrase: 'No eres la emoción. Eres quien la observa.', guide: 'Siente lo que está presente sin rechazarlo.<br>No lo nombres bueno ni malo.<br>Respira y permite que pase a través de ti.' },
             { id: 'mental', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path></svg>', title: 'Pausa Mental', desc: 'Cuando estás saturado.', phrase: 'Tu mente no necesita más ruido. Necesita espacio.', guide: 'Deja caer los pensamientos sin seguirlos.<br>No resuelvas nada ahora.<br>Solo observa... y vuelve a tu respiración.' },
             { id: 'decisiva', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M12 3v18"/><path d="M3 12h18"/><path d="M7 12v5"/><path d="M17 12v5"/><path d="M4 17h16"/></svg>', title: 'Pausa Decisiva', desc: 'Antes de actuar.', phrase: 'No todo impulso merece convertirse en acción.', guide: 'Antes de responder, detente.<br>Respira y observa la intención detrás de tu acción.<br>Elige con claridad, no con prisa.' },
             { id: 'matutina', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></svg>', title: 'Pausa Matutina', desc: 'Para comenzar el día.', phrase: 'El día no comienza afuera. Comienza dentro de ti.', guide: 'Antes de tocar el mundo, vuelve a ti.<br>Respira profundo.<br>Define cómo quieres habitar este día.' },
-            { id: 'nocturna', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>', title: 'Pausa Nocturna', desc: 'Para cerrar el día.', phrase: 'Suelta el día. Ya hizo lo que tenía que hacer.', guide: 'No repases, no corrijas.<br>Agradece lo vivido.<br>Respira... y descansa en calma.' }
+            { id: 'nocturna', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>', title: 'Pausa Nocturna', desc: 'Para cerrar el día.', phrase: 'Suelta el día. Ya hizo lo que tenía que hacer.', guide: 'No repases, no corrijas.<br>Agradece lo vivido.<br>Respira... y descansa en calma.' },
+            { id: 'creativa', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>', title: 'Pausa Creativa', desc: 'Desbloquea el flujo.', phrase: 'La creatividad no se fuerza, se permite.', guide: 'Libera la tensión de tus manos y frente.<br>No busques la idea, deja que llegue.<br>Respira y abre espacio a la posibilidad.' },
+            { id: 'social', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>', title: 'Pausa Social', desc: 'Antes de conectar.', phrase: 'Tu presencia es el mejor regalo que puedes dar.', guide: 'Suelta las expectativas del encuentro.<br>Escanea tu cuerpo y relájate.<br>Prepárate para escuchar con todo tu ser.' }
         ];
+
+        const respiracionData = [
+            { id: 'box', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>', title: 'Caja (4-4-4-4)', desc: 'Calma instantánea.', phrase: 'Equilibrio perfecto en cada fase.', guide: 'Inhala (4), Sostén (4), Exhala (4), Sostén Vacío (4).<br>Repite este ciclo para resetear tu sistema nervioso.', inhale: 4, hold: 4, exhale: 4, empty: 4 },
+            { id: 'relax', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"/><path d="M12 8v4l3 3"/></svg>', title: 'Relajación (4-7-8)', desc: 'Para soltar ansiedad.', phrase: 'Suelta la tensión acumulada.', guide: 'Inhala suavemente (4), Sostén profundamente (7), Exhala con sonido (8).<br>Es el tranquilizante natural más potente.', inhale: 4, hold: 7, exhale: 8, empty: 0 },
+            { id: 'focus', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg>', title: 'Enfoque (4-0-6)', desc: 'Concentración total.', phrase: 'Exhalar es liberar, inhalar es enfocar.', guide: 'Inhala directo (4), Sin sostener, Exhala largo y lento (6).<br>Ideal para retomar una tarea compleja.', inhale: 4, hold: 0, exhale: 6, empty: 0 },
+            { id: 'vital', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="p-icon"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>', title: 'Vitalidad (2-1-2)', desc: 'Energía rápida.', phrase: 'Despierta tu flujo vital.', guide: 'Inhala con energía (2), Sostén breve (1), Exhala con fuerza (2).<br>Repite 5 veces para una recarga inmediata.', inhale: 2, hold: 1, exhale: 2, empty: 0 }
+        ];
+
+        let currentPausaTab = 'meditacion';
+        let currentPausaItem = null;
 
         let currentPausaTime = 3; // 3 min por defecto
         let pausaTimerInterval = null;
         let breathInterval = null;
         let remainingSeconds = 0;
 
-        function renderPausaList() {
+        function renderPausaList(tab = currentPausaTab) {
             playSound('click');
+            currentPausaTab = tab;
             const container = document.getElementById('pausa-list-container');
             if (!container) return;
+
+            // Actualizar Tabs UI
+            const tabMed = document.getElementById('tab-med-pausa');
+            const tabResp = document.getElementById('tab-resp-pausa');
             
-            container.innerHTML = pausasData.map(p => `
+            if (tabMed && tabResp) {
+                tabMed.classList.toggle('active', tab === 'meditacion');
+                tabResp.classList.toggle('active', tab === 'respiracion');
+                
+                // Aplicar estilos visuales (Opacidad)
+                tabMed.style.opacity = (tab === 'meditacion') ? '1' : '0.4';
+                tabResp.style.opacity = (tab === 'respiracion') ? '1' : '0.4';
+                tabMed.style.background = (tab === 'meditacion') ? 'rgba(181, 131, 58, 0.1)' : 'none';
+                tabResp.style.background = (tab === 'respiracion') ? 'rgba(181, 131, 58, 0.1)' : 'none';
+            }
+            
+            const data = (tab === 'meditacion') ? meditacionesData : respiracionData;
+            
+            container.innerHTML = data.map(p => `
                 <div class="pausa-card" onclick="openPausaDetail('${p.id}')">
                     <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
                     
@@ -7066,7 +7213,7 @@
                     </div>
 
                     <div style="margin-top: 30px; font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; position: relative; z-index: 2;">
-                        COMENZAR SESIÓN <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        INICIAR ${tab === 'meditacion' ? 'PAUSA' : 'EJERCICIO'} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </div>
                 </div>
             `).join('');
@@ -7075,22 +7222,51 @@
             document.getElementById('pausa-view-prep').style.display = 'none';
             document.getElementById('pausa-view-session').style.display = 'none';
             document.getElementById('pausa-view-end').style.display = 'none';
+
+            // Mostrar botón de volver al Hub
+            const hubBack = document.getElementById('btn-back-hub');
+            if (hubBack) hubBack.style.setProperty('display', 'flex', 'important');
         }
 
         function openPausaDetail(id) {
             playSound('click');
-            const data = pausasData.find(p => p.id === id);
+            const data = [...meditacionesData, ...respiracionData].find(p => p.id === id);
             if (!data) return;
+            
+            currentPausaItem = data;
             document.getElementById('prep-title').innerHTML = `<div style="display:flex; align-items:center; justify-content:center; gap:8px;">${data.icon} <span>${data.title.toUpperCase()}</span></div>`;
             document.getElementById('prep-phrase').innerText = `"${data.phrase}"`;
             document.getElementById('prep-guide').innerHTML = data.guide;
 
+            // Enlace dinámico
+            window.location.hash = `pausa:${id}`;
+
             // Persistencia para el copy inteligente
             window._lastPausaTitle = data.title;
+            window._lastPausaPhrase = data.phrase;
 
             document.getElementById('pausa-view-list').style.display = 'none';
             document.getElementById('pausa-view-prep').style.display = 'block';
             setPausaTime(currentPausaTime); // Reset visual chips
+
+            // Actualizar etiqueta del botón de inicio de sesión
+            const startBtn = document.getElementById('btn-start-pausa');
+            if (startBtn) startBtn.innerText = `INICIAR ${currentPausaTab === 'meditacion' ? 'PAUSA' : 'EJERCICIO'}`;
+
+            // Ocultar botón de volver al Hub para usar el botón de volver a la lista
+            const hubBack = document.getElementById('btn-back-hub');
+            if (hubBack) hubBack.style.setProperty('display', 'none', 'important');
+        }
+
+        function sharePausaLink() {
+            if (!currentPausaItem) return;
+            const url = `https://luminapp.today/#pausa:${currentPausaItem.id}`;
+            if (navigator.vibrate) navigator.vibrate(15);
+            if (navigator.share) {
+                navigator.share({ title: 'Lúmina - ' + currentPausaItem.title, url: url });
+            } else {
+                navigator.clipboard.writeText(url).then(() => showToast("Enlace de pausa copiado ✅"));
+            }
         }
 
         function setPausaTime(minutes) {
@@ -7124,7 +7300,12 @@
             remainingSeconds = currentPausaTime * 60;
             updatePausaTimerUI();
             
-            // Ciclo de respiración (4 - 2 - 6)
+            const inhale = currentPausaItem?.inhale || 4;
+            const hold = currentPausaItem?.hold || 2;
+            const exhale = currentPausaItem?.exhale || 6;
+            const empty = currentPausaItem?.empty || 0;
+            const totalCycle = (inhale + hold + exhale + empty) * 1000;
+
             const wrapper = document.getElementById('breath-wrapper');
             const text = document.getElementById('breath-text');
             const circle = document.getElementById('breath-circle-svg');
@@ -7132,44 +7313,55 @@
             clearInterval(pausaTimerInterval);
             clearInterval(breathInterval);
 
-            // Calcular el perímetro exacto para el dasharray
             const radius = 158;
             const circumference = 2 * Math.PI * radius;
             circle.style.strokeDasharray = circumference;
             circle.style.strokeDashoffset = circumference;
             
             const startBreathCycle = () => {
-                // Inhalar (4s)
+                // FASE 1: INHALAR
                 wrapper.className = 'breath-ring-wrapper inhaling';
-                circle.style.transitionDuration = '4s';
+                circle.style.transitionDuration = inhale + 's';
                 circle.style.strokeDashoffset = '0';
                 text.innerText = 'Inhala...';
-                text.style.opacity = 0.5;
-                setTimeout(() => text.style.opacity = 1, 100);
+                text.style.opacity = '0.5';
+                setTimeout(() => text.style.opacity = '1', 100);
 
+                // FASE 2: SOSTENER LLENO
                 setTimeout(() => {
-                    // Sostener (2s)
-                    wrapper.className = 'breath-ring-wrapper holding';
-                    circle.style.transitionDuration = '2s';
-                    // Mantener el offset en 0 o hacer un pequeño pulso si quisieras
-                    text.innerText = 'Sostén...';
-                    text.style.opacity = 0.5;
-                    setTimeout(() => text.style.opacity = 1, 100);
-
+                    if (hold > 0) {
+                        wrapper.className = 'breath-ring-wrapper holding';
+                        circle.style.transitionDuration = hold + 's';
+                        text.innerText = 'Sostén...';
+                        text.style.opacity = '0.5';
+                        setTimeout(() => text.style.opacity = '1', 100);
+                    }
+                    
+                    // FASE 3: EXHALAR
                     setTimeout(() => {
-                        // Exhalar (6s)
                         wrapper.className = 'breath-ring-wrapper exhaling';
-                        circle.style.transitionDuration = '6s';
+                        circle.style.transitionDuration = exhale + 's';
                         circle.style.strokeDashoffset = circumference;
                         text.innerText = 'Exhala...';
-                        text.style.opacity = 0.5;
-                        setTimeout(() => text.style.opacity = 1, 100);
-                    }, 2000); 
-                }, 4000); 
+                        text.style.opacity = '0.5';
+                        setTimeout(() => text.style.opacity = '1', 100);
+
+                        // FASE 4: SOSTENER VACÍO
+                        if (empty > 0) {
+                            setTimeout(() => {
+                                wrapper.className = 'breath-ring-wrapper holding-empty';
+                                circle.style.transitionDuration = empty + 's';
+                                text.innerText = 'Sostén...';
+                                text.style.opacity = '0.5';
+                                setTimeout(() => text.style.opacity = '1', 100);
+                            }, exhale * 1000);
+                        }
+                    }, hold * 1000);
+                }, inhale * 1000);
             };
 
             startBreathCycle();
-            breathInterval = setInterval(startBreathCycle, 12000); // 4 + 2 + 6 = 12s total
+            breathInterval = setInterval(startBreathCycle, totalCycle);
 
             // Timer general
             pausaTimerInterval = setInterval(() => {
@@ -7337,72 +7529,6 @@
                 if (document.getElementById('scanner-status')) document.getElementById('scanner-status').innerText = "";
             }
         }
-
-        // Intercepción en openCategory para Comandos Universales
-        const originalOpenCategory = openCategory;
-        openCategory = function(cat, isLocked = false, isUserAction = true) {
-            const mainUI = document.getElementById('main-ui');
-            const hub = document.getElementById('hub');
-            
-            // Limpiar estados previos de vista (Cierre preventivo de todas las capas del Main UI)
-            if (mainUI) {
-                mainUI.classList.remove('view-pausa', 'view-libros', 'view-palabras', 'view-afirmaciones', 'view-frases', 'view-expansiones', 'view-extra');
-                mainUI.classList.add('view-' + cat);
-            }
-
-            // Comandos especiales (Modales / Vistas Únicas)
-            const specialCmds = ['pausa', 'profile', 'settings', 'habitos', 'notifications', 'pro', 'trial'];
-            
-            if (specialCmds.includes(cat)) {
-                if (cat === 'pausa') {
-                    // Sincronizar visibilidad local para evitar solapamientos
-                    if (document.getElementById('lesson-ui')) document.getElementById('lesson-ui').style.display = 'none';
-                    if (document.getElementById('expansions-ui')) document.getElementById('expansions-ui').style.display = 'none';
-                    if (document.getElementById('pausa-ui')) document.getElementById('pausa-ui').style.display = 'block';
-
-                    renderPausaList();
-                    // Navegación desde Hub si es necesario
-                    if (hub && !hub.classList.contains('hidden')) {
-                        hub.classList.add('hidden');
-                        mainUI.classList.remove('hidden');
-                        setTimeout(() => mainUI.classList.add('activa'), 50);
-                    }
-                    if (mainUI) mainUI.classList.add('view-pausa');
-                    document.getElementById('header-cat').innerText = 'PAUSA CONSCIENTE';
-
-                    // Corrección: Ocultar botón de refrescar palabra en Pausas
-                    const refreshBtn = document.getElementById('btn-refresh-word');
-                    const trialBtn = document.getElementById('btn-start-trial');
-                    if (refreshBtn) refreshBtn.style.display = 'none';
-                    if (trialBtn) trialBtn.style.display = 'none';
-
-                    requestWakeLock(); // Activar pre-pausa
-                }
-                if (cat === 'profile') toggleProfile();
-                if (cat === 'settings') toggleSettings();
-                if (cat === 'habitos') toggleHabitos();
-                if (cat === 'notifications') toggleNotifications();
-                if (cat === 'pro' || cat === 'trial') openProModal();
-
-                // Garantizar botón de volver para todos los comandos especiales que usen el main-ui
-                if (cat === 'pausa' || cat === 'libros') {
-                    let btn = document.getElementById('btn-back-hub');
-                    if (!btn) {
-                        btn = document.createElement('button');
-                        btn.id = 'btn-back-hub';
-                        btn.className = 'btn-icon';
-                        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
-                        btn.onclick = () => showHub();
-                        document.body.appendChild(btn);
-                    }
-                    btn.style.setProperty('display', 'flex', 'important');
-                }
-                return; 
-            }
-            
-            // El resto de la lógica (libros, etc.) ya se gestiona con la clase 'view-' + cat añadida rriba
-            originalOpenCategory(cat, isLocked, isUserAction);
-        };
 
         window.onload = init;
     </script>
@@ -7588,8 +7714,8 @@
         <div class="modal-content" style="max-width: 900px; padding: 100px 30px 140px; min-height: 100vh; background: transparent; box-shadow: none; border: none; text-align: left;">
             <div class="hero-bg-blur" style="left: 10%; top: -5%; opacity: 0.15; pointer-events: none;"></div>
             
-            <button onclick="history.back()" style="background:transparent; border:none; color:var(--accent); position: fixed; top: 50px; left: 30px; z-index: 20; cursor: pointer; opacity: 0.6; transition: 0.3s;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <button onclick="history.back()" class="btn-back-glass" style="z-index: 20;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             </button>
 
             <div id="exp-read-content">
@@ -7666,8 +7792,9 @@
             <!-- SECCIÓN: IDENTIDAD -->
             <div id="profile-tab-identidad" class="profile-tab-content active">
                 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
-                    <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(181, 131, 58, 0.2);">
-                        <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: white; fill: none; stroke-width: 1.5;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <div class="avatar-container" style="width: 100px; height: 100px; background: var(--accent); border-radius: 50%; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(181, 131, 58, 0.25); border: 2px solid rgba(181, 131, 58, 0.1);">
+                        <img id="profile-avatar-img" class="user-avatar" src="" alt="Avatar" onload="this.classList.add('loaded')">
+                        <div id="avatar-loader" style="position:absolute; width: 25px; height: 25px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: rotate-360 1s linear infinite;"></div>
                     </div>
                     <input type="text" id="user-name-input" placeholder="Tu Nombre..." onchange="saveUserName()" 
                         style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; border: none; background: transparent; text-align: center; color: var(--text); outline: none; width: 100%; font-weight: 700;">
@@ -8053,8 +8180,8 @@
         <div class="modal-content" style="position:relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                 <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Ajustes</h2>
-                <button class="btn-icon" onclick="toggleProfile()" title="Ver Perfil" style="background: var(--accent) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1;">
-                    <svg viewBox="0 0 24 24" style="stroke: white;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <button class="btn-icon" onclick="toggleProfile()" title="Ver Perfil" style="background: var(--accent) !important; width: 44px; height: 44px; border-radius: 50%; opacity: 1; overflow: hidden; padding: 0;">
+                    <img id="settings-avatar-img" class="user-avatar" src="" alt="Profile" style="width: 100%; height: 100%;" onload="this.classList.add('loaded')">
                 </button>
             </div>
             
