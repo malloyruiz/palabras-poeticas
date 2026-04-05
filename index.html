@@ -747,7 +747,7 @@
         .modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.9);
             display: none; align-items: center; justify-content: center;
-            z-index: 4000; padding: 20px;
+            z-index: 10000; padding: 20px;
         }
         .modal.active { display: flex; animation: fadeIn 0.4s ease; }
         .modal-content {
@@ -1815,7 +1815,7 @@
         }
         .btn-cta-gold:hover { transform: scale(1.05) translateY(-5px); box-shadow: 0 20px 50px rgba(181, 131, 58, 0.4); }
 
-        .landing-section { padding: 90px 40px; max-width: 1200px; margin: 0 auto; box-sizing: border-box; }
+        .landing-section { padding: 60px 40px; max-width: 1200px; margin: 0 auto; box-sizing: border-box; }
         .section-tag { 
             color: var(--accent); font-weight: 700; letter-spacing: 5px; font-size: 0.75rem; 
             text-transform: uppercase; margin-bottom: 25px; font-family: 'Outfit', sans-serif; 
@@ -1918,17 +1918,252 @@
         .store-badge:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-3px); }
 
         footer.landing-footer { 
-            border-top: 1px solid rgba(181, 131, 58, 0.2); 
-            padding: 60px 40px; text-align: center; 
+            border-top: 1px solid rgba(181, 131, 58, 0.1); 
+            padding: 30px 40px 10px 40px; text-align: center; 
             background: rgba(255, 255, 255, 0.5); 
             backdrop-filter: blur(10px);
         }
-        .footer-logo { height: 50px; opacity: 0.8; margin-bottom: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .footer-logo { height: 50px; opacity: 0.8; margin-bottom: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
 
         @media (max-width: 768px) {
             .landing-hero h1 { font-size: 3rem; }
             .pricing-grid { grid-template-columns: 1fr; }
             .price-card.featured { transform: none; }
+        }
+
+        /* --- STORYTEL-STYLE CARDS (LUMINA LINEA GRAFICA) --- */
+        .story-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        .story-card {
+            position: relative;
+            height: 180px;
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 30px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 1px solid rgba(181, 131, 58, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
+
+        /* --- FEATURES REDESIGN --- */
+        .features-grid-refined {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-top: 60px;
+        }
+        .feature-card-premium {
+            background: #fff;
+            padding: 45px 35px;
+            border-radius: 35px;
+            border: 1px solid rgba(181, 131, 58, 0.08);
+            text-align: left;
+            transition: all 0.4s cubic-bezier(0.2, 0, 0, 1.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .feature-card-premium:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 50px rgba(181, 131, 58, 0.1);
+        }
+        .feature-icon-box {
+            width: 50px;
+            height: 50px;
+            background: rgba(181, 131, 58, 0.08);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+        .feature-icon-box svg {
+            width: 24px;
+            height: 24px;
+        }
+        .feature-card-premium h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.45rem;
+            margin: 0;
+            font-style: italic;
+            color: var(--text);
+        }
+        .feature-card-premium p {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            opacity: 0.6;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+        }
+        .story-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(181, 131, 58, 0.1);
+        }
+        .story-card .card-main-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #1a1a1a;
+            transition: all 0.5s ease;
+            max-width: 85%;
+        }
+        .story-card .card-hover-text {
+            position: absolute;
+            inset: 0;
+            padding: 30px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--accent);
+            font-weight: 300;
+        }
+        .story-card:hover .card-main-text {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        .story-card:hover .card-hover-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .story-card .card-icon-plus {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            background: #1a1a1a;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 300;
+            transition: all 0.4s ease;
+            z-index: 10;
+        }
+        .story-card:hover .card-icon-plus {
+            background: var(--accent);
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* --- TIMELINE LANDING --- */
+        .landing-journey-container {
+            position: relative;
+            background: transparent;
+            border: none;
+            border-radius: 40px;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE/Edge */
+        }
+        .landing-journey-container::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+        /* Efecto Desvanecimiento (Masking) */
+        .landing-journey-wrapper {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .landing-journey-wrapper::before,
+        .landing-journey-wrapper::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 100px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .landing-journey-wrapper::before {
+            top: 0;
+            background: linear-gradient(to bottom, #1a1a1a 0%, transparent 100%);
+        }
+        .landing-journey-wrapper::after {
+            bottom: 0;
+            background: linear-gradient(to top, #1a1a1a 0%, transparent 100%);
+        }
+
+        .landing-journey-container .timeline-item {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: 0.3s;
+            transform: scale(0.98);
+            opacity: 0.7;
+            text-align: left;
+        }
+        .landing-journey-container .timeline-item:hover {
+            transform: scale(1);
+            opacity: 1 !important;
+            background: rgba(255,255,255,0.05);
+            border-color: var(--accent);
+        }
+        .landing-journey-container .timeline-item.active {
+            border-color: var(--accent);
+            background: rgba(181, 131, 58, 0.08);
+            opacity: 1;
+            transform: scale(1);
+        }
+        .landing-journey-container .timeline-item.past {
+            opacity: 0.4;
+        }
+
+        /* Responsive Dual Grid Landing (Vertical Centered) */
+        .landing-dual-grid.v-center {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 60px;
+        }
+        .landing-dual-grid.v-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: flex-start;
+            gap: 60px;
+        }
+
+        @media (max-width: 900px) {
+            .landing-dual-grid.v-center {
+                grid-template-columns: 1fr !important;
+                text-align: center !important;
+            }
+            .landing-journey-wrapper {
+                order: 2;
+                margin-top: 50px;
+            }
+            .landing-dual-grid.v-center .exp-info-right {
+                order: 1;
+                text-align: center !important;
+            }
         }
     </style>
 </head>
@@ -1942,8 +2177,8 @@
                 <span class="logo-text">Lúmina</span>
             </div>
             <div style="display: flex; gap: 15px;">
-                <button class="btn-portal-open" style="background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">Suscríbete ahora</button>
-                <button class="btn-portal-open" onclick="setPortalMode('login'); document.getElementById('login-portal').style.display='flex';">Entrar</button>
+                <button class="btn-portal-open" style="background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="openAuth('signup')">Suscríbete ahora</button>
+                <button class="btn-portal-open" onclick="openAuth('login')">Entrar</button>
             </div>
         </nav>
 
@@ -1963,7 +2198,7 @@
                     <p>Explora las mentes que definieron la historia y extrae lecciones prácticas para navegar tu mundo moderno con claridad.</p>
                 </div>
                 
-                <button class="btn-cta-gold" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">COMENZAR MI PRUEBA DE 14 DÍAS</button>
+                <button class="btn-cta-gold" onclick="openAuth('signup')">COMENZAR MI PRUEBA DE 14 DÍAS</button>
                 
                 <div class="hero-dots" id="hero-dots">
                     <div class="hero-dot active" onclick="setHeroSlide(0)"></div>
@@ -1972,141 +2207,185 @@
             </div>
         </header>
 
-        <div class="landing-section-wrapper bg-white">
-            <section class="landing-section">
-                <div class="landing-dual-grid">
-                    <!-- Izquierda: Metodología -->
+        <!-- BLOQUE 1: SOBRE LÚMINA (COMBINACIÓN NEGRA) -->
+        <div class="landing-section-wrapper bg-dark">
+            <section class="landing-section" style="padding-top: 70px; padding-bottom: 70px;">
+                <div class="section-tag" style="color: var(--accent);">Sobre Lúmina</div>
+                <h2 style="font-size: 3.5rem; margin-bottom: 30px; color: white;">Lúmina</h2>
+                <p style="max-width: 850px; margin: 0 auto 60px; font-size: 1.4rem; line-height: 1.6; font-family: 'Playfair Display', serif; font-style: italic; color: rgba(255,255,255,0.85);">
+                    Lúmina es la plataforma de microaprendizaje ideada para el hombre y la mujer de espíritu estoico y mente moderna. Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria.
+                </p>
+                
+                <div class="section-tag" style="margin-top: 40px; margin-bottom: 40px; opacity: 0.7; color: var(--accent);">NUESTROS PILARES DE CRECIMIENTO</div>
+                <div class="modular-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                    <div class="modular-card" style="padding: 40px 30px; text-align: left; border-width: 1px; background: rgba(255,255,255,0.03); border-color: rgba(181, 131, 58, 0.2);">
+                        <h3 style="font-size: 1.35rem; margin-bottom: 15px; font-family: 'Playfair Display', serif; font-style: italic; color: var(--accent);">Palabras</h3>
+                        <p style="font-size: 0.85rem; opacity: 0.6; line-height: 1.6; color: white;">Precisión verbal para claridad mental. Eleva tu léxico y expande los límites de tu conciencia.</p>
+                    </div>
+                    <div class="modular-card" style="padding: 40px 30px; text-align: left; border-width: 1px; background: rgba(255,255,255,0.03); border-color: rgba(181, 131, 58, 0.2);">
+                        <h3 style="font-size: 1.35rem; margin-bottom: 15px; font-family: 'Playfair Display', serif; font-style: italic; color: var(--accent);">Afirmaciones</h3>
+                        <p style="font-size: 0.85rem; opacity: 0.6; line-height: 1.6; color: white;">Reprogramación consciente. Diálogo interno diseñado para la fortaleza y la resiliencia ante el caos.</p>
+                    </div>
+                    <div class="modular-card" style="padding: 40px 30px; text-align: left; border-width: 1px; background: rgba(255,255,255,0.03); border-color: rgba(181, 131, 58, 0.2);">
+                        <h3 style="font-size: 1.35rem; margin-bottom: 15px; font-family: 'Playfair Display', serif; font-style: italic; color: var(--accent);">Frases</h3>
+                        <p style="font-size: 0.85rem; opacity: 0.6; line-height: 1.6; color: white;">El consejo de los gigantes. Sabiduría atemporal para navegar los desafíos de la vida contemporánea.</p>
+                    </div>
+                    <div class="modular-card" style="padding: 40px 30px; text-align: left; border-width: 1px; background: rgba(255,255,255,0.03); border-color: rgba(181, 131, 58, 0.2);">
+                        <h3 style="font-size: 1.35rem; margin-bottom: 15px; font-family: 'Playfair Display', serif; font-style: italic; color: var(--accent);">Libros</h3>
+                        <p style="font-size: 0.85rem; opacity: 0.6; line-height: 1.6; color: white;">Inmersión profunda en las mentes universales, destilada en lecciones prácticas y accionables para tu día a día.</p>
+                    </div>
+                </div>
+
+                <p style="margin-top: 70px; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.25rem; opacity: 0.4; max-width: 750px; margin-left: auto; margin-right: auto; line-height: 1.5; border-top: 1px solid rgba(181, 131, 58, 0.15); padding-top: 40px; color: white;">
+                    "Un refugio para quienes buscan la maestría personal, honrando la brevedad del tiempo con la profundidad del conocimiento."
+                </p>
+            </section>
+        </div>
+
+        <!-- BLOQUE 2: METODOLOGÍA (DISEÑO LATERAL) -->
+        <div class="landing-section-wrapper bg-white" style="border-top: 1px solid rgba(181, 131, 58, 0.05);">
+            <section class="landing-section" style="padding-top: 70px; padding-bottom: 70px;">
+                <div class="landing-dual-grid" style="align-items: flex-start; gap: 80px;">
+                    <!-- Izquierda: Título Impactante -->
                     <div style="text-align: left;">
                         <div class="section-tag">Metodología</div>
-                        <h2>Joyas de Sabiduría Independientes</h2>
-                        <p style="opacity: 0.6; line-height: 1.8; font-family: 'Outfit', sans-serif; font-weight: 300; margin-bottom: 30px;">Nuestro <strong>Aprendizaje Modular</strong> convierte grandes obras en lecciones de impacto inmediato. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
-                        
-                        <div class="modular-card" style="padding: 30px; margin-bottom: 20px; border-width: 1px;">
-                            <h3 style="font-size: 1.6rem;">Lecciones Atómicas</h3>
-                            <p style="font-size: 0.9rem;">Cada perla de conocimiento incluye su propia aplicación personal, profesional y una reflexión profunda diseñada para cuestionar tus sesgos.</p>
-                        </div>
+                        <h2 style="font-size: clamp(3.5rem, 8vw, 6rem); line-height: 1; margin-top: 25px; letter-spacing: -2px;">Aprendizaje Modular</h2>
                     </div>
                     
-                    <!-- Derecha: Pilares -->
-                    <div style="background: rgba(181, 131, 58, 0.02); padding: 50px; border-radius: 40px; border: 1px solid rgba(181, 131, 58, 0.05);">
-                        <div class="section-tag">Sobre Lúmina</div>
-                        <p style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.4rem; margin-bottom: 40px; line-height: 1.4;">"Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria."</p>
+                    <!-- Derecha: Explicación Editorial -->
+                    <div style="text-align: left; padding-top: 50px;">
+                        <p style="font-size: 1.6rem; line-height: 1.6; font-family: 'Outfit', sans-serif; font-weight: 300; color: #1a1a1a; margin-bottom: 35px;">
+                            Cada lección es una <strong style="font-weight: 700; color: var(--accent);">joya de sabiduría independiente</strong>. Incluye su propia aplicación personal, profesional y reflexión.
+                        </p>
+                        <p style="font-size: 1.15rem; line-height: 1.8; opacity: 0.6; font-family: 'Outfit', sans-serif; font-weight: 300;">
+                            No es necesario empezar un libro desde el inicio para transformar tu mente hoy. Nuestro sistema está diseñado para el impacto inmediato y la maestría diaria a través de pequeñas dosis de excelencia.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- BLOQUE 3: INTERACTIVIDAD (ESTILO STORYTEL) -->
+        <div class="landing-section-wrapper bg-rock">
+            <section class="landing-section" style="padding-top: 100px; padding-bottom: 120px; text-align: center;">
+                <div class="section-tag">Experiencia Lúmina</div>
+                <h2 style="margin-bottom: 60px;">Tu refugio de crecimiento</h2>
+                
+                <div class="story-grid">
+                    <!-- Tarjeta 1 -->
+                    <div class="story-card">
+                        <div class="card-main-text">Microaprendizaje en 5 mins</div>
+                        <div class="card-hover-text">Palabra, afirmación, frase y lección diaria para tu evolución constante.</div>
+                        <div class="card-icon-plus">+</div>
+                    </div>
+                    
+                    <!-- Tarjeta 2 -->
+                    <div class="story-card">
+                        <div class="card-main-text">En cualquier lugar y a cualquier hora</div>
+                        <div class="card-hover-text">Accede desde diferentes dispositivos y todo queda sincronizado en tu cuenta.</div>
+                        <div class="card-icon-plus">+</div>
+                    </div>
+                    
+                    <!-- Tarjeta 3 -->
+                    <div class="story-card">
+                        <div class="card-main-text">Cada día es una lección de crecimiento</div>
+                        <div class="card-hover-text">Conocimiento, crecimiento y transformación personal. Un sistema para la excelencia.</div>
+                        <div class="card-icon-plus">+</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 80px;">
+                    <button class="btn-cta-gold" onclick="openAuth('signup')">EMPEZAR AHORA</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- BLOQUE 4: VIAJE Y EXPANSIONES (DUAL COLUMN DARK) -->
+        <div class="landing-section-wrapper bg-dark">
+            <section class="landing-section" style="padding-top: 70px; padding-bottom: 70px;">
+                <div class="landing-dual-grid v-top">
+                    <!-- Izquierda: Mi Viaje (Timeline con gradiente) -->
+                    <div class="landing-journey-wrapper" style="text-align: left; margin: 0; padding: 0;">
+                        <div class="section-tag" style="color: #b5833a !important; opacity: 1 !important; text-transform: uppercase; margin: 0; padding: 0; position: relative; z-index: 20;">Nuestra senda de conocimiento</div>
+                        <div style="height: 20px;"></div> <!-- Compensación exactas para h2 derecho -->
+                        <div class="landing-journey-container" id="landing-journey-timeline" style="margin-top: 20px;">
+                            <!-- Se puebla dinámicamente -->
+                            <div style="padding: 100px 20px; text-align: center; opacity: 0.3;">
+                                <div class="spinner" style="margin: 0 auto 20px;"></div>
+                                Cargando cronograma...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Derecha: Expansiones (Texto a la derecha) -->
+                    <div class="exp-info-right" style="text-align: left;">
+                        <div class="section-tag" style="color: var(--accent);">Expansiones</div>
+                        <h2 style="font-size: 3.5rem; margin-top: 20px; margin-bottom: 30px; color: white; line-height: 1.1;">
+                            Eleva tu sabiduría con nuestras <span style="font-style: italic; color: var(--accent);">Expansiones</span>
+                        </h2>
                         
-                        <div class="hub-pilar-item">
-                            <strong>Palabras y Afirmaciones</strong>
-                            <span>Precisión verbal y reprogramación consciente para la resiliencia ante el caos.</span>
+                        <div style="margin-bottom: 40px;">
+                            <h4 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; color: rgba(255,255,255,0.9); margin-bottom: 15px; font-style: italic;">Series temáticas y libros independientes desbloqueables.</h4>
+                            <p style="font-size: 1.1rem; color: rgba(255,255,255,0.6); line-height: 1.6; font-family: 'Outfit', sans-serif; font-weight: 300;">
+                                Elije tu propia senda a recorrer. Desde la profundidad de la filosofía antigua hasta las aplicaciones modernas del estoicismo en el liderazgo y la vida diaria.
+                            </p>
                         </div>
-                        <div class="hub-pilar-item">
-                            <strong>Frases y Sabiduría</strong>
-                            <span>El consejo de los gigantes para navegar los desafíos de la vida contemporánea.</span>
-                        </div>
-                        <div class="hub-pilar-item">
-                            <strong>Libros Maestros</strong>
-                            <span>Inmersión profunda en las mentes universales, destilada en lecciones accionables.</span>
+
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <button class="btn-cta-gold" onclick="openAuth('signup')">DESBLOQUEAR AHORA</button>
+                            <div style="display: flex; align-items: center; gap: 10px; color: var(--accent); font-size: 0.75rem; letter-spacing: 1px; font-weight: 700;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                ACCESO SEGURO
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
 
-        <div class="landing-section-wrapper bg-dark">
+        <div class="landing-section-wrapper bg-light">
             <section class="landing-section">
-                <div class="landing-dual-grid">
-                    <!-- Izquierda: Biblioteca -->
-                    <div>
-                        <div class="section-tag" style="color: var(--accent);">Biblioteca Premium</div>
-                        <h2 style="color: white; font-size: 3rem;">Explora los clásicos</h2>
-                        <div class="library-carousel" style="margin-top: 30px; gap: 20px;">
-                            <div class="book-card-mock" style="min-width: 180px; height: 270px; border-width: 2px;">
-                                <img src="file:///C:/Users/pc/.gemini/antigravity/brain/76f568a0-2162-41b5-b36f-f2449a80501c/lumina_book_cover_meditaciones_1775248304078.png" style="width:100%; height:100%; object-fit:cover;">
-                            </div>
-                            <div class="book-card-mock" style="min-width: 180px; height: 270px; border-width: 2px;">
-                                <img src="file:///C:/Users/pc/.gemini/antigravity/brain/76f568a0-2162-41b5-b36f-f2449a80501c/lumina_book_cover_brevedad_vida_1775248331251.png" style="width:100%; height:100%; object-fit:cover;">
-                            </div>
+                <div class="section-tag">Características</div>
+                <h2 style="font-size: clamp(2.5rem, 6vw, 4rem); max-width: 800px; margin-bottom: 10px;">Una experiencia diseñada <span style="font-style: italic; color: var(--accent);">para ti</span></h2>
+                <p style="opacity: 0.5; font-size: 1.1rem; margin-bottom: 40px; font-family: 'Outfit', sans-serif;">Detalles refinados para una inmersión profunda en la sabiduría.</p>
+                
+                <div class="features-grid-refined">
+                    <div class="feature-card-premium">
+                        <div class="feature-icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1L9 9l-8 3 8 3 3 8 3-8 8-3-8-3-3-8z"/></svg>
                         </div>
-                        <p style="font-family: 'Outfit', sans-serif; font-size: 0.9rem; opacity: 0.5; margin-top: 30px;">Acceso completo a nuestra selección editorial con tu suscripción Pro.</p>
+                        <h4>Atmósfera</h4>
+                        <p>Controla sonidos ambientales, fuentes y paletas de colores para una lectura que se adapte a tu estado mental.</p>
                     </div>
-
-                    <!-- Derecha: Mi Viaje -->
-                    <div style="text-align: left;">
-                        <div class="section-tag" style="color: var(--accent);">Mi Viaje</div>
-                        <h2 style="color: white; margin-bottom: 40px;">Tu Camino a la Maestría</h2>
-                        
-                        <div class="timeline-demo">
-                            <div class="timeline-node">
-                                <div class="node-tag">HOY — LIBROS</div>
-                                <div class="node-title">Sexto: Meditaciones (Marco Aurelio)</div>
-                            </div>
-                            <div class="timeline-node" style="opacity: 0.4;">
-                                <div class="node-tag">MAÑANA</div>
-                                <div class="node-title">Sétimo: La Brevedad de la Vida (Séneca)</div>
-                            </div>
-                            <div class="timeline-node" style="opacity: 0.2; margin-bottom: 0;">
-                                <div class="node-tag">LUNES</div>
-                                <div class="node-title">Octavo: Manual para la Vida (Epicteto)</div>
-                            </div>
+                    
+                    <div class="feature-card-premium">
+                        <div class="feature-icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                         </div>
+                        <h4>Voces Pro</h4>
+                        <p>Narración fluida y natural (TTS) diseñada para que cada palabra resuene con la profundidad que merece.</p>
+                    </div>
+                    
+                    <div class="feature-card-premium">
+                        <div class="feature-icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.5 1.5"/><path d="M14 11l5 5"/></svg>
+                        </div>
+                        <h4>Diario Personal</h4>
+                        <p>Reflexiona sobre lo aprendido, guarda tus favoritos y mantén un registro de tu evolución espiritual.</p>
+                    </div>
+                    
+                    <div class="feature-card-premium">
+                        <div class="feature-icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </div>
+                        <h4>Modo Profundo</h4>
+                        <p>Interfaz adaptable para proteger tu visión y facilitar la concentración en la oscuridad de la noche.</p>
                     </div>
                 </div>
             </section>
         </div>
 
         <div class="landing-section-wrapper bg-rock">
-            <section class="landing-section" style="padding-top: 100px; padding-bottom: 100px;">
-                <div class="section-tag">Contenido Exclusivo</div>
-                <h2 style="font-size: 3.5rem; margin-bottom: 60px;">Eleva tu sabiduría con<br>nuestras <span style="font-style: italic; color: var(--accent);">Expansiones</span></h2>
-                
-                <div class="landing-dual-grid" style="gap: 40px;">
-                    <div class="modular-card" style="text-align: left; padding: 40px; border-color: var(--accent); background: #fff;">
-                        <div style="font-size: 2.5rem; margin-bottom: 20px;">🏛️</div>
-                        <h4 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; margin-bottom: 15px;">Fuerza Stoica</h4>
-                        <p style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; opacity: 0.7; line-height: 1.6;">Una inmersión profunda en la disciplina de Marco Aurelio y Epicteto. Templanza y fortaleza para el mundo moderno.</p>
-                        <div class="node-tag" style="margin-top: 25px;">MÁS DE 50 LECCIONES</div>
-                    </div>
-                    <div class="modular-card" style="text-align: left; padding: 40px; border-color: var(--accent); background: #fff;">
-                        <div style="font-size: 2.5rem; margin-bottom: 20px;">⚖️</div>
-                        <h4 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; margin-bottom: 15px;">Liderazgo Consciente</h4>
-                        <p style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; opacity: 0.7; line-height: 1.6;">Sabiduría atemporal aplicada a la toma de decisiones, la gestión de equipos y la visión estratégica profesional.</p>
-                        <div class="node-tag" style="margin-top: 25px;">EDICIÓN ESPECIAL</div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 60px; padding: 30px; border-radius: 20px; background: rgba(181, 131, 58, 0.05); border: 1px dashed var(--accent);">
-                    <p style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; letter-spacing: 1px; color: var(--accent); font-weight: 700;">PROXIMAMENTE: PAZ MENTAL Y MINDFULNESS ESTOICO</p>
-                </div>
-            </section>
-        </div>
-
-        <div class="landing-section-wrapper bg-white">
-            <section class="landing-section">
-                <div class="section-tag">Características</div>
-                <h2>Una experiencia diseñada para ti</h2>
-                <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px; margin-top: 50px;">
-                    <div class="feature-item" style="padding: 35px; border-radius: 30px; border: 1px solid rgba(181, 131, 58, 0.1);">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;"><path d="M12 1L9 9l-8 3 8 3 3 8 3-8 8-3-8-3-3-8z"/></svg>
-                        <h4 style="font-size: 1.3rem;">Atmósfera</h4>
-                        <p>Controla sonidos, fuentes y colores para tu lectura.</p>
-                    </div>
-                    <div class="feature-item" style="padding: 35px; border-radius: 30px; border: 1px solid rgba(181, 131, 58, 0.1);">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-                        <h4 style="font-size: 1.3rem;">Voces Pro</h4>
-                        <p>Narración fluida y natural (TTS) para cada lección.</p>
-                    </div>
-                    <div class="feature-item" style="padding: 35px; border-radius: 30px; border: 1px solid rgba(181, 131, 58, 0.1);">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.5 1.5"/><path d="M14 11l5 5"/></svg>
-                        <h4 style="font-size: 1.3rem;">Diario</h4>
-                        <p>Reflexiona, guarda favoritos y responde los retos.</p>
-                    </div>
-                    <div class="feature-item" style="padding: 35px; border-radius: 30px; border: 1px solid rgba(181, 131, 58, 0.1);">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        <h4 style="font-size: 1.3rem;">Modo Noche</h4>
-                        <p>Adaptable para proteger tu visión en la oscuridad.</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <div class="landing-section-wrapper bg-white">
             <section class="landing-section">
                 <div class="section-tag">Membresía</div>
                 <h2>Elige tu camino</h2>
@@ -2119,7 +2398,7 @@
                             <li>Afirmación Diaria</li>
                             <li>Frase Célebre</li>
                         </ul>
-                        <button class="btn-portal-open" style="width: 100%; border-color: #ddd; color: #666;" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">EMPEZAR GRATIS</button>
+                        <button class="btn-portal-open" style="width: 100%; border-color: #ddd; color: #666;" onclick="openAuth('signup')">EMPEZAR GRATIS</button>
                     </div>
                     <div class="price-card featured">
                         <div class="p-name">PRO MENSUAL</div>
@@ -2130,7 +2409,7 @@
                             <li>5 Refrescos diarios de contenido</li>
                             <li>Voz Premium Ilimitada</li>
                         </ul>
-                        <button class="btn-cta-gold" style="width: 100%; padding: 15px;" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">PROBAR 14 DÍAS</button>
+                        <button class="btn-cta-gold" style="width: 100%; padding: 15px;" onclick="openAuth('signup')">PROBAR 14 DÍAS</button>
                     </div>
                     <div class="price-card">
                         <div class="p-name">PRO VITALICIO</div>
@@ -2141,11 +2420,11 @@
                             <li>Futuros lanzamientos incluidos</li>
                             <li>Un solo pago para siempre</li>
                         </ul>
-                        <button class="btn-portal-open" style="width: 100%;" onclick="setPortalMode('signup'); document.getElementById('login-portal').style.display='flex';">ADQUIRIR DE POR VIDA</button>
+                        <button class="btn-portal-open" style="width: 100%;" onclick="openAuth('signup')">ADQUIRIR DE POR VIDA</button>
                     </div>
                 </div>
 
-                <div style="text-align: center; margin-top: 60px; padding: 60px 40px; border-radius: 40px; border: 2px dashed var(--accent); background: rgba(181, 131, 58, 0.03);">
+                <div style="text-align: center; margin-top: 40px; padding: 40px; border-radius: 40px; border: 2px dashed var(--accent); background: rgba(181, 131, 58, 0.03);">
                     <div class="section-tag" style="margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Acceso Universal</div>
                     <h3 style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.8rem; margin-bottom: 20px;">Lúmina en todas tus pantallas</h3>
                     <p style="font-family: 'Outfit', sans-serif; font-weight: 300; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">Acceso multiplataforma: Navegadores, Android, Apple, AppGallery, Galaxy Store, y escritorio.</p>
@@ -2160,11 +2439,11 @@
         </div>
 
         <footer class="landing-footer">
-            <div class="landing-logo-container" style="justify-content: center; margin-bottom: 20px;">
+            <div class="landing-logo-container" style="justify-content: center; margin-bottom: 5px;">
                 <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="footer-logo" style="height: 50px; margin-bottom: 0;">
                 <span class="logo-text" style="font-size: 2rem;">Lúmina</span>
             </div>
-            <p class="footer-text">&copy; 2026 Lúmina — Sabiduría y Transformación Personal</p>
+            <p class="footer-text" style="font-size: 0.75rem; opacity: 0.5; margin-bottom: 0;">&copy; 2026 Lúmina — Sabiduría y Transformación Personal</p>
         </footer>
     </div>
 
@@ -2561,104 +2840,9 @@
             </div>
         </main>
 
-        <!-- Portal de Identidad Rebrandeado -->
-        <div id="login-portal" class="modal" style="z-index: 6000; background: var(--bg); display: none; flex-direction: column; align-items: center; overflow-y: auto; padding: 60px 20px;">
-            <div class="auth-bg-glow" style="width: 400px; height: 400px; left: -100px; top: -100px;"></div>
-            <div class="auth-bg-glow" style="width: 300px; height: 300px; right: -50px; bottom: -50px; opacity: 0.05;"></div>
-            <!-- El contenedor tiene margin: auto para centrarse cuando cabe -->
-            <div class="auth-container">
-                <div class="meta" style="margin-bottom: 20px;">LÚMINA</div>
-                <h1 id="portal-title" style="font-family:'Playfair Display', serif; font-size: 3.8rem; font-style: italic; margin-bottom: 10px; line-height: 1;">Identidad</h1>
-                <p id="portal-desc" style="font-size: 0.9rem; opacity: 0.5; margin-bottom: 45px; letter-spacing: 1px;">Tu viaje de sabiduría sincronizado.</p>
-                
-                <div id="portal-fields">
-                    <div class="auth-field">
-                        <label class="auth-label">Email</label>
-                        <input type="email" id="reg-email" class="auth-input" placeholder="tu@ejemplo.com">
-                    </div>
-
-                    <div id="field-name" class="auth-field" style="display: none;">
-                        <label class="auth-label">Tu Nombre</label>
-                        <input type="text" id="reg-name" class="auth-input" placeholder="Ej: Marco Aurelio">
-                    </div>
-
-                    <div id="field-pass" class="auth-field">
-                        <label class="auth-label">Contraseña</label>
-                        <input type="password" id="reg-pass" class="auth-input" placeholder="••••••••">
-                    </div>
-
-                    <div id="fields-signup" style="display: none;">
-                        <div class="auth-field">
-                            <label class="auth-label">Pregunta de Seguridad</label>
-                            <select id="reg-question" class="auth-input">
-                                <option value="Nombre de tu primera mascota">¿Nombre de tu primera mascota?</option>
-                                <option value="Ciudad donde naciste">¿Ciudad donde naciste?</option>
-                                <option value="Nombre de tu escuela primaria">¿Nombre de tu escuela primaria?</option>
-                                <option value="Comida favorita de la infancia">¿Tu comida favorita de la infancia?</option>
-                                <option value="Mejor amigo/a de niño/a">¿Mejor amigo/a de niño/a?</option>
-                            </select>
-                        </div>
-                        <div class="auth-field">
-                            <label class="auth-label">Tu Respuesta</label>
-                            <input type="text" id="reg-answer" class="auth-input" placeholder="Respuesta secreta...">
-                        </div>
-                    </div>
-
-                    <div id="fields-recover" style="display: none;">
-                        <!-- Paso 2: Selección de Método -->
-                        <div id="recover-method-selector" style="display: none; margin-bottom: 25px;">
-                            <label class="auth-label">Elige método de Verificación</label>
-                            <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px;">
-                                <button class="btn-save" onclick="selectRecoverMethod('question')" style="background: rgba(181,131,58,0.1); border: 1px solid var(--accent); color: var(--accent); font-size: 0.75rem; letter-spacing: 1px; padding: 12px;">PREGUNTA SECRETA</button>
-                                <button class="btn-save" onclick="selectRecoverMethod('code')" style="background: rgba(181,131,58,0.1); border: 1px solid var(--accent); color: var(--accent); font-size: 0.75rem; letter-spacing: 1px; padding: 12px;">CÓDIGO DE RESPALDO</button>
-                            </div>
-                        </div>
-
-                        <!-- Paso 3: Inputs específicos -->
-                        <div id="recover-step-question" style="display: none; margin-bottom: 20px;">
-                            <label class="auth-label">Tu Pregunta Secreta</label>
-                            <p id="recover-question-text" style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem; color: var(--accent); margin-bottom: 15px;"></p>
-                            <div class="auth-field">
-                                <input type="text" id="recover-answer" class="auth-input" placeholder="Tu respuesta secreta...">
-                            </div>
-                        </div>
-
-                        <div id="recover-step-code" style="display: none; margin-bottom: 20px;">
-                            <label class="auth-label">Código de Respaldo</label>
-                            <div class="auth-field">
-                                <input type="text" id="recover-code" class="auth-input" maxlength="8" placeholder="Ingresa un código (ej: ABCDEF12)">
-                            </div>
-                        </div>
-
-                        <!-- Parte final (común para ambos) -->
-                        <div id="recover-step-final" style="display: none;">
-                            <div class="auth-field">
-                                <label class="auth-label">Nueva Contraseña</label>
-                                <input type="password" id="recover-new-pass" class="auth-input" placeholder="Mínimo 4 caracteres">
-                            </div>
-                        </div>
-                    </div>
-                </div><!-- Fin portal-fields -->
-                    
-                    <div id="view-codes" style="display: none; background: rgba(181,131,58,0.03); padding: 30px; border-radius: 24px; border: 1px dashed var(--accent); text-align: left; margin-bottom: 25px;">
-                        <span class="auth-label" style="opacity: 1;">Llaves del Templo</span>
-                        <div id="codes-list" style="margin: 20px 0; text-align: center;"></div>
-                        <p style="font-size: 0.75rem; opacity: 0.4; line-height: 1.6;">Estos 5 códigos son tu única forma de recuperar el acceso si olvidas tu contraseña. Guárdalos bien.</p>
-                    </div>
-
-                <button id="btn-portal-submit" class="btn-save" onclick="handlePortalAction()" style="width: 100%; margin-top: 20px;">ENTRAR</button>
-
-                <div id="portal-links" style="margin-top: 35px; display: flex; justify-content: center; gap: 15px; align-items: center;">
-                    <a id="link-signup" class="auth-link" onclick="setPortalMode('signup')">Crear Cuenta</a>
-                    <a id="link-login" class="auth-link" style="display: none;" onclick="setPortalMode('login')">Ya tengo cuenta</a>
-                    <span id="portal-sep" style="opacity: 0.1; font-size: 0.8rem;">|</span>
-                    <a id="link-recover" class="auth-link" onclick="setPortalMode('recover')">Olvidé mi contraseña</a>
-                </div>
-                
-                <div id="login-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 25px; font-weight: 500; display: none;"></div>
-            </div>
-        </div>
     </div>
+
+
 
         <footer>
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; letter-spacing: 3px;">
@@ -2668,730 +2852,28 @@
         </footer>
 
 
-    <!-- Modal Novedades -->
-    <div id="notif-modal" class="modal notif-modal">
-        <div class="modal-content" style="max-width: 450px;">
-            <div class="notif-header">
-                <h2 style="font-style: italic;">Novedades</h2>
-                <button class="btn-clear-all" id="btn-clear-notifs" onclick="clearAllNotifs()">Borrar Todo</button>
-            </div>
-            <div id="notif-list">
-                <div style="padding: 40px; text-align: center; opacity: 0.5;">Cargando novedades...</div>
-            </div>
-            <div style="padding: 20px; border-top: 1px solid rgba(128,128,128,0.1);">
-                <button class="btn-save" onclick="toggleNotifications()" style="width: 100%; margin: 0;">CERRAR</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal Hábitos -->
-    <div id="habitos-modal" class="modal">
-        <div class="modal-content" style="max-width: 450px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Mis Hábitos</h2>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-icon" onclick="shareAsImage('habitos')" title="Compartir logros" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                    </button>
-                    <button class="btn-icon" onclick="toggleHabitos()" title="Cerrar" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
-                        <svg viewBox="0 0 24 24" style="stroke: currentColor;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- PANEL DE HÁBITOS (MIGRADO) -->
-            <div class="habitos-panel" style="margin-top: 0; animation: none;">
-                <!-- Stats: Racha + Logros -->
-                <div class="habitos-stats">
-                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
-                        <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
-                        <span class="habito-stat-num" id="streak-val">0</span>
-                        <span class="habito-stat-label">Racha</span>
-                        <span class="habito-stat-desc">Días seguidos de sabiduría</span>
-                        <div class="gam-tooltip">
-                            <b>Racha Diaria</b>
-                            Entra cada día para mantener el fuego de tu hábito encendido.
-                        </div>
-                    </div>
-                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
-                        <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                        <span class="habito-stat-num" id="medals-val">0</span>
-                        <span class="habito-stat-label">Logros</span>
-                        <span class="habito-stat-desc">Por lecciones</span>
-                        <div class="gam-tooltip">
-                            <b>Tus Logros</b>
-                            Ganas 1 logro por cada 7 lecciones completadas en la sección "Mi Viaje". Completa lecciones de Libros para desbloquearlos.
-                        </div>
-                    </div>
-                    <!-- NUEVO: Pausas Conscientes -->
-                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
-                        <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-                        <span class="habito-stat-num" id="pausas-val">0</span>
-                        <span class="habito-stat-label">Pausas</span>
-                        <span class="habito-stat-desc">Momentos de paz</span>
-                        <div class="gam-tooltip">
-                            <b>Pausas Conscientes</b>
-                            El total de minutos de calma y respiración consciente logrados históricamente.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Puntos 7 días (Dom—Sáb) -->
-                <hr class="habitos-divider">
-                <span class="habitos-dots-label">Esta semana</span>
-                <div class="racha-visual" id="racha-visual"><!-- dots por JS --></div>
-                <div id="habits-chart-container" style="margin-top: 20px; width: 100%; height: 160px; position: relative;">
-                    <canvas id="habits-chart"></canvas>
-                </div>
-
-                <!-- Logro del Día -->
-                <div class="logro-hoy-badge" id="logro-hoy" onclick="this.classList.toggle('show-tip')">
-                    <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
-                    <span class="logro-label">Logro del Día — Sabiduría Completa</span>
-                    <div class="gam-tooltip">
-                        <b>¡Excelente!</b>
-                        Visitaste las 4 secciones hoy. Tu mente está en pleno movimiento.
-                    </div>
-                </div>
-            </div>
-
-            <div style="padding-top: 25px; margin-top: 10px;">
-                <button class="btn-save" onclick="toggleHabitos()" style="width: 100%; margin: 0; background: transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--text);">VOLVER</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Info -->
-    <div id="info-modal" class="modal">
-        <div class="modal-content" style="max-width: 550px;">
-            <div class="modal-tabs">
-                <button class="tab-btn active" id="btn-tab-filosofia" onclick="switchInfoTab('filosofia')">LÚMINA</button>
-                <button class="tab-btn" id="btn-tab-viaje" onclick="switchInfoTab('viaje')">MI VIAJE</button>
-            </div>
-
-            <!-- TAB: FILOSOFÍA -->
-            <div id="info-tab-filosofia">
-                <h2 style="font-family:'Playfair Display', serif; margin-bottom: 20px; font-style: italic; font-size: 2.2rem; margin-top: 20px;">Sobre Lúmina</h2>
-                
-                <p style="font-size: 0.95rem; opacity: 0.9; line-height: 1.7; text-align: left; margin-bottom: 25px;">
-                    Lúmina es la plataforma de microaprendizaje ideada para el hombre y la mujer de espíritu estoico y mente moderna. Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria.
-                </p>
-
-                <div style="text-align: left; font-size: 0.8rem; line-height: 1.6; opacity: 0.85;">
-                    <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; color: var(--accent);">NUESTROS PILARES DE CRECIMIENTO</p>
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Palabras</strong>
-                            Precisión verbal para claridad mental. Eleva tu léxico y expande los límites de tu conciencia.
-                        </div>
-                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Afirmaciones</strong>
-                            Reprogramación consciente. Diálogo interno diseñado para la fortaleza y la resiliencia ante el caos.
-                        </div>
-                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Frases</strong>
-                            El consejo de los gigantes. Sabiduría atemporal para navegar los desafíos de la vida contemporánea.
-                        </div>
-                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Libros</strong>
-                            Inmersión profunda en las mentes universales, destilada en lecciones prácticas y accionables para tu día a día.
-                        </div>
-                    </div>
-                </div>
-
-                <p style="margin-top: 40px; font-style: italic; opacity: 0.6; text-align: center; font-size: 0.85rem; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">
-                    "Un refugio para quienes buscan la maestría personal, honrando la brevedad del tiempo con la profundidad del conocimiento."
-                </p>
-            </div>
-
-            <!-- TAB: VIAJE (RESTAURADO AL MODAL INFO) -->
-            <div id="info-tab-viaje" style="display: none;">
-                <div class="banner-standalone" style="margin-top: 20px; margin-bottom: 20px;">
-                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Aprendizaje Modular</h4>
-                    <p style="font-size: 0.8rem; opacity: 0.7;">Cada lección es una joya de sabiduría independiente. Incluye su propia aplicación personal, profesional y reflexión. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
-                </div>
-                <div id="journey-timeline" class="timeline-container" style="max-height: 400px; overflow-y: auto;">
-                    <div style="padding: 40px; opacity: 0.5;">Cargando cronograma...</div>
-                </div>
-            </div>
-            <button class="btn-save" onclick="toggleInfo()" style="width: 100%; margin-top: 30px; padding: 15px;">ENTENDIDO</button>
-        </div>
-    </div>
-
-    <!-- Modal Ajustes -->
-    <div id="settings-modal" class="modal">
-        <div class="modal-content" style="position:relative;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Ajustes</h2>
-                <button class="btn-icon" onclick="toggleProfile()" title="Ver Perfil" style="background: var(--accent) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1;">
-                    <svg viewBox="0 0 24 24" style="stroke: white;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                </button>
-            </div>
-            
-            <!-- SECCIÓN 1: AUDIO -->
-            <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">AUDIO Y NARRACIÓN</div>
-
-            <div class="sub-option" style="cursor:pointer; margin-bottom: 15px;" onclick="toggleCloudVoice()">
-                <div style="display: flex; flex-direction: column;">
-                    <span>Voz Google Premium</span>
-                    <small style="font-size: 0.6rem; opacity: 0.5;">Alta fidelidad • Recomendado</small>
-                </div>
-                <div class="toggle-sub" id="cloud-voice-toggle"></div>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 30px;">
-                <div style="font-size: 0.6rem; letter-spacing: 1.5px; opacity: 0.5; margin-bottom: 8px; text-transform: uppercase; font-weight: 700; color: var(--accent);">Voz del Dispositivo</div>
-                <select id="voice-select" onchange="saveVoicePreference()" style="width:100%; padding:14px; border-radius:15px; border:1px solid rgba(181, 131, 58, 0.2); background:rgba(181, 131, 58, 0.05); color:var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none; appearance: none; -webkit-appearance: none;">
-                    <option value="">Cargando voces...</option>
-                </select>
-                <p style="font-size: 0.6rem; opacity: 0.4; margin-top: 10px; line-height: 1.4;">
-                    HACK: Las voces marcadas con <b>✨</b> suenan más reales. En Android usa las de <b>Google</b> y en PC usa <b>Edge</b> para mejores resultados.
-                </p>
-            </div>
-
-            <div class="sub-option" style="cursor:pointer; margin-bottom: 30px;" onclick="toggleUISounds()">
-                <span>Sonidos de Interfaz</span>
-                <div class="toggle-sub" id="ui-sounds-toggle"></div>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 30px;">
-                <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Sonidos Ambientales</div>
-                <div class="ambient-grid">
-                    <div class="ambient-item" id="amb-none" onclick="toggleAmbient('none')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-                        </div>
-                        <span class="ambient-label">Silencio</span>
-                    </div>
-                    <div class="ambient-item" id="amb-zen" onclick="toggleAmbient('zen')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M12 3c1.64 4 4 7 8 8-4 1.64-7 4-8 8-1.64-4-4-7-8-8 4-1.64 7-4 8-8z"></path></svg>
-                        </div>
-                        <span class="ambient-label">Zen</span>
-                    </div>
-                    <div class="ambient-item" id="amb-birds" onclick="toggleAmbient('birds')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M4 11c5-5 11-5 16 0-5-1-11-1-16 0zM4 15c5-5 11-5 16 0-5-1-11-1-16 0z"></path></svg>
-                        </div>
-                        <span class="ambient-label">Pájaros</span>
-                    </div>
-                    <div class="ambient-item" id="amb-forest" onclick="toggleAmbient('forest')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M12 2l4 5h-3v4h5l-4 5h3l-5 6h-2l-5-6h3l-4-5h5V7H8l4-5z"></path></svg>
-                        </div>
-                        <span class="ambient-label">Bosque</span>
-                    </div>
-                    <div class="ambient-item" id="amb-ocean" onclick="toggleAmbient('ocean')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
-                        </div>
-                        <span class="ambient-label">Océano</span>
-                    </div>
-                    <div class="ambient-item" id="amb-rain" onclick="toggleAmbient('rain')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"></path><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="13" x2="12" y2="21"></line><line x1="16" y1="13" x2="16" y2="21"></line></svg>
-                        </div>
-                        <span class="ambient-label">Lluvia</span>
-                    </div>
-                    <div class="ambient-item" id="amb-waterfall" onclick="toggleAmbient('waterfall')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M8 4v16M12 6v14M16 4v16M20 6v14"></path></svg>
-                        </div>
-                        <span class="ambient-label">Cascada</span>
-                    </div>
-                </div>
-                <input type="range" id="ambient-vol" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; margin-top: 15px; accent-color: var(--accent); height: 4px; cursor: pointer;">
-            </div>
-
-            <!-- SECCIÓN: APARIENCIA -->
-            <div style="text-align: left; margin-top: 15px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">APARIENCIA Y ESTILO</div>
-
-            <div class="sub-option" style="cursor:pointer; margin-bottom: 20px;" onclick="toggleTheme()">
-                <span>Modo Noche</span>
-                <div class="toggle-sub" id="theme-toggle"></div>
-            </div>
-            
-            <div style="text-align: left; margin-bottom: 20px;">
-                <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Color de Acento</div>
-                <div class="color-picker">
-                    <div class="color-circle" id="col-aureum" style="background:#b5833a" onclick="setAccent('#b5833a', 'aureum')" title="Aureum (Oro)"></div>
-                    <div class="color-circle" id="col-aether" style="background:#38bdf8" onclick="setAccent('#38bdf8', 'aether')" title="Aether (Azul)"></div>
-                    <div class="color-circle" id="col-viridis" style="background:#10b981" onclick="setAccent('#10b981', 'viridis')" title="Viridis (Esmeralda)"></div>
-                    <div class="color-circle" id="col-terra" style="background:#e2725b" onclick="setAccent('#e2725b', 'terra')" title="Terra (Arcilla)"></div>
-                    <div class="color-circle" id="col-vesper" style="background:#8b5cf6" onclick="setAccent('#8b5cf6', 'vesper')" title="Vesper (Violeta)"></div>
-                </div>
-
-                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Estilo de Texto</div>
-                <div class="font-picker">
-                    <div class="font-pair-btn" id="font-esenza" onclick="setFontPair('esenza')">
-                        <span class="pair-name" style="font-family:'Playfair Display', serif;">Esenza</span>
-                        <span class="pair-desc">Clásico y Atemporal</span>
-                    </div>
-                    <div class="font-pair-btn" id="font-nova" onclick="setFontPair('nova')">
-                        <span class="pair-name" style="font-family:'Outfit', sans-serif;">Nova</span>
-                        <span class="pair-desc">Moderno y Tecnológico</span>
-                    </div>
-                    <div class="font-pair-btn" id="font-sereni" onclick="setFontPair('sereni')">
-                        <span class="pair-name" style="font-family:'Lora', serif;">Sereni</span>
-                        <span class="pair-desc">Editorial y Sofisticado</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN: SISTEMA Y ENERGÍA -->
-            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">SISTEMA Y ENERGÍA</div>
-            
-            <div class="sub-option" onclick="toggleWakeLock()" style="cursor:pointer; margin-bottom: 15px;">
-                <div style="display: flex; flex-direction: column;">
-                    <span>Mantener Pantalla Encendida</span>
-                    <small style="font-size: 0.6rem; opacity: 0.5;">Evita que el dispositivo entre en reposo</small>
-                </div>
-                <div class="toggle-sub" id="sub-wake-lock"></div>
-            </div>
-
-            <div class="sub-option" onclick="showScanner()" style="cursor:pointer; margin-bottom: 25px; border-top: 1px solid rgba(181,131,58,0.1); padding-top: 15px;">
-                <div style="display: flex; flex-direction: column;">
-                    <span>Escáner de Sabiduría</span>
-                    <small style="font-size: 0.6rem; opacity: 0.5;">Escanea QRs para abrir pantallas compartidas</small>
-                </div>
-                <div style="color: var(--accent); opacity: 0.8;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
-                </div>
-            </div>
-
-            <!-- SECCIÓN: NOTIFICACIONES -->
-            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">NOTIFICACIONES</div>
-
-            <div class="sub-option" onclick="togglePush()" style="cursor:pointer;">
-                <span>Alertas de Sabiduría</span>
-                <div class="toggle-sub" id="sub-push"></div>
-            </div>
-
-            <div class="sub-option" onclick="toggleTag('palabras')" style="cursor:pointer;">
-                <span>Palabras de Hoy</span>
-                <div class="toggle-sub" id="sub-palabras"></div>
-            </div>
-            <div class="sub-option" onclick="toggleTag('afirmaciones')" style="cursor:pointer;">
-                <span>Afirmaciones</span>
-                <div class="toggle-sub" id="sub-afirmaciones"></div>
-            </div>
-            <div class="sub-option" onclick="toggleTag('frases')" style="cursor:pointer;">
-                <span>Frases Célebres</span>
-                <div class="toggle-sub" id="sub-frases"></div>
-            </div>
-            <div class="sub-option" onclick="toggleTag('libros')" style="cursor:pointer;">
-                <span>Lecciones del Club</span>
-                <div class="toggle-sub" id="sub-libros"></div>
-            </div>
+    
 
 
-            <!-- SECCIÓN: DISTRIBUCIÓN -->
-            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">DISTRIBUCIÓN</div>
-            
-            <button class="btn-save" id="btn-pwa-install-main" 
-                style="background:var(--accent); color: white; width: 100%; padding: 15px; font-size: 0.85rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;" 
-                onclick="toggleInstallModal()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4M7 10l5 5 5-5M12 15V3"/></svg>
-                INSTALAR APLICACIÓN
-            </button>
 
-            <button class="btn-save" onclick="toggleSettings()" style="background:none; border: none; color: var(--text); opacity: 0.4; font-size: 0.8rem; margin-top: 15px;">CERRAR VENTANA</button>
-        </div>
-    </div>
+    
 
-    <!-- Modal del Escáner QR -->
-    <div id="qr-scanner-modal" class="qr-scanner-modal">
-        <h2 style="font-family:'Playfair Display', serif; font-size: 2.2rem; font-style: italic; margin-bottom: 5px;">Escanear Lúmina</h2>
-        <p class="scanner-hint" style="margin-bottom: 25px; opacity: 0.6; font-size: 0.85rem;">Apunta con la cámara al código QR de otro dispositivo para abrir el contenido instantáneamente.</p>
-        
-        <div class="scanner-container">
-            <div id="reader"></div>
-            <div class="scanner-overlay">
-                <div class="scanner-frame">
-                    <div class="scanner-line"></div>
-                </div>
-            </div>
-        </div>
 
-        <div id="scanner-status" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase;">Iniciando cámara...</div>
-        
-        <button class="btn-close-scanner" onclick="stopScanner()">CANCELAR ESCANEO</button>
-    </div>
 
-    <!-- Modal Instalación Multiplataforma -->
-    <div id="install-modal" class="modal">
-        <div class="modal-content" style="max-width: 480px;">
-            <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; margin-bottom: 10px;">Instalar Lúmina</h2>
-            <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 25px;">Selecciona tu plataforma preferida para llevar la sabiduría contigo.</p>
-            
-            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-bottom: 10px;">NAVEGADORES (PWA)</div>
-            <div class="install-grid">
-                <div class="install-card" id="inst-chrome" onclick="triggerPwaInstall()">
-                    <svg viewBox="0 0 24 24" fill="var(--accent)"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="21.17" y1="8" x2="12" y2="8"></line><line x1="3.95" y1="6.06" x2="8.54" y2="14"></line><line x1="10.88" y1="21.94" x2="15.46" y2="14"></line></svg>
-                    <span>Chrome</span>
-                    <small id="status-chrome">Disponible</small>
-                </div>
-                <div class="install-card" id="inst-safari" onclick="showToast('En iPhone/iPad: Toca el icono de compartir (flecha arriba) y selecciona \'Añadir a pantalla de inicio\'.')">
-                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
-                    <span>Safari</span>
-                    <small id="status-safari">Instrucciones</small>
-                </div>
-                <div class="install-card" id="inst-edge" onclick="triggerPwaInstall()">
-                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
-                    <span>Edge</span>
-                    <small id="status-edge">Disponible</small>
-                </div>
-                <div class="install-card" id="inst-firefox" onclick="triggerPwaInstall()">
-                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M22.77 12.27c0 5.86-4.76 10.61-10.63 10.61-5.86 0-10.61-4.75-10.61-10.61S6.28 1.66 12.14 1.66c5.87 0 10.63 4.75 10.63 10.61zM16.5 7.5s-1.5-1.5-3-1.5-3 1.5-3 1.5l1.5 3-1.5 3 3 1.5 3-1.5-.5-3 1.5-3z"/></svg>
-                    <span>Firefox</span>
-                    <small id="status-firefox">Disponible</small>
-                </div>
-            </div>
+    
 
-            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">TIENDAS OFICIALES</div>
-            <div class="install-grid">
-                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en Play Store')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.67-1.5 1.5-1.5h11l5 5v13.5c0 .83-.67 1.5-1.5 1.5h-14.5c-.83 0-1.5-.67-1.5-1.5zm11-14v-3.5l-3.5 3.5h3.5z"/></svg>
-                    <span>Play Store</span>
-                    <small>Próximamente</small>
-                </div>
-                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en App Store')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-1.99.77-3.27.82-1.31.05-2.31-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.24-1.99 1.1-3.15-1.04.04-2.3.69-3.05 1.52-.66.71-1.25 1.88-1.1 3.03 1.15.08 2.32-.58 3.05-1.4z"/></svg>
-                    <span>App Store</span>
-                    <small>Próximamente</small>
-                </div>
-                <!-- Huawei -->
-                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en AppGallery')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="5"/></svg>
-                    <span>AppGallery</span>
-                    <small>Próximamente</small>
-                </div>
-                <!-- Samsung -->
-                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en Galaxy Store')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><rect x="9" y="9" width="6" height="6"/></svg>
-                    <span>Galaxy Store</span>
-                    <small>Próximamente</small>
-                </div>
-                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="showToast('Próximamente en Microsoft Store')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 1h10.5v10.5h-10.5zM12.5 1h10.5v10.5h-10.5zM1 12.5h10.5v10.5h-10.5zM12.5 12.5h10.5v10.5h-10.5z"/></svg>
-                    <span>Microsoft Store</span>
-                    <small>Próximamente</small>
-                </div>
-            </div>
-
-            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">DESCARGA DIRECTA (ANDROID)</div>
-            <div class="install-grid">
-                <div class="install-card" onclick="window.open('https://github.com/malloyruiz/palabras-poeticas/releases/download/v1.0.0/Lumina.apk', '_blank')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                    <span>Descargar APK</span>
-                    <small>Versión v1.0.0</small>
-                </div>
-                <div class="install-card" onclick="window.open('https://github.com/malloyruiz/palabras-poeticas/releases/download/v1.0.0/Lumina.aab', '_blank')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                    <span>Descargar AAB</span>
-                    <small>Paquete Bundle</small>
-                </div>
-            </div>
-
-            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">EXTENSIONES</div>
-            <div class="install-grid" style="margin-bottom: 30px;">
-                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="showToast('Próximamente en Web Store')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    <span>Chrome Web Store</span>
-                    <small>Próximamente</small>
-                </div>
-            </div>
-
-            <pwa-install id="pwainstall" usecustom iosinstallinfotext="Toca el botón Compartir y añade a pantalla de inicio."></pwa-install>
-            
-            <button class="btn-save" onclick="document.getElementById('install-modal').classList.remove('active')" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;">CERRAR</button>
-        </div>
-    </div>
-
-    <!-- Modal Go Pro / Trial (Diseño Refinado) -->
-    <div id="pro-modal" class="modal">
-        <div class="modal-content" style="text-align: center; padding: 45px 35px; background: var(--card-bg); border-radius: 32px; border: 1px solid var(--card-border); max-width: 420px; box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
-            
-            <div style="font-size: 0.65rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 25px; font-weight: 600; text-transform: uppercase;">Libera tu Potencial</div>
-            
-            <p style="font-size: 0.95rem; opacity: 0.75; line-height: 1.7; margin-bottom: 40px; font-weight: 300; padding: 0 10px;">
-                Únete al Club de Libros y accede a lecciones de sabiduría profunda con tu periodo de prueba de 14 días.
-            </p>
-
-            <!-- BTN: TRIAL (Sólido) -->
-            <button class="btn-save" onclick="startTrial()" 
-                style="width: 100%; border-radius: 50px; padding: 18px; font-size: 0.85rem; letter-spacing: 1.5px; font-weight: 500; background: var(--accent); color: #fff; border: none; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(181, 131, 58, 0.2);">
-                COMENZAR PRUEBA GRATUITA
-            </button>
-
-            <!-- BTN: SUSCRIPCIÓN (Outline) -->
-            <button class="btn-save" onclick="window.open('https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-4XK17925J43504944NHEDJFA', '_blank')" 
-                style="width: 100%; border-radius: 50px; padding: 16px; font-size: 0.8rem; letter-spacing: 1.5px; font-weight: 500; background: transparent; border: 1px solid rgba(181, 131, 58, 0.4); color: var(--accent); margin-bottom: 12px;">
-                SUSCRIPCIÓN MENSUAL
-            </button>
-
-            <!-- BTN: LIFETIME (Simple Link) -->
-            <button onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')" 
-                style="background:none; border: none; color: var(--accent); opacity: 0.6; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 15px; cursor: pointer; font-weight: 600;">
-                O ADQUIRIR ACCESO VITALICIO
-            </button>
-
-            <button onclick="document.getElementById('pro-modal').classList.remove('active')" 
-                style="background:none; border: none; color: var(--text); opacity: 0.2; font-size: 0.6rem; margin-top: 35px; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; width: 100%;">
-                Luego
-            </button>
-        </div>
-    </div>
-
-    <!-- Modal Éxito Pro -->
-    <div id="success-modal" class="modal">
-        <div class="modal-content">
-            <svg class="confetti-svg" viewBox="0 0 24 24">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-            <h2 style="font-family:'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 10px;">¡Bienvenido al Ecosistema!</h2>
-            <p style="font-size: 1rem; opacity: 0.8; margin-bottom: 30px; line-height: 1.6;">
-                Has desbloqueado todo el potencial de <strong>Lúmina Pro</strong>. Disfruta de la sabiduría ilimitada.
-            </p>
-            <button class="btn-save" onclick="closeSuccessModal()" style="width: 100%; background: var(--accent); color: white;">COMENZAR AHORA</button>
-        </div>
-    </div>
-
-    <!-- Modal Finalizar Prueba -->
-    <div id="end-trial-modal" class="modal">
-        <div class="modal-content" style="text-align: center; max-width: 380px; padding: 45px 35px; background: var(--card-bg); border-radius: 32px; border: 1px solid var(--card-border); box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
-            <div style="width: 60px; height: 60px; background: rgba(220, 53, 69, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                <svg viewBox="0 0 24 24" width="30" height="30" stroke="#dc3545" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            </div>
-            <div style="font-size: 0.65rem; letter-spacing: 4px; color: #dc3545; margin-bottom: 10px; font-weight: 600; text-transform: uppercase;">Aviso Importante</div>
-            <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 15px; color: var(--text);">¿Finalizar Prueba?</h2>
-            <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 30px; line-height: 1.6; color: var(--text);">
-                Perderás tu acceso a las <strong>Lecciones del Club</strong> y volverás al plan estándar (gratuito) inmediatamente.
-            </p>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-save" onclick="closeModals()" style="flex: 1; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); padding: 16px; font-size: 0.75rem; border-radius: 50px;">MANTENER</button>
-                <button class="btn-save" onclick="confirmEndTrial()" style="flex: 1; background: #dc3545; color: white; padding: 16px; border: none; font-size: 0.75rem; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2); border-radius: 50px;">SÍ, FINALIZAR</button>
-            </div>
-        </div>
-    </div>
 
 
     <!-- UI: LECTOR DE EXPANSIÓN (ALTA FIDELIDAD) -->
-    <div id="exp-read-ui" class="modal" style="background: var(--bg); z-index: 1700;">
-        <div class="modal-content" style="max-width: 900px; padding: 100px 30px 140px; min-height: 100vh; background: transparent; box-shadow: none; border: none; text-align: left;">
-            <div class="hero-bg-blur" style="left: 10%; top: -5%; opacity: 0.15; pointer-events: none;"></div>
-            
-            <button onclick="history.back()" style="background:transparent; border:none; color:var(--accent); position: fixed; top: 50px; left: 30px; z-index: 20; cursor: pointer; opacity: 0.6; transition: 0.3s;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            </button>
 
-            <div id="exp-read-content">
-                <div class="content-header" style="margin-bottom: 50px; padding-left: 0;">
-                    <div class="date-full" id="exp-read-date" style="color: var(--accent); font-weight: 700; letter-spacing: 2px; font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px;">---</div>
-                    <div class="cat-label" id="exp-read-meta" style="letter-spacing: 4px; font-weight: 500; opacity: 0.6; font-size: 0.75rem; margin-bottom: 5px;">---</div>
-                    <div class="date-full" id="exp-read-progress" style="opacity: 0.4; font-size: 0.65rem; letter-spacing: 1px;">---</div>
-                    
-                    <h1 class="word-display" id="exp-read-title" style="margin: 15px 0 10px; font-style: italic; font-weight: 900;">---</h1>
-                    
-                    <div class="content-actions">
-                        <button class="btn-speak" id="btn-speak-exp" onclick="speakExpContent()" title="Escuchar">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                        </button>
-                        <button class="btn-fav" id="btn-fav-exp" onclick="toggleFavoriteExp()" title="Favorito">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                        </button>
-                        <button class="btn-fav" id="btn-share-exp" onclick="shareAsImage('exp')" title="Compartir sabiduría">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="lesson-body" id="exp-read-text" style="font-size: 1.25rem; line-height: 2; margin-bottom: 80px; opacity: 0.9;">---</div>
+    
 
-                <!-- GRIND DE APLICACIONES (LADO A LADO) -->
-                <div class="lesson-apps" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 60px;">
-                    <div class="app-box" style="background: rgba(128,128,128,0.03); padding: 40px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.05);">
-                        <h4 style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px;">APLICACIÓN PROFESIONAL</h4>
-                        <p id="exp-read-app-prof" style="line-height: 1.7; font-size: 1rem; opacity: 0.85;">---</p>
-                    </div>
-                    <div class="app-box" style="background: rgba(128,128,128,0.03); padding: 40px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.05);">
-                        <h4 style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px;">APLICACIÓN PERSONAL</h4>
-                        <p id="exp-read-app-pers" style="line-height: 1.7; font-size: 1rem; opacity: 0.85;">---</p>
-                    </div>
-                </div>
-
-                <!-- REFLEXIÓN DEL DÍA (ESTILO DIARIO) -->
-                <div class="reflection-box" style="margin-top: 50px; padding: 50px 40px; background: rgba(181, 131, 58, 0.04); border-radius: 30px; text-align: left;">
-                    <div class="reto-label" style="font-size: 0.6rem; letter-spacing: 4px; margin-bottom: 20px; opacity: 0.8;">REFLEXIÓN DEL DÍA</div>
-                    <em id="exp-read-refl" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; line-height: 1.5; font-style: italic; color: var(--text); opacity: 0.9;">---</em>
-                </div>
-
-                <!-- DIARIO PERSONAL -->
-                <div style="margin-top: 50px; padding: 40px; border: 1px solid rgba(128,128,128,0.1); border-radius: 30px; background: rgba(128,128,128,0.02);">
-                    <div style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px; font-weight: 700;">MI DIARIO PERSONAL</div>
-                    <textarea id="exp-journal" oninput="saveExpJournal()" placeholder="Escribe aquí lo que esta lección ha despertado en ti..." style="width: 100%; background: transparent; border: none; color: var(--text); font-family: inherit; font-size: 1rem; line-height: 1.6; resize: none; min-height: 150px; outline: none;"></textarea>
-                    <div style="text-align: right; font-size: 0.5rem; opacity: 0.3; letter-spacing: 1px; margin-top: 15px; text-transform: uppercase;">Guardado automáticamente</div>
-                </div>
-            </div>
-
-            <!-- NAVEGACIÓN FIJA INFERIOR -->
-            <div style="position: fixed; bottom: 0; left: 0; right: 0; padding: 30px; background: linear-gradient(0deg, var(--bg) 60%, transparent); display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;">
-                <button class="btn-fab-item" id="btn-exp-prev" onclick="expPrev()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    ANTERIOR
-                </button>
-                <button class="btn-fab-item" id="btn-exp-next" onclick="expNext()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px; background: var(--accent); color: #fff;">
-                    SIGUIENTE
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal Perfil de Usuario (NUEVO) -->
-    <div id="profile-modal" class="modal">
-        <div class="modal-content" style="max-width: 450px;">
-            <div style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.1); padding-bottom: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                <button class="profile-tab active" onclick="switchProfileTab('identidad')">Perfil</button>
-                <button class="profile-tab" onclick="switchProfileTab('diario')">Diario</button>
-                <button class="profile-tab" onclick="switchProfileTab('favs')">Favoritos</button>
-            </div>
 
-            <!-- SECCIÓN: IDENTIDAD -->
-            <div id="profile-tab-identidad" class="profile-tab-content active">
-                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
-                    <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(181, 131, 58, 0.2);">
-                        <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: white; fill: none; stroke-width: 1.5;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    </div>
-                    <input type="text" id="user-name-input" placeholder="Tu Nombre..." onchange="saveUserName()" 
-                        style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; border: none; background: transparent; text-align: center; color: var(--text); outline: none; width: 100%; font-weight: 700;">
-                    <div id="profile-email" style="font-size: 0.8rem; opacity: 0.4; margin-top: 5px;">Usuario Lúmina</div>
-                </div>
+    
 
-                <div style="margin-bottom: 30px; padding: 0 10px;">
-                    <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 12px; text-transform: uppercase; text-align: left; opacity: 0.6;">MI MANTRA PERSONAL</div>
-                    <textarea id="user-mantra-input" placeholder="Escribe aquí tu intención o mantra del día..." oninput="saveUserMantra()" 
-                        style="width: 100%; min-height: 80px; background: rgba(181, 131, 58, 0.03); border: 1px dashed rgba(181, 131, 58, 0.2); border-radius: 16px; padding: 15px; color: var(--text); font-family: 'Playfair Display', serif; font-size: 1rem; font-style: italic; outline: none; resize: none; line-height: 1.5;"></textarea>
-                    <div id="mantra-save-status" style="font-size: 0.5rem; opacity: 0.3; text-align: right; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;">Guardado automáticamente</div>
-                </div>
-
-                <div style="text-align: left; background: rgba(181, 131, 58, 0.05); padding: 25px; border-radius: 24px; border: 1px solid rgba(181, 131, 58, 0.1); margin-bottom: 25px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700;">MI PLAN</span>
-                        <span id="profile-plan-badge" class="pro-badge" style="display: inline-block; margin-left: 0;">PLAN ESTÁNDAR</span>
-                    </div>
-                    <div id="profile-trial-indicator" style="display: none; font-size: 0.65rem; letter-spacing: 1px; color: var(--accent); margin-top: 8px; font-weight: 600; text-align: right; text-transform: uppercase;"></div>
-                    <div id="profile-trial-actions" style="display: none; margin-top: 15px; text-align: right;">
-                        <button class="btn-save" onclick="endTrialEarly()" style="background:transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); opacity: 0.6; padding: 6px 12px; font-size: 0.6rem; margin: 0; border-radius: 8px;">FINALIZAR PRUEBA</button>
-                    </div>
-                    <div id="profile-pro-activation" style="display: none; padding-top: 15px; border-top: 1px dashed rgba(181, 131, 58, 0.2); margin-top: 15px;">
-                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Eleva tu nivel con Lúmina Pro:</p>
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <input type="text" id="pro-key-input-profile" placeholder="Código..." style="width: 100%; box-sizing: border-box; padding: 15px 20px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 1rem;">
-                            <button id="btn-activate-pro-profile" class="btn-save" onclick="activateProProfile()" style="margin: 0; padding: 15px; font-size: 0.85rem; width: 100%; border-radius: 16px; background: var(--text); color: var(--bg); display: block;">ACTIVAR</button>
-                            <p style="font-size: 0.65rem; opacity: 0.4; text-align: center; margin: 5px 0 0; line-height: 1.5;">¿Problemas con tu código? Escríbenos a<br><a href="mailto:dscarteleriadigital@gmail.com" style="color: var(--accent); opacity: 0.8; text-decoration: none;">dscarteleriadigital@gmail.com</a></p>
-                        </div>
-                    </div>
-
-                    <!-- CANJE DE EXPANSIONES (REUBICADO) -->
-                    <div id="profile-exp-activation" style="padding-top: 25px; border-top: 1px dashed rgba(181, 131, 58, 0.2); margin-top: 25px;">
-                        <span style="font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; display: block; margin-bottom: 12px;">CANJEAR EXPANSIÓN</span>
-                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Accede a series exclusivas y libros de conocimiento profundo.</p>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="exp-code-input" placeholder="Código de Libro..." style="flex: 1; min-width: 0; padding: 15px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 1rem;">
-                            <button class="btn-save" onclick="redeemExpansion()" style="margin: 0; padding: 0 25px; font-size: 0.75rem; border-radius: 16px; min-width: fit-content;">CANJEAR</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PANEL DE HÁBITOS (Perfil) -->
-                <div class="habitos-panel" style="margin-bottom: 25px;">
-                    <div class="habitos-title">Mis Hábitos</div>
-
-                    <div class="habitos-stats">
-                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
-                            <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
-                            <span class="habito-stat-num" id="profile-streak-val">0</span>
-                            <span class="habito-stat-label">Racha</span>
-                            <span class="habito-stat-desc">Días seguidos de sabiduría</span>
-                            <div class="gam-tooltip">
-                                <b>Racha Diaria</b>
-                                Entra cada día para mantener el fuego de tu hábito encendido.
-                            </div>
-                        </div>
-                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
-                            <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                            <span class="habito-stat-num" id="profile-medals-val">0</span>
-                            <span class="habito-stat-label">Logros</span>
-                            <span class="habito-stat-desc">Por lecciones</span>
-                            <div class="gam-tooltip">
-                                <b>Tus Logros</b>
-                                Medallas ganadas por tu constancia en "Mi Viaje".
-                            </div>
-                        </div>
-                        <!-- NUEVO: Pausas Conscientes (Perfil) -->
-                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
-                            <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-                            <span class="habito-stat-num" id="profile-pausas-val">0</span>
-                            <span class="habito-stat-label">Pausas</span>
-                            <span class="habito-stat-desc">Momentos de paz</span>
-                            <div class="gam-tooltip">
-                                <b>Pausas Conscientes</b>
-                                El total de minutos de calma y respiración consciente logrados históricamente.
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="habitos-divider">
-                    <span class="habitos-dots-label">Esta semana</span>
-                    <div class="racha-visual" id="profile-racha-visual"><!-- dots por JS --></div>
-                    <div id="profile-chart-container" style="margin-top: 20px; width: 100%; height: 160px; position: relative;">
-                        <canvas id="profile-habits-chart"></canvas>
-                    </div>
-
-                    <div class="logro-hoy-badge" id="profile-logro-hoy" onclick="this.classList.toggle('show-tip')">
-                        <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
-                        <span class="logro-label">Logro del Día — Sabiduría Completa</span>
-                    </div>
-                </div>
-
-                <!-- Campo de Cumpleaños (Restaurado y Reestilizado) -->
-                <div style="margin-top: 25px; padding: 22px; background: rgba(181,131,58,0.03); border-radius: 20px; border: 1px solid rgba(181,131,58,0.1); text-align: left;">
-                    <label class="auth-label" style="margin-bottom: 8px;">Mi Cumpleaños</label>
-                    <input type="date" id="profile-birthday" onchange="saveBirthday()" 
-                           style="width: 100%; background: transparent; border: none; color: var(--text); font-family: 'Inter', sans-serif; font-size: 1rem; outline: none; cursor: pointer;">
-                </div>
-
-                <div style="margin-top: 20px; padding-top: 10px;">
-                    <button onclick="logoutUser()" style="width: 100%; padding: 15px; background: rgba(128,128,128,0.05); color: var(--text); border: 1px solid rgba(128,128,128,0.1); border-radius: 50px; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: 0.3s; opacity: 0.6;">CERRAR SESIÓN</button>
-                </div>
-            </div>
-
-            <div id="profile-tab-diario" class="profile-tab-content">
-                <div class="banner-standalone" style="margin-top: 0; margin-bottom: 20px;">
-                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Tus Reflexiones</h4>
-                    <p style="font-size: 0.8rem; opacity: 0.7;">Aquí se guardan los pensamientos que has compartido con Lúmina. Un registro de tu evolución personal.</p>
-                </div>
-                <div id="profile-journal-list" style="max-height: 400px; overflow-y: auto; text-align: left;">
-                    <!-- Dinámico -->
-                </div>
-            </div>
-
-
-            <div id="profile-tab-favs" class="profile-tab-content">
-                <div class="banner-standalone" style="margin-top: 0; margin-bottom: 20px;">
-                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Mis Favoritos</h4>
-                    <p style="font-size: 0.8rem; opacity: 0.7;">Palabras, frases y afirmaciones que han resonado en tu espíritu.</p>
-                </div>
-                <div id="profile-favs-list" style="margin-top: 10px; text-align: left;">
-                    <!-- Dinámico con opción de borrar -->
-                </div>
-            </div>
-
-            <button class="btn-save" onclick="toggleProfile()" style="width: 100%; padding: 18px; border-radius: 50px; font-size: 0.8rem; letter-spacing: 2px; margin-top: 30px;">GUARDAR Y CERRAR</button>
-        </div>
-    </div>
     <!-- MODAL SELECTOR DE ESTILO (MOODS) ELIMINADO PARA SIMPLIFICAR FLOW -->
 
     <script>
@@ -3445,6 +2927,7 @@
             console.log("Iniciando componentes de Landing Page...");
             await fetchLandingData();
             initLandingCarousel();
+            initLandingJourney();
         }
 
         async function fetchLandingData() {
@@ -3525,6 +3008,81 @@
                     setHeroSlide(currentHeroSlide + 1);
                 }
             }, 6000);
+        }
+
+        async function initLandingJourney() {
+            const container = document.getElementById('landing-journey-timeline');
+            if (!container) return;
+
+            try {
+                const response = await fetch(`${API}?action=journey`);
+                const data = await response.json();
+                
+                let journeyData = [];
+                if (data && data.journey) {
+                    journeyData = data.journey;
+                } else {
+                    // Fallback para Landing como invitado
+                    journeyData = [
+                        { title: "Pensamientos de Marco Aurelio", lessons: 30, progress: 100, isPast: true },
+                        { title: "Manual de Vida de Epicteto", lessons: 15, progress: 100, isPast: true },
+                        { title: "Sobre la Brevedad de la Vida", lessons: 20, progress: 45, isCurrent: true, daysUntil: 0 },
+                        { title: "Cartas de un Estoico", lessons: 40, progress: 0, daysUntil: 15 },
+                        { title: "La Paz de la Mente - Séneca", lessons: 12, progress: 0, daysUntil: 30 },
+                        { title: "Máximas de Sabiduría", lessons: 25, progress: 0, daysUntil: 45 }
+                    ];
+                }
+
+                container.innerHTML = '';
+                journeyData.forEach(book => {
+                    const item = document.createElement('div');
+                    item.className = `timeline-item ${book.isCurrent ? 'active' : ''} ${book.isPast ? 'past' : ''}`;
+                    
+                    let statusIcon = '📅';
+                    if (book.isCurrent) statusIcon = '🔥';
+                    if (book.isPast) statusIcon = '✅';
+
+                    let dateLabel = '';
+                    if (book.isCurrent) {
+                        dateLabel = 'EN CURSO';
+                    } else if (book.isPast) {
+                        dateLabel = 'COMPLETADO';
+                    } else {
+                        // Fecha Estimada para futuros
+                        const targetDate = new Date();
+                        targetDate.setDate(targetDate.getDate() + (book.daysUntil || 10));
+                        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                        dateLabel = `${targetDate.getDate()} ${months[targetDate.getMonth()]}`;
+                    }
+
+                    item.innerHTML = `
+                        <div style="font-size: 1.2rem;">${statusIcon}</div>
+                        <div class="timeline-info">
+                            <div class="timeline-meta" style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.6; margin-bottom: 4px; font-weight: 700; color: var(--accent);">${dateLabel} • ${book.lessons} LECCIONES</div>
+                            <div class="timeline-title" style="font-family: 'Playfair Display', serif; font-size: 1.1rem; color: white;">${book.title}</div>
+                            ${book.isCurrent ? `
+                                <div class="timeline-progress" style="height: 2px; background: rgba(255,255,255,0.1); margin-top: 10px; position: relative;">
+                                    <div class="timeline-bar" style="width: ${book.progress}%; background: var(--accent); height: 100%; box-shadow: 0 0 10px var(--accent);"></div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+
+            } catch (e) {
+                console.warn("Landing Journey fetch error:", e);
+                container.innerHTML = '<p style="opacity:0.3; padding:20px; color: white; font-size: 0.8rem;">Error de conexión con el cronograma.</p>';
+            }
+        }
+
+        function openAuth(mode) {
+            setPortalMode(mode);
+            const portal = document.getElementById('login-portal');
+            if (portal) {
+                portal.style.display = 'flex';
+                portal.scrollTo({top: 0, behavior: 'instant'});
+            }
         }
 
         function setPortalMode(mode) {
@@ -7607,6 +7165,829 @@
 
         window.onload = init;
     </script>
+
+    <!-- Modal del Escáner QR -->
+    <div id="qr-scanner-modal" class="qr-scanner-modal">
+        <h2 style="font-family:'Playfair Display', serif; font-size: 2.2rem; font-style: italic; margin-bottom: 5px;">Escanear Lúmina</h2>
+        <p class="scanner-hint" style="margin-bottom: 25px; opacity: 0.6; font-size: 0.85rem;">Apunta con la cámara al código QR de otro dispositivo para abrir el contenido instantáneamente.</p>
+        
+        <div class="scanner-container">
+            <div id="reader"></div>
+            <div class="scanner-overlay">
+                <div class="scanner-frame">
+                    <div class="scanner-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="scanner-status" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase;">Iniciando cámara...</div>
+        
+        <button class="btn-close-scanner" onclick="stopScanner()">CANCELAR ESCANEO</button>
+    </div>
+
+    <!-- Modal Instalación Multiplataforma -->
+    <div id="install-modal" class="modal">
+        <div class="modal-content" style="max-width: 480px;">
+            <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; margin-bottom: 10px;">Instalar Lúmina</h2>
+            <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 25px;">Selecciona tu plataforma preferida para llevar la sabiduría contigo.</p>
+            
+            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-bottom: 10px;">NAVEGADORES (PWA)</div>
+            <div class="install-grid">
+                <div class="install-card" id="inst-chrome" onclick="triggerPwaInstall()">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="21.17" y1="8" x2="12" y2="8"></line><line x1="3.95" y1="6.06" x2="8.54" y2="14"></line><line x1="10.88" y1="21.94" x2="15.46" y2="14"></line></svg>
+                    <span>Chrome</span>
+                    <small id="status-chrome">Disponible</small>
+                </div>
+                <div class="install-card" id="inst-safari" onclick="showToast('En iPhone/iPad: Toca el icono de compartir (flecha arriba) y selecciona \'Añadir a pantalla de inicio\'.')">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+                    <span>Safari</span>
+                    <small id="status-safari">Instrucciones</small>
+                </div>
+                <div class="install-card" id="inst-edge" onclick="triggerPwaInstall()">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+                    <span>Edge</span>
+                    <small id="status-edge">Disponible</small>
+                </div>
+                <div class="install-card" id="inst-firefox" onclick="triggerPwaInstall()">
+                    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M22.77 12.27c0 5.86-4.76 10.61-10.63 10.61-5.86 0-10.61-4.75-10.61-10.61S6.28 1.66 12.14 1.66c5.87 0 10.63 4.75 10.63 10.61zM16.5 7.5s-1.5-1.5-3-1.5-3 1.5-3 1.5l1.5 3-1.5 3 3 1.5 3-1.5-.5-3 1.5-3z"/></svg>
+                    <span>Firefox</span>
+                    <small id="status-firefox">Disponible</small>
+                </div>
+            </div>
+
+            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">TIENDAS OFICIALES</div>
+            <div class="install-grid">
+                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en Play Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.67-1.5 1.5-1.5h11l5 5v13.5c0 .83-.67 1.5-1.5 1.5h-14.5c-.83 0-1.5-.67-1.5-1.5zm11-14v-3.5l-3.5 3.5h3.5z"/></svg>
+                    <span>Play Store</span>
+                    <small>Próximamente</small>
+                </div>
+                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en App Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-1.99.77-3.27.82-1.31.05-2.31-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.24-1.99 1.1-3.15-1.04.04-2.3.69-3.05 1.52-.66.71-1.25 1.88-1.1 3.03 1.15.08 2.32-.58 3.05-1.4z"/></svg>
+                    <span>App Store</span>
+                    <small>Próximamente</small>
+                </div>
+                <!-- Huawei -->
+                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en AppGallery')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="5"/></svg>
+                    <span>AppGallery</span>
+                    <small>Próximamente</small>
+                </div>
+                <!-- Samsung -->
+                <div class="install-card" style="opacity: 0.6;" onclick="showToast('Próximamente en Galaxy Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><rect x="9" y="9" width="6" height="6"/></svg>
+                    <span>Galaxy Store</span>
+                    <small>Próximamente</small>
+                </div>
+                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="showToast('Próximamente en Microsoft Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 1h10.5v10.5h-10.5zM12.5 1h10.5v10.5h-10.5zM1 12.5h10.5v10.5h-10.5zM12.5 12.5h10.5v10.5h-10.5z"/></svg>
+                    <span>Microsoft Store</span>
+                    <small>Próximamente</small>
+                </div>
+            </div>
+
+            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">DESCARGA DIRECTA (ANDROID)</div>
+            <div class="install-grid">
+                <div class="install-card" onclick="window.open('https://github.com/malloyruiz/palabras-poeticas/releases/download/v1.0.0/Lumina.apk', '_blank')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    <span>Descargar APK</span>
+                    <small>Versión v1.0.0</small>
+                </div>
+                <div class="install-card" onclick="window.open('https://github.com/malloyruiz/palabras-poeticas/releases/download/v1.0.0/Lumina.aab', '_blank')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    <span>Descargar AAB</span>
+                    <small>Paquete Bundle</small>
+                </div>
+            </div>
+
+            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">EXTENSIONES</div>
+            <div class="install-grid" style="margin-bottom: 30px;">
+                <div class="install-card" style="grid-column: span 2; opacity: 0.6;" onclick="showToast('Próximamente en Web Store')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>Chrome Web Store</span>
+                    <small>Próximamente</small>
+                </div>
+            </div>
+
+            <pwa-install id="pwainstall" usecustom iosinstallinfotext="Toca el botón Compartir y añade a pantalla de inicio."></pwa-install>
+            
+            <button class="btn-save" onclick="document.getElementById('install-modal').classList.remove('active')" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;">CERRAR</button>
+        </div>
+    </div>
+
+    <!-- Modal Go Pro / Trial (Diseño Refinado) -->
+    <div id="pro-modal" class="modal">
+        <div class="modal-content" style="text-align: center; padding: 45px 35px; background: var(--card-bg); border-radius: 32px; border: 1px solid var(--card-border); max-width: 420px; box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
+            
+            <div style="font-size: 0.65rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 25px; font-weight: 600; text-transform: uppercase;">Libera tu Potencial</div>
+            
+            <p style="font-size: 0.95rem; opacity: 0.75; line-height: 1.7; margin-bottom: 40px; font-weight: 300; padding: 0 10px;">
+                Únete al Club de Libros y accede a lecciones de sabiduría profunda con tu periodo de prueba de 14 días.
+            </p>
+
+            <!-- BTN: TRIAL (Sólido) -->
+            <button class="btn-save" onclick="startTrial()" 
+                style="width: 100%; border-radius: 50px; padding: 18px; font-size: 0.85rem; letter-spacing: 1.5px; font-weight: 500; background: var(--accent); color: #fff; border: none; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(181, 131, 58, 0.2);">
+                COMENZAR PRUEBA GRATUITA
+            </button>
+
+            <!-- BTN: SUSCRIPCIÓN (Outline) -->
+            <button class="btn-save" onclick="window.open('https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-4XK17925J43504944NHEDJFA', '_blank')" 
+                style="width: 100%; border-radius: 50px; padding: 16px; font-size: 0.8rem; letter-spacing: 1.5px; font-weight: 500; background: transparent; border: 1px solid rgba(181, 131, 58, 0.4); color: var(--accent); margin-bottom: 12px;">
+                SUSCRIPCIÓN MENSUAL
+            </button>
+
+            <!-- BTN: LIFETIME (Simple Link) -->
+            <button onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')" 
+                style="background:none; border: none; color: var(--accent); opacity: 0.6; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 15px; cursor: pointer; font-weight: 600;">
+                O ADQUIRIR ACCESO VITALICIO
+            </button>
+
+            <button onclick="document.getElementById('pro-modal').classList.remove('active')" 
+                style="background:none; border: none; color: var(--text); opacity: 0.2; font-size: 0.6rem; margin-top: 35px; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; width: 100%;">
+                Luego
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Éxito Pro -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <svg class="confetti-svg" viewBox="0 0 24 24">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h2 style="font-family:'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 10px;">¡Bienvenido al Ecosistema!</h2>
+            <p style="font-size: 1rem; opacity: 0.8; margin-bottom: 30px; line-height: 1.6;">
+                Has desbloqueado todo el potencial de <strong>Lúmina Pro</strong>. Disfruta de la sabiduría ilimitada.
+            </p>
+            <button class="btn-save" onclick="closeSuccessModal()" style="width: 100%; background: var(--accent); color: white;">COMENZAR AHORA</button>
+        </div>
+    </div>
+
+    <!-- Modal Finalizar Prueba -->
+    <div id="end-trial-modal" class="modal">
+        <div class="modal-content" style="text-align: center; max-width: 380px; padding: 45px 35px; background: var(--card-bg); border-radius: 32px; border: 1px solid var(--card-border); box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
+            <div style="width: 60px; height: 60px; background: rgba(220, 53, 69, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="#dc3545" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <div style="font-size: 0.65rem; letter-spacing: 4px; color: #dc3545; margin-bottom: 10px; font-weight: 600; text-transform: uppercase;">Aviso Importante</div>
+            <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 15px; color: var(--text);">¿Finalizar Prueba?</h2>
+            <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 30px; line-height: 1.6; color: var(--text);">
+                Perderás tu acceso a las <strong>Lecciones del Club</strong> y volverás al plan estándar (gratuito) inmediatamente.
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-save" onclick="closeModals()" style="flex: 1; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); padding: 16px; font-size: 0.75rem; border-radius: 50px;">MANTENER</button>
+                <button class="btn-save" onclick="confirmEndTrial()" style="flex: 1; background: #dc3545; color: white; padding: 16px; border: none; font-size: 0.75rem; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2); border-radius: 50px;">SÍ, FINALIZAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="exp-read-ui" class="modal" style="background: var(--bg); z-index: 1700;">
+        <div class="modal-content" style="max-width: 900px; padding: 100px 30px 140px; min-height: 100vh; background: transparent; box-shadow: none; border: none; text-align: left;">
+            <div class="hero-bg-blur" style="left: 10%; top: -5%; opacity: 0.15; pointer-events: none;"></div>
+            
+            <button onclick="history.back()" style="background:transparent; border:none; color:var(--accent); position: fixed; top: 50px; left: 30px; z-index: 20; cursor: pointer; opacity: 0.6; transition: 0.3s;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+
+            <div id="exp-read-content">
+                <div class="content-header" style="margin-bottom: 50px; padding-left: 0;">
+                    <div class="date-full" id="exp-read-date" style="color: var(--accent); font-weight: 700; letter-spacing: 2px; font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px;">---</div>
+                    <div class="cat-label" id="exp-read-meta" style="letter-spacing: 4px; font-weight: 500; opacity: 0.6; font-size: 0.75rem; margin-bottom: 5px;">---</div>
+                    <div class="date-full" id="exp-read-progress" style="opacity: 0.4; font-size: 0.65rem; letter-spacing: 1px;">---</div>
+                    
+                    <h1 class="word-display" id="exp-read-title" style="margin: 15px 0 10px; font-style: italic; font-weight: 900;">---</h1>
+                    
+                    <div class="content-actions">
+                        <button class="btn-speak" id="btn-speak-exp" onclick="speakExpContent()" title="Escuchar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        </button>
+                        <button class="btn-fav" id="btn-fav-exp" onclick="toggleFavoriteExp()" title="Favorito">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
+                        <button class="btn-fav" id="btn-share-exp" onclick="shareAsImage('exp')" title="Compartir sabiduría">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="lesson-body" id="exp-read-text" style="font-size: 1.25rem; line-height: 2; margin-bottom: 80px; opacity: 0.9;">---</div>
+
+                <!-- GRIND DE APLICACIONES (LADO A LADO) -->
+                <div class="lesson-apps" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 60px;">
+                    <div class="app-box" style="background: rgba(128,128,128,0.03); padding: 40px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.05);">
+                        <h4 style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px;">APLICACIÓN PROFESIONAL</h4>
+                        <p id="exp-read-app-prof" style="line-height: 1.7; font-size: 1rem; opacity: 0.85;">---</p>
+                    </div>
+                    <div class="app-box" style="background: rgba(128,128,128,0.03); padding: 40px; border-radius: 25px; border: 1px solid rgba(128,128,128,0.05);">
+                        <h4 style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px;">APLICACIÓN PERSONAL</h4>
+                        <p id="exp-read-app-pers" style="line-height: 1.7; font-size: 1rem; opacity: 0.85;">---</p>
+                    </div>
+                </div>
+
+                <!-- REFLEXIÓN DEL DÍA (ESTILO DIARIO) -->
+                <div class="reflection-box" style="margin-top: 50px; padding: 50px 40px; background: rgba(181, 131, 58, 0.04); border-radius: 30px; text-align: left;">
+                    <div class="reto-label" style="font-size: 0.6rem; letter-spacing: 4px; margin-bottom: 20px; opacity: 0.8;">REFLEXIÓN DEL DÍA</div>
+                    <em id="exp-read-refl" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; line-height: 1.5; font-style: italic; color: var(--text); opacity: 0.9;">---</em>
+                </div>
+
+                <!-- DIARIO PERSONAL -->
+                <div style="margin-top: 50px; padding: 40px; border: 1px solid rgba(128,128,128,0.1); border-radius: 30px; background: rgba(128,128,128,0.02);">
+                    <div style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px; font-weight: 700;">MI DIARIO PERSONAL</div>
+                    <textarea id="exp-journal" oninput="saveExpJournal()" placeholder="Escribe aquí lo que esta lección ha despertado en ti..." style="width: 100%; background: transparent; border: none; color: var(--text); font-family: inherit; font-size: 1rem; line-height: 1.6; resize: none; min-height: 150px; outline: none;"></textarea>
+                    <div style="text-align: right; font-size: 0.5rem; opacity: 0.3; letter-spacing: 1px; margin-top: 15px; text-transform: uppercase;">Guardado automáticamente</div>
+                </div>
+            </div>
+
+            <!-- NAVEGACIÓN FIJA INFERIOR -->
+            <div style="position: fixed; bottom: 0; left: 0; right: 0; padding: 30px; background: linear-gradient(0deg, var(--bg) 60%, transparent); display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;">
+                <button class="btn-fab-item" id="btn-exp-prev" onclick="expPrev()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    ANTERIOR
+                </button>
+                <button class="btn-fab-item" id="btn-exp-next" onclick="expNext()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px; background: var(--accent); color: #fff;">
+                    SIGUIENTE
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.1); padding-bottom: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <button class="profile-tab active" onclick="switchProfileTab('identidad')">Perfil</button>
+                <button class="profile-tab" onclick="switchProfileTab('diario')">Diario</button>
+                <button class="profile-tab" onclick="switchProfileTab('favs')">Favoritos</button>
+            </div>
+
+            <!-- SECCIÓN: IDENTIDAD -->
+            <div id="profile-tab-identidad" class="profile-tab-content active">
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
+                    <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(181, 131, 58, 0.2);">
+                        <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; stroke: white; fill: none; stroke-width: 1.5;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <input type="text" id="user-name-input" placeholder="Tu Nombre..." onchange="saveUserName()" 
+                        style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; border: none; background: transparent; text-align: center; color: var(--text); outline: none; width: 100%; font-weight: 700;">
+                    <div id="profile-email" style="font-size: 0.8rem; opacity: 0.4; margin-top: 5px;">Usuario Lúmina</div>
+                </div>
+
+                <div style="margin-bottom: 30px; padding: 0 10px;">
+                    <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 12px; text-transform: uppercase; text-align: left; opacity: 0.6;">MI MANTRA PERSONAL</div>
+                    <textarea id="user-mantra-input" placeholder="Escribe aquí tu intención o mantra del día..." oninput="saveUserMantra()" 
+                        style="width: 100%; min-height: 80px; background: rgba(181, 131, 58, 0.03); border: 1px dashed rgba(181, 131, 58, 0.2); border-radius: 16px; padding: 15px; color: var(--text); font-family: 'Playfair Display', serif; font-size: 1rem; font-style: italic; outline: none; resize: none; line-height: 1.5;"></textarea>
+                    <div id="mantra-save-status" style="font-size: 0.5rem; opacity: 0.3; text-align: right; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;">Guardado automáticamente</div>
+                </div>
+
+                <div style="text-align: left; background: rgba(181, 131, 58, 0.05); padding: 25px; border-radius: 24px; border: 1px solid rgba(181, 131, 58, 0.1); margin-bottom: 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700;">MI PLAN</span>
+                        <span id="profile-plan-badge" class="pro-badge" style="display: inline-block; margin-left: 0;">PLAN ESTÁNDAR</span>
+                    </div>
+                    <div id="profile-trial-indicator" style="display: none; font-size: 0.65rem; letter-spacing: 1px; color: var(--accent); margin-top: 8px; font-weight: 600; text-align: right; text-transform: uppercase;"></div>
+                    <div id="profile-trial-actions" style="display: none; margin-top: 15px; text-align: right;">
+                        <button class="btn-save" onclick="endTrialEarly()" style="background:transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); opacity: 0.6; padding: 6px 12px; font-size: 0.6rem; margin: 0; border-radius: 8px;">FINALIZAR PRUEBA</button>
+                    </div>
+                    <div id="profile-pro-activation" style="display: none; padding-top: 15px; border-top: 1px dashed rgba(181, 131, 58, 0.2); margin-top: 15px;">
+                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Eleva tu nivel con Lúmina Pro:</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <input type="text" id="pro-key-input-profile" placeholder="Código..." style="width: 100%; box-sizing: border-box; padding: 15px 20px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 1rem;">
+                            <button id="btn-activate-pro-profile" class="btn-save" onclick="activateProProfile()" style="margin: 0; padding: 15px; font-size: 0.85rem; width: 100%; border-radius: 16px; background: var(--text); color: var(--bg); display: block;">ACTIVAR</button>
+                            <p style="font-size: 0.65rem; opacity: 0.4; text-align: center; margin: 5px 0 0; line-height: 1.5;">¿Problemas con tu código? Escríbenos a<br><a href="mailto:dscarteleriadigital@gmail.com" style="color: var(--accent); opacity: 0.8; text-decoration: none;">dscarteleriadigital@gmail.com</a></p>
+                        </div>
+                    </div>
+
+                    <!-- CANJE DE EXPANSIONES (REUBICADO) -->
+                    <div id="profile-exp-activation" style="padding-top: 25px; border-top: 1px dashed rgba(181, 131, 58, 0.2); margin-top: 25px;">
+                        <span style="font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; display: block; margin-bottom: 12px;">CANJEAR EXPANSIÓN</span>
+                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px;">Accede a series exclusivas y libros de conocimiento profundo.</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="exp-code-input" placeholder="Código de Libro..." style="flex: 1; min-width: 0; padding: 15px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 1rem;">
+                            <button class="btn-save" onclick="redeemExpansion()" style="margin: 0; padding: 0 25px; font-size: 0.75rem; border-radius: 16px; min-width: fit-content;">CANJEAR</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL DE HÁBITOS (Perfil) -->
+                <div class="habitos-panel" style="margin-bottom: 25px;">
+                    <div class="habitos-title">Mis Hábitos</div>
+
+                    <div class="habitos-stats">
+                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
+                            <span class="habito-stat-num" id="profile-streak-val">0</span>
+                            <span class="habito-stat-label">Racha</span>
+                            <span class="habito-stat-desc">Días seguidos de sabiduría</span>
+                            <div class="gam-tooltip">
+                                <b>Racha Diaria</b>
+                                Entra cada día para mantener el fuego de tu hábito encendido.
+                            </div>
+                        </div>
+                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                            <span class="habito-stat-num" id="profile-medals-val">0</span>
+                            <span class="habito-stat-label">Logros</span>
+                            <span class="habito-stat-desc">Por lecciones</span>
+                            <div class="gam-tooltip">
+                                <b>Tus Logros</b>
+                                Medallas ganadas por tu constancia en "Mi Viaje".
+                            </div>
+                        </div>
+                        <!-- NUEVO: Pausas Conscientes (Perfil) -->
+                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                            <span class="habito-stat-num" id="profile-pausas-val">0</span>
+                            <span class="habito-stat-label">Pausas</span>
+                            <span class="habito-stat-desc">Momentos de paz</span>
+                            <div class="gam-tooltip">
+                                <b>Pausas Conscientes</b>
+                                El total de minutos de calma y respiración consciente logrados históricamente.
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="habitos-divider">
+                    <span class="habitos-dots-label">Esta semana</span>
+                    <div class="racha-visual" id="profile-racha-visual"><!-- dots por JS --></div>
+                    <div id="profile-chart-container" style="margin-top: 20px; width: 100%; height: 160px; position: relative;">
+                        <canvas id="profile-habits-chart"></canvas>
+                    </div>
+
+                    <div class="logro-hoy-badge" id="profile-logro-hoy" onclick="this.classList.toggle('show-tip')">
+                        <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
+                        <span class="logro-label">Logro del Día — Sabiduría Completa</span>
+                    </div>
+                </div>
+
+                <!-- Campo de Cumpleaños (Restaurado y Reestilizado) -->
+                <div style="margin-top: 25px; padding: 22px; background: rgba(181,131,58,0.03); border-radius: 20px; border: 1px solid rgba(181,131,58,0.1); text-align: left;">
+                    <label class="auth-label" style="margin-bottom: 8px;">Mi Cumpleaños</label>
+                    <input type="date" id="profile-birthday" onchange="saveBirthday()" 
+                           style="width: 100%; background: transparent; border: none; color: var(--text); font-family: 'Inter', sans-serif; font-size: 1rem; outline: none; cursor: pointer;">
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 10px;">
+                    <button onclick="logoutUser()" style="width: 100%; padding: 15px; background: rgba(128,128,128,0.05); color: var(--text); border: 1px solid rgba(128,128,128,0.1); border-radius: 50px; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: 0.3s; opacity: 0.6;">CERRAR SESIÓN</button>
+                </div>
+            </div>
+
+            <div id="profile-tab-diario" class="profile-tab-content">
+                <div class="banner-standalone" style="margin-top: 0; margin-bottom: 20px;">
+                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Tus Reflexiones</h4>
+                    <p style="font-size: 0.8rem; opacity: 0.7;">Aquí se guardan los pensamientos que has compartido con Lúmina. Un registro de tu evolución personal.</p>
+                </div>
+                <div id="profile-journal-list" style="max-height: 400px; overflow-y: auto; text-align: left;">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+
+
+            <div id="profile-tab-favs" class="profile-tab-content">
+                <div class="banner-standalone" style="margin-top: 0; margin-bottom: 20px;">
+                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Mis Favoritos</h4>
+                    <p style="font-size: 0.8rem; opacity: 0.7;">Palabras, frases y afirmaciones que han resonado en tu espíritu.</p>
+                </div>
+                <div id="profile-favs-list" style="margin-top: 10px; text-align: left;">
+                    <!-- Dinámico con opción de borrar -->
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="toggleProfile()" style="width: 100%; padding: 18px; border-radius: 50px; font-size: 0.8rem; letter-spacing: 2px; margin-top: 30px;">GUARDAR Y CERRAR</button>
+        </div>
+    </div>
+
+    <!-- Portal de Identidad Rebrandeado -->
+    <div id="login-portal" class="modal" style="z-index: 6000; background: var(--bg); display: none; flex-direction: column; align-items: center; overflow-y: auto; padding: 60px 20px;">
+        <div class="auth-bg-glow" style="width: 400px; height: 400px; left: -100px; top: -100px;"></div>
+        <div class="auth-bg-glow" style="width: 300px; height: 300px; right: -50px; bottom: -50px; opacity: 0.05;"></div>
+        <!-- El contenedor tiene margin: auto para centrarse cuando cabe -->
+        <div class="auth-container">
+            <div class="meta" style="margin-bottom: 20px;">LÚMINA</div>
+            <h1 id="portal-title" style="font-family:'Playfair Display', serif; font-size: 3.8rem; font-style: italic; margin-bottom: 10px; line-height: 1;">Identidad</h1>
+            <p id="portal-desc" style="font-size: 0.9rem; opacity: 0.5; margin-bottom: 45px; letter-spacing: 1px;">Tu viaje de sabiduría sincronizado.</p>
+            
+            <div id="portal-fields">
+                <div class="auth-field">
+                    <label class="auth-label">Email</label>
+                    <input type="email" id="reg-email" class="auth-input" placeholder="tu@ejemplo.com">
+                </div>
+
+                <div id="field-name" class="auth-field" style="display: none;">
+                    <label class="auth-label">Tu Nombre</label>
+                    <input type="text" id="reg-name" class="auth-input" placeholder="Ej: Marco Aurelio">
+                </div>
+
+                <div id="field-pass" class="auth-field">
+                    <label class="auth-label">Contraseña</label>
+                    <input type="password" id="reg-pass" class="auth-input" placeholder="••••••••">
+                </div>
+
+                <div id="fields-signup" style="display: none;">
+                    <div class="auth-field">
+                        <label class="auth-label">Pregunta de Seguridad</label>
+                        <select id="reg-question" class="auth-input">
+                            <option value="Nombre de tu primera mascota">¿Nombre de tu primera mascota?</option>
+                            <option value="Ciudad donde naciste">¿Ciudad donde naciste?</option>
+                            <option value="Nombre de tu escuela primaria">¿Nombre de tu escuela primaria?</option>
+                            <option value="Comida favorita de la infancia">¿Tu comida favorita de la infancia?</option>
+                            <option value="Mejor amigo/a de niño/a">¿Mejor amigo/a de niño/a?</option>
+                        </select>
+                    </div>
+                    <div class="auth-field">
+                        <label class="auth-label">Tu Respuesta</label>
+                        <input type="text" id="reg-answer" class="auth-input" placeholder="Respuesta secreta...">
+                    </div>
+                </div>
+
+                <div id="fields-recover" style="display: none;">
+                    <!-- Paso 2: Selección de Método -->
+                    <div id="recover-method-selector" style="display: none; margin-bottom: 25px;">
+                        <label class="auth-label">Elige método de Verificación</label>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px;">
+                            <button class="btn-save" onclick="selectRecoverMethod('question')" style="background: rgba(181,131,58,0.1); border: 1px solid var(--accent); color: var(--accent); font-size: 0.75rem; letter-spacing: 1px; padding: 12px;">PREGUNTA SECRETA</button>
+                            <button class="btn-save" onclick="selectRecoverMethod('code')" style="background: rgba(181,131,58,0.1); border: 1px solid var(--accent); color: var(--accent); font-size: 0.75rem; letter-spacing: 1px; padding: 12px;">CÓDIGO DE RESPALDO</button>
+                        </div>
+                    </div>
+
+                    <!-- Paso 3: Inputs específicos -->
+                    <div id="recover-step-question" style="display: none; margin-bottom: 20px;">
+                        <label class="auth-label">Tu Pregunta Secreta</label>
+                        <p id="recover-question-text" style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem; color: var(--accent); margin-bottom: 15px;"></p>
+                        <div class="auth-field">
+                            <input type="text" id="recover-answer" class="auth-input" placeholder="Tu respuesta secreta...">
+                        </div>
+                    </div>
+
+                    <div id="recover-step-code" style="display: none; margin-bottom: 20px;">
+                        <label class="auth-label">Código de Respaldo</label>
+                        <div class="auth-field">
+                            <input type="text" id="recover-code" class="auth-input" maxlength="8" placeholder="Ingresa un código (ej: ABCDEF12)">
+                        </div>
+                    </div>
+
+                    <!-- Parte final (común para ambos) -->
+                    <div id="recover-step-final" style="display: none;">
+                        <div class="auth-field">
+                            <label class="auth-label">Nueva Contraseña</label>
+                            <input type="password" id="recover-new-pass" class="auth-input" placeholder="Mínimo 4 caracteres">
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Fin portal-fields -->
+                
+                <div id="view-codes" style="display: none; background: rgba(181,131,58,0.03); padding: 30px; border-radius: 24px; border: 1px dashed var(--accent); text-align: left; margin-bottom: 25px;">
+                    <span class="auth-label" style="opacity: 1;">Llaves del Templo</span>
+                    <div id="codes-list" style="margin: 20px 0; text-align: center;"></div>
+                    <p style="font-size: 0.75rem; opacity: 0.4; line-height: 1.6;">Estos 5 códigos son tu única forma de recuperar el acceso si olvidas tu contraseña. Guárdalos bien.</p>
+                </div>
+
+            <button id="btn-portal-submit" class="btn-save" onclick="handlePortalAction()" style="width: 100%; margin-top: 20px;">ENTRAR</button>
+
+            <div id="portal-links" style="margin-top: 35px; display: flex; justify-content: center; gap: 15px; align-items: center;">
+                <a id="link-signup" class="auth-link" onclick="setPortalMode('signup')">Crear Cuenta</a>
+                <a id="link-login" class="auth-link" style="display: none;" onclick="setPortalMode('login')">Ya tengo cuenta</a>
+                <span id="portal-sep" style="opacity: 0.1; font-size: 0.8rem;">|</span>
+                <a id="link-recover" class="auth-link" onclick="setPortalMode('recover')">Olvidé mi contraseña</a>
+            </div>
+            
+            <div id="login-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 25px; font-weight: 500; display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Novedades -->
+    <div id="notif-modal" class="modal notif-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="notif-header">
+                <h2 style="font-style: italic;">Novedades</h2>
+                <button class="btn-clear-all" id="btn-clear-notifs" onclick="clearAllNotifs()">Borrar Todo</button>
+            </div>
+            <div id="notif-list">
+                <div style="padding: 40px; text-align: center; opacity: 0.5;">Cargando novedades...</div>
+            </div>
+            <div style="padding: 20px; border-top: 1px solid rgba(128,128,128,0.1);">
+                <button class="btn-save" onclick="toggleNotifications()" style="width: 100%; margin: 0;">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hábitos -->
+    <div id="habitos-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Mis Hábitos</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-icon" onclick="shareAsImage('habitos')" title="Compartir logros" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    </button>
+                    <button class="btn-icon" onclick="toggleHabitos()" title="Cerrar" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
+                        <svg viewBox="0 0 24 24" style="stroke: currentColor;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PANEL DE HÁBITOS (MIGRADO) -->
+            <div class="habitos-panel" style="margin-top: 0; animation: none;">
+                <!-- Stats: Racha + Logros -->
+                <div class="habitos-stats">
+                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                        <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
+                        <span class="habito-stat-num" id="streak-val">0</span>
+                        <span class="habito-stat-label">Racha</span>
+                        <span class="habito-stat-desc">Días seguidos de sabiduría</span>
+                        <div class="gam-tooltip">
+                            <b>Racha Diaria</b>
+                            Entra cada día para mantener el fuego de tu hábito encendido.
+                        </div>
+                    </div>
+                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                        <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                        <span class="habito-stat-num" id="medals-val">0</span>
+                        <span class="habito-stat-label">Logros</span>
+                        <span class="habito-stat-desc">Por lecciones</span>
+                        <div class="gam-tooltip">
+                            <b>Tus Logros</b>
+                            Ganas 1 logro por cada 7 lecciones completadas en la sección "Mi Viaje". Completa lecciones de Libros para desbloquearlos.
+                        </div>
+                    </div>
+                    <!-- NUEVO: Pausas Conscientes -->
+                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                        <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                        <span class="habito-stat-num" id="pausas-val">0</span>
+                        <span class="habito-stat-label">Pausas</span>
+                        <span class="habito-stat-desc">Momentos de paz</span>
+                        <div class="gam-tooltip">
+                            <b>Pausas Conscientes</b>
+                            El total de minutos de calma y respiración consciente logrados históricamente.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Puntos 7 días (Dom—Sáb) -->
+                <hr class="habitos-divider">
+                <span class="habitos-dots-label">Esta semana</span>
+                <div class="racha-visual" id="racha-visual"><!-- dots por JS --></div>
+                <div id="habits-chart-container" style="margin-top: 20px; width: 100%; height: 160px; position: relative;">
+                    <canvas id="habits-chart"></canvas>
+                </div>
+
+                <!-- Logro del Día -->
+                <div class="logro-hoy-badge" id="logro-hoy" onclick="this.classList.toggle('show-tip')">
+                    <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
+                    <span class="logro-label">Logro del Día — Sabiduría Completa</span>
+                    <div class="gam-tooltip">
+                        <b>¡Excelente!</b>
+                        Visitaste las 4 secciones hoy. Tu mente está en pleno movimiento.
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding-top: 25px; margin-top: 10px;">
+                <button class="btn-save" onclick="toggleHabitos()" style="width: 100%; margin: 0; background: transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--text);">VOLVER</button>
+            </div>
+        </div>
+    </div>
+    
+
+
+    <!-- Modal Info -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-tabs">
+                <button class="tab-btn active" id="btn-tab-filosofia" onclick="switchInfoTab('filosofia')">LÚMINA</button>
+                <button class="tab-btn" id="btn-tab-viaje" onclick="switchInfoTab('viaje')">MI VIAJE</button>
+            </div>
+
+            <!-- TAB: FILOSOFÍA -->
+            <div id="info-tab-filosofia">
+                <h2 style="font-family:'Playfair Display', serif; margin-bottom: 20px; font-style: italic; font-size: 2.2rem; margin-top: 20px;">Sobre Lúmina</h2>
+                
+                <p style="font-size: 0.95rem; opacity: 0.9; line-height: 1.7; text-align: left; margin-bottom: 25px;">
+                    Lúmina es la plataforma de microaprendizaje ideada para el hombre y la mujer de espíritu estoico y mente moderna. Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria.
+                </p>
+
+                <div style="text-align: left; font-size: 0.8rem; line-height: 1.6; opacity: 0.85;">
+                    <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; color: var(--accent);">NUESTROS PILARES DE CRECIMIENTO</p>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Palabras</strong>
+                            Precisión verbal para claridad mental. Eleva tu léxico y expande los límites de tu conciencia.
+                        </div>
+                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Afirmaciones</strong>
+                            Reprogramación consciente. Diálogo interno diseñado para la fortaleza y la resiliencia ante el caos.
+                        </div>
+                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Frases</strong>
+                            El consejo de los gigantes. Sabiduría atemporal para navegar los desafíos de la vida contemporánea.
+                        </div>
+                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Libros</strong>
+                            Inmersión profunda en las mentes universales, destilada en lecciones prácticas y accionables para tu día a día.
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-top: 40px; font-style: italic; opacity: 0.6; text-align: center; font-size: 0.85rem; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    "Un refugio para quienes buscan la maestría personal, honrando la brevedad del tiempo con la profundidad del conocimiento."
+                </p>
+            </div>
+
+            <!-- TAB: VIAJE (RESTAURADO AL MODAL INFO) -->
+            <div id="info-tab-viaje" style="display: none;">
+                <div class="banner-standalone" style="margin-top: 20px; margin-bottom: 20px;">
+                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Aprendizaje Modular</h4>
+                    <p style="font-size: 0.8rem; opacity: 0.7;">Cada lección es una joya de sabiduría independiente. Incluye su propia aplicación personal, profesional y reflexión. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
+                </div>
+                <div id="journey-timeline" class="timeline-container" style="max-height: 400px; overflow-y: auto;">
+                    <div style="padding: 40px; opacity: 0.5;">Cargando cronograma...</div>
+                </div>
+            </div>
+            <button class="btn-save" onclick="toggleInfo()" style="width: 100%; margin-top: 30px; padding: 15px;">ENTENDIDO</button>
+        </div>
+    </div>
+
+    <!-- Modal Ajustes -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content" style="position:relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Ajustes</h2>
+                <button class="btn-icon" onclick="toggleProfile()" title="Ver Perfil" style="background: var(--accent) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1;">
+                    <svg viewBox="0 0 24 24" style="stroke: white;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </button>
+            </div>
+            
+            <!-- SECCIÓN 1: AUDIO -->
+            <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">AUDIO Y NARRACIÓN</div>
+
+            <div class="sub-option" style="cursor:pointer; margin-bottom: 15px;" onclick="toggleCloudVoice()">
+                <div style="display: flex; flex-direction: column;">
+                    <span>Voz Google Premium</span>
+                    <small style="font-size: 0.6rem; opacity: 0.5;">Alta fidelidad • Recomendado</small>
+                </div>
+                <div class="toggle-sub" id="cloud-voice-toggle"></div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 30px;">
+                <div style="font-size: 0.6rem; letter-spacing: 1.5px; opacity: 0.5; margin-bottom: 8px; text-transform: uppercase; font-weight: 700; color: var(--accent);">Voz del Dispositivo</div>
+                <select id="voice-select" onchange="saveVoicePreference()" style="width:100%; padding:14px; border-radius:15px; border:1px solid rgba(181, 131, 58, 0.2); background:rgba(181, 131, 58, 0.05); color:var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none; appearance: none; -webkit-appearance: none;">
+                    <option value="">Cargando voces...</option>
+                </select>
+                <p style="font-size: 0.6rem; opacity: 0.4; margin-top: 10px; line-height: 1.4;">
+                    HACK: Las voces marcadas con <b>✨</b> suenan más reales. En Android usa las de <b>Google</b> y en PC usa <b>Edge</b> para mejores resultados.
+                </p>
+            </div>
+
+            <div class="sub-option" style="cursor:pointer; margin-bottom: 30px;" onclick="toggleUISounds()">
+                <span>Sonidos de Interfaz</span>
+                <div class="toggle-sub" id="ui-sounds-toggle"></div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 30px;">
+                <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Sonidos Ambientales</div>
+                <div class="ambient-grid">
+                    <div class="ambient-item" id="amb-none" onclick="toggleAmbient('none')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                        </div>
+                        <span class="ambient-label">Silencio</span>
+                    </div>
+                    <div class="ambient-item" id="amb-zen" onclick="toggleAmbient('zen')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M12 3c1.64 4 4 7 8 8-4 1.64-7 4-8 8-1.64-4-4-7-8-8 4-1.64 7-4 8-8z"></path></svg>
+                        </div>
+                        <span class="ambient-label">Zen</span>
+                    </div>
+                    <div class="ambient-item" id="amb-birds" onclick="toggleAmbient('birds')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M4 11c5-5 11-5 16 0-5-1-11-1-16 0zM4 15c5-5 11-5 16 0-5-1-11-1-16 0z"></path></svg>
+                        </div>
+                        <span class="ambient-label">Pájaros</span>
+                    </div>
+                    <div class="ambient-item" id="amb-forest" onclick="toggleAmbient('forest')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l4 5h-3v4h5l-4 5h3l-5 6h-2l-5-6h3l-4-5h5V7H8l4-5z"></path></svg>
+                        </div>
+                        <span class="ambient-label">Bosque</span>
+                    </div>
+                    <div class="ambient-item" id="amb-ocean" onclick="toggleAmbient('ocean')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
+                        </div>
+                        <span class="ambient-label">Océano</span>
+                    </div>
+                    <div class="ambient-item" id="amb-rain" onclick="toggleAmbient('rain')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"></path><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="13" x2="12" y2="21"></line><line x1="16" y1="13" x2="16" y2="21"></line></svg>
+                        </div>
+                        <span class="ambient-label">Lluvia</span>
+                    </div>
+                    <div class="ambient-item" id="amb-waterfall" onclick="toggleAmbient('waterfall')">
+                        <div class="ambient-icon-box">
+                            <svg viewBox="0 0 24 24"><path d="M8 4v16M12 6v14M16 4v16M20 6v14"></path></svg>
+                        </div>
+                        <span class="ambient-label">Cascada</span>
+                    </div>
+                </div>
+                <input type="range" id="ambient-vol" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; margin-top: 15px; accent-color: var(--accent); height: 4px; cursor: pointer;">
+            </div>
+
+            <!-- SECCIÓN: APARIENCIA -->
+            <div style="text-align: left; margin-top: 15px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">APARIENCIA Y ESTILO</div>
+
+            <div class="sub-option" style="cursor:pointer; margin-bottom: 20px;" onclick="toggleTheme()">
+                <span>Modo Noche</span>
+                <div class="toggle-sub" id="theme-toggle"></div>
+            </div>
+            
+            <div style="text-align: left; margin-bottom: 20px;">
+                <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Color de Acento</div>
+                <div class="color-picker">
+                    <div class="color-circle" id="col-aureum" style="background:#b5833a" onclick="setAccent('#b5833a', 'aureum')" title="Aureum (Oro)"></div>
+                    <div class="color-circle" id="col-aether" style="background:#38bdf8" onclick="setAccent('#38bdf8', 'aether')" title="Aether (Azul)"></div>
+                    <div class="color-circle" id="col-viridis" style="background:#10b981" onclick="setAccent('#10b981', 'viridis')" title="Viridis (Esmeralda)"></div>
+                    <div class="color-circle" id="col-terra" style="background:#e2725b" onclick="setAccent('#e2725b', 'terra')" title="Terra (Arcilla)"></div>
+                    <div class="color-circle" id="col-vesper" style="background:#8b5cf6" onclick="setAccent('#8b5cf6', 'vesper')" title="Vesper (Violeta)"></div>
+                </div>
+
+                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Estilo de Texto</div>
+                <div class="font-picker">
+                    <div class="font-pair-btn" id="font-esenza" onclick="setFontPair('esenza')">
+                        <span class="pair-name" style="font-family:'Playfair Display', serif;">Esenza</span>
+                        <span class="pair-desc">Clásico y Atemporal</span>
+                    </div>
+                    <div class="font-pair-btn" id="font-nova" onclick="setFontPair('nova')">
+                        <span class="pair-name" style="font-family:'Outfit', sans-serif;">Nova</span>
+                        <span class="pair-desc">Moderno y Tecnológico</span>
+                    </div>
+                    <div class="font-pair-btn" id="font-sereni" onclick="setFontPair('sereni')">
+                        <span class="pair-name" style="font-family:'Lora', serif;">Sereni</span>
+                        <span class="pair-desc">Editorial y Sofisticado</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: SISTEMA Y ENERGÍA -->
+            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">SISTEMA Y ENERGÍA</div>
+            
+            <div class="sub-option" onclick="toggleWakeLock()" style="cursor:pointer; margin-bottom: 15px;">
+                <div style="display: flex; flex-direction: column;">
+                    <span>Mantener Pantalla Encendida</span>
+                    <small style="font-size: 0.6rem; opacity: 0.5;">Evita que el dispositivo entre en reposo</small>
+                </div>
+                <div class="toggle-sub" id="sub-wake-lock"></div>
+            </div>
+
+            <div class="sub-option" onclick="showScanner()" style="cursor:pointer; margin-bottom: 25px; border-top: 1px solid rgba(181,131,58,0.1); padding-top: 15px;">
+                <div style="display: flex; flex-direction: column;">
+                    <span>Escáner de Sabiduría</span>
+                    <small style="font-size: 0.6rem; opacity: 0.5;">Escanea QRs para abrir pantallas compartidas</small>
+                </div>
+                <div style="color: var(--accent); opacity: 0.8;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: NOTIFICACIONES -->
+            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">NOTIFICACIONES</div>
+
+            <div class="sub-option" onclick="togglePush()" style="cursor:pointer;">
+                <span>Alertas de Sabiduría</span>
+                <div class="toggle-sub" id="sub-push"></div>
+            </div>
+
+            <div class="sub-option" onclick="toggleTag('palabras')" style="cursor:pointer;">
+                <span>Palabras de Hoy</span>
+                <div class="toggle-sub" id="sub-palabras"></div>
+            </div>
+            <div class="sub-option" onclick="toggleTag('afirmaciones')" style="cursor:pointer;">
+                <span>Afirmaciones</span>
+                <div class="toggle-sub" id="sub-afirmaciones"></div>
+            </div>
+            <div class="sub-option" onclick="toggleTag('frases')" style="cursor:pointer;">
+                <span>Frases Célebres</span>
+                <div class="toggle-sub" id="sub-frases"></div>
+            </div>
+            <div class="sub-option" onclick="toggleTag('libros')" style="cursor:pointer;">
+                <span>Lecciones del Club</span>
+                <div class="toggle-sub" id="sub-libros"></div>
+            </div>
+
+
+            <!-- SECCIÓN: DISTRIBUCIÓN -->
+            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">DISTRIBUCIÓN</div>
+            
+            <button class="btn-save" id="btn-pwa-install-main" 
+                style="background:var(--accent); color: white; width: 100%; padding: 15px; font-size: 0.85rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;" 
+                onclick="toggleInstallModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4M7 10l5 5 5-5M12 15V3"/></svg>
+                INSTALAR APLICACIÓN
+            </button>
+
+            <button class="btn-save" onclick="toggleSettings()" style="background:none; border: none; color: var(--text); opacity: 0.4; font-size: 0.8rem; margin-top: 15px;">CERRAR VENTANA</button>
+        </div>
+    </div>
+
     <!-- Banner de Actualización de Sistema -->
     <div id="update-banner">
         <div style="display: flex; align-items: center; gap: 15px;">
