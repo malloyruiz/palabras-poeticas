@@ -31,6 +31,12 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
     if (e.request.method !== 'GET') return;
+    
+    // EXCLUSIÓN: No cachear peticiones a la API de Google Apps Script (Contenido Dinámico)
+    if (e.request.url.includes('script.google.com')) {
+        return; // El navegador manejará la petición directamente de la red
+    }
+
     e.respondWith(
         caches.open(CACHE_NAME).then(cache => {
             return cache.match(e.request).then(response => {

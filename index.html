@@ -4012,7 +4012,7 @@
             
             showToast("Validando código...");
             try {
-                const resp = await fetch(`${API}?action=exp_val&email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
+                const resp = await fetch(`${API}?action=exp_val&email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}&_cb=${Date.now()}`);
                 const res = await resp.json();
                 
                 if (res.success) {
@@ -4538,7 +4538,7 @@
             const key = localStorage.getItem('lumina_pro_key');
             if (!key) return;
             try {
-                const response = await fetch(`${API}?action=val&code=${key}`);
+                const response = await fetch(`${API}?action=val&code=${key}&_cb=${Date.now()}`);
                 const data = await response.json();
                 if (!data.success) {
                     isPro = false;
@@ -4560,7 +4560,7 @@
                 const userType = localStorage.getItem('lumina_pro') === 'true' ? 'PRO' : 
                                  (localStorage.getItem('lumina_trial_active') === 'true' ? 'TRIAL' : 'FREE');
                 
-                const response = await fetch(`${API}?action=popup&userType=${userType}`);
+                const response = await fetch(`${API}?action=popup&userType=${userType}&_cb=${Date.now()}`);
                 const data = await response.json();
 
                 if (!data || !data.titulo) return;
@@ -4902,6 +4902,12 @@
                 const filtered = dismissed.filter(id => !autoCats.some(ac => id.startsWith(ac + ":")));
                 localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(filtered));
                 
+                // LIMPIEZA DE CACHÉ DE CONTENIDOS (Día Nuevo)
+                autoCats.forEach(cat => {
+                    localStorage.removeItem('lumina_data_' + cat);
+                    localStorage.removeItem('lumina_cache_date_' + cat);
+                });
+
                 updateHeaderDate(); 
                 loadProState(); 
                 checkNotifications();
@@ -5138,7 +5144,7 @@
             btn.style.opacity = "0.7";
 
             try {
-                const response = await fetch(`${API}?action=val&code=${key}`);
+                const response = await fetch(`${API}?action=val&code=${key}&_cb=${Date.now()}`);
                 const data = await response.json();
 
                 if (data.success) {
@@ -5418,7 +5424,7 @@
             document.getElementById('loader').style.opacity = '1';
             
             try {
-                let url = `${API}?cat=${currentCategory}`;
+                let url = `${API}?cat=${currentCategory}&_cb=${Date.now()}`;
                 if (index !== null) url += `&index=${index}`;
 
                 if (currentCategory === 'extra') {
@@ -5780,7 +5786,7 @@
             if (!container) return;
 
             try {
-                const response = await fetch(`${API}?action=journey`);
+                const response = await fetch(`${API}?action=journey&_cb=${Date.now()}`);
                 const data = await response.json();
                 
                 if (!data || !data.journey) {
@@ -6057,13 +6063,13 @@
                 const tDayNum = getTrialDay();
                 const trialUsed = localStorage.getItem('lumina_trial_used') === 'true';
 
-                const userEmail = localStorage.getItem('lumina_user_email') || "";
+                const cb = Date.now();
                 const endpoints = [
-                    fetch(`${API}?action=notifs&userType=${uType}&trialDay=${tDayNum}&trialUsed=${trialUsed}&email=${encodeURIComponent(userEmail)}`).then(r => r.json()).catch(() => []),
-                    fetch(`${API}?cat=palabras`).then(r => r.json()).catch(() => null),
-                    fetch(`${API}?cat=afirmaciones`).then(r => r.json()).catch(() => null),
-                    fetch(`${API}?cat=frases`).then(r => r.json()).catch(() => null),
-                    fetch(`${API}?cat=libros`).then(r => r.json()).catch(() => null)
+                    fetch(`${API}?action=notifs&userType=${uType}&trialDay=${tDayNum}&trialUsed=${trialUsed}&email=${encodeURIComponent(userEmail)}&_cb=${cb}`).then(r => r.json()).catch(() => []),
+                    fetch(`${API}?cat=palabras&_cb=${cb}`).then(r => r.json()).catch(() => null),
+                    fetch(`${API}?cat=afirmaciones&_cb=${cb}`).then(r => r.json()).catch(() => null),
+                    fetch(`${API}?cat=frases&_cb=${cb}`).then(r => r.json()).catch(() => null),
+                    fetch(`${API}?cat=libros&_cb=${cb}`).then(r => r.json()).catch(() => null)
                 ];
 
                 const [extras, palabraData, afirmData, fraseData, libroData] = await Promise.all(endpoints);
@@ -6847,7 +6853,7 @@
                 
                 let fetchCat = 'libros';
                 let indexParam = "";
-                const response = await fetch(`${API}?cat=${fetchCat}${indexParam}`);
+                const response = await fetch(`${API}?cat=${fetchCat}${indexParam}&_cb=${Date.now()}`);
                 const data = await response.json();
                 
                 renderLeccion(data);
