@@ -1397,6 +1397,108 @@
         [data-theme="dark"] .user-reflection-card { background: rgba(255,255,255,0.02); }
         [data-theme="dark"] .journal-history-item { border-bottom-color: rgba(255,255,255,0.05); }
 
+        /* --- MÓDULO ÁNIMO (PREMIUM) --- */
+        .mood-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; 
+            margin-top: 25px; 
+        }
+        .mood-item { 
+            background: rgba(181, 131, 58, 0.05); 
+            border: 1px solid rgba(181, 131, 58, 0.1); 
+            padding: 20px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1.5); 
+            text-align: center;
+        }
+        .mood-item:hover { 
+            background: rgba(181, 131, 58, 0.1); 
+            transform: translateY(-3px); 
+            border-color: var(--accent);
+        }
+        .mood-item.active { 
+            background: var(--accent); 
+            color: white; 
+            border-color: var(--accent);
+            box-shadow: 0 10px 25px rgba(181, 131, 58, 0.2);
+        }
+        .mood-emoji { font-size: 1.5rem; display: block; margin-bottom: 8px; }
+        .mood-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+
+        .mood-response-card {
+            background: var(--card-bg);
+            border: 1px solid var(--accent);
+            padding: 40px 30px;
+            border-radius: 30px;
+            margin-top: 20px;
+            text-align: center;
+            animation: modalFadeIn 0.8s ease;
+            display: none;
+        }
+        .mood-quote {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            margin-bottom: 25px;
+            color: var(--text);
+            line-height: 1.3;
+        }
+        .mood-action-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 10px 20px rgba(181, 131, 58, 0.2);
+            transition: 0.3s;
+        }
+        .mood-action-btn:hover { transform: scale(1.03); filter: brightness(1.1); }
+
+        .mood-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        .mood-history-table th {
+            padding: 12px;
+            border-bottom: 2px solid rgba(181, 131, 58, 0.1);
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.5;
+        }
+        .mood-history-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid rgba(128,128,128,0.05);
+        }
+        .mood-history-tag {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .mood-tab-content { display: none; margin-top: 20px; }
+        .mood-tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+
+        /* Estilos específicos para estados */
+        .mood-tag-calma { background: rgba(74, 222, 128, 0.1); color: #4ade80; }
+        .mood-tag-enfoque { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
+        .mood-tag-ansiedad { background: rgba(248, 113, 113, 0.1); color: #f87171; }
+        .mood-tag-cansancio { background: rgba(167, 139, 250, 0.1); color: #a78bfc; }
+        .mood-tag-frustración { background: rgba(251, 146, 60, 0.1); color: #fb923c; }
+        .mood-tag-claridad { background: rgba(250, 204, 21, 0.1); color: #facc15; }
+
         /* Panel de Hábitos Rediseñado */
         .habitos-panel { margin-top: 22px; padding: 16px; background: rgba(181,131,58,0.04); border: 1px solid rgba(181,131,58,0.1); border-radius: 20px; animation: fadeIn 1s ease 0.5s both; }
         .habitos-title { font-size: 0.45rem; letter-spacing: 3px; color: var(--accent); opacity: 0.5; text-transform: uppercase; font-weight: 700; margin-bottom: 12px; }
@@ -2660,6 +2762,10 @@
                     <button class="btn-fab-item" onclick="toggleHabitos()" title="Mis Hábitos">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 20V10"/><path d="M12 10C12 10 9 6 4 6"/><path d="M12 10C12 10 15 6 20 6"/></svg>
                         MIS HÁBITOS
+                    </button>
+                    <button class="btn-fab-item" onclick="toggleMoodModal()" title="Mi Ánimo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        ÁNIMO
                     </button>
                     <button class="btn-fab-item" onclick="openCategory('pausa')" title="Pausa Consciente">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="4"></circle></svg>
@@ -5047,6 +5153,7 @@
                 updateHeaderDate();
                 createMotes();
                 initAmbient(); 
+                updateMoodSummaryUI(); 
 
                 if ('serviceWorker' in navigator) {
                     try {
@@ -6804,6 +6911,7 @@
                 'libros': ['Viaje Interpersonal', 'Exploración Profunda', 'Maestría Diaria'],
                 'exp': ['Nuevos Horizontes', 'Estudio Profundo', 'Búsqueda de Luz'],
                 'extra': ['Revelación Exclusiva', 'Luz del Extra', 'Sabiduría Especial'],
+                'mood': ['Estado del Alma', 'Reflejo Interno', 'Sintonía Emocional'],
                 'habitos': ['Racha de Constancia', 'Fuego del Hábito', 'Evolución Constante']
             };
             const list = titles[cat] || ['Lúmina App', 'Momento de Luz'];
@@ -6845,6 +6953,12 @@
             if (cat === 'pausa') {
                 const title = window._lastPausaTitle || "una pausa consciente";
                 return `Me he tomado un momento de paz con la meditación "${title}" en Lúmina. 🌿 Encuentra tu centro: ${url}`;
+            }
+
+            if (cat === 'mood') {
+                const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
+                const last = moods[moods.length - 1] || { state: 'en equilibrio' };
+                return `Mi estado actual: ${last.state}. Cultivando mi mundo interior en Lúmina. ${url}`;
             }
 
             return `Explorando sabiduría diaria en Lúmina. ✨ ${domain}`;
@@ -6955,6 +7069,13 @@
                     "${phrase}"
                 </div>`;
                 footerEl.textContent = new Date().getFullYear();
+            } else if (cat === 'mood') {
+                const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
+                const last = moods[moods.length-1] || { state: 'Calma' };
+                titleEl.textContent = last.state;
+                const iconSvg = getMoodSVG(last.state, 80, '#b5833a');
+                bodyEl.innerHTML = `<div style="margin-bottom:25px; display:flex; justify-content:center;">${iconSvg}</div><div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.1rem; opacity:0.8;">${MOOD_ENGINE[last.state]?.quote || "Encuentra tu centro."}</div>`;
+                footerEl.textContent = "Ánimo • " + new Date().getFullYear();
             } else {
                 const wordVal = document.getElementById('word-title')?.innerText || "";
                 titleEl.innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
@@ -7613,6 +7734,178 @@
             }
         }
 
+        // --- MÓDULO ÁNIMO (LOGICA PREMIUM) ---
+        const MOOD_ENGINE = {
+            'Calma': { quote: "La paz no es la ausencia de caos, sino la presencia de serenidad dentro de él.", actionText: "Escuchar Afirmación", action: () => openCategory('afirmaciones') },
+            'Enfoque': { quote: "Donde va tu atención, fluye tu energía. Mantén el norte.", actionText: "Ver Lección del Día", action: () => openCategory('libros') },
+            'Ansiedad': { quote: "No todo lo que piensas es verdad. El futuro es una construcción mental, el presente es real. Respira.", actionText: "Iniciar Respiración", action: () => { toggleMoodModal(); openCategory('pausa'); } },
+            'Cansancio': { quote: "Descansar también es avanzar. No eres una máquina, eres un ser que florece con el ritmo.", actionText: "Frase de Sabiduría", action: () => openCategory('frases') },
+            'Frustración': { quote: "Controla lo controlable. Lo que no depende de ti, no debe perturbar tu centro.", actionText: "Meditación Rápida", action: () => { toggleMoodModal(); openCategory('pausa'); } },
+            'Claridad': { quote: "La mente clara ve el camino donde otros ven obstáculos. Aprovecha este estado para decidir.", actionText: "Explorar Expansiones", action: () => openCategory('expansions') }
+        };
+
+        function getMoodSVG(state, size = 24, strokeColor = 'currentColor') {
+            const icons = {
+                'Calma': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>`,
+                'Enfoque': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>`,
+                'Ansiedad': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>`,
+                'Cansancio': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`,
+                'Frustración': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>`,
+                'Claridad': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`
+            };
+            return icons[state] || `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="${strokeColor}" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg>`;
+        }
+
+        function toggleMoodModal() {
+            const modal = document.getElementById('mood-modal');
+            if (!modal) return;
+            const isActive = modal.classList.toggle('active');
+            if (isActive) {
+                switchMoodTab('now');
+                updateMoodSummaryUI();
+            }
+        }
+
+        function switchMoodTab(tab) {
+            document.querySelectorAll('.mood-tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('#mood-modal .tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`mood-tab-${tab}`).classList.add('active');
+            document.getElementById(`btn-mood-${tab}`).classList.add('active');
+            
+            if (tab === 'history') renderMoodHistory();
+        }
+
+        function selectMood(state) {
+            playSound('click');
+            // UI Feedback
+            document.querySelectorAll('.mood-item').forEach(i => i.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            const note = document.getElementById('mood-word-input').value.trim();
+            const responseContainer = document.getElementById('mood-magic-response');
+            const quoteEl = document.getElementById('mood-response-quote');
+            const actionBtn = document.getElementById('mood-suggested-action');
+            
+            const engine = MOOD_ENGINE[state];
+            if (engine) {
+                quoteEl.innerText = `"${engine.quote}"`;
+                actionBtn.innerText = engine.actionText;
+                actionBtn.onclick = () => { playSound('click'); engine.action(); };
+                
+                // Animación suave
+                document.getElementById('mood-selection-grid').style.display = 'none';
+                document.getElementById('mood-word-input-box').style.display = 'none';
+                document.getElementById('mood-prompt').innerText = "¿Qué te dice Lúmina?";
+                responseContainer.style.display = 'block';
+                
+                saveMood(state, note);
+            }
+        }
+
+        function saveMood(state, note) {
+            const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
+            const entry = {
+                date: new Date().toISOString(),
+                state: state,
+                note: note
+            };
+            moods.push(entry);
+            if (moods.length > 50) moods.shift();
+            localStorage.setItem('lumina_moods', JSON.stringify(moods));
+            
+            // Actualizar UI general
+            updateMoodSummaryUI();
+            pushSync(); // Sincronizar con la nube
+        }
+
+        function updateMoodSummaryUI() {
+            const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
+            const summaryVal = document.getElementById('mood-summary-val');
+            if (!summaryVal) return;
+            
+            if (moods.length > 0) {
+                const last = moods[moods.length - 1];
+                summaryVal.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; gap:8px;">${getMoodSVG(last.state, 16)} <span>${last.state}</span></div>`;
+                summaryVal.style.fontSize = '0.75rem';
+            } else {
+                summaryVal.innerText = '—';
+            }
+        }
+
+        let moodChartInstance = null;
+        function renderMoodHistory() {
+            const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
+            const body = document.getElementById('mood-history-body');
+            body.innerHTML = '';
+            
+            if (moods.length === 0) {
+                body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 40px; opacity: 0.3;">Aún no hay registros.</td></tr>';
+                return;
+            }
+
+            [...moods].reverse().forEach(m => {
+                const date = new Date(m.date);
+                const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="opacity: 0.5; font-size: 0.7rem;">${dateStr}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            ${getMoodSVG(m.state, 14, 'var(--accent)')}
+                            <span class="mood-history-tag mood-tag-${m.state.toLowerCase()}">${m.state}</span>
+                        </div>
+                    </td>
+                    <td style="font-style: italic; opacity: 0.8; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.note || '—'}</td>
+                `;
+                body.appendChild(row);
+            });
+
+            // CHART.JS Integration
+            const ctx = document.getElementById('mood-history-chart');
+            if (!ctx) return;
+            
+            const last7 = moods.slice(-7);
+            const labels = last7.map(m => new Date(m.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }));
+            const dataMap = { 'Calma': 6, 'Claridad': 5, 'Enfoque': 4, 'Cansancio': 3, 'Frustración': 2, 'Ansiedad': 1 };
+            const values = last7.map(m => dataMap[m.state] || 0);
+
+            if (moodChartInstance) moodChartInstance.destroy();
+            
+            moodChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ánimo',
+                        data: values,
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+                        backgroundColor: 'transparent',
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            min: 0, max: 7, 
+                            ticks: { display: false }, 
+                            grid: { display: false, drawBorder: false } 
+                        },
+                        x: { 
+                            grid: { display: false, drawBorder: false },
+                            ticks: { font: { size: 9 }, color: 'rgba(128,128,128,0.5)' }
+                        }
+                    }
+                }
+            });
+        }
+
         window.onload = init;
     </script>
 
@@ -8092,6 +8385,13 @@
                             El total de minutos de calma y respiración consciente logrados históricamente.
                         </div>
                     </div>
+                    <!-- NUEVO: Estado de Ánimo -->
+                    <div class="habito-stat" onclick="toggleMoodModal(); toggleHabitos();">
+                        <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        <span class="habito-stat-num" id="mood-summary-val">—</span>
+                        <span class="habito-stat-label">Ánimo</span>
+                        <span class="habito-stat-desc">Tu estado hoy</span>
+                    </div>
                 </div>
 
                 <!-- Puntos 7 días (Dom—Sáb) -->
@@ -8120,6 +8420,109 @@
     </div>
     
 
+
+    <!-- Modal Ánimo (NUEVO PREMIUM) -->
+    <div id="mood-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Ánimo</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-icon" onclick="shareAsImage('mood')" title="Compartir mi estado" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    </button>
+                    <button class="btn-icon" onclick="toggleMoodModal()" title="Cerrar" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
+                        <svg viewBox="0 0 24 24" style="stroke: currentColor;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-tabs">
+                <button class="tab-btn active" id="btn-mood-now" onclick="switchMoodTab('now')">HOY</button>
+                <button class="tab-btn" id="btn-mood-history" onclick="switchMoodTab('history')">HISTORIAL</button>
+            </div>
+
+            <!-- TAB 1: HOY -->
+            <div id="mood-tab-now" class="mood-tab-content active">
+                <p id="mood-prompt" style="opacity: 0.6; font-size: 1rem; margin-bottom: 25px;">¿Cómo estás ahora?</p>
+                
+                <div class="mood-grid" id="mood-selection-grid">
+                    <div class="mood-item" onclick="selectMood('Calma')">
+                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
+                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
+                        </div>
+                        <div class="mood-label">Calma</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood('Enfoque')">
+                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
+                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                        </div>
+                        <div class="mood-label">Enfoque</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood('Ansiedad')">
+                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
+                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        </div>
+                        <div class="mood-label">Ansiedad</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood('Cansancio')">
+                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
+                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        </div>
+                        <div class="mood-label">Cansancio</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood('Frustración')">
+                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
+                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                        </div>
+                        <div class="mood-label">Frustración</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood('Claridad')">
+                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
+                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        </div>
+                        <div class="mood-label">Claridad</div>
+                    </div>
+                </div>
+
+                <div id="mood-word-input-box" style="margin-top: 25px; text-align: left;">
+                    <label class="auth-label" style="font-size: 0.5rem;">PALABRA DEL MOMENTO (OPCIONAL)</label>
+                    <input type="text" id="mood-word-input" class="auth-input" placeholder="Ej. Impaciente, Gratitud..." style="padding: 14px; font-size: 0.9rem;">
+                </div>
+
+                <div id="mood-magic-response" class="mood-response-card">
+                    <div id="mood-response-quote" class="mood-quote">"Descansar también es avanzar."</div>
+                    <button id="mood-suggested-action" class="mood-action-btn" onclick="executeMoodAction()">Hacer Respiración</button>
+                    <p style="font-size: 0.65rem; opacity: 0.4; margin-top: 25px; letter-spacing: 1px;">SABIDURÍA REALIZADA EN TIEMPO REAL</p>
+                </div>
+            </div>
+
+            <!-- TAB 2: HISTORIAL -->
+            <div id="mood-tab-history" class="mood-tab-content">
+                <div style="height: 180px; width: 100%; margin-bottom: 30px; position: relative;">
+                    <canvas id="mood-history-chart"></canvas>
+                </div>
+                
+                <div style="max-height: 250px; overflow-y: auto; margin-top: 20px;">
+                    <table class="mood-history-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Nota</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mood-history-body">
+                            <!-- JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top: 35px;">
+                <button class="btn-save" onclick="toggleMoodModal()" style="width: 100%; margin: 0; background: transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--text);">CERRAR</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Info -->
     <div id="info-modal" class="modal">
