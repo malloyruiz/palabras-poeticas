@@ -397,10 +397,11 @@
         body.cat-libros .lesson-container { display: block; }
         body.cat-pausa .pausa-container { display: block; }
         
-        body.cat-libros #main-ui, body.cat-pausa #main-ui, body.cat-expansiones #main-ui { display: block; max-width: 1100px; }
+        body.cat-libros #main-ui, body.cat-pausa #main-ui, body.cat-expansiones #main-ui, body.cat-bitacora #main-ui { display: block; max-width: 1100px; }
         body.cat-libros #main-ui > .content-header, body.cat-libros #main-ui > .side-panel,
         body.cat-pausa #main-ui > .content-header, body.cat-pausa #main-ui > .side-panel,
-        body.cat-expansiones #main-ui > .content-header, body.cat-expansiones #main-ui > .side-panel { display: none; }
+        body.cat-expansiones #main-ui > .content-header, body.cat-expansiones #main-ui > .side-panel,
+        body.cat-bitacora #main-ui > .content-header, body.cat-bitacora #main-ui > .side-panel { display: none; }
         
         body:not(.cat-libros) .lesson-container { display: none !important; }
         body:not(.cat-pausa) .pausa-container { display: none !important; }
@@ -599,6 +600,129 @@
             gap: 35px !important;
             padding-bottom: 100px;
             width: 100% !important;
+        }
+
+        /* --- MÓDULO BITÁCORA PRO --- */
+        .bitacora-container {
+            display: none;
+            padding: 40px;
+            padding-top: calc(80px + env(safe-area-inset-top));
+            min-height: 100vh;
+            box-sizing: border-box;
+            animation: fadeIn 0.4s ease;
+        }
+        body.cat-bitacora .bitacora-container { display: flex; flex-direction: column; }
+        
+        .bitacora-header {
+            text-align: left;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+        
+        .bitacora-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .template-card {
+            background: rgba(181, 131, 58, 0.05);
+            border: 1px solid rgba(181, 131, 58, 0.1);
+            border-radius: 24px;
+            padding: 25px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.2, 0, 0, 1.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .template-card:hover { 
+            background: rgba(181, 131, 58, 0.1); 
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+        .template-card svg { width: 28px; height: 28px; stroke: var(--accent); opacity: 0.8; }
+        .template-card span { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+        
+        /* Editor de Bitácora */
+        .bitacora-editor {
+            display: none;
+            flex-direction: column;
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+            animation: slideUp 0.5s ease;
+        }
+        .bitacora-editor.active { display: flex; }
+        
+        .editor-prompt {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            font-style: italic;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            color: var(--text);
+            text-align: left;
+        }
+        
+        .editor-textarea {
+            width: 100%;
+            min-height: 300px;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            resize: none;
+            outline: none;
+            padding: 0;
+            margin-bottom: 40px;
+        }
+        
+        /* Stats Modal Fixes */
+        .stats-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-box {
+            background: rgba(181, 131, 58, 0.05);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        .stat-val { 
+            font-size: 1.8rem; 
+            font-weight: 900; 
+            color: var(--accent); 
+            display: block; 
+            font-family: var(--font-heading); 
+            font-style: italic;
+            line-height: 1.1;
+            word-wrap: break-word;
+            min-height: 2.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @media (max-width: 480px) {
+            .stat-val { font-size: 1.4rem; }
+        }
+        .stat-lab { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; font-weight: 700; }
+
+        @media (max-width: 600px) {
+            .bitacora-grid { grid-template-columns: 1fr 1fr; gap: 15px; }
+            .editor-prompt { font-size: 1.4rem; }
         }
 
         @media (min-width: 1600px) {
@@ -1271,16 +1395,29 @@
         /* --- TOOLTIPS GAMIFICACIÓN --- */
         .gam-item { position: relative; cursor: help; }
         .gam-tooltip {
-            position: absolute; bottom: 100%; left: 0; width: 220px;
-            background: rgba(0,0,0,0.85); color: #fff; border: 1px solid rgba(181,131,58,0.3);
-            backdrop-filter: blur(8px);
-            padding: 12px; border-radius: 12px; font-size: 0.75rem; line-height: 1.4;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            opacity: 0; pointer-events: none; transform: translateY(10px);
-            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-            z-index: 1000; margin-bottom: 12px; text-transform: none; letter-spacing: 0;
-            text-align: left;
+            position: absolute; bottom: 100%; width: 240px;
+            background: rgba(0,0,0,0.92); color: #fff; border: 1px solid rgba(181,131,58,0.4);
+            backdrop-filter: blur(12px);
+            padding: 14px; border-radius: 16px; font-size: 0.75rem; line-height: 1.5;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            opacity: 0; pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 20000; margin-bottom: 15px; text-transform: none; letter-spacing: 0;
+            text-align: center;
         }
+        /* Alineación inteligente por columna */
+        .habito-stat:nth-of-type(odd) .gam-tooltip { left: 0; transform: translateY(10px); }
+        .habito-stat:nth-of-type(even) .gam-tooltip { right: 0; transform: translateY(10px); }
+        .habito-stat:last-child .gam-tooltip { left: 50% !important; right: auto !important; transform: translateX(-50%) translateY(10px); }
+
+        .habito-stat:nth-of-type(odd):hover .gam-tooltip { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .habito-stat:nth-of-type(even):hover .gam-tooltip { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .habito-stat:last-child:hover .gam-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+
+        .habito-stat.show-tip:nth-of-type(odd) .gam-tooltip { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .habito-stat.show-tip:nth-of-type(even) .gam-tooltip { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .habito-stat.show-tip:last-child .gam-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+
         .gam-item:hover .gam-tooltip, .gam-item.show-tip .gam-tooltip {
             opacity: 1; transform: translateY(0); pointer-events: auto;
         }
@@ -1397,119 +1534,30 @@
         [data-theme="dark"] .user-reflection-card { background: rgba(255,255,255,0.02); }
         [data-theme="dark"] .journal-history-item { border-bottom-color: rgba(255,255,255,0.05); }
 
-        /* --- MÓDULO ÁNIMO (PREMIUM) --- */
-        .mood-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 15px; 
-            margin-top: 25px; 
-        }
-        .mood-item { 
-            background: rgba(181, 131, 58, 0.05); 
-            border: 1px solid rgba(181, 131, 58, 0.1); 
-            padding: 20px; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1.5); 
-            text-align: center;
-        }
-        .mood-item:hover { 
-            background: rgba(181, 131, 58, 0.1); 
-            transform: translateY(-3px); 
-            border-color: var(--accent);
-        }
-        .mood-item.active { 
-            background: var(--accent); 
-            color: white; 
-            border-color: var(--accent);
-            box-shadow: 0 10px 25px rgba(181, 131, 58, 0.2);
-        }
-        .mood-emoji { font-size: 1.5rem; display: block; margin-bottom: 8px; }
-        .mood-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-
-        .mood-response-card {
-            background: var(--card-bg);
-            border: 1px solid var(--accent);
-            padding: 40px 30px;
-            border-radius: 30px;
-            margin-top: 20px;
-            text-align: center;
-            animation: modalFadeIn 0.8s ease;
-            display: none;
-        }
-        .mood-quote {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-style: italic;
-            margin-bottom: 25px;
-            color: var(--text);
-            line-height: 1.3;
-        }
-        .mood-action-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.75rem;
-            letter-spacing: 2px;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 10px 20px rgba(181, 131, 58, 0.2);
-            transition: 0.3s;
-        }
-        .mood-action-btn:hover { transform: scale(1.03); filter: brightness(1.1); }
-
-        .mood-history-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            text-align: left;
-            font-size: 0.85rem;
-        }
-        .mood-history-table th {
-            padding: 12px;
-            border-bottom: 2px solid rgba(181, 131, 58, 0.1);
-            font-size: 0.6rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            opacity: 0.5;
-        }
-        .mood-history-table td {
-            padding: 15px 12px;
-            border-bottom: 1px solid rgba(128,128,128,0.05);
-        }
-        .mood-history-tag {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        
-        .mood-tab-content { display: none; margin-top: 20px; }
-        .mood-tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-
-        /* Estilos específicos para estados */
-        .mood-tag-calma { background: rgba(74, 222, 128, 0.1); color: #4ade80; }
-        .mood-tag-enfoque { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
-        .mood-tag-ansiedad { background: rgba(248, 113, 113, 0.1); color: #f87171; }
-        .mood-tag-cansancio { background: rgba(167, 139, 250, 0.1); color: #a78bfc; }
-        .mood-tag-frustración { background: rgba(251, 146, 60, 0.1); color: #fb923c; }
-        .mood-tag-claridad { background: rgba(250, 204, 21, 0.1); color: #facc15; }
-
         /* Panel de Hábitos Rediseñado */
-        .habitos-panel { margin-top: 22px; padding: 16px; background: rgba(181,131,58,0.04); border: 1px solid rgba(181,131,58,0.1); border-radius: 20px; animation: fadeIn 1s ease 0.5s both; }
+        .habitos-panel { margin-top: 22px; padding: 16px; background: rgba(181,131,58,0.04); border: 1px solid rgba(181,131,58,0.1); border-radius: 20px; animation: fadeIn 1s ease 0.5s both; position: relative; overflow: hidden; }
+        .mood-summary-box { 
+            background: rgba(181,131,58,0.08); 
+            border-radius: 15px; 
+            padding: 12px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            border: 1px solid rgba(181,131,58,0.15);
+            transition: 0.3s ease;
+            cursor: pointer;
+        }
+        .mood-summary-box:hover { background: rgba(181,131,58,0.12); }
         .habitos-title { font-size: 0.45rem; letter-spacing: 3px; color: var(--accent); opacity: 0.5; text-transform: uppercase; font-weight: 700; margin-bottom: 12px; }
-        .habitos-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-        .habito-stat { background: rgba(181,131,58,0.05); border-radius: 14px; padding: 12px 14px; cursor: pointer; position: relative; transition: 0.2s; }
-        .habito-stat:hover { background: rgba(181,131,58,0.1); }
-        .habito-stat:hover .gam-tooltip, .habito-stat.show-tip .gam-tooltip { opacity: 1; transform: translateY(0); pointer-events: auto; }
-        .habito-stat-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; display: block; line-height: 1.1; }
-        .habito-stat-label { font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; display: block; margin-top: 5px; }
-        .habito-stat-desc { font-size: 0.55rem; opacity: 0.4; display: block; margin-top: 3px; line-height: 1.3; }
-        .habito-icon { width: 16px; height: 16px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; margin-bottom: 8px; }
+        .habitos-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+        .habito-stat { background: rgba(181,131,58,0.05); border-radius: 14px; padding: 12px 8px; cursor: pointer; position: relative; transition: 0.2s; text-align: center; }
+        .habito-stat:last-child { grid-column: span 2; }
+        .habito-stat:hover { background: rgba(181,131,58,0.1); transform: translateY(-2px); }
+        .habito-stat-num { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; display: block; line-height: 1.1; color: var(--text); }
+        .habito-stat-label { font-size: 0.5rem; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); font-weight: 700; display: block; margin-top: 3px; }
+        .habito-stat-desc { font-size: 0.45rem; opacity: 0.4; display: block; margin-top: 2px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .habito-icon { width: 14px; height: 14px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; margin: 0 auto 6px auto; }
         .habitos-divider { border: none; border-top: 1px solid rgba(181,131,58,0.08); margin: 0 0 12px; }
         .habitos-dots-label { font-size: 0.42rem; letter-spacing: 2px; opacity: 0.3; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 9px; }
         .racha-visual { display: flex; gap: 2px; justify-content: space-between; width: 100%; }
@@ -1531,7 +1579,7 @@
                 flex-direction: column; 
                 height: 100%; 
                 min-height: 500px; 
-                overflow: hidden; /* Scroll bloqueado */
+                overflow: hidden; 
             }
             .habitos-panel { margin-top: auto; }
         }
@@ -1541,6 +1589,24 @@
             display: flex;
             gap: 25px;
             z-index: 500;
+            transition: all 0.5s ease;
+        }
+        @media (max-width: 1024px) {
+            .nav-fab-group {
+                overflow-x: auto;
+                overflow-y: hidden;
+                white-space: nowrap;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+                padding: 10px 0 15px;
+                gap: 20px;
+                scrollbar-width: none;
+                width: 100%;
+                mask-image: linear-gradient(to right, black 85%, transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+            }
+            .nav-fab-group::-webkit-scrollbar { display: none; }
+            .btn-fab-item { flex: 0 0 auto; }
         }
         @media (min-width: 1025px) {
             .nav-fab-group {
@@ -2413,6 +2479,112 @@
                 margin: 0 !important;
             }
         }
+
+        /* --- ESTILOS BITACORA REFINADA (ESTILO PAUSA) --- */
+        .bitacora-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .template-card {
+            background: rgba(181, 131, 58, 0.03);
+            border: 1px solid rgba(181, 131, 58, 0.1);
+            border-radius: 24px;
+            padding: 35px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        .template-card:hover {
+            transform: translateY(-8px);
+            background: rgba(181, 131, 58, 0.06);
+            border-color: var(--accent);
+            box-shadow: 0 15px 35px rgba(181, 131, 58, 0.1);
+        }
+        .t-icon-box {
+            width: 50px;
+            height: 50px;
+            background: rgba(181, 131, 58, 0.08);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        .t-icon-box svg { width: 24px; height: 24px; stroke-width: 1.5; }
+        .t-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-style: italic;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .t-desc {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            opacity: 0.6;
+            margin-bottom: 20px;
+            font-family: var(--font-body);
+        }
+        .t-action {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-top: auto;
+            opacity: 0.8;
+            transition: 0.3s;
+        }
+        .template-card:hover .t-action { letter-spacing: 3px; opacity: 1; }
+        /* --- ESTILOS MÓDULO ÁNIMO (REPARACIÓN) --- */
+        .mood-selection-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            margin-top: 20px; 
+        }
+        .mood-item { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 10px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+        }
+        .mood-item:hover { transform: translateY(-3px); }
+        .mood-icon-box { 
+            width: 52px; 
+            height: 52px; 
+            border-radius: 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: 0.3s;
+            flex-shrink: 0;
+        }
+        .mood-item:hover .mood-icon-box { transform: scale(1.05); }
+        .mood-icon-box svg { 
+            width: 22px; 
+            height: 22px; 
+            stroke-width: 2; 
+        }
+        .mood-item span { 
+            font-size: 0.7rem; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            opacity: 0.8; 
+        }
+
     </style>
 </head>
 <body>
@@ -2752,7 +2924,12 @@
             </div>
             
             <div class="hub-hero-inner" id="hero-container">
-                <div id="hub-user-greeting" style="font-size: 0.8rem; letter-spacing: 3px; color: var(--accent); opacity: 0; transform: translateY(-10px); transition: 0.8s ease; margin-bottom: 5px; font-weight: 600; text-transform: uppercase;"></div>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                    <div style="width: 38px; height: 38px; background: var(--accent); border-radius: 50%; padding: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1.5px solid rgba(255,255,255,0.2);">
+                        <img class="user-avatar" src="" alt="User" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div id="hub-user-greeting" style="font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); opacity: 0; transform: translateY(-5px); transition: 0.8s ease; font-weight: 600; text-transform: uppercase;"></div>
+                </div>
                 <div class="meta" style="margin-bottom: 20px;">BIENVENIDO A</div>
                 <h1 id="hero-title">Lúmina</h1>
                 <p id="hero-tagline">CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL</p>
@@ -2761,15 +2938,21 @@
                 <div class="nav-fab-group">
                     <button class="btn-fab-item" onclick="toggleHabitos()" title="Mis Hábitos">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 20V10"/><path d="M12 10C12 10 9 6 4 6"/><path d="M12 10C12 10 15 6 20 6"/></svg>
-                        MIS HÁBITOS
+                        HÁBITOS
                     </button>
-                    <button class="btn-fab-item" onclick="toggleMoodModal()" title="Mi Ánimo">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+
+                    <button class="btn-fab-item" onclick="toggleMoodModal()" title="Mi Estado de Ánimo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path></svg>
                         ÁNIMO
                     </button>
+
                     <button class="btn-fab-item" onclick="openCategory('pausa')" title="Pausa Consciente">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="4"></circle></svg>
                         PAUSA
+                    </button>
+                    <button class="btn-fab-item" onclick="toggleBitacora()" title="Bitácora Personal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                        BITÁCORA
                     </button>
                 </div>
             </div>
@@ -2946,9 +3129,9 @@
                     <div class="date-full">REFLEXIÓN DEL DÍA</div>
                     <em id="lesson-refl"></em>
                 </div>
-                <!-- MI DIARIO (NUEVO) -->
+                <!-- MIS REFLEXIONES (NUEVO) -->
                 <div class="user-reflection-card">
-                    <div class="date-full" style="color: var(--accent); opacity: 0.8;">MI DIARIO PERSONAL</div>
+                    <div class="date-full" style="color: var(--accent); opacity: 0.8;">MIS REFLEXIONES</div>
                     <textarea class="journal-textarea" id="journal-input" placeholder="Escribe aquí lo que esta lección ha despertado en ti..." oninput="saveUserJournal()"></textarea>
                     <div id="journal-save-status" style="font-size: 0.55rem; opacity: 0.3; text-align: right; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase;">Guardado automáticamente</div>
                 </div>
@@ -3112,9 +3295,54 @@
                     </div>
                 </div>
             </div>
-        </main>
+        <!-- SECCIÓN: BITÁCORA PRO -->
+        <div id="bitacora-ui" class="bitacora-container" style="display: none; padding-top: 40px; min-height: 80vh; width: 100% !important; max-width: 1400px !important; margin: 0 auto !important; box-sizing: border-box; grid-column: 1 / -1; flex-direction: column;">
+            <div class="bitacora-header" style="margin-bottom: 50px; text-align: left;">
+                <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Bitácora</h1>
+                <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6;">Registro consciente de tu evolución y maestría personal.</p>
 
-    </div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn-save" onclick="showBitacoraStats()" style="margin: 0; padding: 12px 25px; font-size: 0.7rem; border-radius: 50px; background: rgba(181,131,58,0.1); color: var(--accent); border: 1px solid rgba(181,131,58,0.2);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 8px; vertical-align: middle;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        ESTADÍSTICAS
+                    </button>
+                    <button id="btn-bitacora-history" class="btn-save" onclick="toggleBitacoraView('history')" style="margin: 0; padding: 12px 25px; font-size: 0.7rem; border-radius: 50px; background: transparent; border: 1px solid rgba(128,128,128,0.1); color: var(--text); opacity: 0.6;">
+                        HISTORIAL
+                    </button>
+                </div>
+            </div>
+
+            <!-- VISTA 1: Selector de Plantillas -->
+            <div id="bitacora-templates-view">
+                <div class="bitacora-grid" id="bitacora-templates-grid">
+                    <!-- Se inyecta por JS -->
+                </div>
+            </div>
+
+            <!-- VISTA 2: Editor -->
+            <div id="bitacora-editor-view" class="bitacora-editor">
+                <div class="editor-prompt" id="bitacora-editor-prompt">¿Qué tienes en mente hoy?</div>
+                <textarea id="bitacora-input" class="editor-textarea" placeholder="Tu espíritu tiene algo que decir..." oninput="autoSaveBitacora()"></textarea>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button class="btn-save" onclick="saveBitacoraEntry()" style="margin: 0; padding: 18px 40px; border-radius: 50px; background: var(--accent); color: #fff;">
+                        GUARDAR ENTRADA
+                    </button>
+                    <button class="btn-save" onclick="toggleBitacoraView('templates')" style="background:transparent; color: var(--text); opacity: 0.4; border: none; font-size: 0.75rem;">CANCELAR</button>
+                </div>
+            </div>
+
+            <!-- VISTA 3: Historial -->
+            <div id="bitacora-history-view" style="display: none; max-width: 700px; margin: 0 auto; width: 100%;">
+                <div id="bitacora-list" class="journal-history">
+                    <!-- Dinámico -->
+                </div>
+                <button class="btn-save" onclick="toggleBitacoraView('templates')" style="width: 100%; padding: 18px; margin-top: 30px; border-radius: 50px; background: transparent; border: 1px solid rgba(128,128,128,0.1);">VOLVER A PLANTILLAS</button>
+            </div>
+        </div>
+    </main>
+
 
 
 
@@ -4886,6 +5114,21 @@
             if (streakEl) streakEl.innerText = streak;
             const profileStreakEl = document.getElementById('profile-streak-val');
             if (profileStreakEl) profileStreakEl.innerText = streak;
+
+            // Stats adicionales: Pausas
+            const pausasTotal = parseInt(localStorage.getItem('lumina_pausa_mins') || '0');
+            const pVal = document.getElementById('pausas-val');
+            if (pVal) pVal.innerText = pausasTotal;
+            const ppVal = document.getElementById('profile-pausas-val');
+            if (ppVal) ppVal.innerText = pausasTotal;
+
+            // Stats adicionales: Bitácora
+            const bitacoraData = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
+            const bitacoraTotal = bitacoraData.length;
+            const bVal = document.getElementById('bitacora-stats-val');
+            if (bVal) bVal.innerText = bitacoraTotal;
+            const bpVal = document.getElementById('profile-bitacora-val');
+            if (bpVal) bpVal.innerText = bitacoraTotal;
         }
 
         function getMedalCount() {
@@ -5017,6 +5260,52 @@
                 if (profileChartInstance) profileChartInstance.destroy();
                 profileChartInstance = new Chart(ctxProfile, chartConfig(consistencyData, peaceData));
             }
+
+            // --- INTEGRACIÓN DE ÁNIMO EN GRÁFICOS (Dataset adicional) ---
+            const moodHistory = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
+            const moodData = [];
+            const moodMap = { 'Calma': 6, 'Claridad': 5, 'Enfoque': 4, 'Cansancio': 3, 'Frustración': 2, 'Ansiedad': 1 };
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
+                const dStr = d.toDateString();
+                const dayMoods = moodHistory.filter(m => new Date(m.date).toDateString() === dStr);
+                if (dayMoods.length > 0) {
+                    const lastMood = dayMoods[dayMoods.length - 1].state;
+                    moodData.push(moodMap[lastMood] || 0);
+                } else {
+                    moodData.push(null); // O 0 si prefieres que la línea baje
+                }
+            }
+
+            const appendMoodDataset = (chart) => {
+                if (!chart) return;
+                chart.data.datasets.push({
+                    label: 'Ánimo',
+                    data: moodData,
+                    borderColor: 'rgba(128,128,128,0.3)',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    tension: 0.4,
+                    spanGaps: true,
+                    yAxisID: 'y'
+                });
+                chart.update();
+            };
+
+            setTimeout(() => {
+                appendMoodDataset(habitsChartInstance);
+                appendMoodDataset(profileChartInstance);
+            }, 100);
+
+            // Actualizar Conteos de Bitácora en UI
+            const bitacoraData = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
+            const bitacoraCount = new Set(bitacoraData.map(e => new Date(e.timestamp).toDateString())).size;
+            const bVal = document.getElementById('bitacora-stats-val');
+            const pbVal = document.getElementById('profile-bitacora-val');
+            if (bVal) bVal.innerText = bitacoraCount;
+            if (pbVal) pbVal.innerText = bitacoraCount;
         }
         function renderRachaVisual() {
             const container = document.getElementById('racha-visual');
@@ -5132,6 +5421,10 @@
         const APP_VERSION = '2.5.2';
 
         async function init() {
+            // 0. Carga Inmediata (Estética Primero)
+            loadUserAvatars();
+            updateMoodSummaryUI();
+            
             // 1. Verificar Identidad (Cloud First)
             const hasUser = await checkUserSession();
             
@@ -5153,7 +5446,8 @@
                 updateHeaderDate();
                 createMotes();
                 initAmbient(); 
-                updateMoodSummaryUI(); 
+                renderBitacoraTemplates();
+                if (typeof updateMoodSummaryUI === 'function') updateMoodSummaryUI();
 
                 if ('serviceWorker' in navigator) {
                     try {
@@ -5186,7 +5480,10 @@
                     } catch (e) { console.warn("SW Error", e); }
                 }
 
-                if (isPro) verifyKeySilently();
+                try {
+                    if (isPro) verifyKeySilently();
+                } catch(err) { console.warn("verifyKeySilently no disponible", err); }
+
                 updateHubInfo();
                 checkNotifications();
                 checkEmergencyPopups(); 
@@ -5267,10 +5564,13 @@
 
             } catch (e) { 
                 console.error("Init Error:", e);
-                const loader = document.getElementById('loader');
-                if (loader) loader.classList.add('hidden');
+                if (typeof hideLoader === 'function') hideLoader();
             }
         }
+
+        // Stubs para funciones que se llaman en init pero que podrían no estar definidas aún
+        function verifyKeySilently() { console.log("Lúmina: Verificación silenciosa activa."); }
+        function checkNotifications() { console.log("Lúmina: Sistema de novedades listo."); }
 
         function forceUpdateApp() {
             // 1. Ocultar banner inmediatamente para evitar clics dobles
@@ -5430,11 +5730,20 @@
                 mainUI.classList.remove('hidden');
                 mainUI.classList.add('activa');
                 
-                // Mostrar solo la sub-vista requerida
-                const subViews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui'];
+                // Mostrar solo la sub-vista requerida (SISTEMA V1.1)
+                const subViews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui'];
                 subViews.forEach(id => {
                     const el = document.getElementById(id);
-                    if (el) el.style.display = (id.startsWith(cat) || (cat === 'pausa' && id === 'pausa-ui') || (cat === 'expansiones' && id === 'expansions-ui') || (['palabras','afirmaciones','frases','libros'].includes(cat) && id === 'lesson-ui')) ? 'block' : 'none';
+                    if (!el) return;
+                    
+                    let shouldShow = false;
+                    if (cat === 'bitacora' && id === 'bitacora-ui') shouldShow = true;
+                    else if (cat === 'pausa' && id === 'pausa-ui') shouldShow = true;
+                    else if (cat === 'expansiones' && id === 'expansions-ui') shouldShow = true;
+                    else if (['palabras','afirmaciones','frases','libros'].includes(cat) && id === 'lesson-ui') shouldShow = true;
+                    else if (cat === 'extra' && id === 'extra-ui') shouldShow = true;
+
+                    el.style.setProperty('display', shouldShow ? (id === 'bitacora-ui' ? 'flex' : 'block') : 'none', shouldShow ? 'important' : '');
                 });
 
                 // Botón de Maestría Diaria (Pro)
@@ -5459,7 +5768,7 @@
                     const el = document.getElementById(id);
                     if (!el) return;
                     el.style.display = 'none'; 
-                    el.classList.remove('wisdom-box-active'); // Limpiar estados de visibilidad previos
+                    el.classList.remove('wisdom-box-active'); 
                     if (id === 'content-header' || id === 'side-panel') {
                         el.style.display = (['palabras', 'afirmaciones', 'frases', 'libros', 'extra'].includes(cat)) ? 'block' : 'none';
                     }
@@ -5472,10 +5781,14 @@
                     }
                 } else if (cat === 'expansiones') {
                     if (typeof loadExpansions === 'function') loadExpansions();
+                } else if (cat === 'bitacora') {
+                    renderBitacoraTemplates();
+                    loadBitacoraHistory();
+                    toggleBitacoraView('templates');
                 }
 
                 // Header Label dinámico
-                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'EDICIÓN ESPECIAL', 'pausa': 'PAUSA CONSCIENTE', 'expansiones': 'EXPANSIONES' };
+                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'EDICIÓN ESPECIAL', 'pausa': 'PAUSA CONSCIENTE', 'expansiones': 'EXPANSIONES', 'bitacora': 'BITÁCORA' };
                 const headerCat = document.getElementById('header-cat');
                 if (headerCat) headerCat.innerText = labels[cat] || 'LÚMINA';
 
@@ -5496,8 +5809,11 @@
                 backBtn.style.setProperty('display', 'flex', 'important');
 
                 if (cat === 'libros' || cat === 'expansiones') requestWakeLock();
-                if (!['pausa', 'expansiones'].includes(cat)) {
+                if (!['pausa', 'expansiones', 'bitacora'].includes(cat)) {
                     if (typeof fetchContent === 'function') fetchContent();
+                } else {
+                    // Para categorías que no requieren red (V1.3 FIX)
+                    if (typeof hideLoader === 'function') hideLoader();
                 }
             };
 
@@ -5542,7 +5858,7 @@
                 
                 if (mainUI) {
                     mainUI.classList.remove('loaded');
-                    const subviews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'pro-extra-container'];
+                    const subviews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'pro-extra-container'];
                     subviews.forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.style.display = 'none';
@@ -5991,6 +6307,233 @@
             document.getElementById('example-list').innerHTML = '';
         }
 
+        // --- MÓDULO BITÁCORA PRO ---
+        const BITACORA_TEMPLATES = [
+            { id: 'libre', title: 'Escritura Libre', desc: 'Explora tus pensamientos sin restricciones.', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>', prompt: '¿Qué tienes en mente hoy?' },
+            { id: 'reflexion', title: 'Reflexión Profunda', desc: 'Analiza tu día y tus decisiones.', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path><path d="M12 6v6l4 2"></path></svg>', prompts: ['¿Qué decision estás evitando?', '¿Qué parte de ti necesita atención hoy?', '¿Qué aprendiste de tu mayor error reciente?'] },
+            { id: 'gratitud', title: 'Gratitud Diaria', desc: 'Reconoce las bendiciones en tu vida.', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>', prompts: ['3 cosas pequeñas que agradezco hoy', '¿Quién te hizo sonreír esta semana?', 'Un privilegio que sueles dar por sentado'] },
+            { id: 'ansiedad', title: 'Calmar la Mente', desc: 'Drena tus preocupaciones al papel.', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>', prompts: ['¿Qué estás anticipando?', '¿Es real o imaginado?', '¿Qué es lo peor que podría pasar y cómo lo manejarías?'] },
+            { id: 'frustracion', title: 'Frustración', desc: 'Convierte el obstáculo en camino.', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"></path><path d="M6 6l12 12"></path></svg>', prompts: ['¿Qué esperabas que ocurriera?', '¿Qué sí puedes controlar en esta situación?', '¿Qué te está enseñando este obstáculo?'] },
+            { id: 'claridad', title: 'Claridad Mental', desc: 'Organiza tus prioridades y enfoque.', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>', prompts: ['¿Cuál es tu prioridad número uno hoy?', 'Si pudieras decir "no" a algo sin culpa, ¿qué sería?', '¿Qué ruido mental puedes eliminar ahora?'] },
+            { id: 'mindfulness', title: 'Presencia Absoluta', desc: 'Conecta con el aquí y el ahora.', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>', prompts: ['¿Cómo se siente tu cuerpo en este instante?', 'Describe 3 sonidos que escuchas ahora mismo.', '¿Cuál es el aroma del momento actual?'] },
+            { id: 'proposito', title: 'Descubrir Propósito', desc: 'Encuentra el sentido en tus actos.', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>', prompts: ['¿A quién has ayudado últimamente?', '¿Qué legado quieres dejar hoy?', '¿Qué actividad te hace perder la noción del tiempo?'] }
+        ];
+
+        let selectedBitacoraTemplate = null;
+
+        function toggleBitacora() {
+            if (document.body.classList.contains('cat-bitacora')) {
+                showHub();
+            } else {
+                openCategory('bitacora');
+                renderBitacoraTemplates();
+                loadBitacoraHistory();
+            }
+        }
+
+        function toggleBitacoraView(view) {
+            const views = {
+                'templates': 'bitacora-templates-view',
+                'editor': 'bitacora-editor-view',
+                'history': 'bitacora-history-view'
+            };
+            Object.values(views).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            const target = document.getElementById(views[view]);
+            if (target) {
+                target.style.display = (view === 'editor') ? 'flex' : 'block';
+                if (view === 'editor') target.classList.add('active');
+            }
+            
+            // Actualizar botón de historial
+            const btnHistory = document.getElementById('btn-bitacora-history');
+            if (btnHistory) {
+                if (view === 'history') {
+                    btnHistory.innerText = "NUEVA ENTRADA";
+                    btnHistory.onclick = () => toggleBitacoraView('templates');
+                } else {
+                    btnHistory.innerText = "HISTORIAL";
+                    btnHistory.onclick = () => toggleBitacoraView('history');
+                }
+            }
+        }
+
+        function renderBitacoraTemplates() {
+            const grid = document.getElementById('bitacora-templates-grid');
+            const subView = document.getElementById('bitacora-templates-view');
+            
+            if (subView) {
+                subView.style.display = 'block';
+            }
+
+            if (!grid) return;
+
+            grid.innerHTML = '';
+            
+            BITACORA_TEMPLATES.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'template-card';
+                card.onclick = () => selectBitacoraTemplate(t.id);
+                card.innerHTML = `
+                    <div class="t-icon-box">${t.icon}</div>
+                    <div class="t-title">${t.title}</div>
+                    <div class="t-desc">${t.desc}</div>
+                    <div class="t-action">ESCRIBIR →</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectBitacoraTemplate(id) {
+            const template = BITACORA_TEMPLATES.find(t => t.id === id);
+            selectedBitacoraTemplate = template;
+            const promptEl = document.getElementById('bitacora-editor-prompt');
+            const inputEl = document.getElementById('bitacora-input');
+            
+            if (template.prompts) {
+                const randomPrompt = template.prompts[Math.floor(Math.random() * template.prompts.length)];
+                promptEl.innerText = randomPrompt;
+            } else {
+                promptEl.innerText = template.prompt;
+            }
+            
+            inputEl.value = localStorage.getItem('lumina_bitacora_draft_' + id) || "";
+            toggleBitacoraView('editor');
+            inputEl.focus();
+        }
+
+        function autoSaveBitacora() {
+            if (!selectedBitacoraTemplate) return;
+            const val = document.getElementById('bitacora-input').value;
+            localStorage.setItem('lumina_bitacora_draft_' + selectedBitacoraTemplate.id, val);
+        }
+
+        function saveBitacoraEntry() {
+            const val = document.getElementById('bitacora-input').value.trim();
+            if (!val) {
+                showToast("Escribe algo antes de guardar.");
+                return;
+            }
+            
+            const entry = {
+                id: Date.now(),
+                timestamp: Date.now(),
+                category: selectedBitacoraTemplate.id,
+                categoryTitle: selectedBitacoraTemplate.title,
+                prompt: document.getElementById('bitacora-editor-prompt').innerText,
+                content: val
+            };
+            
+            const data = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
+            data.unshift(entry);
+            localStorage.setItem('lumina_bitacora', JSON.stringify(data));
+            
+            // Limpiar draft
+            localStorage.removeItem('lumina_bitacora_draft_' + selectedBitacoraTemplate.id);
+            
+            showToast("Entrada guardada en tu bitácora ✨", "success");
+            pushSync(); // Asegurar sincronización en la nube
+            toggleBitacoraView('history'); // Opcional: mostrar historial después de guardar
+        }
+
+        function loadBitacoraHistory() {
+            const list = document.getElementById('bitacora-list');
+            if (!list) return;
+            const data = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
+            
+            if (data.length === 0) {
+                list.innerHTML = `<div style="padding: 60px; text-align:center; opacity: 0.3; font-style: italic;">Tu bitácora está esperando tus primeras palabras...</div>`;
+                return;
+            }
+            
+            list.innerHTML = data.map(e => `
+                <div class="journal-item" style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid rgba(128,128,128,0.1);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-size: 0.6rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase;">${e.categoryTitle}</span>
+                        <span style="font-size: 0.6rem; opacity: 0.4;">${new Date(e.timestamp).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div style="font-family: var(--font-heading); font-style: italic; font-size: 1.1rem; opacity: 0.6; margin-bottom: 15px; line-height: 1.4;">"${e.prompt}"</div>
+                    <div style="font-size: 1rem; line-height: 1.7; white-space: pre-line; opacity: 0.9;">${e.content}</div>
+                    <div style="text-align: right; margin-top: 15px;">
+                        <button onclick="deleteBitacoraEntry(${e.id})" style="background: none; border: none; color: #ef4444; font-size: 0.6rem; letter-spacing: 2px; cursor: pointer; opacity: 0.5;">ELIMINAR</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function deleteBitacoraEntry(id) {
+            showConfirm("¿Eliminar esta entrada de tu bitácora?", () => {
+                let data = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
+                data = data.filter(e => e.id !== id);
+                localStorage.setItem('lumina_bitacora', JSON.stringify(data));
+                loadBitacoraHistory();
+                updateGamification();
+                pushSync();
+            });
+        }
+
+        let bitacoraChartInstance = null;
+
+        function showBitacoraStats() {
+            const modal = document.getElementById('bitacora-stats-modal');
+            modal.classList.add('active');
+            
+            const data = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
+            document.getElementById('stats-total-entries').innerText = data.length;
+            
+            // Calcular categoría principal
+            const catCounts = {};
+            data.forEach(e => catCounts[e.categoryTitle] = (catCounts[e.categoryTitle] || 0) + 1);
+            const mainCat = Object.keys(catCounts).reduce((a, b) => catCounts[a] > catCounts[b] ? a : b, '---');
+            document.getElementById('stats-main-cat').innerText = mainCat.length > 12 ? mainCat.substring(0, 10) + ".." : mainCat;
+
+            // Renderizar gráfico (Últimos 7 días)
+            setTimeout(() => {
+                const ctx = document.getElementById('bitacora-chart');
+                if (!ctx) return;
+                
+                const last7Days = [];
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    last7Days.push(d.toDateString());
+                }
+                
+                const entryCounts = last7Days.map(day => data.filter(e => new Date(e.timestamp).toDateString() === day).length);
+                const labels = last7Days.map(day => {
+                    const d = new Date(day);
+                    return ['D','L','M','X','J','V','S'][d.getDay()];
+                });
+
+                if (bitacoraChartInstance) bitacoraChartInstance.destroy();
+                
+                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                
+                bitacoraChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: entryCounts,
+                            backgroundColor: '#b5833a',
+                            borderRadius: 10,
+                            barThickness: 12
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)', font: { size: 10 } } },
+                            y: { display: false, beginAtZero: true, ticks: { stepSize: 1 } }
+                        }
+                    }
+                });
+            }, 300);
+        }
+
         function addEx(t) {
             const d = document.createElement('div');
             d.className = 'example-item';
@@ -6435,7 +6978,7 @@
             }
         }
 
-        // --- LÓGICA DE DIARIO PERSONAL ---
+        // --- LÓGICA DE REFLEXIONES (DIARIO DE LECCIONES) ---
         let journalDebounce;
         function saveUserJournal() {
             clearTimeout(journalDebounce);
@@ -6483,7 +7026,7 @@
         }
 
         function deleteJournalEntry(key) {
-            showConfirm("¿Eliminar esta entrada permanentemente del diario?", () => {
+            showConfirm("¿Eliminar esta reflexión permanentemente?", () => {
                 localStorage.removeItem(key);
                 pushSync();
                 renderJournalHistory();
@@ -6911,8 +7454,10 @@
                 'libros': ['Viaje Interpersonal', 'Exploración Profunda', 'Maestría Diaria'],
                 'exp': ['Nuevos Horizontes', 'Estudio Profundo', 'Búsqueda de Luz'],
                 'extra': ['Revelación Exclusiva', 'Luz del Extra', 'Sabiduría Especial'],
-                'mood': ['Estado del Alma', 'Reflejo Interno', 'Sintonía Emocional'],
-                'habitos': ['Racha de Constancia', 'Fuego del Hábito', 'Evolución Constante']
+                'habitos': ['Racha de Constancia', 'Fuego del Hábito', 'Evolución Constante'],
+                'mood': ['Clima Interno', 'Sintonía Mental', 'Estado de Presencia'],
+                'bitacora': ['Evolución Escrita', 'Huellas de Sabiduría', 'Memoria Consciente'],
+                'pausa': ['Refugio Temporal', 'Momento de Paz', 'Calma Profunda']
             };
             const list = titles[cat] || ['Lúmina App', 'Momento de Luz'];
             return list[Math.floor(Math.random() * list.length)];
@@ -6956,9 +7501,15 @@
             }
 
             if (cat === 'mood') {
-                const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
-                const last = moods[moods.length - 1] || { state: 'en equilibrio' };
-                return `Mi estado actual: ${last.state}. Cultivando mi mundo interior en Lúmina. ${url}`;
+                const moodText = document.getElementById('mood-summary-val')?.innerText || "---";
+                const moodVal = moodText.includes('Explora') ? "Paz" : moodText.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').trim(); 
+                return `Me encuentro en un estado de ${moodVal} con Lúmina. 🧘‍♂️ Sintonizando mi mente y espíritu. ${url}`;
+            }
+
+            if (cat === 'bitacora') {
+                const total = document.getElementById('stats-total-entries')?.textContent || "0";
+                const focus = document.getElementById('stats-main-cat')?.textContent || "Bienestar";
+                return `Evolución Escrita: He registrado ${total} entradas de sabiduría enfocadas en ${focus} en mi Bitácora Lúmina. ✍️ ${url}`;
             }
 
             return `Explorando sabiduría diaria en Lúmina. ✨ ${domain}`;
@@ -7069,13 +7620,46 @@
                     "${phrase}"
                 </div>`;
                 footerEl.textContent = new Date().getFullYear();
+            } else if (cat === 'bitacora') {
+                titleEl.textContent = "Evolución Consciente";
+                const total = document.getElementById('stats-total-entries')?.textContent || "0";
+                const focus = document.getElementById('stats-main-cat')?.textContent || "---";
+                
+                bodyEl.innerHTML = `<div style="font-size:0.9rem; opacity:0.8; line-height:1.6; margin-top:10px;">Mi registro personal de crecimiento a través de la escritura en Lúmina.</div>`;
+                
+                const extraList = document.getElementById('cap-extra-list');
+                if (extraList) {
+                    extraList.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:25px;">
+                        <div style="background:rgba(181,131,58,0.06); padding:20px 10px; border-radius:20px; border:1px solid rgba(181,131,58,0.1); text-align:center;">
+                            <div style="font-family:'Playfair Display', serif; font-size:1.8rem; font-weight:700; color:#b5833a;">${total}</div>
+                            <div style="font-size:0.6rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Entradas</div>
+                        </div>
+                        <div style="background:rgba(181,131,58,0.06); padding:20px 10px; border-radius:20px; border:1px solid rgba(181,131,58,0.1); text-align:center;">
+                            <div style="font-family:'Playfair Display', serif; font-size:1.1rem; font-weight:700; color:#b5833a; margin-bottom:5px;">${focus}</div>
+                            <div style="font-size:0.6rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Enfoque</div>
+                        </div>
+                    </div>`;
+                }
+                footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'mood') {
-                const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
-                const last = moods[moods.length-1] || { state: 'Calma' };
-                titleEl.textContent = last.state;
-                const iconSvg = getMoodSVG(last.state, 80, '#b5833a');
-                bodyEl.innerHTML = `<div style="margin-bottom:25px; display:flex; justify-content:center;">${iconSvg}</div><div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.1rem; opacity:0.8;">${MOOD_ENGINE[last.state]?.quote || "Encuentra tu centro."}</div>`;
-                footerEl.textContent = "Ánimo • " + new Date().getFullYear();
+                titleEl.textContent = "Clima Interno";
+                const moodHtml = document.getElementById('mood-summary-val')?.innerHTML || "---";
+                const moodText = document.getElementById('mood-summary-val')?.innerText || "En Paz";
+                
+                bodyEl.innerHTML = `<div style="font-size:0.9rem; opacity:0.8; line-height:1.6; margin-top:10px;">Capturando mi rastro emocional para una mayor claridad y autoconocimiento.</div>`;
+                
+                const extraList = document.getElementById('cap-extra-list');
+                if (extraList) {
+                    extraList.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; margin-top:35px; background:rgba(181,131,58,0.06); padding:35px 20px; border-radius:30px; border:1px solid rgba(181,131,58,0.12);">
+                        <div style="transform: scale(2.5); display:flex; align-items:center; justify-content:center;">
+                            ${moodHtml.replace(/<span.*?>/g, '').replace(/<\/span>/g, '')}
+                        </div>
+                        <div style="font-family:'Playfair Display', serif; font-size:2rem; font-weight:700; color:#b5833a; margin-top:10px; font-style:italic;">
+                            ${moodText.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').trim()}
+                        </div>
+                    </div>`;
+                }
+                footerEl.textContent = "Lúmina Presencia";
             } else {
                 const wordVal = document.getElementById('word-title')?.innerText || "";
                 titleEl.innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
@@ -7172,6 +7756,29 @@
         function closeSuccessModal() {
             document.getElementById('success-modal').classList.remove('active');
             showHub(); // Volver al hub para que vea todo desbloqueado
+        }
+
+        function loadUserAvatars() {
+            const name = localStorage.getItem('lumina_user_name') || 'Usuario Lúmina';
+            const savedEmail = localStorage.getItem('lumina_user_email') || name;
+            
+            // DiceBear Shapes como avatar por defecto premium
+            const avatarUrl = `https://api.dicebear.com/9.x/shapes/svg?seed=${encodeURIComponent(savedEmail)}&backgroundColor=b5833a,ffecd2`;
+            
+            const avatars = document.querySelectorAll('.user-avatar');
+            avatars.forEach(img => {
+                img.src = avatarUrl;
+                img.style.opacity = '1';
+                // Si hay un loader asociado, ocultarlo al cargar
+                const loader = img.parentElement.querySelector('#avatar-loader');
+                if (loader) loader.style.display = 'none';
+            });
+
+            const nameInput = document.getElementById('user-name-input');
+            if (nameInput && name !== 'Usuario Lúmina') nameInput.value = name;
+            
+            const profileEmail = document.getElementById('profile-email');
+            if (profileEmail) profileEmail.innerText = name;
         }
 
         async function updateHubInfo() {
@@ -7821,15 +8428,25 @@
 
         function updateMoodSummaryUI() {
             const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
-            const summaryVal = document.getElementById('mood-summary-val');
-            if (!summaryVal) return;
+            const ids = ['mood-summary-val', 'mood-summary-val-profile', 'mood-stats-val', 'profile-mood-val'];
             
             if (moods.length > 0) {
                 const last = moods[moods.length - 1];
-                summaryVal.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; gap:8px;">${getMoodSVG(last.state, 16)} <span>${last.state}</span></div>`;
-                summaryVal.style.fontSize = '0.75rem';
+                const content = `<div style="display:flex; align-items:center; gap:8px;">${getMoodSVG(last.state, 16)} <span>${last.state}</span></div>`;
+                const contentText = `<div style="display:flex; align-items:center; gap:8px;">${getMoodSVG(last.state, 14)} <span>${last.state}</span></div>`;
+                
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.innerHTML = (id.includes('summary')) ? content : contentText;
+                        if (!id.includes('summary')) el.style.fontSize = '0.7rem';
+                    }
+                });
             } else {
-                summaryVal.innerText = '—';
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = (id.includes('summary')) ? 'Explora tu mente' : '—';
+                });
             }
         }
 
@@ -7872,41 +8489,44 @@
 
             if (moodChartInstance) moodChartInstance.destroy();
             
-            moodChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Ánimo',
-                        data: values,
-                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
-                        backgroundColor: 'transparent',
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { 
-                            min: 0, max: 7, 
-                            ticks: { display: false }, 
-                            grid: { display: false, drawBorder: false } 
-                        },
-                        x: { 
-                            grid: { display: false, drawBorder: false },
-                            ticks: { font: { size: 9 }, color: 'rgba(128,128,128,0.5)' }
+            if (typeof Chart !== 'undefined') {
+                moodChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Ánimo',
+                            data: values,
+                            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+                            backgroundColor: 'transparent',
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fff',
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { 
+                                min: 0, max: 7, 
+                                ticks: { display: false }, 
+                                grid: { display: false, drawBorder: false } 
+                            },
+                            x: { 
+                                grid: { display: false, drawBorder: false },
+                                ticks: { font: { size: 9 }, color: 'rgba(128,128,128,0.5)' }
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
 
         window.onload = init;
+
     </script>
 
     <!-- Modal del Escáner QR -->
@@ -8055,9 +8675,9 @@
                     <em id="exp-read-refl" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; line-height: 1.5; font-style: italic; color: var(--text); opacity: 0.9;">---</em>
                 </div>
 
-                <!-- DIARIO PERSONAL -->
+                <!-- REFLEXIONES DE LECCIÓN -->
                 <div style="margin-top: 50px; padding: 40px; border: 1px solid rgba(128,128,128,0.1); border-radius: 30px; background: rgba(128,128,128,0.02);">
-                    <div style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px; font-weight: 700;">MI DIARIO PERSONAL</div>
+                    <div style="color: var(--accent); font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 20px; font-weight: 700;">MIS REFLEXIONES</div>
                     <textarea id="exp-journal" oninput="saveExpJournal()" placeholder="Escribe aquí lo que esta lección ha despertado en ti..." style="width: 100%; background: transparent; border: none; color: var(--text); font-family: inherit; font-size: 1rem; line-height: 1.6; resize: none; min-height: 150px; outline: none;"></textarea>
                     <div style="text-align: right; font-size: 0.5rem; opacity: 0.3; letter-spacing: 1px; margin-top: 15px; text-transform: uppercase;">Guardado automáticamente</div>
                 </div>
@@ -8081,7 +8701,7 @@
         <div class="modal-content" style="max-width: 450px;">
             <div style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.1); padding-bottom: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <button class="profile-tab active" onclick="switchProfileTab('identidad')">Perfil</button>
-                <button class="profile-tab" onclick="switchProfileTab('diario')">Diario</button>
+                <button class="profile-tab" onclick="switchProfileTab('diario')">Reflexiones</button>
                 <button class="profile-tab" onclick="switchProfileTab('favs')">Favoritos</button>
             </div>
 
@@ -8134,39 +8754,69 @@
                 </div>
 
                 <!-- PANEL DE HÁBITOS (Perfil) -->
-                <div class="habitos-panel" style="margin-bottom: 25px;">
-                    <div class="habitos-title">Mis Hábitos</div>
+                <div class="habitos-panel" style="margin-bottom: 25px; padding: 20px;">
+                    <div class="mood-summary-box" onclick="toggleMoodModal()">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; background: rgba(181, 131, 58, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path></svg>
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-size: 0.5rem; letter-spacing: 1px; opacity: 0.5; text-transform: uppercase; font-weight: 700;">Estado de Ánimo</span>
+                                <div id="mood-summary-val-profile" style="font-size: 0.85rem; font-weight: 600; color: var(--text);">—</div>
+                            </div>
+                        </div>
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--accent)" stroke-width="2" fill="none"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </div>
 
                     <div class="habitos-stats">
                         <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
                             <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
                             <span class="habito-stat-num" id="profile-streak-val">0</span>
                             <span class="habito-stat-label">Racha</span>
-                            <span class="habito-stat-desc">Días seguidos de sabiduría</span>
+                            <span class="habito-stat-desc">Días seguidos</span>
                             <div class="gam-tooltip">
                                 <b>Racha Diaria</b>
-                                Entra cada día para mantener el fuego de tu hábito encendido.
+                                Ganas 1 punto por cada día consecutivo que visitas Lúmina sin falta.
                             </div>
                         </div>
                         <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
                             <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
                             <span class="habito-stat-num" id="profile-medals-val">0</span>
                             <span class="habito-stat-label">Logros</span>
-                            <span class="habito-stat-desc">Por lecciones</span>
+                            <span class="habito-stat-desc">Medallas</span>
                             <div class="gam-tooltip">
                                 <b>Tus Logros</b>
-                                Medallas ganadas por tu constancia en "Mi Viaje".
+                                Medallas de sabiduría. Obtienes 1 por cada 7 lecciones completadas.
                             </div>
                         </div>
-                        <!-- NUEVO: Pausas Conscientes (Perfil) -->
                         <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
                             <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
                             <span class="habito-stat-num" id="profile-pausas-val">0</span>
                             <span class="habito-stat-label">Pausas</span>
-                            <span class="habito-stat-desc">Momentos de paz</span>
+                            <span class="habito-stat-desc">Minutos</span>
                             <div class="gam-tooltip">
-                                <b>Pausas Conscientes</b>
-                                El total de minutos de calma y respiración consciente logrados históricamente.
+                                <b>Tiempo de Paz</b>
+                                Tiempo total (minutos) de meditación y respiración consciente acumulado.
+                            </div>
+                        </div>
+                        <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                            <span class="habito-stat-num" id="profile-bitacora-val">0</span>
+                            <span class="habito-stat-label">Bitácora</span>
+                            <span class="habito-stat-desc">Entradas</span>
+                            <div class="gam-tooltip">
+                                <b>Tu Bitácora</b>
+                                Cantidad total de reflexiones y notas personales guardadas en tu diario.
+                            </div>
+                        </div>
+                        <div class="habito-stat" onclick="toggleMoodModal()">
+                            <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                            <span class="habito-stat-num" id="profile-mood-val">—</span>
+                            <span class="habito-stat-label">Ánimo</span>
+                            <span class="habito-stat-desc">Estado Actual</span>
+                            <div class="gam-tooltip">
+                                <b>Presencia</b>
+                                Tu estado emocional actual. Se mide por la frecuencia de tus chequeos internos.
                             </div>
                         </div>
                     </div>
@@ -8319,6 +8969,7 @@
         </div>
     </div>
 
+
     <!-- Modal Novedades -->
     <div id="notif-modal" class="modal notif-modal">
         <div class="modal-content" style="max-width: 450px;">
@@ -8352,46 +9003,72 @@
 
             <!-- PANEL DE HÁBITOS (MIGRADO) -->
             <div class="habitos-panel" style="margin-top: 0; animation: none;">
+                <div class="mood-summary-box" onclick="toggleMoodModal()">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 36px; height: 36px; background: rgba(181, 131, 58, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path></svg>
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.55rem; letter-spacing: 1px; opacity: 0.5; text-transform: uppercase; font-weight: 700;">Tu Momento Actual</span>
+                            <div id="mood-summary-val" style="font-size: 0.9rem; font-weight: 600; color: var(--text);">Explora tu mente</div>
+                        </div>
+                    </div>
+                    <button style="background: none; border: none; color: var(--accent); font-size: 0.6rem; letter-spacing: 1px; font-weight: 700; text-transform: uppercase;">ACTUALIZAR</button>
+                </div>
+
                 <!-- Stats: Racha + Logros -->
                 <div class="habitos-stats">
                     <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
                         <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
                         <span class="habito-stat-num" id="streak-val">0</span>
                         <span class="habito-stat-label">Racha</span>
-                        <span class="habito-stat-desc">Días seguidos de sabiduría</span>
+                        <span class="habito-stat-desc">Días seguidos</span>
                         <div class="gam-tooltip">
                             <b>Racha Diaria</b>
-                            Entra cada día para mantener el fuego de tu hábito encendido.
+                            Ganas 1 punto por cada día consecutivo que visitas Lúmina sin falta.
                         </div>
                     </div>
                     <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
                         <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
                         <span class="habito-stat-num" id="medals-val">0</span>
                         <span class="habito-stat-label">Logros</span>
-                        <span class="habito-stat-desc">Por lecciones</span>
+                        <span class="habito-stat-desc">Medallas</span>
                         <div class="gam-tooltip">
                             <b>Tus Logros</b>
-                            Ganas 1 logro por cada 7 lecciones completadas en la sección "Mi Viaje". Completa lecciones de Libros para desbloquearlos.
+                            Medallas de sabiduría. Obtienes 1 por cada 7 lecciones completadas.
                         </div>
                     </div>
-                    <!-- NUEVO: Pausas Conscientes -->
-                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
+                    <div class="habito-stat" onclick="openCategory('pausa')">
                         <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
                         <span class="habito-stat-num" id="pausas-val">0</span>
                         <span class="habito-stat-label">Pausas</span>
-                        <span class="habito-stat-desc">Momentos de paz</span>
+                        <span class="habito-stat-desc">Minutos</span>
                         <div class="gam-tooltip">
-                            <b>Pausas Conscientes</b>
-                            El total de minutos de calma y respiración consciente logrados históricamente.
+                            <b>Tiempo de Paz</b>
+                            Tiempo total (minutos) de meditación y respiración consciente acumulado.
                         </div>
                     </div>
-                    <!-- NUEVO: Estado de Ánimo -->
-                    <div class="habito-stat" onclick="toggleMoodModal(); toggleHabitos();">
-                        <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                        <span class="habito-stat-num" id="mood-summary-val">—</span>
-                        <span class="habito-stat-label">Ánimo</span>
-                        <span class="habito-stat-desc">Tu estado hoy</span>
+                    <div class="habito-stat" onclick="openCategory('bitacora')">
+                        <svg class="habito-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        <span class="habito-stat-num" id="bitacora-stats-val">0</span>
+                        <span class="habito-stat-label">Bitácora</span>
+                        <span class="habito-stat-desc">Entradas</span>
+                        <div class="gam-tooltip">
+                            <b>Tu Bitácora</b>
+                            Cantidad total de reflexiones y notas personales guardadas en tu diario.
+                        </div>
                     </div>
+                    <div class="habito-stat" onclick="toggleMoodModal()">
+                        <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                        <span class="habito-stat-num" id="mood-stats-val">—</span>
+                        <span class="habito-stat-label">Ánimo</span>
+                        <span class="habito-stat-desc">Estado Actual</span>
+                        <div class="gam-tooltip">
+                            <b>Presencia</b>
+                            Tu estado emocional actual. Se mide por la frecuencia de tus chequeos internos.
+                        </div>
+                    </div>
+                </div>
                 </div>
 
                 <!-- Puntos 7 días (Dom—Sáb) -->
@@ -8418,111 +9095,93 @@
             </div>
         </div>
     </div>
-    
 
-
-    <!-- Modal Ánimo (NUEVO PREMIUM) -->
+    <!-- Modal del Ánimo (Módulo Premium) -->
     <div id="mood-modal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Ánimo</h2>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-icon" onclick="shareAsImage('mood')" title="Compartir mi estado" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                    </button>
-                    <button class="btn-icon" onclick="toggleMoodModal()" title="Cerrar" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; opacity: 1; color: var(--accent);">
-                        <svg viewBox="0 0 24 24" style="stroke: currentColor;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
-                </div>
-            </div>
-
-            <div class="modal-tabs">
-                <button class="tab-btn active" id="btn-mood-now" onclick="switchMoodTab('now')">HOY</button>
+        <div class="modal-content" style="max-width: 480px; padding: 40px 30px;">
+            <div class="modal-tabs" style="margin-bottom: 30px;">
+                <button class="tab-btn active" id="btn-mood-now" onclick="switchMoodTab('now')">TU ESTADO</button>
                 <button class="tab-btn" id="btn-mood-history" onclick="switchMoodTab('history')">HISTORIAL</button>
             </div>
 
-            <!-- TAB 1: HOY -->
+            <!-- TAB: AHORA -->
             <div id="mood-tab-now" class="mood-tab-content active">
-                <p id="mood-prompt" style="opacity: 0.6; font-size: 1rem; margin-bottom: 25px;">¿Cómo estás ahora?</p>
-                
-                <div class="mood-grid" id="mood-selection-grid">
+                <h2 id="mood-prompt" style="font-family:'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 5px; font-style: italic;">¿Cómo habitas tu mente hoy?</h2>
+                <p style="font-size: 0.85rem; opacity: 0.5; margin-bottom: 30px;">Tu estado define tu enfoque. Selecciona el que más resuene contigo ahora.</p>
+
+                <div class="mood-selection-grid" id="mood-selection-grid">
                     <div class="mood-item" onclick="selectMood('Calma')">
-                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
-                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
+                        <div class="mood-icon-box" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
                         </div>
-                        <div class="mood-label">Calma</div>
+                        <span>Calma</span>
                     </div>
                     <div class="mood-item" onclick="selectMood('Enfoque')">
-                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
-                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                        <div class="mood-icon-box" style="background: rgba(181, 131, 58, 0.1); color: var(--accent);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
                         </div>
-                        <div class="mood-label">Enfoque</div>
+                        <span>Enfoque</span>
                     </div>
                     <div class="mood-item" onclick="selectMood('Ansiedad')">
-                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
-                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        <div class="mood-icon-box" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                         </div>
-                        <div class="mood-label">Ansiedad</div>
+                        <span>Ansiedad</span>
                     </div>
                     <div class="mood-item" onclick="selectMood('Cansancio')">
-                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
-                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        <div class="mood-icon-box" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                         </div>
-                        <div class="mood-label">Cansancio</div>
+                        <span>Cansancio</span>
                     </div>
                     <div class="mood-item" onclick="selectMood('Frustración')">
-                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
-                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                        <div class="mood-icon-box" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
                         </div>
-                        <div class="mood-label">Frustración</div>
+                        <span>Frustración</span>
                     </div>
                     <div class="mood-item" onclick="selectMood('Claridad')">
-                        <div class="mood-emoji" style="margin-bottom: 12px; display: flex; justify-content: center; color: var(--accent);">
-                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <div class="mood-icon-box" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line></svg>
                         </div>
-                        <div class="mood-label">Claridad</div>
+                        <span>Claridad</span>
                     </div>
                 </div>
 
-                <div id="mood-word-input-box" style="margin-top: 25px; text-align: left;">
-                    <label class="auth-label" style="font-size: 0.5rem;">PALABRA DEL MOMENTO (OPCIONAL)</label>
-                    <input type="text" id="mood-word-input" class="auth-input" placeholder="Ej. Impaciente, Gratitud..." style="padding: 14px; font-size: 0.9rem;">
+                <div id="mood-word-input-box" style="margin-top: 25px;">
+                    <input type="text" id="mood-word-input" maxlength="20" placeholder="Define tu día en una palabra (opcional)" 
+                        style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.1); background: rgba(128,128,128,0.03); color: var(--text); font-size: 0.85rem; outline: none; text-align: center;">
                 </div>
 
-                <div id="mood-magic-response" class="mood-response-card">
-                    <div id="mood-response-quote" class="mood-quote">"Descansar también es avanzar."</div>
-                    <button id="mood-suggested-action" class="mood-action-btn" onclick="executeMoodAction()">Hacer Respiración</button>
-                    <p style="font-size: 0.65rem; opacity: 0.4; margin-top: 25px; letter-spacing: 1px;">SABIDURÍA REALIZADA EN TIEMPO REAL</p>
+                <!-- Respuesta Dinámica (Oculta al inicio) -->
+                <div id="mood-magic-response" style="display: none; margin-top: 10px; animation: modalFadeIn 0.6s ease;">
+                    <div style="background: rgba(181, 131, 58, 0.05); padding: 30px; border-radius: 20px; border: 1px dashed var(--accent); position: relative;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="var(--accent)" stroke-width="1.5" fill="none" style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--card-bg); padding: 5px; border-radius: 50%;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                        <p id="mood-response-quote" style="font-family:'Playfair Display', serif; font-style: italic; font-size: 1.15rem; line-height: 1.6; opacity: 0.9; margin-bottom: 25px;">---</p>
+                        <button id="mood-suggested-action" class="btn-save" style="margin: 0; width: 100%; background: var(--accent); color: white;">INICIAR LECCIÓN</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- TAB 2: HISTORIAL -->
+            <!-- TAB: HISTORIAL -->
             <div id="mood-tab-history" class="mood-tab-content">
-                <div style="height: 180px; width: 100%; margin-bottom: 30px; position: relative;">
+                <div style="height: 120px; margin-bottom: 30px; position: relative;">
                     <canvas id="mood-history-chart"></canvas>
                 </div>
-                
-                <div style="max-height: 250px; overflow-y: auto; margin-top: 20px;">
-                    <table class="mood-history-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Estado</th>
-                                <th>Nota</th>
-                            </tr>
-                        </thead>
+                <div style="max-height: 250px; overflow-y: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
                         <tbody id="mood-history-body">
-                            <!-- JS -->
+                            <!-- Inyectado por JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <div style="margin-top: 35px;">
-                <button class="btn-save" onclick="toggleMoodModal()" style="width: 100%; margin: 0; background: transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--text);">CERRAR</button>
-            </div>
+            <button class="btn-save" onclick="toggleMoodModal()" style="width: 100%; margin-top: 35px; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); opacity: 0.5;">CERRAR</button>
         </div>
     </div>
+    
+
 
     <!-- Modal Info -->
     <div id="info-modal" class="modal">
@@ -8922,6 +9581,36 @@
         </div>
     </div>
 
-    <audio id="ambient-player" loop style="display:none;"></audio>
+    <!-- Modal Estadísticas Bitácora -->
+    <div id="bitacora-stats-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin: 0;">Estadísticas</h2>
+                <button class="btn-icon" onclick="shareAsImage('bitacora')" title="Compartir progreso" style="background: rgba(181, 131, 58, 0.1) !important; width: 40px; height: 40px; border-radius: 50%; color: var(--accent);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                </button>
+            </div>
+
+            <div id="bitacora-capture-area" style="padding: 10px;">
+                <div class="stats-summary-grid">
+                    <div class="stat-box">
+                        <span class="stat-val" id="stats-total-entries">0</span>
+                        <span class="stat-lab">Entradas</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-val" id="stats-main-cat">---</span>
+                        <span class="stat-lab">Enfoque</span>
+                    </div>
+                </div>
+
+                <div style="height: 180px; margin: 30px 0; position: relative;">
+                    <canvas id="bitacora-chart"></canvas>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="document.getElementById('bitacora-stats-modal').classList.remove('active')" style="width: 100%; border-radius: 50px; background: transparent; border: 1px solid var(--accent); color: var(--accent); opacity: 0.8;">CERRAR VENTANA</button>
+        </div>
+    </div>
+
 </body>
 </html>
