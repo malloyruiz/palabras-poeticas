@@ -6459,6 +6459,12 @@
             toggleBitacoraView('history'); // Opcional: mostrar historial después de guardar
         }
 
+        function shareJournalEntry(payload) {
+            if (navigator.vibrate) navigator.vibrate(15);
+            window._lastJournalShared = payload;
+            shareAsImage('journal-entry');
+        }
+
         function loadBitacoraHistory() {
             const list = document.getElementById('bitacora-list');
             if (!list) return;
@@ -6477,7 +6483,8 @@
                     </div>
                     <div style="font-family: var(--font-heading); font-style: italic; font-size: 1.1rem; opacity: 0.6; margin-bottom: 15px; line-height: 1.4;">"${e.prompt}"</div>
                     <div style="font-size: 1rem; line-height: 1.7; white-space: pre-line; opacity: 0.9;">${e.content}</div>
-                    <div style="text-align: right; margin-top: 15px;">
+                    <div style="text-align: right; margin-top: 15px; display: flex; justify-content: flex-end; gap: 15px; align-items: center;">
+                        <button onclick="shareJournalEntry({content:'${e.content.replace(/'/g, "\\'")}', prompt:'${e.prompt.replace(/'/g, "\\'")}', cat:'${e.categoryTitle}', date:'${e.timestamp}'})" style="background: none; border: none; color: var(--accent); font-size: 0.6rem; letter-spacing: 2px; cursor: pointer; font-weight: 700;">COMPARTIR</button>
                         <button onclick="deleteBitacoraEntry(${e.id})" style="background: none; border: none; color: #ef4444; font-size: 0.6rem; letter-spacing: 2px; cursor: pointer; opacity: 0.5;">ELIMINAR</button>
                     </div>
                 </div>
@@ -7115,9 +7122,14 @@
                     <div class="journal-history-date">${displayDate}</div>
                     <div class="journal-history-title">${n.title}</div>
                     <div class="journal-history-note">${n.notes.replace(/\n/g, '<br>')}</div>
-                    <button class="btn-delete-journal" onclick="deleteJournalEntry('${storageKey}')" title="Eliminar reflexión">
-                        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
+                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px; align-items:center;">
+                        <button class="btn-share-journal" onclick="shareJournalEntry({content:'${n.notes.replace(/'/g,"\\'").replace(/\n/g,' ')}', prompt:'${n.title.replace(/'/g,"\\'").replace(/\n/g,' ')}', cat:'Reflexión', date:'${n.date}'})" style="background:none; border:none; color:var(--accent); font-size:0.6rem; font-weight:700; letter-spacing:1px; cursor:pointer; display:flex; align-items:center; gap:5px;">
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> COMPARTIR
+                        </button>
+                        <button class="btn-delete-journal" onclick="deleteJournalEntry('${storageKey}')" title="Eliminar reflexión" style="position:static; padding:5px; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; background:rgba(239, 68, 68, 0.05); color:#ef4444; border:none; cursor:pointer;">
+                            <svg viewBox="0 0 24 24" width="12" height="12" style="transform: rotate(45deg);"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                    </div>
                 `;
                 list.appendChild(item);
             });
@@ -7533,10 +7545,11 @@
                 return `Lúmina me ha guiado ante mi estado de ${state}: "${quote}" 🏛️ Sabiduría estoica para la vida moderna. ${url}`;
             }
 
-            if (cat === 'bitacora') {
-                const total = document.getElementById('stats-total-entries')?.textContent || "0";
-                const focus = document.getElementById('stats-main-cat')?.textContent || "Bienestar";
-                return `Evolución Escrita: He registrado ${total} entradas de sabiduría enfocadas en ${focus} en mi Bitácora Lúmina. ✍️ ${url}`;
+            if (cat === 'journal-entry') {
+                const entry = window._lastJournalShared || { content: "Evolucionando mi mente.", cat: "Reflexión" };
+                let snippet = entry.content;
+                if (snippet.length > 50) snippet = snippet.substring(0, 47) + "...";
+                return `Una reflexión profunda de mi Bitácora Lúmina: "${snippet}" ✨ Evolucionando mi mente paso a paso. ${url}`;
             }
 
             return `Explorando sabiduría diaria en Lúmina. ✨ ${domain}`;
@@ -7577,6 +7590,8 @@
                 const streak = document.getElementById('streak-val')?.textContent || "0";
                 const medals = document.getElementById('medals-val')?.textContent || "0";
                 const pausas = document.getElementById('pausas-val')?.textContent || "0";
+                const bitacora = document.getElementById('bitacora-stats-val')?.textContent || "0";
+                const mood = document.getElementById('mood-val')?.textContent || "—";
                 
                 bodyEl.textContent = "Mis hitos de sabiduría acumulados hasta hoy en Lúmina.";
                 
@@ -7594,6 +7609,16 @@
                         <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
                             <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:#b5833a;">${pausas}</div>
                             <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Pausas</div>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; text-align:center; margin-top:10px;">
+                        <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
+                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:#b5833a;">${bitacora}</div>
+                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Bitácora</div>
+                        </div>
+                        <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
+                            <div style="font-family:'Playfair Display', serif; font-size:1.2rem; font-weight:700; color:#b5833a; margin-top:3px;">${mood.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').trim() || '—'}</div>
+                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Ánimo</div>
                         </div>
                     </div>`;
                 }
@@ -7692,7 +7717,19 @@
                         </div>`;
                     }
                 }
-                footerEl.textContent = "Lúmina Presencia";
+            } else if (cat === 'journal-entry') {
+                const entry = window._lastJournalShared || { content: "---", prompt: "---", cat: "Reflexión", date: new Date().toISOString() };
+                titleEl.textContent = "Evolución Consciente";
+                
+                bodyEl.innerHTML = `
+                    <div style="font-family:'Playfair Display', serif; font-size:0.9rem; letter-spacing:2px; font-weight:700; color:#b5833a; text-transform:uppercase; margin-bottom:15px; opacity:0.8;">${entry.cat}</div>
+                    <div style="font-family:'Playfair Display', serif; font-style:italic; font-size:1.1rem; line-height:1.4; color:#1a1a1a; opacity:0.6; margin-bottom:20px;">"${entry.prompt}"</div>
+                    <div style="font-family:'Playfair Display', serif; font-style:italic; font-size:1.4rem; line-height:1.5; color:#b5833a;">"${entry.content}"</div>
+                `;
+                
+                let dateDisplay = entry.date;
+                if (dateDisplay.includes('T')) dateDisplay = new Date(dateDisplay).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+                footerEl.textContent = dateDisplay || "Lúmina Presencia";
             } else {
                 const wordVal = document.getElementById('word-title')?.innerText || "";
                 titleEl.innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
