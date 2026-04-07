@@ -582,6 +582,27 @@
             #btn-back-hub { top: 20px !important; left: 15px !important; }
             
             footer { margin-top: 50px; padding-top: 30px; }
+
+            /* AJUSTE MÍNIMO PARA MODALES EN MÓVIL (QUIRÚRGICO) */
+            .modal-content {
+                width: 94% !important;
+                max-width: 480px !important;
+                margin: 0 auto !important;
+                padding: 30px 20px !important;
+                overflow-x: hidden !important;
+            }
+
+            /* Alineación ESPECÍFICA para Bitácora y Pausa (Evitar herencia del Hub) */
+            #bitacora-ui .bitacora-header,
+            #bitacora-templates-view .bitacora-grid,
+            #pausa-ui .pausa-header,
+            #exp-view .exp-header {
+                text-align: left !important;
+                padding: 0 !important;
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: auto !important;
+            }
         }
 
         /* --- SISTEMA DE GRILLA PARA PAUSAS (MALLA FLUIDA) --- */
@@ -7500,10 +7521,16 @@
                 return `Me he tomado un momento de paz con la meditación "${title}" en Lúmina. 🌿 Encuentra tu centro: ${url}`;
             }
 
-            if (cat === 'mood') {
-                const moodText = document.getElementById('mood-summary-val')?.innerText || "---";
-                const moodVal = moodText.includes('Explora') ? "Paz" : moodText.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').trim(); 
-                return `Me encuentro en un estado de ${moodVal} con Lúmina. 🧘‍♂️ Sintonizando mi mente y espíritu. ${url}`;
+            if (cat === 'mood-state') {
+                const state = window._lastMoodState || "Paz";
+                const note = window._lastMoodNote || "Sintonizando mi mente.";
+                return `Mi estado interior hoy: ${state} ✨ "${note}". Sintonizando mi mente en Lúmina. 👇 ${url}`;
+            }
+
+            if (cat === 'mood-wisdom') {
+                const state = window._lastMoodState || "Paz";
+                const quote = window._lastMoodQuote || "La paz interior es el nuevo éxito.";
+                return `Lúmina me ha guiado ante mi estado de ${state}: "${quote}" 🏛️ Sabiduría estoica para la vida moderna. ${url}`;
             }
 
             if (cat === 'bitacora') {
@@ -7641,23 +7668,29 @@
                     </div>`;
                 }
                 footerEl.textContent = new Date().getFullYear();
-            } else if (cat === 'mood') {
-                titleEl.textContent = "Clima Interno";
-                const moodHtml = document.getElementById('mood-summary-val')?.innerHTML || "---";
-                const moodText = document.getElementById('mood-summary-val')?.innerText || "En Paz";
+            } else if (cat === 'mood-state' || cat === 'mood-wisdom') {
+                const isWisdom = (cat === 'mood-wisdom');
+                titleEl.textContent = isWisdom ? "Lúmina Guía" : "Clima Interno";
                 
-                bodyEl.innerHTML = `<div style="font-size:0.9rem; opacity:0.8; line-height:1.6; margin-top:10px;">Capturando mi rastro emocional para una mayor claridad y autoconocimiento.</div>`;
+                const state = window._lastMoodState || "Paz";
+                const note = window._lastMoodNote || "";
+                const quote = window._lastMoodQuote || "";
                 
-                const extraList = document.getElementById('cap-extra-list');
-                if (extraList) {
-                    extraList.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; margin-top:35px; background:rgba(181,131,58,0.06); padding:35px 20px; border-radius:30px; border:1px solid rgba(181,131,58,0.12);">
-                        <div style="transform: scale(2.5); display:flex; align-items:center; justify-content:center;">
-                            ${moodHtml.replace(/<span.*?>/g, '').replace(/<\/span>/g, '')}
-                        </div>
-                        <div style="font-family:'Playfair Display', serif; font-size:2rem; font-weight:700; color:#b5833a; margin-top:10px; font-style:italic;">
-                            ${moodText.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').trim()}
-                        </div>
-                    </div>`;
+                if (isWisdom) {
+                    bodyEl.innerHTML = `<div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.4rem; line-height:1.5; color:#b5833a; margin-bottom:20px;">
+                        "${quote}"
+                    </div>
+                    <div style="font-size:0.6rem; letter-spacing:2px; font-weight:700; color:#b5833a; text-transform:uppercase; margin-top:10px;">PARA TU ESTADO DE ${state.toUpperCase()}</div>`;
+                } else {
+                    bodyEl.innerHTML = `<div style="font-size:0.9rem; opacity:0.8; line-height:1.6; margin-top:10px;">Reflejando mi rastro emocional para una mayor claridad mental.</div>`;
+                    
+                    const extraList = document.getElementById('cap-extra-list');
+                    if (extraList) {
+                        extraList.innerHTML = `<div style="margin-top:25px; background:rgba(181,131,58,0.06); padding:30px 20px; border-radius:25px; border:1px solid rgba(181,131,58,0.12); text-align:center;">
+                            <div style="font-family:'Playfair Display', serif; font-size:1.8rem; font-weight:700; color:#b5833a; margin-bottom:10px; font-style:italic;">${state}</div>
+                            ${note ? `<div style="font-size:0.9rem; opacity:0.7; font-style:italic;">"${note}"</div>` : ''}
+                        </div>`;
+                    }
                 }
                 footerEl.textContent = "Lúmina Presencia";
             } else {
@@ -8393,9 +8426,19 @@
             const responseContainer = document.getElementById('mood-magic-response');
             const quoteEl = document.getElementById('mood-response-quote');
             const actionBtn = document.getElementById('mood-suggested-action');
+            const selectedDisplay = document.getElementById('mood-selected-display');
             
             const engine = MOOD_ENGINE[state];
             if (engine) {
+                // Captura global para compartir
+                window._lastMoodState = state;
+                window._lastMoodNote = note;
+                window._lastMoodQuote = engine.quote;
+
+                if (selectedDisplay) {
+                    selectedDisplay.innerHTML = `${getMoodSVG(state, 20, 'var(--accent)')} <span style="color:var(--accent);">${state.toUpperCase()}</span>`;
+                }
+
                 quoteEl.innerText = `"${engine.quote}"`;
                 actionBtn.innerText = engine.actionText;
                 actionBtn.onclick = () => { playSound('click'); engine.action(); };
@@ -8464,9 +8507,11 @@
             [...moods].reverse().forEach(m => {
                 const date = new Date(m.date);
                 const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+                const timeStr = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td style="opacity: 0.5; font-size: 0.7rem;">${dateStr}</td>
+                    <td style="opacity: 0.5; font-size: 0.65rem;">${dateStr}<br>${timeStr}</td>
                     <td>
                         <div style="display:flex; align-items:center; gap:8px;">
                             ${getMoodSVG(m.state, 14, 'var(--accent)')}
@@ -8972,7 +9017,7 @@
 
     <!-- Modal Novedades -->
     <div id="notif-modal" class="modal notif-modal">
-        <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-content">
             <div class="notif-header">
                 <h2 style="font-style: italic;">Novedades</h2>
                 <button class="btn-clear-all" id="btn-clear-notifs" onclick="clearAllNotifs()">Borrar Todo</button>
@@ -9001,22 +9046,21 @@
                 </div>
             </div>
 
-            <!-- PANEL DE HÁBITOS (MIGRADO) -->
-            <div class="habitos-panel" style="margin-top: 0; animation: none;">
-                <div class="mood-summary-box" onclick="toggleMoodModal()">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 36px; height: 36px; background: rgba(181, 131, 58, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent);">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path></svg>
+            <!-- PANEL DE HÁBITOS (RESTAURADO DESDE PERFIL) -->
+            <div class="habitos-panel" style="margin-top: 0; padding: 20px;">
+                <div class="mood-summary-box" onclick="toggleMoodModal(); toggleHabitos();">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 32px; height: 32px; background: rgba(181, 131, 58, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path></svg>
                         </div>
                         <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 0.55rem; letter-spacing: 1px; opacity: 0.5; text-transform: uppercase; font-weight: 700;">Tu Momento Actual</span>
-                            <div id="mood-summary-val" style="font-size: 0.9rem; font-weight: 600; color: var(--text);">Explora tu mente</div>
+                            <span style="font-size: 0.5rem; letter-spacing: 1px; opacity: 0.5; text-transform: uppercase; font-weight: 700;">Estado de Ánimo</span>
+                            <div id="mood-summary-val" style="font-size: 0.85rem; font-weight: 600; color: var(--text);">—</div>
                         </div>
                     </div>
-                    <button style="background: none; border: none; color: var(--accent); font-size: 0.6rem; letter-spacing: 1px; font-weight: 700; text-transform: uppercase;">ACTUALIZAR</button>
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--accent)" stroke-width="2" fill="none"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
 
-                <!-- Stats: Racha + Logros -->
                 <div class="habitos-stats">
                     <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
                         <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2c0 10-8 9-8 15a8 8 0 0 0 16 0c0-6-8-5-8-15z"></path></svg>
@@ -9038,7 +9082,7 @@
                             Medallas de sabiduría. Obtienes 1 por cada 7 lecciones completadas.
                         </div>
                     </div>
-                    <div class="habito-stat" onclick="openCategory('pausa')">
+                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
                         <svg class="habito-icon" viewBox="0 0 24 24"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
                         <span class="habito-stat-num" id="pausas-val">0</span>
                         <span class="habito-stat-label">Pausas</span>
@@ -9048,7 +9092,7 @@
                             Tiempo total (minutos) de meditación y respiración consciente acumulado.
                         </div>
                     </div>
-                    <div class="habito-stat" onclick="openCategory('bitacora')">
+                    <div class="habito-stat" onclick="this.classList.toggle('show-tip')">
                         <svg class="habito-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                         <span class="habito-stat-num" id="bitacora-stats-val">0</span>
                         <span class="habito-stat-label">Bitácora</span>
@@ -9058,9 +9102,9 @@
                             Cantidad total de reflexiones y notas personales guardadas en tu diario.
                         </div>
                     </div>
-                    <div class="habito-stat" onclick="toggleMoodModal()">
+                    <div class="habito-stat" onclick="toggleMoodModal(); toggleHabitos();">
                         <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
-                        <span class="habito-stat-num" id="mood-stats-val">—</span>
+                        <span class="habito-stat-num" id="mood-val">—</span>
                         <span class="habito-stat-label">Ánimo</span>
                         <span class="habito-stat-desc">Estado Actual</span>
                         <div class="gam-tooltip">
@@ -9069,9 +9113,7 @@
                         </div>
                     </div>
                 </div>
-                </div>
 
-                <!-- Puntos 7 días (Dom—Sáb) -->
                 <hr class="habitos-divider">
                 <span class="habitos-dots-label">Esta semana</span>
                 <div class="racha-visual" id="racha-visual"><!-- dots por JS --></div>
@@ -9079,14 +9121,9 @@
                     <canvas id="habits-chart"></canvas>
                 </div>
 
-                <!-- Logro del Día -->
                 <div class="logro-hoy-badge" id="logro-hoy" onclick="this.classList.toggle('show-tip')">
                     <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
                     <span class="logro-label">Logro del Día — Sabiduría Completa</span>
-                    <div class="gam-tooltip">
-                        <b>¡Excelente!</b>
-                        Visitaste las 4 secciones hoy. Tu mente está en pleno movimiento.
-                    </div>
                 </div>
             </div>
 
@@ -9155,10 +9192,26 @@
 
                 <!-- Respuesta Dinámica (Oculta al inicio) -->
                 <div id="mood-magic-response" style="display: none; margin-top: 10px; animation: modalFadeIn 0.6s ease;">
+                    <!-- Cabecera de Estado con Botón Compartir Estado -->
+                    <div id="mood-state-confirm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(128,128,128,0.03); padding: 15px 20px; border-radius: 15px;">
+                        <div id="mood-selected-display" style="display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem;">
+                            <!-- Inyectado -->
+                        </div>
+                        <button onclick="shareAsImage('mood-state')" class="btn-icon" title="Compartir mi estado" style="background: rgba(181, 131, 58, 0.1) !important; color: var(--accent); width: 32px; height: 32px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        </button>
+                    </div>
+
                     <div style="background: rgba(181, 131, 58, 0.05); padding: 30px; border-radius: 20px; border: 1px dashed var(--accent); position: relative;">
                         <svg viewBox="0 0 24 24" width="24" height="24" stroke="var(--accent)" stroke-width="1.5" fill="none" style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--card-bg); padding: 5px; border-radius: 50%;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
                         <p id="mood-response-quote" style="font-family:'Playfair Display', serif; font-style: italic; font-size: 1.15rem; line-height: 1.6; opacity: 0.9; margin-bottom: 25px;">---</p>
-                        <button id="mood-suggested-action" class="btn-save" style="margin: 0; width: 100%; background: var(--accent); color: white;">INICIAR LECCIÓN</button>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button id="mood-suggested-action" class="btn-save" style="margin: 0; flex: 1; background: var(--accent); color: white;">INICIAR LECCIÓN</button>
+                            <button onclick="shareAsImage('mood-wisdom')" class="btn-icon" title="Compartir sabiduría" style="background: white !important; border: 1px solid rgba(181,131,58,0.2) !important; color: var(--accent); width: 48px; border-radius: 12px;">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
