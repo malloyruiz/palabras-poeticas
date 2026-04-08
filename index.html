@@ -3976,6 +3976,8 @@
                     formData.append('email', email);
                     formData.append('birthday', bday);
                     formData.append('data', dataString);
+                    formData.append('device_id', getDeviceId());
+                    formData.append('device_name', getFriendlyDeviceName());
 
                     const response = await fetch(API, {
                         method: 'POST',
@@ -3984,9 +3986,22 @@
                     
                     const resSync = await response.json();
                     if (resSync.success) {
+                        if (resSync.devices) {
+                            localStorage.setItem('lumina_devices_cache', JSON.stringify(resSync.devices));
+                            // Si el perfil está abierto, renderizar inmediatamente
+                            if (document.getElementById('profile-modal').classList.contains('active')) {
+                                renderDeviceList(resSync.devices);
+                            }
+                        }
+                        if (resSync.lastActivity) {
+                            localStorage.setItem('lumina_last_activity', resSync.lastActivity);
+                            updateLastAccessUI();
+                        }
                         // Log sutil para confirmar seguridad de datos
                         console.log("Sincronización: Sabiduría resguardada.");
                     }
+
+
                 } catch (e) { 
                     // Fallback silencioso
                     try { fetch(`${API}?action=user_sync&email=${encodeURIComponent(email)}&birthday=${encodeURIComponent(bday)}&data=${encodeURIComponent(dataString)}`, { mode: 'no-cors' }); } catch(err) {}
@@ -4007,6 +4022,297 @@
                 const data = JSON.parse(jsonString);
                 Object.keys(data).forEach(k => { if (data[k] !== null) localStorage.setItem(k, data[k]); });
             } catch (e) { console.error("Pull Sync Error", e); }
+        }
+
+        // --- GESTIÓN DE RESPALDOS JSON ---
+        function exportLuminaData() {
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.startsWith('lumina_') || key.startsWith('theme'))) {
+                    data[key] = localStorage.getItem(key);
+                }
+            }
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().split('T')[0];
+            a.href = url;
+            a.download = `Lumina_Backup_${date}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Respaldo generado con éxito 📤", "success");
+            addLuminaActivity("Exportaste un respaldo JSON local", "backup");
+            if (navigator.vibrate) navigator.vibrate(20);
+        }
+
+        function importLuminaData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showConfirm("¿Restaurar respaldo? Se sobrescribirán tus datos actuales.", () => {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        const keys = Object.keys(data);
+                        const hasLuminaKey = keys.some(k => k.startsWith('lumina_'));
+                        
+                        if (!hasLuminaKey) {
+                            showToast("Archivo de respaldo no válido.", "error");
+                            return;
+                        }
+
+                        // Limpiar antes si se desea un fresh start, pero mejor solo pisar
+                        keys.forEach(k => {
+                            localStorage.setItem(k, data[k]);
+                        });
+
+                        showToast("¡Sabiduría restaurada! ✅", "success");
+                        addLuminaActivity("Restauraste datos desde un archivo JSON", "backup");
+                        if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                        
+                        // Sincronizar y recargar
+                        await pushSync(true);
+                        setTimeout(() => location.reload(), 1200);
+                        
+                    } catch (err) {
+                        showToast("Error al procesar el archivo.", "error");
+                    }
+                };
+                reader.readAsText(file);
+            });
+            event.target.value = '';
+        }
+
+        async function sendBackupToEmail() {
+            const email = localStorage.getItem('lumina_user_email');
+            const name = localStorage.getItem('lumina_user_name') || "Viajero";
+            if (!email) {
+                showToast("Inicia sesión para usar esta función.", "info");
+                return;
+            }
+
+            const btn = document.getElementById('btn-backup-email');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "ENVIANDO...";
+            btn.disabled = true;
+            btn.style.opacity = "0.6";
+
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.startsWith('lumina_') || key.startsWith('theme'))) {
+                    data[key] = localStorage.getItem(key);
+                }
+            }
+            
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'user_backup_email');
+                formData.append('email', email);
+                formData.append('userName', name);
+                formData.append('data', JSON.stringify(data, null, 2));
+
+                const response = await fetch(API, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const res = await response.json();
+                if (res.success) {
+                    showToast("¡Respaldo enviado a tu Gmail! 📧", "success");
+                    addLuminaActivity("Enviaste un respaldo a tu Gmail", "backup");
+                    if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                } else {
+                    showToast("Error al enviar el respaldo.", "error");
+                }
+            } catch (err) {
+                showToast("Error de conexión.", "error");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            }
+        }
+
+
+        // --- GESTIÓN DE DISPOSITIVOS ---
+        function getDeviceId() {
+            let id = localStorage.getItem('lumina_device_uuid');
+            if (!id) {
+                id = 'dev-' + Math.random().toString(36).substring(2, 12).toUpperCase();
+                localStorage.setItem('lumina_device_uuid', id);
+            }
+            return id;
+        }
+
+        function getFriendlyDeviceName() {
+            const ua = navigator.userAgent;
+            let device = "Escritorio";
+            
+            if (window.androidInterface) device = "App Android";
+            else if (window.matchMedia('(display-mode: standalone)').matches) device = "PWA Instalada";
+            else if (/Android/i.test(ua)) device = "Móvil Android";
+            else if (/iPhone|iPad|iPod/i.test(ua)) device = "iPhone / iPad";
+            else if (/Windows/i.test(ua)) device = "Windows PC";
+            else if (/Macintosh/i.test(ua)) device = "MacBook / iMac";
+            else if (/Linux/i.test(ua)) device = "Linux PC";
+
+            let browser = "Web";
+            if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
+            else if (ua.includes("Edg")) browser = "Edge";
+            else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+            else if (ua.includes("Firefox")) browser = "Firefox";
+
+            return `${device} (${browser})`;
+        }
+
+        function renderDeviceList(devices) {
+            const listEl = document.getElementById('profile-device-list');
+            if (!listEl) return;
+            
+            const list = devices || JSON.parse(localStorage.getItem('lumina_devices_cache') || '[]');
+            
+            if (!list || list.length === 0) {
+                listEl.innerHTML = '<div style="font-size: 0.65rem; opacity: 0.4; text-align:center;">Solo este dispositivo registrado.</div>';
+                return;
+            }
+
+            const currentId = getDeviceId();
+            listEl.innerHTML = list.sort((a,b) => new Date(b.lastSeen) - new Date(a.lastSeen)).map(d => {
+                const isThis = d.id === currentId;
+                const lastSeenDate = new Date(d.lastSeen);
+                const relTime = isThis ? 'Activo ahora' : `Visto: ${lastSeenDate.toLocaleDateString('es-ES', {day:'2-digit', month:'short'})} ${lastSeenDate.getHours()}:${String(lastSeenDate.getMinutes()).padStart(2,'0')}`;
+                
+                const isDesktop = d.name.includes("PC") || d.name.includes("Windows") || d.name.includes("Mac");
+                const icon = isDesktop 
+                    ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`
+                    : `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`;
+
+                return `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(181, 131, 58, 0.03); border-radius: 12px; border: 1px solid rgba(128,128,128,0.05);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 28px; height: 28px; background: ${isThis ? 'rgba(181, 131, 58, 0.1)' : 'rgba(128,128,128,0.05)'}; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: ${isThis ? 'var(--accent)' : 'inherit'}; opacity: ${isThis ? 1 : 0.5};">
+                                ${icon}
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-size: 0.70rem; font-weight: ${isThis ? '700' : '400'}; color: var(--text);">${d.name} ${isThis ? '<span style="font-size: 0.5rem; color: var(--accent); margin-left: 2px;">• ACTUAL</span>' : ''}</span>
+                                <span style="font-size: 0.55rem; opacity: 0.4;">${relTime}</span>
+                            </div>
+                        </div>
+                        ${!isThis ? `
+                            <button onclick="logoutRemote('${d.id}')" style="background: none; border: none; color: #ef4444; opacity: 0.4; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center;" title="Cerrar sesión en este dispositivo">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function logoutRemote(deviceId) {
+            const email = localStorage.getItem('lumina_user_email');
+            if (!email) return;
+
+            showConfirm("¿Cerrar sesión en este dispositivo de forma remota?", async () => {
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'logout_remote');
+                    formData.append('email', email);
+                    formData.append('device_id', deviceId);
+
+                    const response = await fetch(API, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const res = await response.json();
+                    if (res.success) {
+                        showToast("Sesión cerrada correctamente ✅", "success");
+                        addLuminaActivity(`Cerraste sesión en un dispositivo remoto`, "security");
+                        localStorage.setItem('lumina_devices_cache', JSON.stringify(res.devices));
+                        renderDeviceList(res.devices);
+                    } else {
+                        showToast("No se pudo cerrar la sesión.", "error");
+                    }
+                } catch (e) {
+                    showToast("Error de conexión.", "error");
+                }
+            });
+        }
+
+        function addLuminaActivity(msg, type = 'info') {
+            const logStr = localStorage.getItem('lumina_activity_log') || '[]';
+            let log = [];
+            try { log = JSON.parse(logStr); } catch(e) { log = []; }
+            
+            const newEntry = {
+                msg: msg,
+                type: type,
+                time: Date.now(),
+                device: getFriendlyDeviceName(),
+                deviceId: getDeviceId()
+            };
+            
+            log.unshift(newEntry);
+            log = log.slice(0, 10); // Mantener solo las últimas 10
+            
+            localStorage.setItem('lumina_activity_log', JSON.stringify(log));
+            
+            // Si el perfil está abierto, refrescar UI
+            if (document.getElementById('profile-modal').classList.contains('active')) {
+                renderActivityLog();
+            }
+            
+            // Sincronizar
+            pushSync();
+        }
+
+        function getRelativeTime(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            const mins = Math.floor(diff / 60000);
+            if (mins < 1) return "Ahora";
+            if (mins < 60) return `Hace ${mins}m`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `Hace ${hours}h`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `Hace ${days}d`;
+            return new Date(timestamp).toLocaleDateString('es-ES', { day:'2-digit', month:'short' });
+        }
+
+        function renderActivityLog() {
+            const listEl = document.getElementById('profile-activity-log');
+            if (!listEl) return;
+            
+            const logStr = localStorage.getItem('lumina_activity_log') || '[]';
+            let log = [];
+            try { log = JSON.parse(logStr); } catch(e) { log = []; }
+            
+            if (log.length === 0) {
+                listEl.innerHTML = '<div style="font-size: 0.65rem; opacity: 0.3; text-align:center; padding: 10px;">Aún no hay actividad registrada.</div>';
+                return;
+            }
+            
+            listEl.innerHTML = log.map(entry => {
+                const deviceName = entry.device || "Web";
+                const isMobile = deviceName.includes("Móvil") || deviceName.includes("App") || deviceName.includes("iPhone") || deviceName.includes("iPad") || deviceName.includes("PWA");
+                const platformIcon = isMobile 
+                    ? `<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.4;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`
+                    : `<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.4;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`;
+
+                return `
+                    <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(128,128,128,0.03);">
+                        <div style="margin-top: 2px;">${platformIcon}</div>
+                        <div style="flex: 1; display: flex; flex-direction: column;">
+                            <span style="font-size: 0.70rem; color: var(--text); font-weight: 500;">${entry.msg}</span>
+                            <span style="font-size: 0.55rem; opacity: 0.4; letter-spacing: 0.5px;">${getRelativeTime(entry.time)} • ${deviceName}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function getTrialDay() {
@@ -4034,6 +4340,7 @@
                 return false;
             }
         }
+
 
         function isTrialActive() {
             return checkTrial();
@@ -4544,6 +4851,7 @@
                 const val = document.getElementById('user-mantra-input').value;
                 localStorage.setItem('lumina_mantra', val);
                 if (status) status.innerText = "Mantra Guardado";
+                addLuminaActivity("Actualizaste tu mantra personal", "profile");
                 triggerSaveVisual('user-mantra-input'); // Feedback visual
                 pushSync();
             }, 800);
@@ -4553,6 +4861,7 @@
             const input = document.getElementById('user-name-input');
             if (input) {
                 localStorage.setItem('lumina_user_name', input.value.trim());
+                addLuminaActivity(`Cambiaste tu nombre a: ${input.value.trim()}`, "profile");
                 triggerSaveVisual('user-name-input'); // Feedback visual
                 pushSync();
             }
@@ -4637,7 +4946,34 @@
             }
             
             switchProfileTab('identidad');
+            renderDeviceList();
+            updateLastAccessUI();
+            renderActivityLog();
         }
+
+
+        function updateLastAccessUI() {
+            const el = document.getElementById('profile-last-access');
+            if (!el) return;
+            
+            const last = localStorage.getItem('lumina_last_activity');
+            if (last) {
+                const date = new Date(last);
+                if (!isNaN(date.getTime())) {
+                    const options = { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' };
+                    const dateStr = date.toLocaleDateString('es-ES', options).toUpperCase();
+                    el.innerText = `Último acceso: ${dateStr}`;
+                    el.style.opacity = "0.5"; // Aumentar un poco la visibilidad
+                } else {
+                    el.innerText = "Sincronizando actividad...";
+                }
+            } else {
+                el.innerText = "Primer acceso registrado hoy";
+            }
+        }
+
+
+
 
         // --- FEEDBACK SENSORIAL DE GUARDADO (IDEA 3) ---
         function triggerSaveVisual(elementId) {
@@ -6351,8 +6687,10 @@
             const index = favs.findIndex(f => f.id === id);
             
             if (index > -1) {
+                const removedId = favs[index].id;
                 favs.splice(index, 1);
                 showToast("Eliminado de favoritos");
+                addLuminaActivity(`Eliminaste de favoritos: ${removedId}`, "favorite");
             } else {
                 favs.push({
                     id: id,
@@ -6361,6 +6699,7 @@
                     timestamp: Date.now()
                 });
                 showToast("Guardado en favoritos", "success");
+                addLuminaActivity(`Guardaste un favorito: ${id}`, "favorite");
                 playSound('success');
             }
             
@@ -8367,6 +8706,7 @@
 
         function endPausaSuccess() {
             playSound('success');
+            addLuminaActivity(`Completaste una meditación: ${window._lastPausaTitle || "Silencio"}`, "meditation");
             if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]); // Patrón de zumbido
             
             // CELEBRACIÓN: Confetti premium
@@ -8412,6 +8752,7 @@
             document.getElementById('profile-pausas-val').innerText = pausasCount;
             
             showToast("Momento de paz guardado en tu historial 🌿", "success");
+            addLuminaActivity(`Guardaste un hábito de paz: ${window._lastPausaTitle || "Meditación"}`, "habit");
             pushSync(); // Sincronizar pausa
             toggleAmbient('none');
             renderPausaList(); // Volver al inicio de pausas
@@ -8937,6 +9278,10 @@
                     <input type="text" id="user-name-input" placeholder="Tu Nombre..." onchange="saveUserName()" 
                         style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; border: none; background: transparent; text-align: center; color: var(--text); outline: none; width: 100%; font-weight: 700;">
                     <div id="profile-email" style="font-size: 0.8rem; opacity: 0.4; margin-top: 5px;">Usuario Lúmina</div>
+                    <div id="profile-last-access" style="font-size: 0.55rem; opacity: 0.3; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px;"></div>
+
+
+
                 </div>
 
                 <div style="margin-bottom: 30px; padding: 0 10px;">
@@ -9056,12 +9401,51 @@
                     </div>
                 </div>
 
-                <!-- Campo de Cumpleaños (Restaurado y Reestilizado) -->
+                <!-- Campo de Cumpleaños -->
                 <div style="margin-top: 25px; padding: 22px; background: rgba(181,131,58,0.03); border-radius: 20px; border: 1px solid rgba(181,131,58,0.1); text-align: left;">
                     <label class="auth-label" style="margin-bottom: 8px;">Mi Cumpleaños</label>
                     <input type="date" id="profile-birthday" onchange="saveBirthday()" 
                            style="width: 100%; background: transparent; border: none; color: var(--text); font-family: 'Inter', sans-serif; font-size: 1rem; outline: none; cursor: pointer;">
                 </div>
+
+                <!-- GESTIÓN DE DATOS (BACKUP JSON) -->
+                <div style="margin-top: 25px; padding: 22px; background: rgba(181, 131, 58, 0.03); border-radius: 20px; border: 1px dashed rgba(181, 131, 58, 0.2); text-align: left;">
+                    <div style="font-size: 0.70rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 15px; text-transform: uppercase;">Copia de Seguridad</div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button onclick="exportLuminaData()" class="btn-save" style="flex: 1; margin: 0; padding: 12px; font-size: 0.65rem; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; border: none; cursor: pointer;">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            EXPORTAR
+                        </button>
+                        <button onclick="document.getElementById('import-file-input').click()" class="btn-save" style="flex: 1; margin: 0; padding: 12px; font-size: 0.65rem; background: transparent; border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; cursor: pointer;">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            IMPORTAR
+                        </button>
+                    </div>
+                    <button id="btn-backup-email" onclick="sendBackupToEmail()" class="btn-save" style="width: 100%; margin: 0; padding: 12px; font-size: 0.65rem; background: rgba(181, 131, 58, 0.08); border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; cursor: pointer; transition: 0.3s;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        ENVIAR A MI GMAIL
+                    </button>
+
+                    <input type="file" id="import-file-input" style="display: none;" accept=".json" onchange="importLuminaData(event)">
+                    <p style="font-size: 0.55rem; opacity: 0.4; margin-top: 12px; line-height: 1.4; letter-spacing: 0.5px;">Respalda tus favoritos, diario y progreso en un archivo JSON para guardarlo en tu Gmail o Drive.</p>
+                </div>
+
+                <!-- DISPOSITIVOS CONECTADOS -->
+                <div style="margin-top: 25px; padding: 22px; background: rgba(128,128,128,0.02); border-radius: 20px; border: 1px solid rgba(128,128,128,0.05); text-align: left;">
+                    <div style="font-size: 0.60rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; opacity: 0.6;">Dispositivos Conectados</div>
+                    <div id="profile-device-list" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="font-size: 0.7rem; opacity: 0.3; text-align: center; padding: 10px;">Cargando sesiones...</div>
+                    </div>
+                </div>
+
+                <!-- ACTIVIDAD RECIENTE (LOG) -->
+                <div style="margin-top: 25px; padding: 22px; background: rgba(181, 131, 58, 0.02); border-radius: 20px; border: 1px solid rgba(181, 131, 58, 0.05); text-align: left;">
+                    <div style="font-size: 0.60rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; opacity: 0.6;">Actividad Reciente</div>
+                    <div id="profile-activity-log" style="display: flex; flex-direction: column;">
+                        <div style="font-size: 0.70rem; opacity: 0.3; text-align: center; padding: 10px;">No hay actividad aún.</div>
+                    </div>
+                </div>
+
 
                 <div style="margin-top: 20px; padding-top: 10px;">
                     <button onclick="logoutUser()" style="width: 100%; padding: 15px; background: rgba(128,128,128,0.05); color: var(--text); border: 1px solid rgba(128,128,128,0.1); border-radius: 50px; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: 0.3s; opacity: 0.6;">CERRAR SESIÓN</button>
