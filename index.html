@@ -3005,6 +3005,10 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                         BITÁCORA
                     </button>
+                    <button class="btn-fab-item" onclick="showScanner()" title="Escáner de Sabiduría">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
+                        ESCÁNER
+                    </button>
                 </div>
             </div>
         </div>
@@ -4109,28 +4113,43 @@
             }
             
             try {
-                const formData = new URLSearchParams();
-                formData.append('action', 'user_backup_email');
-                formData.append('email', email);
-                formData.append('userName', name);
-                formData.append('data', JSON.stringify(data, null, 2));
-
-                const response = await fetch(API, {
-                    method: 'POST',
-                    body: formData
-                });
+                // Usamos Blob para manejar datos potencialmente grandes
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const reader = new FileReader();
                 
-                const res = await response.json();
-                if (res.success) {
-                    showToast("¡Respaldo enviado a tu Gmail! 📧", "success");
-                    addLuminaActivity("Enviaste un respaldo a tu Gmail", "backup");
-                    if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
-                } else {
-                    showToast("Error al enviar el respaldo.", "error");
-                }
+                reader.onloadend = async () => {
+                    const base64data = reader.result.split(',')[1];
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'user_backup_email');
+                    formData.append('email', email);
+                    formData.append('userName', name);
+                    formData.append('data', base64data); // Enviamos como base64 para evitar problemas de caracteres/tamaño
+                    formData.append('isBase64', 'true');
+
+                    const response = await fetch(API, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const res = await response.json();
+                    if (res.success) {
+                        showToast("¡Respaldo enviado a tu Gmail! 📧", "success");
+                        addLuminaActivity("Enviaste un respaldo a tu Gmail", "backup");
+                        if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                    } else {
+                        showToast(res.error || "Error al enviar el respaldo.", "error");
+                    }
+                    
+                    // Restaurar botón
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                };
+                
+                reader.readAsDataURL(blob);
+
             } catch (err) {
-                showToast("Error de conexión.", "error");
-            } finally {
+                showToast("Error local al preparar el archivo.", "error");
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 btn.style.opacity = "1";
@@ -5761,6 +5780,9 @@
                     showToast("¡Logro Completado! Sabiduría total alcanzada ✨", "success");
                     playSound('success');
                 }
+                
+                // Forzamos sincronización inmediata para evitar reinicios por recarga/SW
+                pushSync(true); 
             }
             updateLogroDelDia();
         }
@@ -10164,6 +10186,7 @@
     </div>
     
     <div id="toast" class="toast"><span>Mensaje</span></div>
+    <div id="exit-toast" class="toast" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text);"><span>Presiona nuevamente para salir de Lúmina</span></div>
 
     <!-- Confirm Toast -->
     <div id="confirm-toast" class="confirm-toast">
