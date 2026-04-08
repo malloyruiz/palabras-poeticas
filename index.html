@@ -575,13 +575,16 @@
             main.has-examples .side-panel { border-left: none; padding-left: 0; padding-top: 40px; border-top: 1px solid rgba(128,128,128,0.1); }
             
             .wrapper { padding: 30px 20px; }
-            main { gap: 30px; }
+            main { gap: 30px; padding: 20px !important; padding-top: calc(90px + env(safe-area-inset-top)) !important; }
             .content-header { padding-left: 0; margin-bottom: 25px; }
             .content-body { padding-left: 0; }
             .example-list { gap: 2rem; }
             #btn-back-hub { top: 20px !important; left: 15px !important; }
             
             footer { margin-top: 50px; padding-top: 30px; }
+
+            /* Ajuste de sección Bitácora para evitar suma de paddings */
+            .bitacora-container { padding: 10px !important; }
 
             /* AJUSTE MÍNIMO PARA MODALES EN MÓVIL (QUIRÚRGICO) */
             .modal-content {
@@ -592,16 +595,20 @@
                 overflow-x: hidden !important;
             }
 
-            /* Alineación ESPECÍFICA para Bitácora y Pausa (Evitar herencia del Hub) */
+            /* Alineación ESPECÍFICA para Bitácora y Pausa (Centrado real en móviles) */
             #bitacora-ui .bitacora-header,
-            #bitacora-templates-view .bitacora-grid,
             #pausa-ui .pausa-header,
             #exp-view .exp-header {
+                text-align: center !important;
+                padding: 0 !important;
+                width: 100% !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+            #bitacora-templates-view .bitacora-grid {
                 text-align: left !important;
                 padding: 0 !important;
                 width: 100% !important;
-                margin-left: 0 !important;
-                margin-right: auto !important;
             }
         }
 
@@ -2609,6 +2616,7 @@
     </style>
 </head>
 <body>
+    <audio id="ambient-player" loop></audio>
 
     <!-- LANDING PAGE (USUARIOS NO LOGUEADOS) -->
     <div id="landing-ui" style="display: none;">
@@ -2878,7 +2886,7 @@
                     <div class="section-tag" style="margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Acceso Universal</div>
                     <h3 style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.8rem; margin-bottom: 20px;">Lúmina en todas tus pantallas</h3>
                     <p style="font-family: 'Outfit', sans-serif; font-weight: 300; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">Acceso multiplataforma: Navegadores, Android, Apple, AppGallery, Galaxy Store, y escritorio.</p>
-                    <div class="store-badges" onclick="document.getElementById('install-modal').classList.add('active')" style="cursor: pointer;">
+                    <div class="store-badges" onclick="toggleInstallModal()" style="cursor: pointer;">
                         <div class="store-badge">Android</div>
                         <div class="store-badge">Apple iOS</div>
                         <div class="store-badge">AppGallery</div>
@@ -3318,12 +3326,12 @@
             </div>
         <!-- SECCIÓN: BITÁCORA PRO -->
         <div id="bitacora-ui" class="bitacora-container" style="display: none; padding-top: 40px; min-height: 80vh; width: 100% !important; max-width: 1400px !important; margin: 0 auto !important; box-sizing: border-box; grid-column: 1 / -1; flex-direction: column;">
-            <div class="bitacora-header" style="margin-bottom: 50px; text-align: left;">
+            <div class="bitacora-header" style="margin-bottom: 50px; text-align: inherit;">
                 <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Bitácora</h1>
-                <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6;">Registro consciente de tu evolución y maestría personal.</p>
+                <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6; margin: 0 auto 20px auto;">Registro consciente de tu evolución y maestría personal.</p>
 
                 
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: inherit; flex-wrap: wrap;">
                     <button class="btn-save" onclick="showBitacoraStats()" style="margin: 0; padding: 12px 25px; font-size: 0.7rem; border-radius: 50px; background: rgba(181,131,58,0.1); color: var(--accent); border: 1px solid rgba(181,131,58,0.2);">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 8px; vertical-align: middle;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                         ESTADÍSTICAS
@@ -5552,8 +5560,8 @@
                             'profile': toggleProfile,
                             'info': toggleInfo,
                             'notifications': toggleNotifications,
-                            'pro': () => document.getElementById('pro-modal').classList.add('active'),
-                            'success': () => document.getElementById('success-modal').classList.add('active')
+                            'pro': toggleProModal,
+                            'success': showSuccessModal
                         };
                         if (modalHashes[targetCat]) {
                             modalHashes[targetCat]();
@@ -5922,6 +5930,8 @@
             if (activeModal) {
                 activeModal.classList.remove('active');
                 if (navigator.vibrate) navigator.vibrate(8);
+                // Si el evento vino del botón atrás físico, el popstate ya ocurrió.
+                // No necesitamos llamar a history.back() porque ya retrocedimos.
                 return;
             }
 
@@ -5935,16 +5945,27 @@
                     setTimeout(() => openPausaDetail(sub), 100);
                 }
             } else {
+                // Estamos en el Hub o no hay estado definido
                 showHub(false);
+                
+                // Lógica de Doble Pulsación para Salir (Solo en el Hub y sin modales)
                 if (hash === "" || hash === "#hub") {
                     const now = Date.now();
-                    if (now - lastBackPress < 2000) return;
+                    if (now - lastBackPress < 2000) {
+                        // Segunda pulsación en menos de 2s: Salida real
+                        // En web/PWA no podemos cerrar la pestaña, pero permitimos que el navegador use su comportamiento por defecto
+                        return; 
+                    }
+                    
+                    // Primera pulsación: Avisar y "atrapar" el historial
                     lastBackPress = now;
                     const toast = document.getElementById('exit-toast');
                     if (toast) {
                         toast.classList.add('active');
                         setTimeout(() => toast.classList.remove('active'), 2000);
                     }
+                    
+                    // Empujamos el estado de nuevo para que la siguiente pulsación vuelva a disparar popstate
                     history.pushState({ cat: 'hub' }, "", "#hub");
                 }
             }
@@ -6504,8 +6525,13 @@
         let bitacoraChartInstance = null;
 
         function showBitacoraStats() {
+            closeModals(true);
             const modal = document.getElementById('bitacora-stats-modal');
             modal.classList.add('active');
+            history.pushState({ modal: 'bitacora' }, "", "#stats");
+            if (navigator.vibrate) navigator.vibrate(10);
+            // Pre-captura específica para Bitácora
+            setTimeout(() => prepareShareBlob('bitacora'), 600);
             
             const data = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
             document.getElementById('stats-total-entries').innerText = data.length;
@@ -6690,6 +6716,43 @@
             }
         }
 
+        function toggleProModal() {
+            const m = document.getElementById('pro-modal');
+            if (m.classList.contains('active')) {
+                history.back();
+            } else {
+                closeModals(true);
+                m.classList.add('active');
+                history.pushState({ modal: 'pro' }, "", "#pro");
+                if (navigator.vibrate) navigator.vibrate(10);
+                playSound('click');
+            }
+        }
+
+        function toggleInstallModal() {
+            const m = document.getElementById('install-modal');
+            if (m.classList.contains('active')) {
+                history.back();
+            } else {
+                closeModals(true);
+                m.classList.add('active');
+                history.pushState({ modal: 'install' }, "", "#install");
+                if (navigator.vibrate) navigator.vibrate(10);
+                playSound('click');
+            }
+        }
+
+        function showSuccessModal() {
+            closeModals(true);
+            const m = document.getElementById('success-modal');
+            if (m) {
+                m.classList.add('active');
+                history.pushState({ modal: 'success' }, "", "#success");
+                if (navigator.vibrate) navigator.vibrate([10, 50]);
+                playSound('success');
+            }
+        }
+
         function toggleHabitos() {
             const modal = document.getElementById('habitos-modal');
             if (modal.classList.contains('active')) {
@@ -6708,7 +6771,7 @@
         }
 
         function closeModals(preventBack = false) {
-            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'install-modal'];
+            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal'];
             let anyClosed = false;
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -6717,8 +6780,12 @@
                     anyClosed = true;
                 }
             });
+            // Limpiar caché de capturas al cerrar modales para evitar cruces
+            window._luminaShareBlob = null;
+            window._lastShareType = "";
+
             // Si cerramos manualmente y hay un hash de modal, volvemos atrás en el historial (a menos que se prevenga)
-            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos|expansiones|install)/)) {
+            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos|expansiones|install|stats|mood)/)) {
                 history.back();
             }
         }
@@ -6874,9 +6941,9 @@
                         'info': toggleInfo,
                         'habitos': toggleHabitos,
                         'notifications': toggleNotifications,
-                        'pro': () => document.getElementById('pro-modal').classList.add('active'),
-                        'trial': () => document.getElementById('pro-modal').classList.add('active'),
-                        'success': () => document.getElementById('success-modal').classList.add('active'),
+                        'pro': toggleProModal,
+                        'trial': toggleProModal,
+                        'success': showSuccessModal,
                         'restore': () => { setPortalMode('recover'); document.getElementById('identity-portal').classList.add('active'); }
                     };
 
@@ -7556,6 +7623,7 @@
         }
 
         window._luminaShareBlob = null;
+        window._lastShareType = "";
         window._luminaShareFname = "";
         let isCapturing = false;
 
@@ -7752,6 +7820,7 @@
                     const canvas = await html2canvas(area, { backgroundColor: "#f5f1e8", scale: 2, useCORS: true, allowTaint: true });
                     canvas.toBlob((blob) => {
                         window._luminaShareBlob = blob;
+                        window._lastShareType = cat;
                         window._luminaShareFname = `Lumina_${Date.now()}.png`;
                     }, 'image/png');
                 } catch (e) {
@@ -7781,15 +7850,16 @@
                     showToast("Imagen guardada ✅");
                 }
             };
-            if (window._luminaShareBlob) {
+            if (window._luminaShareBlob && window._lastShareType === cat) {
                 await doShare(window._luminaShareBlob, window._luminaShareFname);
             } else {
-                showToast("Preparando composición...");
+                if (cat.startsWith('mood-')) showToast("Sintonizando...", "info");
+                else showToast("Generando composición...", "info");
                 await prepareShareBlob(cat);
                 setTimeout(() => {
                     if (window._luminaShareBlob) doShare(window._luminaShareBlob, window._luminaShareFname);
-                    else showToast("Reintenta en un momento.", "error");
-                }, 800);
+                    else showToast("Hubo un retraso, prueba de nuevo.", "error");
+                }, 1000);
             }
         }
 
@@ -8436,10 +8506,19 @@
         function toggleMoodModal() {
             const modal = document.getElementById('mood-modal');
             if (!modal) return;
-            const isActive = modal.classList.toggle('active');
-            if (isActive) {
-                switchMoodTab('now');
-                updateMoodSummaryUI();
+            
+            if (modal.classList.contains('active')) {
+                history.back();
+            } else {
+                closeModals(true);
+                // Pequeño retardo para estabilidad en móviles (evita que se abra "detrás" de otro modal)
+                setTimeout(() => {
+                    modal.classList.add('active');
+                    history.pushState({ modal: 'mood' }, "", "#mood");
+                    switchMoodTab('now');
+                    updateMoodSummaryUI();
+                    if (navigator.vibrate) navigator.vibrate(10);
+                }, 50);
             }
         }
 
@@ -8503,12 +8582,16 @@
             
             // Actualizar UI general
             updateMoodSummaryUI();
+            
+            // Pre-captura inmediata del nuevo estado para compartir
+            setTimeout(() => prepareShareBlob('mood-state'), 400);
+            
             pushSync(); // Sincronizar con la nube
         }
 
         function updateMoodSummaryUI() {
             const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
-            const ids = ['mood-summary-val', 'mood-summary-val-profile', 'mood-stats-val', 'profile-mood-val'];
+            const ids = ['mood-summary-val', 'mood-summary-val-profile', 'mood-stats-val', 'profile-mood-val', 'mood-val'];
             
             if (moods.length > 0) {
                 const last = moods[moods.length - 1];
@@ -9085,7 +9168,7 @@
 
             <!-- PANEL DE HÁBITOS (RESTAURADO DESDE PERFIL) -->
             <div class="habitos-panel" style="margin-top: 0; padding: 20px;">
-                <div class="mood-summary-box" onclick="toggleMoodModal(); toggleHabitos();">
+                <div class="mood-summary-box" onclick="toggleMoodModal()">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <div style="width: 32px; height: 32px; background: rgba(181, 131, 58, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--accent);">
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path></svg>
@@ -9139,7 +9222,7 @@
                             Cantidad total de reflexiones y notas personales guardadas en tu diario.
                         </div>
                     </div>
-                    <div class="habito-stat" onclick="toggleMoodModal(); toggleHabitos();">
+                    <div class="habito-stat" onclick="toggleMoodModal()">
                         <svg class="habito-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
                         <span class="habito-stat-num" id="mood-val">—</span>
                         <span class="habito-stat-label">Ánimo</span>
