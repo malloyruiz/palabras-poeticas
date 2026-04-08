@@ -2957,7 +2957,7 @@
 
     <div id="app-viewport" style="display: grid; grid-template-columns: 100%; min-height: 100vh;">
     <!-- HUB EDITORIAL -->
-    <div id="hub" class="seccion activa">
+    <div id="hub" class="seccion">
         <!-- Panel Izquierdo: Hero (1.2fr) -->
         <div class="hub-hero">
             <div class="hero-bg-blur" id="hero-blur"></div>
@@ -3472,7 +3472,11 @@
                 if (landing) landing.style.display = 'block';
                 if (app) app.style.display = 'none';
                 
-                if (hub) hub.classList.add('hidden');
+                // Asegurarse de que el hub nunca tape el landing
+                if (hub) {
+                    hub.classList.remove('activa');
+                    hub.classList.add('hidden');
+                }
                 if (mainUI) mainUI.classList.add('hidden');
                 
                 if (loader) loader.classList.add('hidden');
@@ -3482,7 +3486,10 @@
             
             document.body.classList.remove('is-guest');
             if (landing) landing.style.display = 'none';
-            if (hub) hub.classList.remove('hidden');
+            if (hub) {
+                hub.classList.remove('hidden');
+                hub.classList.add('activa'); // Activar hub solo con sesión
+            }
             if (mainUI) mainUI.classList.remove('hidden');
             if (app) app.style.display = 'grid';
             return true;
