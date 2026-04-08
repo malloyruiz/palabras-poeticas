@@ -519,8 +519,14 @@
 
         #btn-back-hub { display: none; } /* Managed dynamically by class */
 
-        .content-header { text-align: left; margin-bottom: 40px; padding-left: 60px; transition: padding 0.5s; }
-        .content-body { padding-left: 60px; transition: padding 0.5s; }
+        .content-header, .content-body, .extra-section, .lesson-container { 
+            text-align: left; 
+            margin-bottom: 40px; 
+            padding-left: 60px; 
+            transition: all 0.5s ease; 
+            width: 100%;
+            box-sizing: border-box;
+        }
 
         /* Side Panel Logic */
         .side-panel { display: none; }
@@ -576,8 +582,7 @@
             
             .wrapper { padding: 30px 20px; }
             main { gap: 30px; padding: 20px !important; padding-top: calc(90px + env(safe-area-inset-top)) !important; }
-            .content-header { padding-left: 0; margin-bottom: 25px; }
-            .content-body { padding-left: 0; }
+            .content-header, .content-body, .extra-section, .lesson-container { padding-left: 0; margin-bottom: 25px; }
             .example-list { gap: 2rem; }
             #btn-back-hub { top: 20px !important; left: 15px !important; }
             
@@ -1720,36 +1725,53 @@
         body.cat-extra #word-def { display: none !important; }
         body.cat-extra #extra-ui { display: block !important; padding-bottom: 80px; }
         body.cat-extra .word-display { margin-bottom: 0.5rem !important; }
-        body.cat-extra #word-title { font-size: clamp(1.8rem, 6vw, 3.2rem) !important; line-height: 1.1; word-break: break-word; }
+        body.cat-extra .content-header { grid-column: 1 / -1; }
+        body.cat-extra #word-title { font-size: clamp(1.8rem, 6vw, 3.2rem) !important; line-height: 1.1; word-break: normal; }
         
-        .extra-story { font-size: 1.1rem; line-height: 1.8; margin-top: 15px; color: var(--text); font-weight: 300; opacity: 0.9; }
+        .extra-section { margin-bottom: 40px; animation: fadeIn 0.8s ease both; }
+        .extra-section-label { 
+            font-size: 0.55rem; letter-spacing: 3px; color: var(--accent); 
+            font-weight: 700; text-transform: uppercase; margin-bottom: 12px; 
+            display: block; opacity: 0.6;
+        }
+
+        .extra-story { font-size: 1.1rem; line-height: 1.8; color: var(--text); font-weight: 300; opacity: 0.9; }
         .extra-thought { 
-            margin: 20px 0; padding: 20px; 
+            margin: 10px 0; padding: 25px; 
             border-left: 3px solid var(--accent); 
-            background: rgba(181, 131, 58, 0.05); 
+            background: rgba(181, 131, 58, 0.04); 
             font-style: italic; font-family: 'Playfair Display', serif;
-            font-size: 1.2rem; line-height: 1.6; color: var(--accent);
+            font-size: 1.3rem; line-height: 1.5; color: var(--text);
+            border-radius: 0 16px 16px 0;
         }
         .extra-quote { 
-            text-align: center; margin: 20px 0; padding: 15px; 
-            border-top: 1px solid rgba(128,128,128,0.1); border-bottom: 1px solid rgba(128,128,128,0.1); 
-            font-size: 0.95rem; opacity: 0.6; letter-spacing: 1px; text-transform: uppercase;
+            text-align: center; margin: 45px 0; padding: 30px 20px; 
+            border-top: 1px solid rgba(181, 131, 58, 0.15); 
+            border-bottom: 1px solid rgba(181, 131, 58, 0.15); 
+            font-size: 1.1rem; opacity: 0.8; font-family: 'Playfair Display', serif;
+            font-style: italic; color: var(--accent); line-height: 1.4;
         }
         .extra-challenge-box {
-            margin-top: 25px; padding: 25px; border-radius: 32px;
+            margin-top: 40px; padding: 35px 25px; border-radius: 32px;
             background: var(--card-bg); border: 1px solid var(--card-border);
-            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+            text-align: center; box-shadow: 0 15px 45px rgba(0,0,0,0.03);
+            position: relative; overflow: hidden;
         }
-        .extra-challenge-box h3 { font-size: 0.65rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; }
-        .extra-challenge-text { font-size: 1.1rem; font-family: 'Playfair Display', serif; font-style: italic; color: var(--text); line-height: 1.5; }
+        .extra-challenge-box::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.3;
+        }
+        .extra-challenge-box h3 { font-size: 0.6rem; letter-spacing: 4px; color: var(--accent); margin-bottom: 20px; font-weight: 700; text-transform: uppercase; opacity: 0.7; }
+        .extra-challenge-text { font-size: 1.2rem; font-family: 'Playfair Display', serif; font-style: italic; color: var(--text); line-height: 1.5; }
         
         .extra-cta {
-            margin-top: 25px; width: 100%; border-radius: 50px; padding: 18px; 
+            margin-top: 30px; width: 100%; border-radius: 50px; padding: 18px; 
             font-size: 0.8rem; letter-spacing: 2px; font-weight: 600; 
             background: var(--accent); color: #fff; border: none; cursor: pointer;
-            transition: all 0.3s ease; text-transform: uppercase;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1.2); text-transform: uppercase;
         }
-        .extra-cta:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(181,131,58,0.2); }
+        .extra-cta:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(181,131,58,0.3); }
 
         /* --- ESTILOS DE PAUSA CONSCIENTE --- */
         .pausa-list { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
@@ -3113,13 +3135,27 @@
 
             <!-- SECCIÓN EXTRA (DÍA DE ENFOQUE) -->
             <div id="extra-ui" style="grid-column: 1 / -1; display: none;">
-                <div class="extra-story" id="extra-story">---</div>
-                <div class="extra-thought" id="extra-thought">---</div>
-                <div class="extra-quote" id="extra-quote">---</div>
-                <div class="extra-challenge-box">
-                    <h3>⚡ Reto o Reflexión del Día</h3>
-                    <div class="extra-challenge-text" id="extra-challenge">---</div>
-                    <button id="extra-cta" class="extra-cta" style="display: none;" onclick="window.open(this.dataset.url, '_blank')">EXPLORAR MÁS</button>
+                <div id="extra-section-story" class="extra-section">
+                    <span class="extra-section-label">La Historia</span>
+                    <div class="extra-story" id="extra-story">---</div>
+                </div>
+                
+                <div id="extra-section-thought" class="extra-section">
+                    <span class="extra-section-label">Perspectiva</span>
+                    <div class="extra-thought" id="extra-thought">---</div>
+                </div>
+
+                <div id="extra-section-quote" class="extra-section">
+                    <div class="extra-quote" id="extra-quote">---</div>
+                </div>
+
+                <div id="extra-section-challenge" class="extra-section">
+                    <div class="extra-challenge-box">
+                        <span class="extra-section-label" style="opacity: 1;">El Reto</span>
+                        <h3 style="letter-spacing: 2px;">⚡ Acción Diaria</h3>
+                        <div class="extra-challenge-text" id="extra-challenge">---</div>
+                        <button id="extra-cta" class="extra-cta" style="display: none;" onclick="window.open(this.dataset.url, '_blank')">EXPLORAR MÁS</button>
+                    </div>
                 </div>
             </div>
             
@@ -5944,6 +5980,8 @@
                 if (sub) {
                     setTimeout(() => openPausaDetail(sub), 100);
                 }
+            } else if (hash.startsWith('#extra:')) {
+                openCategory('extra', false, false);
             } else {
                 // Estamos en el Hub o no hay estado definido
                 showHub(false);
@@ -5996,12 +6034,19 @@
 
         async function fetchContent(index = null) {
             let cacheKey = currentCategory;
+            
+            // Individualizar caché para contenido Extra específico
+            if (currentCategory === 'extra') {
+                const hashMatch = window.location.hash.match(/#extra:(.+)/);
+                if (hashMatch && hashMatch[1]) cacheKey += '_' + hashMatch[1];
+            }
+
             const cached = getCache(cacheKey);
             const cacheDate = localStorage.getItem('lumina_cache_date_' + cacheKey);
             const today = new Date().toDateString();
 
             // 1. Mostrar caché inmediatamente (Si es de hoy y no pedimos uno específico)
-            if (index === null && cached && cacheDate === today) {
+            if (index === null && cached && (cacheDate === today || cacheKey.includes('_'))) {
                 renderContent(cached);
                 hideLoader();
                 return;
@@ -6018,9 +6063,9 @@
                 if (currentCategory === 'extra') {
                     const hash = window.location.hash;
                     const match = hash.match(/#extra:(.+)/);
-                    const extraId = match ? match[1] : '';
+                    const extraId = (match && match[1]) ? match[1] : '';
                     const uType = (localStorage.getItem('lumina_pro') === 'true') ? 'PRO' : (isTrialActive() ? 'TRIAL' : 'FREE');
-                    url = `${API}?action=extra&userType=${uType}${extraId ? '&id=' + extraId : ''}`;
+                    url = `${API}?action=extra&userType=${uType}${extraId ? '&id=' + encodeURIComponent(extraId) : ''}`;
                 }
 
                 const response = await fetch(url);
@@ -6033,7 +6078,7 @@
                     return;
                 }
 
-                if (index === null) setCache(currentCategory, data);
+                if (index === null) setCache(cacheKey, data);
                 renderContent(data);
                 loadUserJournal(); // Cargar diario
                 checkOnline();
@@ -6064,13 +6109,25 @@
                 document.getElementById('word-title').innerText = data.titulo || "Edición Especial";
                 document.getElementById('word-def').innerText = "";
                 
-                document.getElementById('extra-story').innerText = data.historia || "";
-                document.getElementById('extra-thought').innerText = data.pensamiento || "";
-                document.getElementById('extra-quote').innerText = data.frase || "";
-                document.getElementById('extra-challenge').innerText = data.reto || "";
+                // Función auxiliar para renderizar u ocultar secciones vacías
+                const setSection = (id, content, sectionId) => {
+                    const el = document.getElementById(id);
+                    const sec = document.getElementById(sectionId);
+                    if (content && content !== "---" && content !== "") {
+                        el.innerText = content;
+                        if (sec) sec.style.display = 'block';
+                    } else if (sec) {
+                        sec.style.display = 'none';
+                    }
+                };
+
+                setSection('extra-story', data.historia, 'extra-section-story');
+                setSection('extra-thought', data.pensamiento, 'extra-section-thought');
+                setSection('extra-quote', data.frase, 'extra-section-quote');
+                setSection('extra-challenge', data.reto, 'extra-section-challenge');
                 
                 const cta = document.getElementById('extra-cta');
-                if (data.cta_text && data.cta_url) {
+                if (data.cta_text && data.cta_url && data.cta_text !== "---") {
                     cta.innerText = data.cta_text.toUpperCase();
                     cta.dataset.url = data.cta_url;
                     cta.style.display = 'block';
