@@ -3662,11 +3662,18 @@
         }
 
         function openAuth(mode) {
-            setPortalMode(mode);
-            const portal = document.getElementById('login-portal');
-            if (portal) {
-                portal.style.display = 'flex';
-                portal.scrollTo({top: 0, behavior: 'instant'});
+            try {
+                setPortalMode(mode);
+                const portal = document.getElementById('login-portal');
+                if (portal) {
+                    portal.style.display = 'flex';
+                    portal.scrollTo({top: 0, behavior: 'auto'});
+                }
+            } catch (e) {
+                console.error("openAuth error:", e);
+                // Fallback de emergencia por si el setPortalMode falla
+                const portal = document.getElementById('login-portal');
+                if (portal) portal.style.display = 'flex';
             }
         }
 
@@ -3678,26 +3685,32 @@
             const error = document.getElementById('login-error');
             const container = document.querySelector('.auth-container');
             
-            // Animación de entrada al cambiar modo
-            container.style.animation = 'none';
-            void container.offsetWidth; // Trigger reflow
-            container.style.animation = 'modalFadeIn 0.5s ease';
+            if (container) {
+                container.style.animation = 'none';
+                void container.offsetWidth; 
+                container.style.animation = 'modalFadeIn 0.5s ease';
+            }
 
-            error.style.display = 'none';
+            if (error) error.style.display = 'none';
             
-            // Reset visibilities
-            document.getElementById('field-name').style.display = 'none';
-            document.getElementById('fields-signup').style.display = 'none';
-            document.getElementById('fields-recover').style.display = 'none';
-            document.getElementById('view-codes').style.display = 'none';
-            document.getElementById('portal-fields').style.display = 'block';
-            document.getElementById('portal-links').style.display = 'flex';
-            document.getElementById('field-pass').style.display = 'block';
+            // Reset visibilities seguros
+            const hideList = ['field-name', 'fields-signup', 'fields-recover', 'view-codes', 'link-signup', 'link-login', 'link-recover', 'portal-sep'];
+            hideList.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
             
-            document.getElementById('link-signup').style.display = 'none';
-            document.getElementById('link-login').style.display = 'none';
-            document.getElementById('link-recover').style.display = 'none';
-            document.getElementById('portal-sep').style.display = 'none';
+            const showFlexList = ['portal-links'];
+            showFlexList.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'flex';
+            });
+
+            const showBlockList = ['portal-fields', 'field-pass'];
+            showBlockList.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'block';
+            });
 
             if (mode === 'login') {
                 title.innerText = "Identidad";
