@@ -3709,6 +3709,18 @@ setTimeout(() => {
             }
         }
 
+// RESPALDO openAuth si falla
+window.openAuth = window.openAuth || function(mode) {
+  console.log('🟢 openAuth:', mode);
+  const portal = document.getElementById('login-portal');
+  if (portal) {
+    portal.style.display = 'flex';
+    portal.scrollTo(0, 0);
+  }
+};
+
+
+
         function setPortalMode(mode) {
             portalMode = mode;
             const title = document.getElementById('portal-title');
