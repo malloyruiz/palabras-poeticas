@@ -9159,31 +9159,36 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Botón Suscríbete/Portal
   document.querySelectorAll('.btn-portal-open, .btn-cta-gold').forEach(btn => {
-    btn.onclick = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('Botón clicked:', this.textContent);
-      alert('¡Botón funciona! Acción: ' + this.textContent + '\nRedirigiendo...');
-      // openAuth('signup'); // Descomenta cuando API funcione
-      window.scrollTo({top: 0, behavior: 'smooth'});
-    };
-  });
-  
-  // Dots del hero
-  document.querySelectorAll('.hero-dot').forEach((dot, idx) => {
-    dot.onclick = () => showHeroSlide(idx);
-  });
+  btn.onclick = function(e) {
+    e.preventDefault(); e.stopPropagation();
+    console.log('✅ Botón clicked:', this.textContent);
+    
+    // Scroll suave + efectos VISIBLES
+    const overlay = document.querySelector('.hero-overlay');
+    if (overlay) overlay.style.opacity = '0.3'; // Hace scroll VISIBLE
+    
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    
+    setTimeout(() => {
+      if (overlay) overlay.style.opacity = '1';
+      
+      // Cambio slide hero
+      const slides = document.querySelectorAll('.hero-slide');
+      const dots = document.querySelectorAll('.hero-dot');
+      slides.forEach((s, i) => s.classList.toggle('active', i === 1));
+      dots.forEach((d, i) => d.classList.toggle('active', i === 1));
+      
+      // Scroll a pricing
+      setTimeout(() => {
+        document.querySelector('.pricing-grid')?.scrollIntoView({behavior: 'smooth'});
+      }, 400);
+    }, 1000);
+    
+    // Efecto botón
+    this.style.transform = 'scale(1.05)';
+    this.style.transition = 'all 0.3s ease';
+  };
 });
-
-// Función helper si no existe
-function showHeroSlide(idx) {
-  document.querySelectorAll('.hero-slide').forEach((slide, i) => {
-    slide.classList.toggle('active', i === idx);
-  });
-  document.querySelectorAll('.hero-dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === idx);
-  });
-}
 	
 	
 	
