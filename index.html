@@ -9165,40 +9165,35 @@ setTimeout(() => {
 	
 	
 
-// === FIX COMPLETO: BOTONES + SCROLL + NO CARGA ===
+
+// === FIX SELECTIVO: SOLO CTA ORO SCROLL + PRESERVA AUTH ===
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🔧 Lumina FIX activado');
+  console.log('🔧 FIX AUTH + SCROLL SELECTIVO');
   
-  // 1. OCULTAR LOADER INMEDIATO
+  // OCULTAR LOADER
   const loader = document.getElementById('loader');
   if (loader) loader.style.display = 'none';
   
-  // 2. FORZAR LANDING VISIBLE
-  const landing = document.getElementById('landing-ui');
-  if (landing) landing.style.display = 'block';
-  
-  // 3. BOTONES CON SCROLL VISIBLE
-  document.querySelectorAll('.btn-portal-open, .btn-cta-gold').forEach(btn => {
+  // SOLO BOTONES CTA ORO hacen SCROLL (NO "Entrar"/"Suscríbete")
+  document.querySelectorAll('.btn-cta-gold').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      console.log('✅ Click:', btn.textContent);
+      e.preventDefault(); // PREVENIR openAuth original
+      console.log('✅ CTA ORO Scroll');
       
-      // Overlay temporal transparente
       const overlay = document.querySelector('.hero-overlay');
       if (overlay) overlay.style.opacity = '0.4';
       
-      // Scroll suave
       window.scrollTo({top: 0, behavior: 'smooth'});
       
       setTimeout(() => {
         if (overlay) overlay.style.opacity = '1';
-        // Ir a pricing
         document.querySelector('.pricing-grid')?.scrollIntoView({behavior: 'smooth'});
       }, 1200);
     });
   });
   
-  console.log('✅ FIX completo!');
+  // "Entrar"/"Suscríbete" MANTIENEN openAuth original ✅
+  console.log('✅ AUTH preservado');
 });
 
 	
