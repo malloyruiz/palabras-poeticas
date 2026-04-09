@@ -3449,6 +3449,25 @@
     <!-- MODAL SELECTOR DE ESTILO (MOODS) ELIMINADO PARA SIMPLIFICAR FLOW -->
 
     <script>
+	
+	
+	// FIX CARGA INFINITA - OCULTAR LOADER YA
+setTimeout(() => {
+  const loader = document.getElementById('loader');
+  if (loader) {
+    loader.style.display = 'none';
+    loader.style.opacity = '0';
+    console.log('✅ Loader forzado oculto');
+  }
+}, 100);
+	
+	
+	
+	
+	
+	
+	
+	
         const API = "https://script.google.com/macros/s/AKfycbwx5LGxpNG3HKDr7wR_UYSB0rUooHMoWriR6efhMuSPIBS5TNh3xCR1YmQ7_NbjdVs6/exec";
         let portalMode = 'login';
         let recoveryStep = 1; // 1: Email, 2: Method Choice, 3: Inputs
@@ -9145,50 +9164,43 @@
 	
 	
 	
-	// FIX BOTONES LANDING - Inicialización inmediata
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Lumina inicializando botones landing...');
+	<script>
+// === FIX COMPLETO: BOTONES + SCROLL + NO CARGA ===
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🔧 Lumina FIX activado');
   
-  // Mostrar landing siempre para pruebas
+  // 1. OCULTAR LOADER INMEDIATO
+  const loader = document.getElementById('loader');
+  if (loader) loader.style.display = 'none';
+  
+  // 2. FORZAR LANDING VISIBLE
   const landing = document.getElementById('landing-ui');
-  if (landing) {
-    landing.style.display = 'block';
-    document.querySelector('#hub')?.classList.add('hidden');
-    console.log('Landing forzado visible');
-  }
+  if (landing) landing.style.display = 'block';
   
-  // Botón Suscríbete/Portal
+  // 3. BOTONES CON SCROLL VISIBLE
   document.querySelectorAll('.btn-portal-open, .btn-cta-gold').forEach(btn => {
-  btn.onclick = function(e) {
-    e.preventDefault(); e.stopPropagation();
-    console.log('✅ Botón clicked:', this.textContent);
-    
-    // Scroll suave + efectos VISIBLES
-    const overlay = document.querySelector('.hero-overlay');
-    if (overlay) overlay.style.opacity = '0.3'; // Hace scroll VISIBLE
-    
-    window.scrollTo({top: 0, behavior: 'smooth'});
-    
-    setTimeout(() => {
-      if (overlay) overlay.style.opacity = '1';
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('✅ Click:', btn.textContent);
       
-      // Cambio slide hero
-      const slides = document.querySelectorAll('.hero-slide');
-      const dots = document.querySelectorAll('.hero-dot');
-      slides.forEach((s, i) => s.classList.toggle('active', i === 1));
-      dots.forEach((d, i) => d.classList.toggle('active', i === 1));
+      // Overlay temporal transparente
+      const overlay = document.querySelector('.hero-overlay');
+      if (overlay) overlay.style.opacity = '0.4';
       
-      // Scroll a pricing
+      // Scroll suave
+      window.scrollTo({top: 0, behavior: 'smooth'});
+      
       setTimeout(() => {
+        if (overlay) overlay.style.opacity = '1';
+        // Ir a pricing
         document.querySelector('.pricing-grid')?.scrollIntoView({behavior: 'smooth'});
-      }, 400);
-    }, 1000);
-    
-    // Efecto botón
-    this.style.transform = 'scale(1.05)';
-    this.style.transition = 'all 0.3s ease';
-  };
+      }, 1200);
+    });
+  });
+  
+  console.log('✅ FIX completo!');
 });
+</script>
 	
 	
 	
