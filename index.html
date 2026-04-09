@@ -3450,24 +3450,6 @@
 
     <script>
 	
-	
-	// FIX CARGA INFINITA - OCULTAR LOADER YA
-setTimeout(() => {
-  const loader = document.getElementById('loader');
-  if (loader) {
-    loader.style.display = 'none';
-    loader.style.opacity = '0';
-    console.log('✅ Loader forzado oculto');
-  }
-}, 100);
-	
-	
-	
-	
-	
-	
-	
-	
         const API = "https://script.google.com/macros/s/AKfycbwx5LGxpNG3HKDr7wR_UYSB0rUooHMoWriR6efhMuSPIBS5TNh3xCR1YmQ7_NbjdVs6/exec";
         let portalMode = 'login';
         let recoveryStep = 1; // 1: Email, 2: Method Choice, 3: Inputs
@@ -3708,19 +3690,7 @@ setTimeout(() => {
                 if (portal) portal.style.display = 'flex';
             }
         }
-
-// RESPALDO openAuth si falla
-window.openAuth = window.openAuth || function(mode) {
-  console.log('🟢 openAuth:', mode);
-  const portal = document.getElementById('login-portal');
-  if (portal) {
-    portal.style.display = 'flex';
-    portal.scrollTo(0, 0);
-  }
-};
-
-
-
+		
         function setPortalMode(mode) {
             portalMode = mode;
             const title = document.getElementById('portal-title');
@@ -9168,50 +9138,6 @@ window.openAuth = window.openAuth || function(mode) {
         }
 
         window.onload = init;
-
-    
-	
-	
-	
-	
-	
-	
-
-
-// === FIX SELECTIVO: SOLO CTA ORO SCROLL + PRESERVA AUTH ===
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('🔧 FIX AUTH + SCROLL SELECTIVO');
-  
-  // OCULTAR LOADER
-  const loader = document.getElementById('loader');
-  if (loader) loader.style.display = 'none';
-  
-  // SOLO BOTONES CTA ORO hacen SCROLL (NO "Entrar"/"Suscríbete")
-  document.querySelectorAll('.btn-cta-gold').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault(); // PREVENIR openAuth original
-      console.log('✅ CTA ORO Scroll');
-      
-      const overlay = document.querySelector('.hero-overlay');
-      if (overlay) overlay.style.opacity = '0.4';
-      
-      window.scrollTo({top: 0, behavior: 'smooth'});
-      
-      setTimeout(() => {
-        if (overlay) overlay.style.opacity = '1';
-        document.querySelector('.pricing-grid')?.scrollIntoView({behavior: 'smooth'});
-      }, 1200);
-    });
-  });
-  
-  // "Entrar"/"Suscríbete" MANTIENEN openAuth original ✅
-  console.log('✅ AUTH preservado');
-});
-
-	
-	
-	
-	
 	
 	</script>
 
@@ -10349,6 +10275,35 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn-save" onclick="document.getElementById('bitacora-stats-modal').classList.remove('active')" style="width: 100%; border-radius: 50px; background: transparent; border: 1px solid var(--accent); color: var(--accent); opacity: 0.8;">CERRAR VENTANA</button>
         </div>
     </div>
+
+
+
+<script>
+// === FIX ULTRA SIMPLE: SOLO LOADER + SCROLL CTA ===
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. OCULTAR LOADER
+  const loader = document.getElementById('loader');
+  if (loader) loader.style.display = 'none';
+  
+  // 2. SOLO CTA ORO scroll (NO toca auth)
+  document.querySelectorAll('.btn-cta-gold:not([onclick*="openAuth"])').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({top: 0, behavior: 'smooth'});
+      setTimeout(() => {
+        document.querySelector('.pricing-grid')?.scrollIntoView({behavior: 'smooth'});
+      }, 800);
+    });
+  });
+  
+  console.log('✅ FIX mínimo OK');
+});
+</script>
+<!-- PANEL AUTH (FALTA en tu HTML) -->
+<div id="login-portal" class="modal" style="z-index: 6000; background: var(--bg); display: none; flex-direction: column; align-items
+
+
+
 
 </body>
 </html>
