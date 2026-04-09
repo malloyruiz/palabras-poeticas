@@ -2642,7 +2642,7 @@
     <audio id="ambient-player" loop></audio>
 
     <!-- LANDING PAGE (USUARIOS NO LOGUEADOS) -->
-    <div id="landing-ui" style="display: none; position: relative; z-index: 2000;">
+    <div id="landing-ui" style="display: block; position: relative; z-index: 2000;">
         <nav class="landing-nav">
             <div class="landing-logo-container" onclick="window.scrollTo({top:0, behavior:'smooth'})">
                 <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="landing-logo">
@@ -9138,7 +9138,58 @@
 
         window.onload = init;
 
-    </script>
+    
+	
+	
+	
+	
+	
+	
+	// FIX BOTONES LANDING - Inicialización inmediata
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Lumina inicializando botones landing...');
+  
+  // Mostrar landing siempre para pruebas
+  const landing = document.getElementById('landing-ui');
+  if (landing) {
+    landing.style.display = 'block';
+    document.querySelector('#hub')?.classList.add('hidden');
+    console.log('Landing forzado visible');
+  }
+  
+  // Botón Suscríbete/Portal
+  document.querySelectorAll('.btn-portal-open, .btn-cta-gold').forEach(btn => {
+    btn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Botón clicked:', this.textContent);
+      alert('¡Botón funciona! Acción: ' + this.textContent + '\nRedirigiendo...');
+      // openAuth('signup'); // Descomenta cuando API funcione
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+  });
+  
+  // Dots del hero
+  document.querySelectorAll('.hero-dot').forEach((dot, idx) => {
+    dot.onclick = () => showHeroSlide(idx);
+  });
+});
+
+// Función helper si no existe
+function showHeroSlide(idx) {
+  document.querySelectorAll('.hero-slide').forEach((slide, i) => {
+    slide.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.hero-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === idx);
+  });
+}
+	
+	
+	
+	
+	
+	</script>
 
     <!-- Modal del Escáner QR -->
     <div id="qr-scanner-modal" class="qr-scanner-modal">
