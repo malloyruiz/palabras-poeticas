@@ -432,6 +432,7 @@
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
+            display: none !important;
         }
         #offline-banner {
             position: fixed;
@@ -2641,7 +2642,7 @@
     <audio id="ambient-player" loop></audio>
 
     <!-- LANDING PAGE (USUARIOS NO LOGUEADOS) -->
-    <div id="landing-ui" style="display: none;">
+    <div id="landing-ui" style="display: none; position: relative; z-index: 2000;">
         <nav class="landing-nav">
             <div class="landing-logo-container" onclick="window.scrollTo({top:0, behavior:'smooth'})">
                 <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="landing-logo">
@@ -3479,7 +3480,12 @@
                 }
                 if (mainUI) mainUI.classList.add('hidden');
                 
-                if (loader) loader.classList.add('hidden');
+                // Ocultar loader completamente para que no bloquee clics
+                if (loader) {
+                    loader.classList.add('hidden');
+                    loader.style.display = 'none';
+                    loader.style.pointerEvents = 'none';
+                }
                 if (typeof checkLandingInit === 'function') await checkLandingInit();
                 return false;
             }
