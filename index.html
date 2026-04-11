@@ -82,6 +82,7 @@
             --text-dim: rgba(26, 26, 26, 0.4);
             --card-bg: #f7f3eb;
             --card-border: rgba(181, 131, 58, 0.1);
+            --modal-bg-solid: #ffffff;
             --transition: 0.3s cubic-bezier(0.2, 0, 0, 1);
         }
 
@@ -92,6 +93,7 @@
             --text-dim: rgba(226, 232, 240, 0.3);
             --card-bg: rgba(255, 255, 255, 0.03);
             --card-border: rgba(255, 255, 255, 0.08);
+            --modal-bg-solid: #0f172a; /* Azul Profundo */
         }
         [data-theme="dark"] select, [data-theme="dark"] input {
             background: rgba(255,255,255,0.05) !important;
@@ -417,23 +419,46 @@
         .reflection-box { margin-top: 60px; padding: 40px; background: rgba(181, 131, 58, 0.05); border-radius: 30px; text-align: center; }
         
         /* --- SISTEMA DE CAPTURA SIMPLIFICADO --- */
+        .hidden { display: none !important; opacity: 0; pointer-events: none !important; visibility: hidden; }
+
         #loader {
             position: fixed;
             inset: 0;
             background: var(--bg);
-            z-index: 9999;
+            z-index: 99999;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
+            transition: opacity 0.5s ease;
+            pointer-events: auto;
         }
+
+        #loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         #loader.hidden {
+            display: none !important;
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            display: none !important;
         }
+
+        #loader-text {
+            margin-top: 25px;
+            font-family: var(--font-heading);
+            font-style: italic;
+            font-size: 1.1rem;
+            opacity: 0;
+            text-align: center;
+            max-width: 80%;
+            line-height: 1.5;
+            color: var(--text);
+            transition: opacity 0.5s ease;
+        }
+        #loader-text.visible { opacity: 0.6; }
         #offline-banner {
             position: fixed;
             bottom: 20px;
@@ -480,8 +505,8 @@
         .reflection-box em { font-family: 'Playfair Display', serif; font-size: 1.4rem;  display: block; margin-top: 15px; }
         
         /* Reto del Día */
-        #reto-del-dia { display: none; }
-        body.cat-palabras #reto-del-dia { display: block; }
+        #reto-del-dia, #reflexion-del-dia { display: none; margin-top: 20px; }
+        .wisdom-box-active { display: block !important; animation: fadeIn 0.8s ease; }
         #reflexion-del-dia { display: none; }
         body.cat-afirmaciones #reflexion-del-dia { display: block; }
         .reto-label { font-size: 0.6rem; letter-spacing: 3px; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-bottom: 15px; }
@@ -502,6 +527,7 @@
             visibility: hidden !important; 
             opacity: 0 !important; 
             pointer-events: none !important; 
+            z-index: -1000 !important;
         }
         
         .btn-back-glass { 
@@ -594,11 +620,10 @@
 
             /* AJUSTE MÍNIMO PARA MODALES EN MÓVIL (QUIRÚRGICO) */
             .modal-content {
-                width: 94% !important;
-                max-width: 480px !important;
-                margin: 0 auto !important;
-                padding: 30px 20px !important;
-                overflow-x: hidden !important;
+                width: 96%;
+                max-width: 480px;
+                margin: auto;
+                padding: 35px 25px;
             }
 
             /* Alineación ESPECÍFICA para Bitácora y Pausa (Centrado real en móviles) */
@@ -960,19 +985,58 @@
             transform: scale(0.94) !important;
         }
 
-        /* Refactored Modal */
+        /* Refactored Modal (Restore Functionality) */
         .modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             display: none; align-items: center; justify-content: center;
-            z-index: 10000; padding: 20px;
+            z-index: 10000; 
+            padding: calc(20px + env(safe-area-inset-top)) 25px calc(20px + env(safe-area-inset-bottom));
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch;
         }
         .modal.active { display: flex; animation: fadeIn 0.4s ease; }
+
         .modal-content {
-            background: var(--bg); padding: 40px; border-radius: 30px;
-            width: 100%; max-width: 400px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            max-height: 85vh; overflow-y: auto; box-sizing: border-box;
+            background: var(--modal-bg-solid);
+            border: 1px solid var(--card-border);
+            border-radius: 32px;
+            padding: 40px 28px;
+            width: 100%;
+            max-width: 440px;
+            max-height: calc(100vh - 80px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            margin: auto; 
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: modalFadeIn 0.5s cubic-bezier(0.2, 0, 0, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
+        /* Área scrollable específica para no romper headers/footers */
+        .modal-body {
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 5px;
+            margin-bottom: 20px;
+        }
+
+        /* --- EMERGENCY LIGHTBOX PORTAL (REFINED) --- */
+        .lightbox-portal {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            background: rgba(0,0,0,0.95) !important;
+            z-index: 2147483647 !important;
+            display: none; /* Controlado por .active */
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .lightbox-portal.active { 
+            display: flex !important;
+        }
+
         .btn-save {
             background: var(--text); color: var(--bg); border: none;
             padding: 18px 45px; border-radius: 40px; cursor: pointer;
@@ -980,19 +1044,7 @@
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Success Modal */
-        #success-modal .modal-content {
-            background: linear-gradient(135deg, var(--bg) 0%, #ffffff 100%);
-            border: 2px solid var(--accent);
-            max-width: 450px;
-        }
-        [data-theme="dark"] #success-modal .modal-content {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        }
-        .confetti-svg { width: 80px; height: 80px; margin-bottom: 20px; stroke: #4ade80; stroke-width: 1.5; fill: none; }
-
-        /* --- SISTEMA DE AUTENTICACIÓN PREMIUM --- */
-        .auth-container { max-width: 420px; width: 100%; text-align: center; animation: modalFadeIn 0.8s ease; position: relative; z-index: 10; margin: auto; }
+        /* --- SISTEMA DE AUTENTICACION --- */
         .auth-bg-glow { position: absolute; background: var(--accent); border-radius: 50%; filter: blur(100px); opacity: 0.18; pointer-events: none; z-index: 1; }
         .auth-field { text-align: left; margin-bottom: 22px; }
         .auth-label { font-size: 0.58rem; letter-spacing: 3px; opacity: 0.4; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; display: block; color: var(--accent); }
@@ -1039,12 +1091,6 @@
         
         @keyframes modalFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #loader {
-            position: fixed; inset: 0; background: var(--bg);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 5000; transition: 0.4s ease; opacity: 1;
-        }
-        #loader.hidden { opacity: 0; pointer-events: none; display: none !important; visibility: hidden !important; }
         .spinner { width: 40px; height: 40px; border: 3px solid rgba(128,128,128,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .hub-controls {
@@ -2600,8 +2646,9 @@
         .mood-selection-grid { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; 
-            margin-top: 20px; 
+            gap: 12px; 
+            margin-top: 15px;
+            width: 100%;
         }
         .mood-item { 
             display: flex; 
@@ -2636,13 +2683,616 @@
             opacity: 0.8; 
         }
 
+
+        /* --- PORTAL DE IDENTIDAD (ESTILOS MAESTROS) --- */
+        .portal-overlay-lumina {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            background: rgba(0,0,0,0.92) !important;
+            z-index: 2000000000 !important;
+            display: none;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .portal-overlay-lumina.active { display: flex !important; }
+        .auth-card-lumina {
+            width: 100% !important; max-width: 440px !important;
+            background: #ffffff !important; color: #000000 !important;
+            padding: 50px 40px; border-radius: 35px; text-align: center;
+            position: relative; z-index: 1000;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
-<body>
+<body class="is-guest">
+    <div id="lumina-version" style="display:none">v2026-04-10-ULTIMATE</div>
+    
+    <!-- PORTAL DE IDENTIDAD (REUBICADO AL INICIO) -->
+    <div id="portal-identidad-lumina" class="portal-overlay-lumina" onclick="if(event.target === this) this.classList.remove('active')">
+        <div class="auth-card-lumina">
+            <button onclick="closeModals()" 
+                    style="position: absolute; top: 25px; right: 25px; background: none; border: none; color: #000; opacity: 0.3; cursor: pointer; padding: 10px; z-index: 10;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+
+            <div class="meta" style="margin-bottom: 20px; font-weight:700; letter-spacing:3px; font-size:0.6rem; color:#aaa;">LÚMINA</div>
+            <h1 id="portal-title" style="font-family:'Playfair Display', serif; font-size: 3.2rem; font-style: italic; margin-bottom: 10px; line-height: 1; color:#000;">Identidad</h1>
+            <p id="portal-desc" style="font-size: 0.9rem; opacity: 0.5; margin-bottom: 45px; letter-spacing: 1px; color:#000;">Tu viaje de sabiduría sincronizado.</p>
+            
+            <div id="portal-fields">
+                <div class="auth-field">
+                    <label class="auth-label">Email</label>
+                    <input type="email" id="reg-email" class="auth-input" placeholder="tu@ejemplo.com">
+                </div>
+                <div id="field-name" class="auth-field" style="display: none;">
+                    <label class="auth-label">Tu Nombre</label>
+                    <input type="text" id="reg-name" class="auth-input" placeholder="Ej: Marco Aurelio">
+                </div>
+                <div id="field-pass" class="auth-field">
+                    <label class="auth-label">Contraseña</label>
+                    <input type="password" id="reg-pass" class="auth-input" placeholder="••••••••">
+                </div>
+                <div id="fields-signup" style="display: none;">
+                    <div class="auth-field">
+                        <label class="auth-label">Pregunta de Seguridad</label>
+                        <select id="reg-question" class="auth-input">
+                            <option value="Nombre de tu primera mascota">¿Nombre de tu primera mascota?</option>
+                            <option value="Ciudad donde naciste">¿Ciudad donde naciste?</option>
+                        </select>
+                    </div>
+                    <div class="auth-field">
+                        <label class="auth-label">Tu Respuesta</label>
+                        <input type="text" id="reg-answer" class="auth-input" placeholder="Respuesta secreta...">
+                    </div>
+                </div>
+                <div id="fields-recover" style="display: none;">
+                    <!-- Recuperación básica -->
+                    <div class="auth-field">
+                        <label class="auth-label">Pregunta Secreta</label>
+                        <p id="recover-question-text" style="font-style:italic; margin-bottom:10px; color:var(--accent);"></p>
+                        <input type="text" id="recover-answer" class="auth-input" placeholder="Tu respuesta...">
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-portal-submit" class="btn-save" onclick="handlePortalAction()" style="width: 100%; margin-top: 20px; background: #000; color: #fff; border:none; border-radius:50px; padding:18px; font-weight:700; cursor:pointer;">ENTRAR</button>
+
+            <div id="portal-links" style="margin-top: 35px; display: flex; justify-content: center; gap: 15px; align-items: center;">
+                <a id="link-signup" class="auth-link" onclick="setPortalMode('signup')" style="color:#666; font-size:0.8rem; cursor:pointer;">Crear Cuenta</a>
+                <a id="link-login" class="auth-link" style="display: none; color:#666; font-size:0.8rem; cursor:pointer;" onclick="setPortalMode('login')">Ya tengo cuenta</a>
+                <span id="portal-sep" style="opacity: 0.1; font-size: 0.8rem;">|</span>
+                <a id="link-recover" class="auth-link" onclick="setPortalMode('recover')" style="color:#666; font-size:0.8rem; cursor:pointer;">Olvidé Contraseña</a>
+            </div>
+            
+            <div id="login-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 25px; font-weight: 500; display: none;"></div>
+        </div>
+    </div>
     <audio id="ambient-player" loop></audio>
 
-    <!-- LANDING PAGE (USUARIOS NO LOGUEADOS) -->
-    <div id="landing-ui" style="display: block; position: relative; z-index: 2000;">
+    <script>
+        // --- CORE: ESTADO GLOBAL Y FUNCIONES DE ACCESO INMEDIATO ---
+        const API = "https://script.google.com/macros/s/AKfycbwx5LGxpNG3HKDr7wR_UYSB0rUooHMoWriR6efhMuSPIBS5TNh3xCR1YmQ7_NbjdVs6/exec";
+        let portalMode = 'login';
+        let recoveryStep = 1;
+        let recoveryMethod = '';
+        let currentCategory = 'palabras';
+        let voices = [];
+        let isPro = false;
+        let trialDay = 0;
+
+        // Función Crítica: Abrir Portal (Debe estar disponible inmediatamente para los botones de la landing)
+        function openAuth(mode) {
+            console.log("!!! SYNC_CONFIRMED: OPENING PORTAL !!!", mode);
+            try {
+                // Ocultar loader al abrir portal
+                if (typeof hideLoader === 'function') hideLoader();
+                else {
+                    const loader = document.getElementById('loader');
+                    if (loader) loader.classList.add('hidden');
+                }
+                
+                if (typeof setPortalMode === 'function') {
+                    setPortalMode(mode);
+                }
+                
+                const portal = document.getElementById('portal-identidad-lumina');
+                if (portal) {
+                    // PRUEBA ROJA: Forzar por JS a lo bruto
+                    portal.style.zIndex = '999999999';
+                    portal.style.display = 'flex';
+                    portal.style.visibility = 'visible';
+                    portal.style.opacity = '1';
+                    portal.classList.add('active');
+                    
+                    // Asegurar que el body no haga scroll
+                    document.body.style.overflow = 'hidden';
+                    
+                    console.log("Portal forzado a DISPLAY FLEX");
+                } else {
+                    alert("Error crítico: No se encontró el portal de login. Recarga la página.");
+                }
+            } catch (e) {
+                console.error("Error en openAuth:", e);
+                alert("Error al abrir portal: " + e.message);
+            }
+        }
+
+        // --- CORE: IDENTIDAD Y SISTEMA ---
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            if (loader && !loader.classList.contains('hidden')) {
+                // Detener la rotación de frases
+                if (window._loaderInterval) {
+                    clearInterval(window._loaderInterval);
+                    window._loaderInterval = null;
+                }
+                // Fade out suave antes de ocultar
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    loader.classList.remove('fade-out');
+                    loader.style.pointerEvents = 'none';
+                }, 520);
+            }
+        }
+
+        async function checkUserSession() {
+            console.log("Lúmina: Verificando sesión...");
+            const email = localStorage.getItem('lumina_user_email');
+            const landing = document.getElementById('landing-ui');
+            const hub = document.getElementById('hub');
+            const mainUI = document.getElementById('main-ui');
+            const app = document.getElementById('app-viewport');
+
+            if (!email) {
+                console.log("Lúmina: Modo Invitado detectado.");
+                document.body.classList.add('is-guest');
+                if (landing) {
+                    landing.style.setProperty('display', 'block', 'important');
+                    landing.classList.remove('hidden');
+                }
+                if (app) app.style.display = 'none';
+                if (hub) hub.classList.add('hidden');
+                if (mainUI) mainUI.classList.add('hidden');
+                
+                hideLoader();
+                if (typeof checkLandingInit === 'function') await checkLandingInit();
+                return false;
+            }
+            
+            console.log("Lúmina: Sesión activa para", email);
+            // USUARIO AUTENTICADO: Transición Atómica
+            document.body.classList.remove('is-guest');
+            if (landing) {
+                landing.style.display = 'none';
+                landing.classList.add('hidden');
+            }
+            
+            if (app) app.style.display = 'grid';
+            if (mainUI) mainUI.classList.remove('hidden');
+            
+            if (hub) {
+                hub.classList.remove('hidden');
+                hub.classList.add('activa');
+                hub.style.opacity = '1';
+                hub.style.visibility = 'visible';
+                hub.style.pointerEvents = 'auto';
+                if (typeof loadUserAvatars === 'function') loadUserAvatars();
+            }
+            return true;
+        }
+
+        // Stubs mejorados para evitar cuellos de botella
+        const safeStub = (name) => {
+            if (typeof window[name] !== 'function') {
+                window[name] = () => console.log(`Lúmina stub: ${name} invocado.`);
+            }
+        };
+        ['updateGamification', 'loadTheme', 'populateVoices', 'checkMidnightRefresh', 
+         'updateHeaderDate', 'createMotes', 'initAmbient', 'renderBitacoraTemplates', 
+         'loadUserAvatars', 'updateMoodSummaryUI', 'updateHubInfo', 'checkNotifications', 
+         'checkEmergencyPopups', 'verifyKeySilently', 'loadProState'].forEach(safeStub);
+
+        // --- LÓGICA DE LANDING PAGE ---
+        let heroicSlides = [];
+        let currentHeroSlide = 0;
+        let heroTimer = null;
+
+        async function checkLandingInit() {
+            await fetchLandingData();
+            initLandingCarousel();
+            initLandingJourney();
+        }
+
+        async function fetchLandingData() {
+            try {
+                const resp = await fetch(`${API}?action=landing_data`);
+                const data = await resp.json();
+                if (data.success && data.hero && data.hero.length > 0) {
+                    heroicSlides = data.hero;
+                }
+            } catch (e) {
+                console.warn("Fallo al cargar slides dinámicos, usando fallback.", e);
+            }
+        }
+
+        function toggleMobileNav(e) {
+            if (e) e.stopPropagation();
+            const drawer = document.getElementById('mobile-nav-drawer');
+            const overlay = document.getElementById('mobile-nav-overlay');
+            if (drawer) drawer.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+            if (drawer && drawer.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        function initLandingCarousel() {
+            const container = document.getElementById('hero-carousel');
+            const dotContainer = document.getElementById('hero-dots');
+            if (!container) return;
+            if (heroicSlides.length > 0) {
+                const oldSlides = container.querySelectorAll('.hero-slide');
+                oldSlides.forEach(s => s.remove());
+                const firstControl = container.querySelector('.btn-cta-gold, .hero-dots');
+                heroicSlides.forEach((slide, idx) => {
+                    const slideDiv = document.createElement('div');
+                    slideDiv.className = `hero-slide ${idx === 0 ? 'active' : ''}`;
+                    slideDiv.innerHTML = `<div class="section-tag">${slide.tag || 'Lúmina'}</div><h1 style="font-family:'Playfair Display',serif;font-style:italic;">${slide.title}</h1><p>${slide.desc}</p>`;
+                    if (firstControl) container.insertBefore(slideDiv, firstControl);
+                    else container.appendChild(slideDiv);
+                });
+                if (dotContainer) {
+                    dotContainer.innerHTML = '';
+                    heroicSlides.forEach((_, idx) => {
+                        const dot = document.createElement('div');
+                        dot.className = `hero-dot ${idx === 0 ? 'active' : ''}`;
+                        dot.onclick = () => setHeroSlide(idx);
+                        dotContainer.appendChild(dot);
+                    });
+                }
+            }
+            startHeroTimer();
+        }
+
+        function setHeroSlide(idx) {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.hero-dot');
+            if (slides.length === 0) return;
+            currentHeroSlide = (idx + slides.length) % slides.length;
+            slides.forEach((s, i) => s.classList.toggle('active', i === currentHeroSlide));
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentHeroSlide));
+            startHeroTimer();
+        }
+
+        function startHeroTimer() {
+            if (heroTimer) clearInterval(heroTimer);
+            heroTimer = setInterval(() => {
+                const slides = document.querySelectorAll('.hero-slide');
+                if (slides.length > 1) setHeroSlide(currentHeroSlide + 1);
+            }, 6000);
+        }
+
+        async function initLandingJourney() {
+            const container = document.getElementById('landing-journey-timeline');
+            if (!container) return;
+            try {
+                const response = await fetch(`${API}?action=journey`);
+                const data = await response.json();
+                let journeyData = (data && data.journey) ? data.journey : [
+                    { title: "Pensamientos de Marco Aurelio", lessons: 30, progress: 100, isPast: true },
+                    { title: "Manual de Vida de Epicteto", lessons: 15, progress: 100, isPast: true },
+                    { title: "Sobre la Brevedad de la Vida", lessons: 20, progress: 45, isCurrent: true, daysUntil: 0 },
+                    { title: "Cartas de un Estoico", lessons: 40, progress: 0, daysUntil: 15 },
+                    { title: "La Paz de la Mente - Séneca", lessons: 12, progress: 0, daysUntil: 30 },
+                    { title: "Máximas de Sabiduría", lessons: 25, progress: 0, daysUntil: 45 }
+                ];
+                container.innerHTML = '';
+                journeyData.forEach(book => {
+                    const item = document.createElement('div');
+                    item.className = `timeline-item ${book.isCurrent ? 'active' : ''} ${book.isPast ? 'past' : ''}`;
+                    let statusIcon = '📅';
+                    if (book.isCurrent) statusIcon = '🔥';
+                    if (book.isPast) statusIcon = '✅';
+                    let dateLabel = book.isCurrent ? 'EN CURSO' : (book.isPast ? 'COMPLETADO' : 'PRÓXIMAMENTE');
+                    item.innerHTML = `<div style="font-size:1.2rem;">${statusIcon}</div><div class="timeline-info"><div class="timeline-meta" style="font-size:0.6rem;letter-spacing:1px;opacity:0.6;margin-bottom:4px;font-weight:700;color:var(--accent);">${dateLabel} • ${book.lessons} LECCIONES</div><div class="timeline-title" style="font-family:'Playfair Display',serif;font-size:1.1rem;color:white;">${book.title}</div>${book.isCurrent ? `<div class="timeline-progress" style="height:2px;background:rgba(255,255,255,0.1);margin-top:10px;position:relative;"><div class="timeline-bar" style="width:${book.progress}%;background:var(--accent);height:100%;box-shadow:0 0 10px var(--accent);"></div></div>` : ''}</div>`;
+                    container.appendChild(item);
+                });
+            } catch (e) {
+                console.warn("Landing Journey error:", e);
+                container.innerHTML = '<p style="opacity:0.3;padding:20px;color:white;font-size:0.8rem;">Error de conexión.</p>';
+            }
+        }
+
+        // --- CORE: IDENTIDAD Y PORTAL ---
+        function setPortalMode(mode) {
+            portalMode = mode;
+            const title = document.getElementById('portal-title');
+            const desc = document.getElementById('portal-desc');
+            const btn = document.getElementById('btn-portal-submit');
+            const error = document.getElementById('login-error');
+            const container = document.querySelector('.auth-container');
+            
+            if (container) {
+                container.style.animation = 'none';
+                void container.offsetWidth; 
+                container.style.animation = 'modalFadeIn 0.5s ease';
+            }
+
+            if (error) error.style.display = 'none';
+            
+            const hideList = ['field-name', 'fields-signup', 'fields-recover', 'view-codes', 'link-signup', 'link-login', 'link-recover', 'portal-sep'];
+            hideList.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            
+            const showFlexList = ['portal-links'];
+            showFlexList.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'flex';
+            });
+
+            const showBlockList = ['portal-fields', 'field-pass'];
+            showBlockList.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'block';
+            });
+
+            if (mode === 'login') {
+                if (title) title.innerText = "Identidad";
+                if (desc) desc.innerText = "Tu viaje de sabiduría sincronizado.";
+                if (btn) btn.innerText = "ENTRAR";
+                const lSignup = document.getElementById('link-signup');
+                const lRecover = document.getElementById('link-recover');
+                const pSep = document.getElementById('portal-sep');
+                if (lSignup) lSignup.style.display = 'inline';
+                if (lRecover) lRecover.style.display = 'inline';
+                if (pSep) pSep.style.display = 'inline';
+            } else if (mode === 'signup') {
+                if (title) title.innerText = "Crear Cuenta";
+                if (desc) desc.innerText = "Inicia tu camino con nosotros.";
+                if (btn) btn.innerText = "REGISTRAR";
+                const fName = document.getElementById('field-name');
+                const fSignup = document.getElementById('fields-signup');
+                const lLogin = document.getElementById('link-login');
+                if (fName) fName.style.display = 'block';
+                if (fSignup) fSignup.style.display = 'block';
+                if (lLogin) lLogin.style.display = 'inline';
+            } else if (mode === 'recover') {
+                if (title) title.innerText = "Recuperar";
+                const isStep1 = (recoveryStep === 1);
+                const isStep2 = (recoveryStep === 2);
+                const isStep3 = (recoveryStep === 3);
+
+                if (desc) {
+                    desc.innerText = isStep1 ? "Ingresa tu email para comenzar." : 
+                                   (isStep2 ? "Elige cómo quieres verificar tu cuenta." : "Ingresa los datos para restablecer.");
+                }
+                               
+                if (btn) {
+                    btn.innerText = isStep1 ? "BUSCAR CUENTA" : (isStep3 ? "RESTABLECER" : "---");
+                    btn.style.display = (isStep2) ? 'none' : 'block';
+                }
+
+                const regEmail = document.getElementById('reg-email');
+                if (regEmail && regEmail.parentElement) {
+                    regEmail.parentElement.style.display = isStep1 ? 'block' : 'none';
+                }
+                const fPass = document.getElementById('field-pass');
+                if (fPass) fPass.style.display = 'none';
+                
+                const fRecover = document.getElementById('fields-recover');
+                const rmSelector = document.getElementById('recover-method-selector');
+                const rsQuestion = document.getElementById('recover-step-question');
+                const rsCode = document.getElementById('recover-step-code');
+                const rsFinal = document.getElementById('recover-step-final');
+                
+                if (fRecover) fRecover.style.display = (isStep2 || isStep3) ? 'block' : 'none';
+                if (rmSelector) rmSelector.style.display = isStep2 ? 'block' : 'none';
+                if (rsQuestion) rsQuestion.style.display = (isStep3 && recoveryMethod === 'question') ? 'block' : 'none';
+                if (rsCode) rsCode.style.display = (isStep3 && recoveryMethod === 'code') ? 'block' : 'none';
+                if (rsFinal) rsFinal.style.display = isStep3 ? 'block' : 'none';
+                
+                const lLogin = document.getElementById('link-login');
+                if (lLogin) lLogin.style.display = 'inline';
+            } else if (mode === 'codes') {
+                if (title) title.innerText = "Respaldo";
+                if (desc) desc.innerText = "Copia tus llaves antes de entrar.";
+                if (btn) btn.innerText = "COPIAR Y FINALIZAR";
+                const pFields = document.getElementById('portal-fields');
+                const vCodes = document.getElementById('view-codes');
+                const pLinks = document.getElementById('portal-links');
+                if (pFields) pFields.style.display = 'none';
+                if (vCodes) vCodes.style.display = 'block';
+                if (pLinks) pLinks.style.display = 'none';
+            }
+        }
+
+        async function handlePortalAction() {
+            const btn = document.getElementById('btn-portal-submit');
+            const error = document.getElementById('login-error');
+            const emailValue = document.getElementById('reg-email').value.trim();
+            
+            if (portalMode === 'codes') {
+                copyRecoveryCodes();
+                return; // El reload lo maneja copyRecoveryCodes tras copiar
+            }
+
+            if (!emailValue || !emailValue.includes('@')) {
+                showPortalError("Ingresa un email válido.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "PROCESANDO...";
+
+            try {
+                if (portalMode === 'login') {
+                    const pass = document.getElementById('reg-pass').value;
+                    const resp = await fetch(`${API}?action=user_login&mode=login&email=${encodeURIComponent(emailValue)}&password=${encodeURIComponent(pass)}`);
+                    const res = await resp.json();
+                    if (res.success) finalizeAccess(res, emailValue);
+                    else showPortalError(res.error || "Credenciales inválidas.");
+                } else if (portalMode === 'signup') {
+                    const name = document.getElementById('reg-name').value.trim();
+                    const pass = document.getElementById('reg-pass').value;
+                    const question = document.getElementById('reg-question').value;
+                    const answer = document.getElementById('reg-answer').value.trim();
+
+                    if (name.length < 2 || pass.length < 4 || !answer) {
+                        showPortalError("Completa todos los campos correctamente.");
+                        btn.disabled = false; btn.innerText = "REGISTRAR"; return;
+                    }
+
+                    const resp = await fetch(`${API}?action=user_login&mode=signup&email=${encodeURIComponent(emailValue)}&name=${encodeURIComponent(name)}&password=${encodeURIComponent(pass)}&question=${encodeURIComponent(question)}&answer=${encodeURIComponent(answer)}`);
+                    const res = await resp.json();
+                    if (res.success) {
+                        localStorage.setItem('lumina_user_email', emailValue);
+                        localStorage.setItem('lumina_user_name', res.name);
+                        showRecoveryCodes(res.codes);
+                        btn.disabled = false; return;
+                    } else showPortalError(res.error || "Error al registrar.");
+                } else if (portalMode === 'recover') {
+                    if (recoveryStep === 1) {
+                        const resp = await fetch(`${API}?action=user_recover&sub=get_question&email=${encodeURIComponent(emailValue)}`);
+                        const res = await resp.json();
+                        if (res.success) {
+                            document.getElementById('recover-question-text').innerText = res.question;
+                            recoveryStep = 2; setPortalMode('recover');
+                        } else showPortalError(res.error || "Email no encontrado.");
+                    } else if (recoveryStep === 3) {
+                        const newPass = document.getElementById('recover-new-pass').value;
+                        if (newPass.length < 4) { showPortalError("La contraseña debe tener al menos 4 caracteres."); btn.disabled = false; btn.innerText = "RESTABLECER"; return; }
+                        if (recoveryMethod === 'question') {
+                            const answer = document.getElementById('recover-answer').value.trim();
+                            if (!answer) { showPortalError("Ingresa tu respuesta."); btn.disabled = false; return; }
+                            const resp = await fetch(`${API}?action=user_recover&sub=verify&email=${encodeURIComponent(emailValue)}&answer=${encodeURIComponent(answer)}&newPassword=${encodeURIComponent(newPass)}`);
+                            const res = await resp.json();
+                            if (res.success) { showToast("¡Contraseña actualizada! ✨", "success"); recoveryStep = 1; setPortalMode('login'); }
+                            else showPortalError("Respuesta incorrecta.");
+                        } else {
+                            const code = document.getElementById('recover-code').value.trim();
+                            if (!code) { showPortalError("Ingresa tu código."); btn.disabled = false; return; }
+                            const resp2 = await fetch(`${API}?action=user_recover&sub=verify&email=${encodeURIComponent(emailValue)}&code=${encodeURIComponent(code)}&newPassword=${encodeURIComponent(newPass)}`);
+                            const res2 = await resp2.json();
+                            if (res2.success) { showToast("¡Acceso restablecido! ✅", "success"); recoveryStep = 1; setPortalMode('login'); }
+                            else showPortalError("Código inválido.");
+                        }
+                    }
+                }
+            } catch (e) { showPortalError("Error de conexión."); }
+            btn.disabled = false;
+            setPortalMode(portalMode);
+        }
+
+        function finalizeAccess(res, email) {
+            localStorage.setItem('lumina_user_email', email);
+            localStorage.setItem('lumina_user_name', res.name);
+            if (res.proKey) localStorage.setItem('lumina_pro_key', res.proKey);
+            if (res.isPro) localStorage.setItem('lumina_pro', 'true');
+            if (res.birthday) localStorage.setItem('lumina_birthday', String(res.birthday).substring(0, 10));
+            if (res.data) pullSync(res.data);
+            location.reload();
+        }
+
+        let _lastRecoveryCodes = [];
+        function showRecoveryCodes(codes) {
+            _lastRecoveryCodes = codes;
+            const list = document.getElementById('codes-list');
+            if (list) {
+                list.innerHTML = codes.map((c, i) => `<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(181,131,58,0.1);padding:12px 18px;border-radius:12px;margin-bottom:10px;border:1px solid rgba(181,131,58,0.2);"><span style="font-size:0.6rem;font-weight:700;opacity:0.5;text-transform:uppercase;">Código ${i+1}</span><span style="font-family:monospace;font-weight:700;letter-spacing:2px;color:var(--accent);font-size:1.1rem;">${c}</span></div>`).join('');
+            }
+            setPortalMode('codes');
+        }
+
+        function copyRecoveryCodes() {
+            const text = "CÓDIGOS DE RECUPERACIÓN LÚMINA:\n\n" + _lastRecoveryCodes.map((c, i) => `Código ${i+1}: ${c}`).join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Códigos copiados ✅");
+                // Cerrar portal y re-verificar sesión sin recargar la página
+                setTimeout(() => {
+                    if (typeof closeAuth === 'function') closeAuth();
+                    if (typeof checkUserSession === 'function') checkUserSession();
+                }, 1200);
+            });
+        }
+
+        function selectRecoverMethod(method) {
+            recoveryMethod = method; recoveryStep = 3; setPortalMode('recover');
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function showPortalError(msg) {
+            const error = document.getElementById('login-error');
+            error.innerText = msg; error.style.display = 'block';
+        }
+
+        async function logoutUser() {
+            showConfirm("¿Cerrar sesión? Se sincronizarán tus cambios.", async () => {
+                const loader = document.getElementById('loader');
+                if (loader) loader.classList.remove('hidden');
+                await pushSync(true);
+                localStorage.clear();
+                window.location.reload();
+            });
+        }
+
+        function pushSync(force = false) {
+            const email = localStorage.getItem('lumina_user_email');
+            if (!email) return;
+            const performSync = async () => {
+                const data = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.startsWith('lumina_') || key.startsWith('theme'))) {
+                        data[key] = localStorage.getItem(key);
+                    }
+                }
+                const bday = localStorage.getItem('lumina_birthday') || "";
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'user_sync');
+                    formData.append('email', email);
+                    formData.append('data', JSON.stringify(data));
+                    const response = await fetch(API, { method: 'POST', body: formData });
+                    const resSync = await response.json();
+                    if (resSync.success) console.log("Sincronización: Éxito.");
+                } catch (e) { console.warn("Sync error", e); }
+            };
+            if (force) return performSync();
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(performSync, 2000); 
+        }
+
+        function pullSync(jsonString) {
+            try {
+                const data = JSON.parse(jsonString);
+                Object.keys(data).forEach(k => { if (data[k] !== null) localStorage.setItem(k, data[k]); });
+            } catch (e) { console.error("Pull Sync Error", e); }
+        }
+
+        // --- INICIALIZACIÓN FINAL ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Lúmina: Arranque.");
+            if (typeof init === 'function') init();
+            else console.error("Error Crítico: init() no definida.");
+
+            // Failsafe: si en 8s el loader sigue visible, forzar cierre
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                if (loader && !loader.classList.contains('hidden')) {
+                    console.warn("Failsafe: Forzando visibilidad.");
+                    if (typeof hideLoader === 'function') hideLoader();
+                    else loader.classList.add('hidden');
+                }
+            }, 8000);
+        });
+    </script>
+    <div id="landing-ui" style="display: block; position: relative; z-index: 5000;">
         <nav class="landing-nav">
             <div class="landing-logo-container" onclick="window.scrollTo({top:0, behavior:'smooth'})">
                 <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="landing-logo">
@@ -2936,8 +3586,9 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <p id="loader-text" style="margin-top: 25px; font-family: var(--font-heading); font-style: italic; font-size: 1.1rem; opacity: 0.6; text-align: center; max-width: 80%; line-height: 1.5;">CARGANDO...</p>
+        <p id="loader-text">...</p>
     </div>
+
     <script>
         (function() {
             var frases = [
@@ -2950,9 +3601,27 @@
                 "Enfócate en lo esencial.",
                 "Sigue. Aunque sea lento.",
                 "Controla tu interior.",
-                "Sé firme. Sé claro."
+                "Sé firme. Sé claro.",
+                "El presente es suficiente.",
+                "Un paso. Después otro.",
+                "La mente tranquila gana.",
+                "Elige lo que importa.",
+                "Observa. No reacciones."
             ];
-            document.getElementById('loader-text').innerText = frases[Math.floor(Math.random() * frases.length)];
+            var el = document.getElementById('loader-text');
+            var idx = Math.floor(Math.random() * frases.length);
+
+            function showFrase() {
+                el.classList.remove('visible');
+                setTimeout(function() {
+                    el.innerText = frases[idx % frases.length];
+                    el.classList.add('visible');
+                    idx++;
+                }, 400);
+            }
+
+            showFrase();
+            window._loaderInterval = setInterval(showFrase, 2800);
         })();
     </script>
 
@@ -2976,15 +3645,21 @@
             </div>
             
             <div class="hub-hero-inner" id="hero-container">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                    <div style="width: 38px; height: 38px; background: var(--accent); border-radius: 50%; padding: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1.5px solid rgba(255,255,255,0.2);">
-                        <img class="user-avatar" src="" alt="User" style="width: 100%; height: 100%; object-fit: cover;">
+                <!-- Header Estilo Captura (Fiel a image1.png) -->
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 8px;">
+                    <div onclick="toggleProfile()" style="width: 42px; height: 42px; background: var(--accent); border-radius: 50%; padding: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.15); border: 1.8px solid var(--accent); cursor: pointer; transition: transform 0.3s ease; position: relative; flex-shrink: 0;">
+                        <!-- Placeholder Silueta -->
+                        <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: rgba(255,255,255,0.5); opacity: 0.5; position: absolute;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <img id="hub-avatar-img" class="user-avatar" src="" alt="User" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; opacity: 0; transition: opacity 0.5s ease;" onload="this.style.opacity='1'">
                     </div>
-                    <div id="hub-user-greeting" style="font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); opacity: 0; transform: translateY(-5px); transition: 0.8s ease; font-weight: 600; text-transform: uppercase;"></div>
+                    <div id="hub-user-greeting" style="font-size: 0.78rem; letter-spacing: 2px; color: var(--accent); opacity: 1; font-weight: 700; text-transform: uppercase;">CARGANDO...</div>
                 </div>
-                <div class="meta" style="margin-bottom: 20px;">BIENVENIDO A</div>
+                <div class="meta" style="margin-bottom: 20px; font-weight: 600; font-size: 0.75rem; letter-spacing: 4px; opacity: 0.8;">BIENVENIDO A</div>
                 <h1 id="hero-title">Lúmina</h1>
                 <p id="hero-tagline">CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL</p>
+                
+                <!-- RETO DEL DÍA MOVIDO A HÁBITOS MODAL -->
+
                 <div id="now-learning-hub"></div>
 
                 <div class="nav-fab-group">
@@ -3117,6 +3792,7 @@
                         <div class="pro-count-view" id="pro-count-display">0/5</div>
                     </button>
                 </div>
+                
                 <p class="definition" id="word-def">---</p>
             </div>
             
@@ -3136,6 +3812,13 @@
             <div id="reflexion-del-dia" class="reflexion-del-dia">
                 <div class="reto-label">💭 Pregunta de Reflexión</div>
                 <div id="reflexion-text" class="reto-text">---</div>
+            </div>
+
+            <!-- BOTÓN MARCAR COMO LEÍDO (AL FINAL) -->
+            <div id="leido-cta-container" style="display: none; padding: 10px 0 30px; text-align: center;">
+                <button id="btn-marcar-leido" onclick="marcarComoLeido()" style="background: transparent; border: 1px solid rgba(181,131,58,0.35); color: var(--accent); padding: 11px 28px; border-radius: 50px; font-size: 0.65rem; letter-spacing: 2px; font-weight: 600; cursor: pointer; transition: 0.3s; opacity: 0.85;">
+                    MARCAR COMO LEÍDA ✓
+                </button>
             </div>
 
             <!-- SECCIÓN EXTRA (DÍA DE ENFOQUE) -->
@@ -3446,615 +4129,9 @@
 
     
 
-    <!-- MODAL SELECTOR DE ESTILO (MOODS) ELIMINADO PARA SIMPLIFICAR FLOW -->
+    <!-- BLOQUE AUTH MOVIDO AL INICIO -->
 
     <script>
-	
-        const API = "https://script.google.com/macros/s/AKfycbwx5LGxpNG3HKDr7wR_UYSB0rUooHMoWriR6efhMuSPIBS5TNh3xCR1YmQ7_NbjdVs6/exec";
-        let portalMode = 'login';
-        let recoveryStep = 1; // 1: Email, 2: Method Choice, 3: Inputs
-        let recoveryMethod = ''; // 'question' or 'code'
-        const mainUi = document.getElementById('main-ui');
-        let currentCategory = 'palabras';
-        let voices = [];
-        let isPro = false;
-        let trialDay = 0;
-
-        // --- SISTEMA DE IDENTIDAD SEGURO (FASE 2) ---
-        async function checkUserSession() {
-            const email = localStorage.getItem('lumina_user_email');
-            const landing = document.getElementById('landing-ui');
-            const hub = document.getElementById('hub');
-            const mainUI = document.getElementById('main-ui');
-            const app = document.getElementById('app-viewport');
-            const loader = document.getElementById('loader');
-
-            if (!email) {
-                document.body.classList.add('is-guest');
-                if (landing) landing.style.display = 'block';
-                if (app) app.style.display = 'none';
-                
-                // Asegurarse de que el hub nunca tape el landing
-                if (hub) {
-                    hub.classList.remove('activa');
-                    hub.classList.add('hidden');
-                }
-                if (mainUI) mainUI.classList.add('hidden');
-                
-                // Ocultar loader completamente para que no bloquee clics
-                if (loader) {
-                    loader.classList.add('hidden');
-                    loader.style.display = 'none';
-                    loader.style.pointerEvents = 'none';
-                }
-                if (typeof checkLandingInit === 'function') await checkLandingInit();
-                return false;
-            }
-            
-            document.body.classList.remove('is-guest');
-            if (landing) landing.style.display = 'none';
-            if (hub) {
-                hub.classList.remove('hidden');
-                hub.classList.add('activa'); // Activar hub solo con sesión
-            }
-            if (mainUI) mainUI.classList.remove('hidden');
-            if (app) app.style.display = 'grid';
-            return true;
-        }
-
-        // --- LÓGICA DE LANDING PAGE Y CARRUSEL ---
-        let heroicSlides = [];
-        let currentHeroSlide = 0;
-        let heroTimer = null;
-
-        async function checkLandingInit() {
-            await fetchLandingData();
-            initLandingCarousel();
-            initLandingJourney();
-        }
-
-        async function fetchLandingData() {
-            try {
-                const resp = await fetch(`${API}?action=landing_data`);
-                const data = await resp.json();
-                if (data.success && data.hero && data.hero.length > 0) {
-                    heroicSlides = data.hero;
-                }
-            } catch (e) {
-                console.warn("Fallo al cargar slides dinámicos, usando fallback.", e);
-            }
-        }
-
-        // --- MOBILE NAV TOGGLE ---
-        function toggleMobileNav(e) {
-            if (e) e.stopPropagation();
-            const drawer = document.getElementById('mobile-nav-drawer');
-            const overlay = document.getElementById('mobile-nav-overlay');
-            if (drawer) drawer.classList.toggle('active');
-            if (overlay) overlay.classList.toggle('active');
-            
-            // Bloqueamos scroll de fondo
-            if (drawer && drawer.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        }
-
-        function initLandingCarousel() {
-            const container = document.getElementById('hero-carousel');
-            const dotContainer = document.getElementById('hero-dots');
-            if (!container) return;
-
-            // Si tenemos slides de GAS, los inyectamos.
-            if (heroicSlides.length > 0) {
-                // Eliminar solo los slides antiguos, no los controles
-                const oldSlides = container.querySelectorAll('.hero-slide');
-                oldSlides.forEach(s => s.remove());
-
-                // Inyectar nuevos slides antes del botón CTA o al inicio
-                const firstControl = container.querySelector('.btn-cta-gold, .hero-dots');
-                
-                heroicSlides.forEach((slide, idx) => {
-                    const slideDiv = document.createElement('div');
-                    slideDiv.className = `hero-slide ${idx === 0 ? 'active' : ''}`;
-                    slideDiv.innerHTML = `
-                        <div class="section-tag">${slide.tag || 'Lúmina'}</div>
-                        <h1 style="font-family: 'Playfair Display', serif; font-style: italic;">${slide.title}</h1>
-                        <p>${slide.desc}</p>
-                    `;
-                    if (firstControl) {
-                        container.insertBefore(slideDiv, firstControl);
-                    } else {
-                        container.appendChild(slideDiv);
-                    }
-                });
-
-                // Re-render dots
-                if (dotContainer) {
-                    dotContainer.innerHTML = '';
-                    heroicSlides.forEach((_, idx) => {
-                        const dot = document.createElement('div');
-                        dot.className = `hero-dot ${idx === 0 ? 'active' : ''}`;
-                        dot.onclick = () => setHeroSlide(idx);
-                        dotContainer.appendChild(dot);
-                    });
-                }
-            }
-
-            startHeroTimer();
-        }
-
-        function setHeroSlide(idx) {
-            const slides = document.querySelectorAll('.hero-slide');
-            const dots = document.querySelectorAll('.hero-dot');
-            if (slides.length === 0) return;
-
-            currentHeroSlide = (idx + slides.length) % slides.length;
-
-            slides.forEach((s, i) => s.classList.toggle('active', i === currentHeroSlide));
-            dots.forEach((d, i) => d.classList.toggle('active', i === currentHeroSlide));
-            
-            // Reiniciar timer para que no salte justo después de un clic manual
-            startHeroTimer();
-        }
-
-        function startHeroTimer() {
-            if (heroTimer) clearInterval(heroTimer);
-            heroTimer = setInterval(() => {
-                const slides = document.querySelectorAll('.hero-slide');
-                if (slides.length > 1) {
-                    setHeroSlide(currentHeroSlide + 1);
-                }
-            }, 6000);
-        }
-
-        async function initLandingJourney() {
-            const container = document.getElementById('landing-journey-timeline');
-            if (!container) return;
-
-            try {
-                const response = await fetch(`${API}?action=journey`);
-                const data = await response.json();
-                
-                let journeyData = [];
-                if (data && data.journey) {
-                    journeyData = data.journey;
-                } else {
-                    // Fallback para Landing como invitado
-                    journeyData = [
-                        { title: "Pensamientos de Marco Aurelio", lessons: 30, progress: 100, isPast: true },
-                        { title: "Manual de Vida de Epicteto", lessons: 15, progress: 100, isPast: true },
-                        { title: "Sobre la Brevedad de la Vida", lessons: 20, progress: 45, isCurrent: true, daysUntil: 0 },
-                        { title: "Cartas de un Estoico", lessons: 40, progress: 0, daysUntil: 15 },
-                        { title: "La Paz de la Mente - Séneca", lessons: 12, progress: 0, daysUntil: 30 },
-                        { title: "Máximas de Sabiduría", lessons: 25, progress: 0, daysUntil: 45 }
-                    ];
-                }
-
-                container.innerHTML = '';
-                journeyData.forEach(book => {
-                    const item = document.createElement('div');
-                    item.className = `timeline-item ${book.isCurrent ? 'active' : ''} ${book.isPast ? 'past' : ''}`;
-                    
-                    let statusIcon = '📅';
-                    if (book.isCurrent) statusIcon = '🔥';
-                    if (book.isPast) statusIcon = '✅';
-
-                    let dateLabel = '';
-                    if (book.isCurrent) {
-                        dateLabel = 'EN CURSO';
-                    } else if (book.isPast) {
-                        dateLabel = 'COMPLETADO';
-                    } else {
-                        // Fecha Estimada para futuros
-                        const targetDate = new Date();
-                        targetDate.setDate(targetDate.getDate() + (book.daysUntil || 10));
-                        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                        dateLabel = `${targetDate.getDate()} ${months[targetDate.getMonth()]}`;
-                    }
-
-                    item.innerHTML = `
-                        <div style="font-size: 1.2rem;">${statusIcon}</div>
-                        <div class="timeline-info">
-                            <div class="timeline-meta" style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.6; margin-bottom: 4px; font-weight: 700; color: var(--accent);">${dateLabel} • ${book.lessons} LECCIONES</div>
-                            <div class="timeline-title" style="font-family: 'Playfair Display', serif; font-size: 1.1rem; color: white;">${book.title}</div>
-                            ${book.isCurrent ? `
-                                <div class="timeline-progress" style="height: 2px; background: rgba(255,255,255,0.1); margin-top: 10px; position: relative;">
-                                    <div class="timeline-bar" style="width: ${book.progress}%; background: var(--accent); height: 100%; box-shadow: 0 0 10px var(--accent);"></div>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                    container.appendChild(item);
-                });
-
-            } catch (e) {
-                console.warn("Landing Journey fetch error:", e);
-                container.innerHTML = '<p style="opacity:0.3; padding:20px; color: white; font-size: 0.8rem;">Error de conexión con el cronograma.</p>';
-            }
-        }
-
-        function openAuth(mode) {
-            try {
-                setPortalMode(mode);
-                const portal = document.getElementById('login-portal');
-                if (portal) {
-                    portal.style.display = 'flex';
-                    portal.scrollTo({top: 0, behavior: 'auto'});
-                }
-            } catch (e) {
-                console.error("openAuth error:", e);
-                // Fallback de emergencia por si el setPortalMode falla
-                const portal = document.getElementById('login-portal');
-                if (portal) portal.style.display = 'flex';
-            }
-        }
-		
-        function setPortalMode(mode) {
-            portalMode = mode;
-            const title = document.getElementById('portal-title');
-            const desc = document.getElementById('portal-desc');
-            const btn = document.getElementById('btn-portal-submit');
-            const error = document.getElementById('login-error');
-            const container = document.querySelector('.auth-container');
-            
-            if (container) {
-                container.style.animation = 'none';
-                void container.offsetWidth; 
-                container.style.animation = 'modalFadeIn 0.5s ease';
-            }
-
-            if (error) error.style.display = 'none';
-            
-            // Reset visibilities seguros
-            const hideList = ['field-name', 'fields-signup', 'fields-recover', 'view-codes', 'link-signup', 'link-login', 'link-recover', 'portal-sep'];
-            hideList.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.style.display = 'none';
-            });
-            
-            const showFlexList = ['portal-links'];
-            showFlexList.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.style.display = 'flex';
-            });
-
-            const showBlockList = ['portal-fields', 'field-pass'];
-            showBlockList.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.style.display = 'block';
-            });
-
-            if (mode === 'login') {
-                title.innerText = "Identidad";
-                desc.innerText = "Tu viaje de sabiduría sincronizado.";
-                btn.innerText = "ENTRAR";
-                document.getElementById('link-signup').style.display = 'inline';
-                document.getElementById('link-recover').style.display = 'inline';
-                document.getElementById('portal-sep').style.display = 'inline';
-            } else if (mode === 'signup') {
-                title.innerText = "Crear Cuenta";
-                desc.innerText = "Inicia tu camino con nosotros.";
-                btn.innerText = "REGISTRAR";
-                document.getElementById('field-name').style.display = 'block';
-                document.getElementById('fields-signup').style.display = 'block';
-                document.getElementById('link-login').style.display = 'inline';
-            } else if (mode === 'recover') {
-                title.innerText = "Recuperar";
-                const isStep1 = (recoveryStep === 1);
-                const isStep2 = (recoveryStep === 2);
-                const isStep3 = (recoveryStep === 3);
-
-                desc.innerText = isStep1 ? "Ingresa tu email para comenzar." : 
-                               (isStep2 ? "Elige cómo quieres verificar tu cuenta." : "Ingresa los datos para restablecer.");
-                               
-                btn.innerText = isStep1 ? "BUSCAR CUENTA" : (isStep3 ? "RESTABLECER" : "---");
-                btn.style.display = (isStep2) ? 'none' : 'block';
-
-                document.getElementById('reg-email').parentElement.style.display = isStep1 ? 'block' : 'none';
-                document.getElementById('field-pass').style.display = 'none';
-                
-                document.getElementById('fields-recover').style.display = (isStep2 || isStep3) ? 'block' : 'none';
-                document.getElementById('recover-method-selector').style.display = isStep2 ? 'block' : 'none';
-                
-                document.getElementById('recover-step-question').style.display = (isStep3 && recoveryMethod === 'question') ? 'block' : 'none';
-                document.getElementById('recover-step-code').style.display = (isStep3 && recoveryMethod === 'code') ? 'block' : 'none';
-                document.getElementById('recover-step-final').style.display = isStep3 ? 'block' : 'none';
-                
-                document.getElementById('link-login').style.display = 'inline';
-            } else if (mode === 'codes') {
-                title.innerText = "Respaldo";
-                desc.innerText = "Copia tus llaves antes de entrar.";
-                btn.innerText = "COPIAR Y FINALIZAR";
-                document.getElementById('portal-fields').style.display = 'none';
-                document.getElementById('view-codes').style.display = 'block';
-                document.getElementById('portal-links').style.display = 'none';
-            }
-        }
-
-        async function handlePortalAction() {
-            const btn = document.getElementById('btn-portal-submit');
-            const error = document.getElementById('login-error');
-            const email = document.getElementById('reg-email').value.trim();
-            
-            if (portalMode === 'codes') {
-                copyRecoveryCodes();
-                location.reload();
-                return;
-            }
-
-            if (!email || !email.includes('@')) {
-                showPortalError("Ingresa un email válido.");
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "PROCESANDO...";
-
-            try {
-                if (portalMode === 'login') {
-                    const pass = document.getElementById('reg-pass').value;
-                    const resp = await fetch(`${API}?action=user_login&mode=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`);
-                    const res = await resp.json();
-                    if (res.success) {
-                        finalizeAccess(res, email);
-                    } else {
-                        showPortalError(res.error || "Credenciales inválidas.");
-                    }
-                } else if (portalMode === 'signup') {
-                    const name = document.getElementById('reg-name').value.trim();
-                    const pass = document.getElementById('reg-pass').value;
-                    const question = document.getElementById('reg-question').value;
-                    const answer = document.getElementById('reg-answer').value.trim();
-
-                    if (name.length < 2 || pass.length < 4 || !answer) {
-                        showPortalError("Completa todos los campos correctamente.");
-                        btn.disabled = false;
-                        btn.innerText = "REGISTRAR";
-                        return;
-                    }
-
-                    const resp = await fetch(`${API}?action=user_login&mode=signup&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&password=${encodeURIComponent(pass)}&question=${encodeURIComponent(question)}&answer=${encodeURIComponent(answer)}`);
-                    const res = await resp.json();
-                    if (res.success) {
-                        localStorage.setItem('lumina_user_email', email);
-                        localStorage.setItem('lumina_user_name', res.name);
-                        showRecoveryCodes(res.codes);
-                        btn.disabled = false; 
-                        return; // Detener ejecución para que no resetee el modo a 'signup'
-                    } else {
-                        showPortalError(res.error || "Error al registrar.");
-                    }
-            } else if (portalMode === 'recover') {
-                if (recoveryStep === 1) {
-                    // Paso 1: Buscar cuenta y pregunta
-                    const resp = await fetch(`${API}?action=user_recover&sub=get_question&email=${encodeURIComponent(email)}`);
-                    const res = await resp.json();
-                    if (res.success) {
-                        document.getElementById('recover-question-text').innerText = res.question;
-                        recoveryStep = 2;
-                        setPortalMode('recover');
-                    } else {
-                        showPortalError(res.error || "Email no encontrado.");
-                    }
-                } else if (recoveryStep === 3) {
-                    // Paso 3: Validar
-                    const newPass = document.getElementById('recover-new-pass').value;
-                    if (newPass.length < 4) {
-                        showPortalError("La contraseña debe tener al menos 4 caracteres.");
-                        btn.disabled = false;
-                        btn.innerText = "RESTABLECER";
-                        return;
-                    }
-
-                    if (recoveryMethod === 'question') {
-                        const answer = document.getElementById('recover-answer').value.trim();
-                        if (!answer) { showPortalError("Ingresa tu respuesta."); btn.disabled = false; return; }
-                        
-                        const resp = await fetch(`${API}?action=user_recover&sub=verify&email=${encodeURIComponent(email)}&answer=${encodeURIComponent(answer)}&newPassword=${encodeURIComponent(newPass)}`);
-                        const res = await resp.json();
-                        if (res.success) {
-                            showToast("¡Contraseña actualizada con éxito! ✨", "success");
-                            recoveryStep = 1;
-                            setPortalMode('login');
-                        } else {
-                            showPortalError("Respuesta incorrecta.");
-                        }
-                    } else {
-                        const code = document.getElementById('recover-code').value.trim();
-                        if (!code) { showPortalError("Ingresa tu código."); btn.disabled = false; return; }
-                        
-                        const resp2 = await fetch(`${API}?action=user_recover&sub=verify&email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}&newPassword=${encodeURIComponent(newPass)}`);
-                        const res2 = await resp2.json();
-                        if (res2.success) {
-                            showToast("¡Acceso restablecido con código! ✅", "success");
-                            recoveryStep = 1;
-                            setPortalMode('login');
-                        } else {
-                            showPortalError("Código inválido o ya utilizado.");
-                        }
-                    }
-                }
-            }
-            } catch (e) {
-                showPortalError("Error de conexión. Inténtalo de nuevo.");
-            }
-            btn.disabled = false;
-            setPortalMode(portalMode); // Refresca texto botón
-        }
-
-        function finalizeAccess(res, email) {
-            localStorage.setItem('lumina_user_email', email);
-            localStorage.setItem('lumina_user_name', res.name);
-            if (res.proKey) localStorage.setItem('lumina_pro_key', res.proKey);
-            if (res.isPro) localStorage.setItem('lumina_pro', 'true');
-            // Sanitizar: tomar solo YYYY-MM-DD por si Sheets devuelve ISO timestamp
-            if (res.birthday) localStorage.setItem('lumina_birthday', String(res.birthday).substring(0, 10));
-            if (res.data) pullSync(res.data);
-            location.reload();
-        }
-
-        let _lastRecoveryCodes = [];
-        function showRecoveryCodes(codes) {
-            _lastRecoveryCodes = codes;
-            const list = document.getElementById('codes-list');
-            if (list) {
-                list.innerHTML = codes.map((c, i) => `
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(181, 131, 58, 0.1); padding: 12px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(181,131,58,0.2);">
-                        <span style="font-size: 0.6rem; font-weight: 700; opacity: 0.5; text-transform: uppercase;">Código ${i+1}</span>
-                        <span style="font-family: monospace; font-weight: 700; letter-spacing: 2px; color: var(--accent); font-size: 1.1rem;">${c}</span>
-                    </div>
-                `).join('');
-            }
-            setPortalMode('codes');
-        }
-
-        function copyRecoveryCodes() {
-            const text = "CÓDIGOS DE RECUPERACIÓN LÚMINA:\n\n" + _lastRecoveryCodes.map((c, i) => `Código ${i+1}: ${c}`).join('\n');
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Códigos copiados con éxito ✅");
-                setTimeout(() => location.reload(), 2000);
-            });
-        }
-
-        function selectRecoverMethod(method) {
-            recoveryMethod = method;
-            recoveryStep = 3;
-            setPortalMode('recover');
-            if (navigator.vibrate) navigator.vibrate(10);
-            playSound('click');
-        }
-
-        function showPortalError(msg) {
-            const error = document.getElementById('login-error');
-            error.innerText = msg;
-            error.style.display = 'block';
-        }
-
-        async function logoutUser() {
-            showConfirm("¿Estás seguro de cerrar sesión? Se sincronizarán tus cambios antes de salir.", async () => {
-                const loader = document.getElementById('loader');
-                if (loader) loader.classList.remove('hidden');
-                
-                // Guardar una última vez antes de limpiar
-                await pushSync(true);
-                
-                localStorage.clear();
-                window.location.href = window.location.origin + window.location.pathname;
-            });
-        }
-
-        let _confirmCallback = null;
-        function showConfirm(msg, callback) {
-            document.getElementById('confirm-msg').innerText = msg;
-            _confirmCallback = callback;
-            document.getElementById('confirm-toast').classList.add('active');
-            document.getElementById('btn-confirm-action').onclick = () => {
-                if (_confirmCallback) _confirmCallback();
-                hideConfirm();
-            };
-            if (navigator.vibrate) navigator.vibrate([10, 30]);
-            playSound('click');
-        }
-
-        function hideConfirm() {
-            document.getElementById('confirm-toast').classList.remove('active');
-            _confirmCallback = null;
-        }
-
-        function saveBirthday() {
-            const bdayInput = document.getElementById('profile-birthday');
-            const bday = bdayInput.value;
-            
-            if (!bday) {
-                showToast("Por favor ingresa una fecha válida", "error");
-                return;
-            }
-
-            const selectedDate = new Date(bday);
-            const today = new Date();
-            if (selectedDate > today) {
-                showToast("La fecha no puede ser en el futuro", "error");
-                return;
-            }
-
-            localStorage.setItem('lumina_birthday', bday);
-            pushSync();
-            showToast("Cumpleaños actualizado ✨", "success");
-        }
-
-        // Sincronización de Salida (Push)
-        let syncTimeout;
-        function pushSync(force = false) {
-            const email = localStorage.getItem('lumina_user_email');
-            if (!email) return;
-
-            const performSync = async () => {
-                const data = {};
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && (key.startsWith('lumina_') || key.startsWith('theme'))) {
-                        data[key] = localStorage.getItem(key);
-                    }
-                }
-                const bday = localStorage.getItem('lumina_birthday') || "";
-                const dataString = JSON.stringify(data);
-
-                try {
-                    const formData = new URLSearchParams();
-                    formData.append('action', 'user_sync');
-                    formData.append('email', email);
-                    formData.append('birthday', bday);
-                    formData.append('data', dataString);
-                    formData.append('device_id', getDeviceId());
-                    formData.append('device_name', getFriendlyDeviceName());
-
-                    const response = await fetch(API, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    const resSync = await response.json();
-                    if (resSync.success) {
-                        if (resSync.devices) {
-                            localStorage.setItem('lumina_devices_cache', JSON.stringify(resSync.devices));
-                            // Si el perfil está abierto, renderizar inmediatamente
-                            if (document.getElementById('profile-modal').classList.contains('active')) {
-                                renderDeviceList(resSync.devices);
-                            }
-                        }
-                        if (resSync.lastActivity) {
-                            localStorage.setItem('lumina_last_activity', resSync.lastActivity);
-                            updateLastAccessUI();
-                        }
-                        // Log sutil para confirmar seguridad de datos
-                        console.log("Sincronización: Sabiduría resguardada.");
-                    }
-
-
-                } catch (e) { 
-                    // Fallback silencioso
-                    try { fetch(`${API}?action=user_sync&email=${encodeURIComponent(email)}&birthday=${encodeURIComponent(bday)}&data=${encodeURIComponent(dataString)}`, { mode: 'no-cors' }); } catch(err) {}
-                }
-            };
-
-            if (force) {
-                clearTimeout(syncTimeout);
-                return performSync();
-            }
-
-            clearTimeout(syncTimeout);
-            syncTimeout = setTimeout(performSync, 2000); 
-        }
-
-        function pullSync(jsonString) {
-            try {
-                const data = JSON.parse(jsonString);
-                Object.keys(data).forEach(k => { if (data[k] !== null) localStorage.setItem(k, data[k]); });
-            } catch (e) { console.error("Pull Sync Error", e); }
-        }
-
         // --- GESTIÓN DE RESPALDOS JSON ---
         function exportLuminaData() {
             const data = {};
@@ -4929,15 +5006,16 @@
 
             // Actualizar Avatares (DiceBear Shapes) con paleta Lúmina
             const avatarUrl = `https://api.dicebear.com/9.x/shapes/svg?seed=${encodeURIComponent(savedEmail)}&backgroundColor=b5833a,ffecd2`;
-            const profileAvatar = document.getElementById('profile-avatar-img');
-            const settingsAvatar = document.getElementById('settings-avatar-img');
-            
-            if (profileAvatar) {
-                profileAvatar.src = avatarUrl;
-                const loader = document.getElementById('avatar-loader');
-                profileAvatar.onload = () => { profileAvatar.classList.add('loaded'); if (loader) loader.style.display = 'none'; };
-            }
-            if (settingsAvatar) settingsAvatar.src = avatarUrl;
+            const avatars = document.querySelectorAll('.user-avatar');
+            const loader = document.getElementById('avatar-loader');
+
+            avatars.forEach(img => {
+                img.src = avatarUrl;
+                img.onload = () => { 
+                    img.classList.add('loaded');
+                    if (loader) loader.style.display = 'none';
+                };
+            });
 
             const planBadge = document.getElementById('profile-plan-badge');
             if (planBadge) {
@@ -4976,6 +5054,17 @@
 
             document.getElementById('profile-streak-val').innerText = localStorage.getItem('lumina_streak') || 0;
             document.getElementById('profile-medals-val').innerText = getMedalCount();
+            
+            const moods = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
+            const currentMood = moods.length > 0 ? moods[moods.length - 1].state : '—';
+            const mVal = document.getElementById('profile-mood-val');
+            if (mVal) mVal.innerText = currentMood;
+            const msVal = document.getElementById('mood-summary-val');
+            if (msVal) msVal.innerText = currentMood;
+            
+            const pMinutes = localStorage.getItem('lumina_pausa_mins') || 0;
+            const ppVal = document.getElementById('profile-pausas-val');
+            if (ppVal) ppVal.innerText = pMinutes;
 
             // Poblar campo de cumpleaños cada vez que se abre el modal
             const bdayInput = document.getElementById('profile-birthday');
@@ -4995,6 +5084,7 @@
             renderDeviceList();
             updateLastAccessUI();
             renderActivityLog();
+            setTimeout(renderHabitsCharts, 100); // Forzar renderizado de gráfico en perfil
         }
 
 
@@ -5112,7 +5202,12 @@
             localStorage.setItem('lumina_trial_start', Date.now().toString());
             localStorage.removeItem('lumina_data_libros');
             pushSync();
-            location.reload();
+            // Actualizar estado in-place sin recargar
+            if (typeof loadProState === 'function') loadProState();
+            if (typeof updateProExtraUI === 'function') updateProExtraUI();
+            if (typeof checkNotifications === 'function') checkNotifications();
+            closeModals();
+            showToast("¡Prueba de 14 días activada! ✨", "success");
         }
 
         function endTrialEarly() {
@@ -5129,8 +5224,10 @@
             localStorage.removeItem('lumina_data_libros');
             pushSync();
             showToast("Periodo de prueba finalizado.");
+            // Actualizar estado in-place
+            if (typeof loadProState === 'function') loadProState();
+            if (typeof updateProExtraUI === 'function') updateProExtraUI();
             closeModals();
-            setTimeout(() => location.reload(), 1000);
         }
 
         function getCache(cat) {
@@ -5206,7 +5303,9 @@
                 localStorage.setItem('lumina_voice', esVoices[0].name);
             }
         }
-        window.speechSynthesis.onvoiceschanged = populateVoices;
+        if (window.speechSynthesis) {
+            window.speechSynthesis.onvoiceschanged = populateVoices;
+        }
 
         function saveVoicePreference() {
             const select = document.getElementById('voice-select');
@@ -5426,10 +5525,11 @@
                 const response = await fetch(`${API}?action=val&code=${key}&_cb=${Date.now()}`);
                 const data = await response.json();
                 if (!data.success) {
+                    console.warn("Lúmina: Llave Pro ya no es válida.");
                     isPro = false;
                     localStorage.setItem('lumina_pro', 'false');
                     localStorage.removeItem('lumina_pro_key');
-                    window.location.reload();
+                    // No recargamos para evitar bucles, el UI se actualizará en la próxima carga
                 }
             } catch (e) { console.warn("Validación offline activa"); }
         }
@@ -5543,8 +5643,7 @@
                 }
             }
 
-            localStorage.setItem('lumina_last_visit_ts', Date.now().toString());
-            localStorage.setItem('lumina_streak', streak);
+            localStorage.setItem('lumina_last_activity', new Date().toISOString()); // Registrar actividad
             pushSync(); // Guardar racha en la nube
 
             if (diffDays !== 0) {
@@ -5814,6 +5913,33 @@
             updateLogroDelDia();
         }
 
+        function marcarComoLeido() {
+            const cat = window.currentCategory || currentCategory;
+            if (!cat) return;
+
+            trackCategoryVisit(cat);
+
+            // Registrar en log semanal (calendario de hábitos)
+            const todayStr = new Date().toDateString();
+            const visitLog = JSON.parse(localStorage.getItem('lumina_visit_log') || '[]');
+            if (!visitLog.includes(todayStr)) {
+                visitLog.push(todayStr);
+                if (visitLog.length > 30) visitLog.splice(0, visitLog.length - 30);
+                localStorage.setItem('lumina_visit_log', JSON.stringify(visitLog));
+            }
+
+            // Actualizar racha
+            if (typeof updateStreak === 'function') updateStreak();
+
+            // Ocultar el botón
+            const container = document.getElementById('leido-cta-container');
+            if (container) container.style.display = 'none';
+
+            // Toast de confirmación
+            showToast('✓ Lección completada. ¡Sigue construyendo tu racha!', 'success');
+            if (typeof playSound === 'function') playSound('success');
+        }
+
         function updateLogroDelDia() {
             const todayKey = 'lumina_visited_' + new Date().toDateString();
             const visited = JSON.parse(localStorage.getItem(todayKey) || '[]');
@@ -5844,183 +5970,104 @@
         function checkMidnightRefresh() {
             const today = new Date().toDateString();
             const lastDay = localStorage.getItem('lumina_last_day_active');
-            
             if (lastDay && lastDay !== today) {
-                const dismissed = JSON.parse(localStorage.getItem('lumina_dismissed_notifs') || '[]');
                 const autoCats = ['palabras', 'afirmaciones', 'frases', 'libros'];
-                const filtered = dismissed.filter(id => !autoCats.some(ac => id.startsWith(ac + ":")));
-                localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(filtered));
-                
-                // LIMPIEZA DE CACHÉ DE CONTENIDOS (Día Nuevo)
                 autoCats.forEach(cat => {
                     localStorage.removeItem('lumina_data_' + cat);
                     localStorage.removeItem('lumina_cache_date_' + cat);
                 });
-
-                updateHeaderDate(); 
-                loadProState(); 
-                checkNotifications();
-                updateGamification();
-                updateHubInfo();
-                
-                if (navigator.vibrate) navigator.vibrate([10, 30]);
+                if (typeof updateHeaderDate === 'function') updateHeaderDate();
+                if (typeof loadProState === 'function') loadProState();
+                if (typeof updateGamification === 'function') updateGamification();
             }
             localStorage.setItem('lumina_last_day_active', today);
         }
 
-        const APP_VERSION = '2.5.2';
-
         async function init() {
-            // 0. Carga Inmediata (Estética Primero)
-            loadUserAvatars();
-            updateMoodSummaryUI();
-            
-            // 1. Verificar Identidad (Cloud First)
+            console.log("Lúmina: Fase 1 - Identidad");
             const hasUser = await checkUserSession();
-            
-            if (!hasUser) {
-                return;
+            if (!hasUser) return; // checkUserSession ya llama hideLoader() para invitados
+
+            hideLoader();
+
+            // --- Inicialización secundaria (solo usuarios autenticados) ---
+            // Limpieza de claves PRO antiguas
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('lumina_extra_count_')) {
+                        localStorage.removeItem(key); i--;
+                    }
+                }
+            } catch(e) {}
+
+            if (typeof updateProExtraUI === 'function') updateProExtraUI();
+            if (localStorage.getItem('lumina_wake_lock') === 'true' && typeof requestWakeLock === 'function') requestWakeLock();
+
+            // Deep-links desde notificaciones
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('modal') === 'habitos' || window.location.hash === '#habitos') {
+                setTimeout(() => {
+                    const modal = document.getElementById('habitos-modal');
+                    if (modal && !modal.classList.contains('active') && typeof toggleHabitos === 'function') toggleHabitos();
+                }, 800);
             }
 
+            console.log("Lúmina: Fase 2 - Módulos");
             try {
-                const loader = document.getElementById('loader');
-                if (loader) loader.classList.remove('hidden');
+                const runSync = (fn, name) => {
+                    try { if (typeof fn === 'function') fn(); }
+                    catch(e) { console.warn('Error en ' + name, e); }
+                };
 
-                // Verificación inicial de cambio de día
-                checkMidnightRefresh();
-                
-                updateGamification();
-                loadTheme();
-                populateVoices();
-                await loadProState();
-                updateHeaderDate();
-                createMotes();
-                initAmbient(); 
-                renderBitacoraTemplates();
-                if (typeof updateMoodSummaryUI === 'function') updateMoodSummaryUI();
+                runSync(checkMidnightRefresh, 'CierreDía');
+                runSync(updateGamification, 'Gamificación');
+                runSync(loadTheme, 'Tema');
+                runSync(populateVoices, 'Voces');
+                runSync(loadProState, 'EstadoPro');
+                runSync(updateHeaderDate, 'Reloj');
+                runSync(createMotes, 'Motes');
+                runSync(initAmbient, 'Ambiente');
+                runSync(renderBitacoraTemplates, 'Bitácora');
+
+                // Módulos asíncronos (API)
+                if (typeof updateHubInfo === 'function') updateHubInfo();
+                if (typeof checkNotifications === 'function') checkNotifications();
+                if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    try {
-                        const registration = await navigator.serviceWorker.register('sw.js');
-                        
-                        // FIX: Control estricto de recarga para evitar bucles infinitos
-                        let refreshing = false;
-                        navigator.serviceWorker.addEventListener('controllerchange', () => {
-                            if (refreshing) return;
-                            refreshing = true;
-                            // Solo recargamos si no acabamos de forzar una actualización hace menos de 2 segundos
-                            if (!sessionStorage.getItem('lumina_recently_updated')) {
-                                sessionStorage.setItem('lumina_recently_updated', 'true');
-                                window.location.reload();
-                            }
-                        });
-
-                        registration.onupdatefound = () => {
-                            const installingWorker = registration.installing;
-                            installingWorker.onstatechange = () => {
-                                // Solo mostramos el banner si el trabajador está instalado Y hay uno previo controlando
-                                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // Seguridad: Si acabamos de actualizar, no molestamos con el banner inmediatamente
-                                    if (!sessionStorage.getItem('lumina_recently_updated')) {
-                                        document.getElementById('update-banner').classList.add('active');
-                                    }
-                                }
-                            };
-                        };
-                    } catch (e) { console.warn("SW Error", e); }
+                    navigator.serviceWorker.register('sw.js').catch(() => {});
                 }
 
-                try {
-                    if (isPro) verifyKeySilently();
-                } catch(err) { console.warn("verifyKeySilently no disponible", err); }
-
-                updateHubInfo();
-                checkNotifications();
-                checkEmergencyPopups(); 
-
-                // Mostrar Bienvenida Personalizada
-                const greeting = document.getElementById('hub-user-greeting');
-                const userName = localStorage.getItem('lumina_user_name');
-                if (greeting && userName) {
-                    const hours = new Date().getHours();
-                    let morningGreeting = "Bienvenido, ";
-                    if (hours >= 5 && hours < 12) morningGreeting = "Buenos días, ";
-                    else if (hours >= 12 && hours < 19) morningGreeting = "Buenas tardes, ";
-                    else morningGreeting = "Buenas noches, ";
-                     
-                    greeting.innerText = `${morningGreeting}${userName} ✨`;
+                // Ruta inicial desde URL hash
+                const targetCat = window.location.hash.replace('#', '') || 'hub';
+                if (targetCat !== 'hub' && typeof openCategory === 'function') {
                     setTimeout(() => {
-                        greeting.style.opacity = '0.5';
-                        greeting.style.transform = 'translateY(0)';
-                    }, 500);
-                }
-                
-                // Cargar Cumpleaños en el input del perfil
-                const bdayInput = document.getElementById('profile-birthday');
-                if (bdayInput) bdayInput.value = localStorage.getItem('lumina_birthday') || "";                
-                setInterval(checkMidnightRefresh, 10 * 60 * 1000);
-                
-                if ("Notification" in window && Notification.permission === "default") {
-                    Notification.requestPermission();
-                }
-
-                // GESTIÓN DE RUTA INICIAL
-                if (!window.location.hash) {
-                    history.replaceState({ cat: 'hub' }, "", window.location.pathname + "#hub");
-                }
-
-                const params = new URLSearchParams(window.location.search);
-                const catParam = params.get('cat');
-                const hashParam = window.location.hash.replace('#', '');
-                const targetCat = catParam || hashParam;
-
-                if (targetCat && targetCat !== 'hub') {
-                    setTimeout(() => {
-                        const modalHashes = {
-                            'settings': toggleSettings,
-                            'profile': toggleProfile,
-                            'info': toggleInfo,
-                            'notifications': toggleNotifications,
-                            'pro': toggleProModal,
-                            'success': showSuccessModal
-                        };
-                        if (modalHashes[targetCat]) {
-                            modalHashes[targetCat]();
-                        } else if (targetCat === 'trial') {
-                             document.getElementById('pro-modal').classList.add('active');
-                        } else {
-                            const validCats = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
-                            let catBase = targetCat;
-                            if (targetCat.includes(':')) catBase = targetCat.split(':')[0];
-                            
-                            if (validCats.includes(catBase)) {
-                                if (catBase === 'habitos') toggleHabitos();
-                                else openCategory(catBase, catBase === 'libros', true);
-                            }
+                        const valid = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
+                        if (valid.includes(targetCat.split(':')[0])) {
+                            openCategory(targetCat.split(':')[0], targetCat === 'libros', true, targetCat);
                         }
                     }, 500);
                 }
 
-                document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible' && navigator.onLine) {
-                        checkNotifications();
-                    }
-                });
-
-                setTimeout(() => {
-                    if (loader) loader.classList.add('hidden');
-                    mainUi.classList.add('loaded');
-                }, 800);
-
-            } catch (e) { 
-                console.error("Init Error:", e);
-                if (typeof hideLoader === 'function') hideLoader();
+                setInterval(checkMidnightRefresh, 1000 * 60 * 10);
+            } catch (e) {
+                console.error("Init Error", e);
+                hideLoader();
             }
         }
+
+        // Actualizar novedades cuando el usuario vuelve a la pestaña/app
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && navigator.onLine) {
+                if (typeof checkNotifications === 'function') checkNotifications();
+            }
+        });
 
         // Stubs para funciones que se llaman en init pero que podrían no estar definidas aún
         function verifyKeySilently() { console.log("Lúmina: Verificación silenciosa activa."); }
         function checkNotifications() { console.log("Lúmina: Sistema de novedades listo."); }
+
 
         function forceUpdateApp() {
             // 1. Ocultar banner inmediatamente para evitar clics dobles
@@ -6073,6 +6120,35 @@
             setTimeout(() => toast.classList.remove('active'), 3500);
         }
 
+        let activeConfirmCallback = null;
+
+        function showConfirm(msg, callback) {
+            const toast = document.getElementById('confirm-toast');
+            const msgEl = document.getElementById('confirm-msg');
+            const actionBtn = document.getElementById('btn-confirm-action');
+            if (!toast || !msgEl || !actionBtn) return;
+            
+            msgEl.innerText = msg;
+            activeConfirmCallback = callback;
+            
+            // Clean previous click event listeners if any
+            actionBtn.onclick = () => {
+                if(activeConfirmCallback) {
+                    activeConfirmCallback();
+                }
+                hideConfirm();
+            };
+            
+            toast.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate([10, 20]);
+        }
+
+        function hideConfirm() {
+            const toast = document.getElementById('confirm-toast');
+            if (toast) toast.classList.remove('active');
+            activeConfirmCallback = null;
+        }
+
         async function activatePro() {
             const codeInput = document.getElementById('pro-key-input') || document.getElementById('pro-key-input-profile');
             if (!codeInput) return;
@@ -6093,7 +6169,10 @@
                 pushSync();
                 showToast("¡Prueba restaurada con éxito!", "success");
                 if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
-                setTimeout(() => location.reload(), 1500);
+                // Actualizar estado in-place sin recargar
+                if (typeof loadProState === 'function') loadProState();
+                if (typeof checkNotifications === 'function') checkNotifications();
+                closeModals();
                 return;
             }
 
@@ -6157,7 +6236,6 @@
                 return;
             }
             
-            trackCategoryVisit(cat);
             currentCategory = cat;
             
             document.body.className = `cat-${cat} view-${cat} ${isPro ? 'pro-unlocked' : ''} ${localStorage.getItem('theme') === 'dark' ? 'dark-mode' : ''}`;
@@ -6245,6 +6323,15 @@
                 // Botón Compartir
                 const shareBtn = document.getElementById('main-share-btn');
                 if (shareBtn) shareBtn.style.display = ['palabras', 'afirmaciones', 'frases', 'libros', 'extra'].includes(cat) ? 'block' : 'none';
+
+                // Botón Marcar como leída (al final del contenido)
+                const todayKey = 'lumina_visited_' + new Date().toDateString();
+                const visited = JSON.parse(localStorage.getItem(todayKey) || '[]');
+                const leidoContainer = document.getElementById('leido-cta-container');
+                if (leidoContainer) {
+                    const showLeido = ['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat) && !visited.includes(cat);
+                    leidoContainer.style.display = showLeido ? 'block' : 'none';
+                }
 
                 // Botón de retorno (GLASS)
                 let backBtn = document.getElementById('btn-back-hub');
@@ -6593,9 +6680,18 @@
                 // 2. Lógica de Reto Tradicional (Solo Palabras - Hardcoded o data.reto)
                 if (currentCategory === 'palabras') {
                     const reto = data.reto || (data.palabra ? `Usa la palabra "${data.palabra}" en una conversación real hoy.` : null);
-                    if (reto && retoEl && retoBox) {
-                        retoEl.innerText = reto;
+                    if (reto && retoBox) {
+                        const rText = document.getElementById('reto-text');
+                        if (rText) rText.innerText = reto;
                         retoBox.classList.add('wisdom-box-active');
+                        
+                        // Sincronizar con el Hub si estamos cargando la palabra del día inicial
+                        const hubReto = document.getElementById('hub-reto-del-dia');
+                        const hubRetoText = document.getElementById('hub-reto-text');
+                        if (hubReto && hubRetoText) {
+                            hubRetoText.innerText = reto;
+                            hubReto.style.display = 'block';
+                        }
                     }
                 }
 
@@ -7044,7 +7140,10 @@
             const modal = document.getElementById('settings-modal');
             if (modal.classList.contains('active')) {
                 playSound('click');
-                history.back();
+                modal.classList.remove('active');
+                // Restaurar hash sin history.back() para evitar desincronización
+                const prevHash = currentCategory ? '#' + currentCategory : '#hub';
+                history.replaceState(null, '', prevHash);
             } else {
                 closeModals(true);
                 modal.classList.add('active');
@@ -7059,7 +7158,9 @@
             const modal = document.getElementById('info-modal');
             if (modal.classList.contains('active')) {
                 playSound('click');
-                history.back();
+                modal.classList.remove('active');
+                const prevHash = currentCategory ? '#' + currentCategory : '#hub';
+                history.replaceState(null, '', prevHash);
             } else {
                 closeModals(true);
                 modal.classList.add('active');
@@ -7147,7 +7248,9 @@
             const modal = document.getElementById('notif-modal');
             if (modal.classList.contains('active')) {
                 playSound('click');
-                history.back();
+                modal.classList.remove('active');
+                const prevHash = currentCategory ? '#' + currentCategory : '#hub';
+                history.replaceState(null, '', prevHash);
             } else {
                 closeModals(true);
                 modal.classList.add('active');
@@ -7164,7 +7267,9 @@
         function toggleProModal() {
             const m = document.getElementById('pro-modal');
             if (m.classList.contains('active')) {
-                history.back();
+                m.classList.remove('active');
+                const prevHash = currentCategory ? '#' + currentCategory : '#hub';
+                history.replaceState(null, '', prevHash);
             } else {
                 closeModals(true);
                 m.classList.add('active');
@@ -7177,7 +7282,9 @@
         function toggleInstallModal() {
             const m = document.getElementById('install-modal');
             if (m.classList.contains('active')) {
-                history.back();
+                m.classList.remove('active');
+                const prevHash = currentCategory ? '#' + currentCategory : '#hub';
+                history.replaceState(null, '', prevHash);
             } else {
                 closeModals(true);
                 m.classList.add('active');
@@ -7202,13 +7309,16 @@
             const modal = document.getElementById('habitos-modal');
             if (modal.classList.contains('active')) {
                 playSound('click');
-                history.back();
+                modal.classList.remove('active');
+                const prevHash = currentCategory ? '#' + currentCategory : '#hub';
+                history.replaceState(null, '', prevHash);
             } else {
                 closeModals(true);
                 modal.classList.add('active');
                 history.pushState({ modal: 'habitos' }, "", "#habitos");
                 playSound('click');
                 if (navigator.vibrate) navigator.vibrate(10);
+                setTimeout(renderHabitsCharts, 100);
                 
                 // Pre-captura para compartir instantáneamente
                 setTimeout(() => prepareShareBlob('habitos'), 500);
@@ -7216,23 +7326,22 @@
         }
 
         function closeModals(preventBack = false) {
-            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal'];
-            let anyClosed = false;
+            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 'portal-identidad-lumina', 'lightbox-portal'];
             modals.forEach(id => {
                 const m = document.getElementById(id);
-                if (m && m.classList.contains('active')) {
+                if (m && (m.classList.contains('active') || m.style.display === 'flex' || m.style.visibility === 'visible')) {
                     m.classList.remove('active');
-                    anyClosed = true;
+                    m.style.display = 'none';
+                    m.style.visibility = 'hidden';
+                    m.style.opacity = '0';
                 }
             });
-            // Limpiar caché de capturas al cerrar modales para evitar cruces
+            
+            document.body.style.overflow = '';
+            document.body.style.position = '';
             window._luminaShareBlob = null;
             window._lastShareType = "";
-
-            // Si cerramos manualmente y hay un hash de modal, volvemos atrás en el historial (a menos que se prevenga)
-            if (!preventBack && anyClosed && window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos|expansiones|install|stats|mood)/)) {
-                history.back();
-            }
+            // Nunca llamamos history.back() aqui para evitar desincronización
         }
  
         // Gestión de Descarte de Notificaciones
@@ -8359,6 +8468,16 @@
                 if (loader) loader.style.display = 'none';
             });
 
+            // Actualizar Saludo Dinámico
+            const greetingEl = document.getElementById('hub-user-greeting');
+            if (greetingEl) {
+                const hour = new Date().getHours();
+                let greet = "BUENOS DÍAS";
+                if (hour >= 12 && hour < 19) greet = "BUENAS TARDES";
+                else if (hour >= 19 || hour < 5) greet = "BUENAS NOCHES";
+                greetingEl.innerHTML = `${greet}, ${name.toUpperCase()} ✨`;
+            }
+
             const nameInput = document.getElementById('user-name-input');
             if (nameInput && name !== 'Usuario Lúmina') nameInput.value = name;
             
@@ -8405,24 +8524,31 @@
             const h1 = document.getElementById('hero-title');
             const p = document.getElementById('hero-tagline');
             const blur = document.getElementById('hero-blur');
-            const container = document.getElementById('hero-container');
             
-            container.style.opacity = '0';
-            setTimeout(() => {
-                if (title === 'Lúmina') {
-                    updateHeroTitle(localStorage.getItem('lumina_pro') === 'true', isTrialActive());
-                } else {
-                    h1.innerText = title;
-                }
-                p.innerText = tag;
-                container.style.opacity = '1';
-                blur.style.left = x + '%';
-                blur.style.top = y + '%';
-            }, 400);
+            if (title === 'Lúmina') {
+                updateHeroTitle(localStorage.getItem('lumina_pro') === 'true', isTrialActive());
+            } else {
+                h1.innerText = title;
+            }
+            p.innerText = tag;
+            blur.style.left = x + '%';
+            blur.style.top = y + '%';
         }
 
         function resetHero() {
-            updateHero('Lúmina', 'CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL', 50, 50);
+            const hour = new Date().getHours();
+            let greeting = "Buenos días";
+            if (hour >= 12 && hour < 19) greeting = "Buenas tardes";
+            if (hour >= 19 || hour < 5) greeting = "Buenas noches";
+            
+            const rawName = localStorage.getItem('lumina_user_name') || "";
+            const userName = rawName.split(' ')[0]; // Solo el primer nombre
+            const finalGreeting = userName ? `${greeting}, ${userName}` : greeting;
+
+            const greetingEl = document.getElementById('hub-user-greeting');
+            if (greetingEl) greetingEl.innerText = finalGreeting;
+
+            updateHero('Lúmina', 'CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL', 50, 48);
         }
 
         // PWA Wake Lock
@@ -8469,51 +8595,15 @@
 
         // --- SISTEMA DE URL Y BOTÓN ATRÁS (HARDWARE) ---
         window.addEventListener('hashchange', () => {
-            // Si el usuario presiona "Atrás" en Android, el hash desaparece o cambia.
-            // Si el hash ya no contiene un modal válido ni una ruta de navegación interna, cerramos todos los modales.
-            const isSubNav = window.location.hash.startsWith('#pausa') || window.location.hash.startsWith('#exp');
-            if (!isSubNav && !window.location.hash.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos)/)) {
-                closeModals(true); 
+            const h = window.location.hash;
+            // Ignorar transiciones de navegación de categorías y hub para no cerrar modales accidentalmente
+            const isNavTransition = h.startsWith('#pausa') || h.startsWith('#exp') || h === '#hub' || h === '';
+            const isModalHash = h.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos)/);
+            if (!isNavTransition && !isModalHash) {
+                closeModals(true);
             }
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initAmbient();
-
-            // Limpieza de claves antiguas del contador PRO (migración a objeto consolidado)
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && key.startsWith('lumina_extra_count_')) {
-                        localStorage.removeItem(key);
-                        i--; // Compensar el cambio de índice tras eliminar
-                    }
-                }
-            } catch (e) {}
-
-            updateProExtraUI();
-            if (localStorage.getItem('lumina_wake_lock') === 'true') requestWakeLock();
-            
-            // Soporte para abrir modal desde notificaciones o links externos
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('modal') === 'habitos' || window.location.hash === '#habitos') {
-                setTimeout(() => {
-                    const modal = document.getElementById('habitos-modal');
-                    if (modal && !modal.classList.contains('active')) {
-                        toggleHabitos();
-                    }
-                }, 800); 
-            }
-
-            const hash = window.location.hash;
-            if (hash.startsWith('#pausa')) {
-                const sub = hash.split(':')[1];
-                setTimeout(() => {
-                    openCategory('pausa', false, false);
-                    if (sub) openPausaDetail(sub);
-                }, 500);
-            }
-        });
 
         // --- LÓGICA DE PAUSA CONSCIENTE ---
         const meditacionesData = [
@@ -8602,8 +8692,8 @@
             document.getElementById('prep-phrase').innerText = `"${data.phrase}"`;
             document.getElementById('prep-guide').innerHTML = data.guide;
 
-            // Enlace dinámico
-            window.location.hash = `pausa:${id}`;
+            // Enlace dinámico (pushState evita disparar hashchange+closeModals)
+            history.pushState({ cat: 'pausa', sub: id }, '', `#pausa:${id}`);
 
             // Persistencia para el copy inteligente
             window._lastPausaTitle = data.title;
@@ -8808,13 +8898,7 @@
         }
 
         // --- INYECCIÓN AL CARGAR PARA LEER EL HISTORIAL DE PAUSAS ---
-        document.addEventListener('DOMContentLoaded', () => {
-            let pausasCount = parseInt(localStorage.getItem('lumina_pausas_count') || '0');
-            const pVal = document.getElementById('pausas-val');
-            const profilePVal = document.getElementById('profile-pausas-val');
-            if (pVal) pVal.innerText = pausasCount;
-            if (profilePVal) profilePVal.innerText = pausasCount;
-        });
+        // Removido listener redundante
 
 
         // --- LÓGICA DE ESCÁNER QR DE SABIDURÍA ---
@@ -8955,10 +9039,11 @@
             if (!modal) return;
             
             if (modal.classList.contains('active')) {
-                history.back();
+                modal.classList.remove('active');
+                const prevHash = currentCategory ? '#' + currentCategory : '#hub';
+                history.replaceState(null, '', prevHash);
             } else {
                 closeModals(true);
-                // Pequeño retardo para estabilidad en móviles (evita que se abra "detrás" de otro modal)
                 setTimeout(() => {
                     modal.classList.add('active');
                     history.pushState({ modal: 'mood' }, "", "#mood");
@@ -9137,7 +9222,7 @@
             }
         }
 
-        window.onload = init;
+        // init() se invoca desde DOMContentLoaded (script de arranque)
 	
 	</script>
 
@@ -9198,7 +9283,7 @@
                 O ADQUIRIR ACCESO VITALICIO
             </button>
 
-            <button onclick="document.getElementById('pro-modal').classList.remove('active')" 
+            <button onclick="closeModals()" 
                 style="background:none; border: none; color: var(--text); opacity: 0.2; font-size: 0.6rem; margin-top: 35px; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; width: 100%;">
                 Luego
             </button>
@@ -9316,6 +9401,8 @@
                 <button class="profile-tab" onclick="switchProfileTab('diario')">Reflexiones</button>
                 <button class="profile-tab" onclick="switchProfileTab('favs')">Favoritos</button>
             </div>
+
+            <div class="modal-body">
 
             <!-- SECCIÓN: IDENTIDAD -->
             <div id="profile-tab-identidad" class="profile-tab-content active">
@@ -9522,107 +9609,14 @@
                 </div>
             </div>
 
-            <button class="btn-save" onclick="toggleProfile()" style="width: 100%; padding: 18px; border-radius: 50px; font-size: 0.8rem; letter-spacing: 2px; margin-top: 30px;">GUARDAR Y CERRAR</button>
-        </div>
-    </div>
-
-    <!-- Portal de Identidad Rebrandeado -->
-    <div id="login-portal" class="modal" style="z-index: 6000; background: var(--bg); display: none; flex-direction: column; align-items: center; overflow-y: auto; padding: 60px 20px;">
-        <div class="auth-bg-glow" style="width: 400px; height: 400px; left: -100px; top: -100px;"></div>
-        <div class="auth-bg-glow" style="width: 300px; height: 300px; right: -50px; bottom: -50px; opacity: 0.05;"></div>
-        <!-- El contenedor tiene margin: auto para centrarse cuando cabe -->
-        <div class="auth-container">
-            <div class="meta" style="margin-bottom: 20px;">LÚMINA</div>
-            <h1 id="portal-title" style="font-family:'Playfair Display', serif; font-size: 3.8rem; font-style: italic; margin-bottom: 10px; line-height: 1;">Identidad</h1>
-            <p id="portal-desc" style="font-size: 0.9rem; opacity: 0.5; margin-bottom: 45px; letter-spacing: 1px;">Tu viaje de sabiduría sincronizado.</p>
-            
-            <div id="portal-fields">
-                <div class="auth-field">
-                    <label class="auth-label">Email</label>
-                    <input type="email" id="reg-email" class="auth-input" placeholder="tu@ejemplo.com">
-                </div>
-
-                <div id="field-name" class="auth-field" style="display: none;">
-                    <label class="auth-label">Tu Nombre</label>
-                    <input type="text" id="reg-name" class="auth-input" placeholder="Ej: Marco Aurelio">
-                </div>
-
-                <div id="field-pass" class="auth-field">
-                    <label class="auth-label">Contraseña</label>
-                    <input type="password" id="reg-pass" class="auth-input" placeholder="••••••••">
-                </div>
-
-                <div id="fields-signup" style="display: none;">
-                    <div class="auth-field">
-                        <label class="auth-label">Pregunta de Seguridad</label>
-                        <select id="reg-question" class="auth-input">
-                            <option value="Nombre de tu primera mascota">¿Nombre de tu primera mascota?</option>
-                            <option value="Ciudad donde naciste">¿Ciudad donde naciste?</option>
-                            <option value="Nombre de tu escuela primaria">¿Nombre de tu escuela primaria?</option>
-                            <option value="Comida favorita de la infancia">¿Tu comida favorita de la infancia?</option>
-                            <option value="Mejor amigo/a de niño/a">¿Mejor amigo/a de niño/a?</option>
-                        </select>
-                    </div>
-                    <div class="auth-field">
-                        <label class="auth-label">Tu Respuesta</label>
-                        <input type="text" id="reg-answer" class="auth-input" placeholder="Respuesta secreta...">
-                    </div>
-                </div>
-
-                <div id="fields-recover" style="display: none;">
-                    <!-- Paso 2: Selección de Método -->
-                    <div id="recover-method-selector" style="display: none; margin-bottom: 25px;">
-                        <label class="auth-label">Elige método de Verificación</label>
-                        <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px;">
-                            <button class="btn-save" onclick="selectRecoverMethod('question')" style="background: rgba(181,131,58,0.1); border: 1px solid var(--accent); color: var(--accent); font-size: 0.75rem; letter-spacing: 1px; padding: 12px;">PREGUNTA SECRETA</button>
-                            <button class="btn-save" onclick="selectRecoverMethod('code')" style="background: rgba(181,131,58,0.1); border: 1px solid var(--accent); color: var(--accent); font-size: 0.75rem; letter-spacing: 1px; padding: 12px;">CÓDIGO DE RESPALDO</button>
-                        </div>
-                    </div>
-
-                    <!-- Paso 3: Inputs específicos -->
-                    <div id="recover-step-question" style="display: none; margin-bottom: 20px;">
-                        <label class="auth-label">Tu Pregunta Secreta</label>
-                        <p id="recover-question-text" style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem; color: var(--accent); margin-bottom: 15px;"></p>
-                        <div class="auth-field">
-                            <input type="text" id="recover-answer" class="auth-input" placeholder="Tu respuesta secreta...">
-                        </div>
-                    </div>
-
-                    <div id="recover-step-code" style="display: none; margin-bottom: 20px;">
-                        <label class="auth-label">Código de Respaldo</label>
-                        <div class="auth-field">
-                            <input type="text" id="recover-code" class="auth-input" maxlength="8" placeholder="Ingresa un código (ej: ABCDEF12)">
-                        </div>
-                    </div>
-
-                    <!-- Parte final (común para ambos) -->
-                    <div id="recover-step-final" style="display: none;">
-                        <div class="auth-field">
-                            <label class="auth-label">Nueva Contraseña</label>
-                            <input type="password" id="recover-new-pass" class="auth-input" placeholder="Mínimo 4 caracteres">
-                        </div>
-                    </div>
-                </div>
-            </div><!-- Fin portal-fields -->
-                
-                <div id="view-codes" style="display: none; background: rgba(181,131,58,0.03); padding: 30px; border-radius: 24px; border: 1px dashed var(--accent); text-align: left; margin-bottom: 25px;">
-                    <span class="auth-label" style="opacity: 1;">Llaves del Templo</span>
-                    <div id="codes-list" style="margin: 20px 0; text-align: center;"></div>
-                    <p style="font-size: 0.75rem; opacity: 0.4; line-height: 1.6;">Estos 5 códigos son tu única forma de recuperar el acceso si olvidas tu contraseña. Guárdalos bien.</p>
-                </div>
-
-            <button id="btn-portal-submit" class="btn-save" onclick="handlePortalAction()" style="width: 100%; margin-top: 20px;">ENTRAR</button>
-
-            <div id="portal-links" style="margin-top: 35px; display: flex; justify-content: center; gap: 15px; align-items: center;">
-                <a id="link-signup" class="auth-link" onclick="setPortalMode('signup')">Crear Cuenta</a>
-                <a id="link-login" class="auth-link" style="display: none;" onclick="setPortalMode('login')">Ya tengo cuenta</a>
-                <span id="portal-sep" style="opacity: 0.1; font-size: 0.8rem;">|</span>
-                <a id="link-recover" class="auth-link" onclick="setPortalMode('recover')">Olvidé mi contraseña</a>
+            </div> <!-- modal-body end -->
+            <div style="padding-top: 10px;">
+                <button class="btn-save" onclick="toggleProfile()" style="width: 100%; padding: 18px; border-radius: 50px; font-size: 0.8rem; letter-spacing: 2px; margin-top: 20px;">GUARDAR Y CERRAR</button>
             </div>
-            
-            <div id="login-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 25px; font-weight: 500; display: none;"></div>
         </div>
     </div>
+
+
 
 
     <!-- Modal Novedades -->
@@ -9655,8 +9649,9 @@
                     </button>
                 </div>
             </div>
-
-            <!-- PANEL DE HÁBITOS (RESTAURADO DESDE PERFIL) -->
+            
+            <div class="modal-body">
+                <!-- PANEL DE HÁBITOS (RESTAURADO DESDE PERFIL) -->
             <div class="habitos-panel" style="margin-top: 0; padding: 20px;">
                 <div class="mood-summary-box" onclick="toggleMoodModal()">
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -9735,8 +9730,15 @@
                     <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
                     <span class="logro-label">Logro del Día — Sabiduría Completa</span>
                 </div>
+
+                <!-- RETO DEL DÍA (HÁBITOS) -->
+                <div id="habitos-reto-del-dia" class="reto-del-dia" style="margin-top: 25px; padding: 20px; border-radius: 20px; border: 1px dashed var(--accent); background: rgba(181, 131, 58, 0.05); display: none;">
+                    <div class="reto-label" style="font-size: 0.55rem; letter-spacing: 2px;">⚡ Reto del Día</div>
+                    <div id="habitos-reto-text" class="reto-text" style="font-size: 0.85rem; font-weight: 500; opacity: 0.9;">---</div>
+                </div>
             </div>
 
+            </div> <!-- modal-body end -->
             <div style="padding-top: 25px; margin-top: 10px;">
                 <button class="btn-save" onclick="toggleHabitos()" style="width: 100%; margin: 0; background: transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--text);">VOLVER</button>
             </div>
@@ -9751,94 +9753,87 @@
                 <button class="tab-btn" id="btn-mood-history" onclick="switchMoodTab('history')">HISTORIAL</button>
             </div>
 
-            <!-- TAB: AHORA -->
-            <div id="mood-tab-now" class="mood-tab-content active">
-                <h2 id="mood-prompt" style="font-family:'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 5px; font-style: italic;">¿Cómo habitas tu mente hoy?</h2>
-                <p style="font-size: 0.85rem; opacity: 0.5; margin-bottom: 30px;">Tu estado define tu enfoque. Selecciona el que más resuene contigo ahora.</p>
+            <div class="modal-body">
+                <!-- TAB: AHORA -->
+                <div id="mood-tab-now" class="mood-tab-content active">
+                    <h2 id="mood-prompt" style="font-family:'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 5px; font-style: italic;">¿Cómo habitas tu mente hoy?</h2>
+                    <p style="font-size: 0.85rem; opacity: 0.5; margin-bottom: 30px;">Tu estado define tu enfoque. Selecciona el que más resuene contigo ahora.</p>
 
-                <div class="mood-selection-grid" id="mood-selection-grid">
-                    <div class="mood-item" onclick="selectMood('Calma')">
-                        <div class="mood-icon-box" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
+                    <div class="mood-selection-grid" id="mood-selection-grid">
+                        <div class="mood-item" onclick="selectMood('Calma')">
+                            <div class="mood-icon-box" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
+                            </div>
+                            <span>Calma</span>
                         </div>
-                        <span>Calma</span>
-                    </div>
-                    <div class="mood-item" onclick="selectMood('Enfoque')">
-                        <div class="mood-icon-box" style="background: rgba(181, 131, 58, 0.1); color: var(--accent);">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                        <div class="mood-item" onclick="selectMood('Enfoque')">
+                            <div class="mood-icon-box" style="background: rgba(181, 131, 58, 0.1); color: var(--accent);">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                            </div>
+                            <span>Enfoque</span>
                         </div>
-                        <span>Enfoque</span>
-                    </div>
-                    <div class="mood-item" onclick="selectMood('Ansiedad')">
-                        <div class="mood-icon-box" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        <div class="mood-item" onclick="selectMood('Ansiedad')">
+                            <div class="mood-icon-box" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                            </div>
+                            <span>Ansiedad</span>
                         </div>
-                        <span>Ansiedad</span>
-                    </div>
-                    <div class="mood-item" onclick="selectMood('Cansancio')">
-                        <div class="mood-icon-box" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        <div class="mood-item" onclick="selectMood('Cansancio')">
+                            <div class="mood-icon-box" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                            </div>
+                            <span>Cansancio</span>
                         </div>
-                        <span>Cansancio</span>
-                    </div>
-                    <div class="mood-item" onclick="selectMood('Frustración')">
-                        <div class="mood-icon-box" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                        <div class="mood-item" onclick="selectMood('Frustración')">
+                            <div class="mood-icon-box" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                            </div>
+                            <span>Frustración</span>
                         </div>
-                        <span>Frustración</span>
-                    </div>
-                    <div class="mood-item" onclick="selectMood('Claridad')">
-                        <div class="mood-icon-box" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line></svg>
+                        <div class="mood-item" onclick="selectMood('Claridad')">
+                            <div class="mood-icon-box" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line></svg>
+                            </div>
+                            <span>Claridad</span>
                         </div>
-                        <span>Claridad</span>
-                    </div>
-                </div>
-
-                <div id="mood-word-input-box" style="margin-top: 25px;">
-                    <input type="text" id="mood-word-input" maxlength="20" placeholder="Define tu día en una palabra (opcional)" 
-                        style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.1); background: rgba(128,128,128,0.03); color: var(--text); font-size: 0.85rem; outline: none; text-align: center;">
-                </div>
-
-                <!-- Respuesta Dinámica (Oculta al inicio) -->
-                <div id="mood-magic-response" style="display: none; margin-top: 10px; animation: modalFadeIn 0.6s ease;">
-                    <!-- Cabecera de Estado con Botón Compartir Estado -->
-                    <div id="mood-state-confirm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(128,128,128,0.03); padding: 15px 20px; border-radius: 15px;">
-                        <div id="mood-selected-display" style="display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem;">
-                            <!-- Inyectado -->
-                        </div>
-                        <button onclick="shareAsImage('mood-state')" class="btn-icon" title="Compartir mi estado" style="background: rgba(181, 131, 58, 0.1) !important; color: var(--accent); width: 32px; height: 32px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                        </button>
                     </div>
 
-                    <div style="background: rgba(181, 131, 58, 0.05); padding: 30px; border-radius: 20px; border: 1px dashed var(--accent); position: relative;">
-                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="var(--accent)" stroke-width="1.5" fill="none" style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--card-bg); padding: 5px; border-radius: 50%;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                        <p id="mood-response-quote" style="font-family:'Playfair Display', serif; font-style: italic; font-size: 1.15rem; line-height: 1.6; opacity: 0.9; margin-bottom: 25px;">---</p>
-                        
-                        <div style="display: flex; gap: 10px;">
-                            <button id="mood-suggested-action" class="btn-save" style="margin: 0; flex: 1; background: var(--accent); color: white;">INICIAR LECCIÓN</button>
-                            <button onclick="shareAsImage('mood-wisdom')" class="btn-icon" title="Compartir sabiduría" style="background: white !important; border: 1px solid rgba(181,131,58,0.2) !important; color: var(--accent); width: 48px; border-radius: 12px;">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    <div id="mood-word-input-box" style="margin-top: 25px;">
+                        <input type="text" id="mood-word-input" maxlength="20" placeholder="Define tu día en una palabra (opcional)" 
+                            style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.1); background: rgba(128,128,128,0.03); color: var(--text); font-size: 0.85rem; outline: none; text-align: center;">
+                    </div>
+
+                    <div id="mood-magic-response" style="display: none; margin-top: 10px; animation: modalFadeIn 0.6s ease;">
+                        <div id="mood-state-confirm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(128,128,128,0.03); padding: 15px 20px; border-radius: 15px;">
+                            <div id="mood-selected-display" style="display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem;"></div>
+                            <button onclick="shareAsImage('mood-state')" class="btn-icon" title="Compartir mi estado" style="background: rgba(181, 131, 58, 0.1) !important; color: var(--accent); width: 32px; height: 32px;">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                             </button>
                         </div>
+                        <div style="background: rgba(181, 131, 58, 0.05); padding: 30px; border-radius: 20px; border: 1px dashed var(--accent); position: relative;">
+                            <p id="mood-response-quote" style="font-family:'Playfair Display', serif; font-style: italic; font-size: 1.15rem; line-height: 1.6; opacity: 0.9; margin-bottom: 25px;">---</p>
+                            <div style="display: flex; gap: 10px;">
+                                <button id="mood-suggested-action" class="btn-save" style="margin: 0; flex: 1; background: var(--accent); color: white;">INICIAR LECCIÓN</button>
+                                <button onclick="shareAsImage('mood-wisdom')" class="btn-icon" title="Compartir sabiduría" style="border: 1px solid rgba(181,131,58,0.2) !important; color: var(--accent); width: 48px; border-radius: 12px;">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- TAB: HISTORIAL -->
-            <div id="mood-tab-history" class="mood-tab-content">
-                <div style="height: 120px; margin-bottom: 30px; position: relative;">
-                    <canvas id="mood-history-chart"></canvas>
+                <!-- TAB: HISTORIAL -->
+                <div id="mood-tab-history" class="mood-tab-content">
+                    <div style="height: 120px; margin-bottom: 30px; position: relative;">
+                        <canvas id="mood-history-chart"></canvas>
+                    </div>
+                    <div style="max-height: 250px; overflow-y: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+                            <tbody id="mood-history-body"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div style="max-height: 250px; overflow-y: auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
-                        <tbody id="mood-history-body">
-                            <!-- Inyectado por JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            </div> <!-- modal-body end -->
 
             <button class="btn-save" onclick="toggleMoodModal()" style="width: 100%; margin-top: 35px; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); opacity: 0.5;">CERRAR</button>
         </div>
@@ -9854,51 +9849,53 @@
                 <button class="tab-btn" id="btn-tab-viaje" onclick="switchInfoTab('viaje')">MI VIAJE</button>
             </div>
 
-            <!-- TAB: FILOSOFÍA -->
-            <div id="info-tab-filosofia">
-                <h2 style="font-family:'Playfair Display', serif; margin-bottom: 20px; font-style: italic; font-size: 2.2rem; margin-top: 20px;">Sobre Lúmina</h2>
-                
-                <p style="font-size: 0.95rem; opacity: 0.9; line-height: 1.7; text-align: left; margin-bottom: 25px;">
-                    Lúmina es la plataforma de microaprendizaje ideada para el hombre y la mujer de espíritu estoico y mente moderna. Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria.
-                </p>
+            <div class="modal-body">
+                <!-- TAB: FILOSOFÍA -->
+                <div id="info-tab-filosofia">
+                    <h2 style="font-family:'Playfair Display', serif; margin-bottom: 20px; font-style: italic; font-size: 2.2rem; margin-top: 20px;">Sobre Lúmina</h2>
+                    
+                    <p style="font-size: 0.95rem; opacity: 0.9; line-height: 1.7; text-align: left; margin-bottom: 25px;">
+                        Lúmina es la plataforma de microaprendizaje ideada para el hombre y la mujer de espíritu estoico y mente moderna. Nuestra misión es destilar la sabiduría esencial para tu excelencia diaria.
+                    </p>
 
-                <div style="text-align: left; font-size: 0.8rem; line-height: 1.6; opacity: 0.85;">
-                    <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; color: var(--accent);">NUESTROS PILARES DE CRECIMIENTO</p>
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Palabras</strong>
-                            Precisión verbal para claridad mental. Eleva tu léxico y expande los límites de tu conciencia.
-                        </div>
-                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Afirmaciones</strong>
-                            Reprogramación consciente. Diálogo interno diseñado para la fortaleza y la resiliencia ante el caos.
-                        </div>
-                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Frases</strong>
-                            El consejo de los gigantes. Sabiduría atemporal para navegar los desafíos de la vida contemporánea.
-                        </div>
-                        <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
-                            <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Libros</strong>
-                            Inmersión profunda en las mentes universales, destilada en lecciones prácticas y accionables para tu día a día.
+                    <div style="text-align: left; font-size: 0.8rem; line-height: 1.6; opacity: 0.85;">
+                        <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 15px; letter-spacing: 1px; color: var(--accent);">NUESTROS PILARES DE CRECIMIENTO</p>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                                <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Palabras</strong>
+                                Precisión verbal para claridad mental. Eleva tu léxico y expande los límites de tu conciencia.
+                            </div>
+                            <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                                <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Afirmaciones</strong>
+                                Reprogramación consciente. Diálogo interno diseñado para la fortaleza y la resiliencia ante el caos.
+                            </div>
+                            <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                                <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Frases</strong>
+                                El consejo de los gigantes. Sabiduría atemporal para navegar los desafíos de la vida contemporánea.
+                            </div>
+                            <div style="border-left: 2px solid var(--accent); padding-left: 15px;">
+                                <strong style="display: block; margin-bottom: 3px; font-size: 0.85rem;">Libros</strong>
+                                Inmersión profunda en las mentes universales, destilada en lecciones prácticas y accionables para tu día a día.
+                            </div>
                         </div>
                     </div>
+
+                    <p style="margin-top: 40px; font-style: italic; opacity: 0.6; text-align: center; font-size: 0.85rem; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">
+                        "Un refugio para quienes buscan la maestría personal, honrando la brevedad del tiempo con la profundidad del conocimiento."
+                    </p>
                 </div>
 
-                <p style="margin-top: 40px; font-style: italic; opacity: 0.6; text-align: center; font-size: 0.85rem; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">
-                    "Un refugio para quienes buscan la maestría personal, honrando la brevedad del tiempo con la profundidad del conocimiento."
-                </p>
-            </div>
-
-            <!-- TAB: VIAJE (RESTAURADO AL MODAL INFO) -->
-            <div id="info-tab-viaje" style="display: none;">
-                <div class="banner-standalone" style="margin-top: 20px; margin-bottom: 20px;">
-                    <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Aprendizaje Modular</h4>
-                    <p style="font-size: 0.8rem; opacity: 0.7;">Cada lección es una joya de sabiduría independiente. Incluye su propia aplicación personal, profesional y reflexión. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
+                <!-- TAB: VIAJE (RESTAURADO AL MODAL INFO) -->
+                <div id="info-tab-viaje" style="display: none;">
+                    <div class="banner-standalone" style="margin-top: 20px; margin-bottom: 20px;">
+                        <h4 style="font-family: 'Playfair Display', serif; font-style: italic;">Aprendizaje Modular</h4>
+                        <p style="font-size: 0.8rem; opacity: 0.7;">Cada lección es una joya de sabiduría independiente. Incluye su propia aplicación personal, profesional y reflexión. No es necesario empezar un libro desde el inicio para transformar tu mente hoy.</p>
+                    </div>
+                    <div id="journey-timeline" class="timeline-container" style="max-height: 400px; overflow-y: auto;">
+                        <div style="padding: 40px; opacity: 0.5;">Cargando cronograma...</div>
+                    </div>
                 </div>
-                <div id="journey-timeline" class="timeline-container" style="max-height: 400px; overflow-y: auto;">
-                    <div style="padding: 40px; opacity: 0.5;">Cargando cronograma...</div>
-                </div>
-            </div>
+            </div> <!-- modal-body end -->
             <button class="btn-save" onclick="toggleInfo()" style="width: 100%; margin-top: 30px; padding: 15px;">ENTENDIDO</button>
         </div>
     </div>
@@ -9912,190 +9909,183 @@
                 <!-- Perfil Avatar Trigger -->
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
                     <button class="btn-icon" onclick="toggleProfile()" title="Ver Perfil" 
-                        style="background: var(--accent) !important; width: 48px; height: 48px; border-radius: 50%; opacity: 1; overflow: hidden; padding: 0; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        
-                        <!-- Icono Placeholder (Silueta) -->
-                        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: rgba(255,255,255,0.95) !important; stroke: none !important; position: absolute; z-index: 1;">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" stroke="none"/>
-                        </svg>
-
-                        <!-- Imagen del Avatar (DiceBear) -->
-                        <img id="settings-avatar-img" class="user-avatar" src="" alt="Profile" 
-                            style="width: 100%; height: 100%; position: relative; z-index: 2; border-radius: 50%; object-fit: cover;" 
-                            onload="this.classList.add('loaded')">
+                        style="background: var(--accent) !important; width: 48px; height: 48px; border-radius: 50%; opacity: 1; overflow: hidden; padding: 0; position: relative;">
+                        <img class="user-avatar" src="" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
                     </button>
-                    <span style="font-size: 0.5rem; color: var(--accent); letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; opacity: 0.8;">Perfil</span>
+                    <span style="font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; opacity: 0.6; text-transform: uppercase;">Perfil</span>
                 </div>
             </div>
-            
-            <!-- SECCIÓN 1: AUDIO -->
-            <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">AUDIO Y NARRACIÓN</div>
 
-            <div class="sub-option" style="cursor:pointer; margin-bottom: 15px;" onclick="toggleCloudVoice()">
-                <div style="display: flex; flex-direction: column;">
-                    <span>Voz Google Premium</span>
-                    <small style="font-size: 0.6rem; opacity: 0.5;">Alta fidelidad • Recomendado</small>
+            <!-- CONTENIDO SCROLLABLE -->
+            <div class="modal-body">
+                <!-- SECCIÓN 1: AUDIO -->
+                <div style="text-align: left; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">AUDIO Y NARRACIÓN</div>
+
+                <div class="sub-option" style="cursor:pointer; margin-bottom: 15px;" onclick="toggleCloudVoice()">
+                    <div style="display: flex; flex-direction: column;">
+                        <span>Voz Google Premium</span>
+                        <small style="font-size: 0.6rem; opacity: 0.5;">Alta fidelidad • Recomendado</small>
+                    </div>
+                    <div class="toggle-sub" id="cloud-voice-toggle"></div>
                 </div>
-                <div class="toggle-sub" id="cloud-voice-toggle"></div>
-            </div>
 
-            <div style="text-align: left; margin-bottom: 30px;">
-                <div style="font-size: 0.6rem; letter-spacing: 1.5px; opacity: 0.5; margin-bottom: 8px; text-transform: uppercase; font-weight: 700; color: var(--accent);">Voz del Dispositivo</div>
-                <select id="voice-select" onchange="saveVoicePreference()" style="width:100%; padding:14px; border-radius:15px; border:1px solid rgba(181, 131, 58, 0.2); background:rgba(181, 131, 58, 0.05); color:var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none; appearance: none; -webkit-appearance: none;">
-                    <option value="">Cargando voces...</option>
-                </select>
-                <p style="font-size: 0.6rem; opacity: 0.4; margin-top: 10px; line-height: 1.4;">
-                    HACK: Las voces marcadas con <b>✨</b> suenan más reales. En Android usa las de <b>Google</b> y en PC usa <b>Edge</b> para mejores resultados.
-                </p>
-            </div>
+                <div style="text-align: left; margin-bottom: 30px;">
+                    <div style="font-size: 0.6rem; letter-spacing: 1.5px; opacity: 0.5; margin-bottom: 8px; text-transform: uppercase; font-weight: 700; color: var(--accent);">Voz del Dispositivo</div>
+                    <select id="voice-select" onchange="saveVoicePreference()" style="width:100%; padding:14px; border-radius:15px; border:1px solid rgba(181, 131, 58, 0.2); background:rgba(181, 131, 58, 0.05); color:var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none; appearance: none; -webkit-appearance: none;">
+                        <option value="">Cargando voces...</option>
+                    </select>
+                    <p style="font-size: 0.6rem; opacity: 0.4; margin-top: 10px; line-height: 1.4;">
+                        HACK: Las voces marcadas con <b>✨</b> suenan más reales. En Android usa las de <b>Google</b> y en PC usa <b>Edge</b> para mejores resultados.
+                    </p>
+                </div>
 
-            <div class="sub-option" style="cursor:pointer; margin-bottom: 30px;" onclick="toggleUISounds()">
-                <span>Sonidos de Interfaz</span>
-                <div class="toggle-sub" id="ui-sounds-toggle"></div>
-            </div>
+                <div class="sub-option" style="cursor:pointer; margin-bottom: 30px;" onclick="toggleUISounds()">
+                    <span>Sonidos de Interfaz</span>
+                    <div class="toggle-sub" id="ui-sounds-toggle"></div>
+                </div>
 
-            <div style="text-align: left; margin-bottom: 30px;">
-                <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Sonidos Ambientales</div>
-                <div class="ambient-grid">
-                    <div class="ambient-item" id="amb-none" onclick="toggleAmbient('none')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                <div style="text-align: left; margin-bottom: 30px;">
+                    <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Sonidos Ambientales</div>
+                    <div class="ambient-grid">
+                        <div class="ambient-item" id="amb-none" onclick="toggleAmbient('none')">
+                            <div class="ambient-icon-box">
+                                <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                            </div>
+                            <span class="ambient-label">Silencio</span>
                         </div>
-                        <span class="ambient-label">Silencio</span>
-                    </div>
-                    <div class="ambient-item" id="amb-zen" onclick="toggleAmbient('zen')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M12 3c1.64 4 4 7 8 8-4 1.64-7 4-8 8-1.64-4-4-7-8-8 4-1.64 7-4 8-8z"></path></svg>
+                        <div class="ambient-item" id="amb-zen" onclick="toggleAmbient('zen')">
+                            <div class="ambient-icon-box">
+                                <svg viewBox="0 0 24 24"><path d="M12 3c1.64 4 4 7 8 8-4 1.64-7 4-8 8-1.64-4-4-7-8-8 4-1.64 7-4 8-8z"></path></svg>
+                            </div>
+                            <span class="ambient-label">Zen</span>
                         </div>
-                        <span class="ambient-label">Zen</span>
-                    </div>
-                    <div class="ambient-item" id="amb-birds" onclick="toggleAmbient('birds')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M4 11c5-5 11-5 16 0-5-1-11-1-16 0zM4 15c5-5 11-5 16 0-5-1-11-1-16 0z"></path></svg>
+                        <div class="ambient-item" id="amb-birds" onclick="toggleAmbient('birds')">
+                            <div class="ambient-icon-box">
+                                <svg viewBox="0 0 24 24"><path d="M4 11c5-5 11-5 16 0-5-1-11-1-16 0zM4 15c5-5 11-5 16 0-5-1-11-1-16 0z"></path></svg>
+                            </div>
+                            <span class="ambient-label">Pájaros</span>
                         </div>
-                        <span class="ambient-label">Pájaros</span>
-                    </div>
-                    <div class="ambient-item" id="amb-forest" onclick="toggleAmbient('forest')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M12 2l4 5h-3v4h5l-4 5h3l-5 6h-2l-5-6h3l-4-5h5V7H8l4-5z"></path></svg>
+                        <div class="ambient-item" id="amb-forest" onclick="toggleAmbient('forest')">
+                            <div class="ambient-icon-box">
+                                <svg viewBox="0 0 24 24"><path d="M12 2l4 5h-3v4h5l-4 5h3l-5 6h-2l-5-6h3l-4-5h5V7H8l4-5z"></path></svg>
+                            </div>
+                            <span class="ambient-label">Bosque</span>
                         </div>
-                        <span class="ambient-label">Bosque</span>
-                    </div>
-                    <div class="ambient-item" id="amb-ocean" onclick="toggleAmbient('ocean')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
+                        <div class="ambient-item" id="amb-ocean" onclick="toggleAmbient('ocean')">
+                            <div class="ambient-icon-box">
+                                <svg viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
+                            </div>
+                            <span class="ambient-label">Océano</span>
                         </div>
-                        <span class="ambient-label">Océano</span>
-                    </div>
-                    <div class="ambient-item" id="amb-rain" onclick="toggleAmbient('rain')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"></path><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="13" x2="12" y2="21"></line><line x1="16" y1="13" x2="16" y2="21"></line></svg>
+                        <div class="ambient-item" id="amb-rain" onclick="toggleAmbient('rain')">
+                            <div class="ambient-icon-box">
+                                <svg viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"></path><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="13" x2="12" y2="21"></line><line x1="16" y1="13" x2="16" y2="21"></line></svg>
+                            </div>
+                            <span class="ambient-label">Lluvia</span>
                         </div>
-                        <span class="ambient-label">Lluvia</span>
-                    </div>
-                    <div class="ambient-item" id="amb-waterfall" onclick="toggleAmbient('waterfall')">
-                        <div class="ambient-icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M8 4v16M12 6v14M16 4v16M20 6v14"></path></svg>
+                        <div class="ambient-item" id="amb-waterfall" onclick="toggleAmbient('waterfall')">
+                            <div class="ambient-icon-box">
+                                <svg viewBox="0 0 24 24"><path d="M8 4v16M12 6v14M16 4v16M20 6v14"></path></svg>
+                            </div>
+                            <span class="ambient-label">Cascada</span>
                         </div>
-                        <span class="ambient-label">Cascada</span>
                     </div>
-                </div>
-                <input type="range" id="ambient-vol" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; margin-top: 15px; accent-color: var(--accent); height: 4px; cursor: pointer;">
-            </div>
-
-            <!-- SECCIÓN: APARIENCIA -->
-            <div style="text-align: left; margin-top: 15px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">APARIENCIA Y ESTILO</div>
-
-            <div class="sub-option" style="cursor:pointer; margin-bottom: 20px;" onclick="toggleTheme()">
-                <span>Modo Noche</span>
-                <div class="toggle-sub" id="theme-toggle"></div>
-            </div>
-            
-            <div style="text-align: left; margin-bottom: 20px;">
-                <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Color de Acento</div>
-                <div class="color-picker">
-                    <div class="color-circle" id="col-aureum" style="background:#b5833a" onclick="setAccent('#b5833a', 'aureum')" title="Aureum (Oro)"></div>
-                    <div class="color-circle" id="col-aether" style="background:#38bdf8" onclick="setAccent('#38bdf8', 'aether')" title="Aether (Azul)"></div>
-                    <div class="color-circle" id="col-viridis" style="background:#10b981" onclick="setAccent('#10b981', 'viridis')" title="Viridis (Esmeralda)"></div>
-                    <div class="color-circle" id="col-terra" style="background:#e2725b" onclick="setAccent('#e2725b', 'terra')" title="Terra (Arcilla)"></div>
-                    <div class="color-circle" id="col-vesper" style="background:#8b5cf6" onclick="setAccent('#8b5cf6', 'vesper')" title="Vesper (Violeta)"></div>
+                    <input type="range" id="ambient-vol" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; margin-top: 15px; accent-color: var(--accent); height: 4px; cursor: pointer;">
                 </div>
 
-                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Estilo de Texto</div>
-                <div class="font-picker">
-                    <div class="font-pair-btn" id="font-esenza" onclick="setFontPair('esenza')">
-                        <span class="pair-name" style="font-family:'Playfair Display', serif;">Esenza</span>
-                        <span class="pair-desc">Clásico y Atemporal</span>
+                <!-- SECCIÓN: APARIENCIA -->
+                <div style="text-align: left; margin-top: 15px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">APARIENCIA Y ESTILO</div>
+
+                <div class="sub-option" style="cursor:pointer; margin-bottom: 20px;" onclick="toggleTheme()">
+                    <span>Modo Noche</span>
+                    <div class="toggle-sub" id="theme-toggle"></div>
+                </div>
+                
+                <div style="text-align: left; margin-bottom: 20px;">
+                    <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 8px; text-transform: uppercase;">Color de Acento</div>
+                    <div class="color-picker">
+                        <div class="color-circle" id="col-aureum" style="background:#b5833a" onclick="setAccent('#b5833a', 'aureum')" title="Aureum (Oro)"></div>
+                        <div class="color-circle" id="col-aether" style="background:#38bdf8" onclick="setAccent('#38bdf8', 'aether')" title="Aether (Azul)"></div>
+                        <div class="color-circle" id="col-viridis" style="background:#10b981" onclick="setAccent('#10b981', 'viridis')" title="Viridis (Esmeralda)"></div>
+                        <div class="color-circle" id="col-terra" style="background:#e2725b" onclick="setAccent('#e2725b', 'terra')" title="Terra (Arcilla)"></div>
+                        <div class="color-circle" id="col-vesper" style="background:#8b5cf6" onclick="setAccent('#8b5cf6', 'vesper')" title="Vesper (Violeta)"></div>
                     </div>
-                    <div class="font-pair-btn" id="font-nova" onclick="setFontPair('nova')">
-                        <span class="pair-name" style="font-family:'Outfit', sans-serif;">Nova</span>
-                        <span class="pair-desc">Moderno y Tecnológico</span>
+
+                    <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Estilo de Texto</div>
+                    <div class="font-picker">
+                        <div class="font-pair-btn" id="font-esenza" onclick="setFontPair('esenza')">
+                            <span class="pair-name" style="font-family:'Playfair Display', serif;">Esenza</span>
+                            <span class="pair-desc">Clásico y Atemporal</span>
+                        </div>
+                        <div class="font-pair-btn" id="font-nova" onclick="setFontPair('nova')">
+                            <span class="pair-name" style="font-family:'Outfit', sans-serif;">Nova</span>
+                            <span class="pair-desc">Moderno y Tecnológico</span>
+                        </div>
+                        <div class="font-pair-btn" id="font-sereni" onclick="setFontPair('sereni')">
+                            <span class="pair-name" style="font-family:'Lora', serif;">Sereni</span>
+                            <span class="pair-desc">Editorial y Sofisticado</span>
+                        </div>
                     </div>
-                    <div class="font-pair-btn" id="font-sereni" onclick="setFontPair('sereni')">
-                        <span class="pair-name" style="font-family:'Lora', serif;">Sereni</span>
-                        <span class="pair-desc">Editorial y Sofisticado</span>
+                </div>
+
+                <!-- SECCIÓN: SISTEMA Y ENERGÍA -->
+                <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">SISTEMA Y ENERGÍA</div>
+                
+                <div class="sub-option" onclick="toggleWakeLock()" style="cursor:pointer; margin-bottom: 15px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span>Mantener Pantalla Encendida</span>
+                        <small style="font-size: 0.6rem; opacity: 0.5;">Evita que el dispositivo entre en reposo</small>
+                    </div>
+                    <div class="toggle-sub" id="sub-wake-lock"></div>
+                </div>
+
+                <div class="sub-option" onclick="showScanner()" style="cursor:pointer; margin-bottom: 25px; border-top: 1px solid rgba(181,131,58,0.1); padding-top: 15px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span>Escáner de Sabiduría</span>
+                        <small style="font-size: 0.6rem; opacity: 0.5;">Escanea QRs para abrir pantallas compartidas</small>
+                    </div>
+                    <div style="color: var(--accent); opacity: 0.8;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
                     </div>
                 </div>
-            </div>
 
-            <!-- SECCIÓN: SISTEMA Y ENERGÍA -->
-            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">SISTEMA Y ENERGÍA</div>
-            
-            <div class="sub-option" onclick="toggleWakeLock()" style="cursor:pointer; margin-bottom: 15px;">
-                <div style="display: flex; flex-direction: column;">
-                    <span>Mantener Pantalla Encendida</span>
-                    <small style="font-size: 0.6rem; opacity: 0.5;">Evita que el dispositivo entre en reposo</small>
+                <!-- SECCIÓN: NOTIFICACIONES -->
+                <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">NOTIFICACIONES</div>
+
+                <div class="sub-option" onclick="togglePush()" style="cursor:pointer;">
+                    <span>Alertas de Sabiduría</span>
+                    <div class="toggle-sub" id="sub-push"></div>
                 </div>
-                <div class="toggle-sub" id="sub-wake-lock"></div>
-            </div>
 
-            <div class="sub-option" onclick="showScanner()" style="cursor:pointer; margin-bottom: 25px; border-top: 1px solid rgba(181,131,58,0.1); padding-top: 15px;">
-                <div style="display: flex; flex-direction: column;">
-                    <span>Escáner de Sabiduría</span>
-                    <small style="font-size: 0.6rem; opacity: 0.5;">Escanea QRs para abrir pantallas compartidas</small>
+                <div class="sub-option" onclick="toggleTag('palabras')" style="cursor:pointer;">
+                    <span>Palabras de Hoy</span>
+                    <div class="toggle-sub" id="sub-palabras"></div>
                 </div>
-                <div style="color: var(--accent); opacity: 0.8;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
+                <div class="sub-option" onclick="toggleTag('afirmaciones')" style="cursor:pointer;">
+                    <span>Afirmaciones</span>
+                    <div class="toggle-sub" id="sub-afirmaciones"></div>
                 </div>
-            </div>
+                <div class="sub-option" onclick="toggleTag('frases')" style="cursor:pointer;">
+                    <span>Frases Célebres</span>
+                    <div class="toggle-sub" id="sub-frases"></div>
+                </div>
+                <div class="sub-option" onclick="toggleTag('libros')" style="cursor:pointer;">
+                    <span>Lecciones del Club</span>
+                    <div class="toggle-sub" id="sub-libros"></div>
+                </div>
+                
+                <!-- SECCIÓN: DISTRIBUCIÓN -->
+                <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">DISTRIBUCIÓN</div>
+                
+                <button class="btn-save" id="btn-pwa-install-main" 
+                    style="background:var(--accent); color: white; width: 100%; padding: 15px; font-size: 0.85rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;" 
+                    onclick="toggleInstallModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4M7 10l5 5 5-5M12 15V3"/></svg>
+                    INSTALAR APLICACIÓN
+                </button>
+            </div> <!-- modal-body end -->
 
-            <!-- SECCIÓN: NOTIFICACIONES -->
-            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">NOTIFICACIONES</div>
-
-            <div class="sub-option" onclick="togglePush()" style="cursor:pointer;">
-                <span>Alertas de Sabiduría</span>
-                <div class="toggle-sub" id="sub-push"></div>
-            </div>
-
-            <div class="sub-option" onclick="toggleTag('palabras')" style="cursor:pointer;">
-                <span>Palabras de Hoy</span>
-                <div class="toggle-sub" id="sub-palabras"></div>
-            </div>
-            <div class="sub-option" onclick="toggleTag('afirmaciones')" style="cursor:pointer;">
-                <span>Afirmaciones</span>
-                <div class="toggle-sub" id="sub-afirmaciones"></div>
-            </div>
-            <div class="sub-option" onclick="toggleTag('frases')" style="cursor:pointer;">
-                <span>Frases Célebres</span>
-                <div class="toggle-sub" id="sub-frases"></div>
-            </div>
-            <div class="sub-option" onclick="toggleTag('libros')" style="cursor:pointer;">
-                <span>Lecciones del Club</span>
-                <div class="toggle-sub" id="sub-libros"></div>
-            </div>
-
-
-            <!-- SECCIÓN: DISTRIBUCIÓN -->
-            <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">DISTRIBUCIÓN</div>
-            
-            <button class="btn-save" id="btn-pwa-install-main" 
-                style="background:var(--accent); color: white; width: 100%; padding: 15px; font-size: 0.85rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;" 
-                onclick="toggleInstallModal()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4M7 10l5 5 5-5M12 15V3"/></svg>
-                INSTALAR APLICACIÓN
-            </button>
-
-            <button class="btn-save" onclick="toggleSettings()" style="background:none; border: none; color: var(--text); opacity: 0.4; font-size: 0.8rem; margin-top: 15px;">CERRAR VENTANA</button>
+            <button class="btn-save" onclick="toggleSettings()" style="width: 100%; margin-top: 25px; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); opacity: 0.6;">CERRAR</button>
         </div>
     </div>
 
@@ -10105,6 +10095,7 @@
             <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; margin-bottom: 10px;">Instalar Lúmina</h2>
             <p style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 25px;">Selecciona tu plataforma preferida para llevar la sabiduría contigo.</p>
             
+            <div class="modal-body">
             <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-bottom: 10px;">NAVEGADORES (PWA)</div>
             <div class="install-grid">
                 <div class="install-card" id="inst-chrome" onclick="triggerPwaInstall()">
@@ -10184,8 +10175,9 @@
             </div>
 
             <pwa-install id="pwainstall" usecustom iosinstallinfotext="Toca el botón Compartir y añade a pantalla de inicio."></pwa-install>
-            
-            <button class="btn-save" onclick="document.getElementById('install-modal').classList.remove('active')" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;">CERRAR</button>
+            </div> <!-- end modal-body -->
+
+            <button class="btn-save" onclick="closeModals()" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;">CERRAR</button>
         </div>
     </div>
 
@@ -10197,6 +10189,20 @@
         </div>
         <button class="update-btn" onclick="forceUpdateApp()">REINICIAR</button>
     </div>
+
+    <!-- Toast de Confirmación Desvinculación -->
+    <div id="confirm-toast" class="toast-modal" style="display: flex; flex-direction: column; gap: 15px; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s;">
+        <div style="background: var(--bg); padding: 30px; border-radius: 20px; max-width: 320px; text-align: center; border: 1px solid var(--accent);">
+            <p id="confirm-msg" style="margin-top: 0; line-height: 1.6;"></p>
+            <div style="display: flex; gap: 10px; justify-content: space-between; margin-top: 20px;">
+                <button onclick="hideConfirm()" style="flex:1; background: transparent; color: var(--text); padding: 12px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2);">Cancelar</button>
+                <button id="btn-confirm-action" style="flex:1; background: var(--accent); color: #fff; padding: 12px; border-radius: 12px; border: none; font-weight: 600;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    <style>
+        #confirm-toast.active { opacity: 1 !important; pointer-events: auto !important; }
+    </style>
 
     <!-- Popup de Emergencia / Anuncios -->
     <div id="lumina-popup">
@@ -10215,14 +10221,7 @@
     <div id="toast" class="toast"><span>Mensaje</span></div>
     <div id="exit-toast" class="toast" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text);"><span>Presiona nuevamente para salir de Lúmina</span></div>
 
-    <!-- Confirm Toast -->
-    <div id="confirm-toast" class="confirm-toast">
-        <div class="confirm-msg" id="confirm-msg">¿Estás seguro?</div>
-        <div class="confirm-btns">
-            <button class="btn-confirm btn-confirm-no" onclick="hideConfirm()">CANCELAR</button>
-            <button class="btn-confirm btn-confirm-yes" id="btn-confirm-action">SÍ, CONTINUAR</button>
-        </div>
-    </div>
+
 
     <!-- ÁREAS DE CAPTURA (OCULTAS PERO PRESENTES PARA RENDER) -->
     <div class="hidden-capture">
@@ -10272,38 +10271,14 @@
                 </div>
             </div>
 
-            <button class="btn-save" onclick="document.getElementById('bitacora-stats-modal').classList.remove('active')" style="width: 100%; border-radius: 50px; background: transparent; border: 1px solid var(--accent); color: var(--accent); opacity: 0.8;">CERRAR VENTANA</button>
+            <button class="btn-save" onclick="closeModals()" style="width: 100%; border-radius: 50px; background: transparent; border: 1px solid var(--accent); color: var(--accent); opacity: 0.8;">CERRAR VENTANA</button>
         </div>
     </div>
 
 
 
-<script>
-// === FIX ULTRA SIMPLE: SOLO LOADER + SCROLL CTA ===
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. OCULTAR LOADER
-  const loader = document.getElementById('loader');
-  if (loader) loader.style.display = 'none';
-  
-  // 2. SOLO CTA ORO scroll (NO toca auth)
-  document.querySelectorAll('.btn-cta-gold:not([onclick*="openAuth"])').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.scrollTo({top: 0, behavior: 'smooth'});
-      setTimeout(() => {
-        document.querySelector('.pricing-grid')?.scrollIntoView({behavior: 'smooth'});
-      }, 800);
-    });
-  });
-  
-  console.log('✅ FIX mínimo OK');
-});
-</script>
-<!-- PANEL AUTH (FALTA en tu HTML) -->
-<div id="login-portal" class="modal" style="z-index: 6000; background: var(--bg); display: none; flex-direction: column; align-items
 
-
-
+    
 
 </body>
 </html>
