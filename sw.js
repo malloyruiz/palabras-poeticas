@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lumina-v10'; // v10: Notificaciones de meditación y recursos dinámicos
+const CACHE_NAME = 'lumina-v11'; // v11: Notificaciones mejoradas vía postMessage
 const ASSETS = [
     "index.html",
     "manifest.json",
@@ -55,6 +55,14 @@ self.addEventListener('fetch', e => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  
+  // Soporte para notificaciones de meditación activadas desde la página
+  if (event.data && event.data.type === 'LUMINA_MEDITATION_NOTIF') {
+    const { title, options } = event.data.payload;
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
   }
 });
 

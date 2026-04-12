@@ -10361,38 +10361,46 @@
     <!-- Script de Notificaciones de Meditación -->
     <script>
         /**
-         * SISTEMA DE NOTIFICACIONES DE MEDITACIÓN (LÚMINA)
-         * Genera una notificación local persistente con icono dinámico.
+         * SISTEMA DE NOTIFICACIONES DE MEDITACIÓN (LÚMINA - v2)
+         * Envía un mensaje al Service Worker para disparar la notificación (más fiable en Android).
          */
         async function startMeditationNotification() {
-            if (!('Notification' in window)) {
-                console.warn('Notificaciones no soportadas.');
-                return;
-            }
-
-            if (Notification.permission === 'default') {
-                await Notification.requestPermission();
-            }
-
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'default') await Notification.requestPermission();
             if (Notification.permission !== 'granted') return;
 
             try {
-                const registration = await navigator.serviceWorker.ready;
                 const iconUrl = await generateMeditationIcon();
-
-                await registration.showNotification('Momento de meditar', {
-                    body: 'Sesión de meditación activa. Respira profundo.',
-                    icon: iconUrl,
-                    badge: iconUrl,
-                    tag: 'meditacion-activa', // Solo una a la vez
-                    requireInteraction: true,
-                    silent: true,
-                    vibrate: [100],
-                    data: { url: window.location.href }
-                });
-                console.log('Notificación de meditación iniciada.');
+                
+                // Verificamos si hay un Service Worker controlador
+                if (navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'LUMINA_MEDITATION_NOTIF',
+                        payload: {
+                            title: 'Momento de meditar',
+                            options: {
+                                body: 'Sesión de meditación activa. Respira profundo.',
+                                icon: iconUrl,
+                                badge: iconUrl,
+                                tag: 'meditacion-activa',
+                                requireInteraction: true,
+                                silent: true,
+                                vibrate: [100]
+                            }
+                        }
+                    });
+                    console.log('Mensaje de notificación enviado al SW.');
+                } else {
+                    // Fallback si el SW aún no controla la página
+                    const registration = await navigator.serviceWorker.ready;
+                    registration.showNotification('Momento de meditar', {
+                        body: 'Sesión de meditación activa. Respira profundo.',
+                        icon: iconUrl,
+                        tag: 'meditacion-activa'
+                    });
+                }
             } catch (err) {
-                console.error('Error al mostrar notificación:', err);
+                console.error('Error en el sistema de notificaciones:', err);
             }
         }
 
