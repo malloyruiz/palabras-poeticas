@@ -2631,6 +2631,20 @@
             margin-bottom: 20px;
             font-family: var(--font-body);
         }
+        #loader-text {
+            position: absolute;
+            bottom: 60px;
+            text-align: center;
+            width: 100%;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent, #b5833a);
+            opacity: 0; 
+            transition: opacity 0.8s ease-in-out;
+            font-weight: 600;
+            z-index: 10;
+        }
         .t-action {
             font-size: 0.65rem;
             letter-spacing: 2px;
@@ -2706,7 +2720,7 @@
     </style>
 </head>
 <body class="is-guest">
-    <div id="lumina-version" style="display:none">v2026-04-10-ULTIMATE</div>
+    <div id="lumina-version" style="display:none">v2026-04-12-STABLE</div>
     
     <!-- PORTAL DE IDENTIDAD (REUBICADO AL INICIO) -->
     <div id="portal-identidad-lumina" class="portal-overlay-lumina" onclick="if(event.target === this) this.classList.remove('active')">
@@ -3236,7 +3250,21 @@
                 const loader = document.getElementById('loader');
                 if (loader) loader.classList.remove('hidden');
                 await pushSync(true);
+
+                // Preserve local achievement/gamification data across logins
+                const visits = localStorage.getItem('lumina_visited_' + new Date().toDateString());
+                const dailyC = localStorage.getItem('lumina_daily_counts');
+                const pMins = localStorage.getItem('lumina_pausa_mins');
+                const libresL = localStorage.getItem('lumina_libros_leidos');
+
                 localStorage.clear();
+
+                // Restore
+                if(visits) localStorage.setItem('lumina_visited_' + new Date().toDateString(), visits);
+                if(dailyC) localStorage.setItem('lumina_daily_counts', dailyC);
+                if(pMins) localStorage.setItem('lumina_pausa_mins', pMins);
+                if(libresL) localStorage.setItem('lumina_libros_leidos', libresL);
+
                 window.location.reload();
             });
         }
@@ -3814,12 +3842,7 @@
                 <div id="reflexion-text" class="reto-text">---</div>
             </div>
 
-            <!-- BOTÓN MARCAR COMO LEÍDO (AL FINAL) -->
-            <div id="leido-cta-container" style="display: none; padding: 10px 0 30px; text-align: center;">
-                <button id="btn-marcar-leido" onclick="marcarComoLeido()" style="background: transparent; border: 1px solid rgba(181,131,58,0.35); color: var(--accent); padding: 11px 28px; border-radius: 50px; font-size: 0.65rem; letter-spacing: 2px; font-weight: 600; cursor: pointer; transition: 0.3s; opacity: 0.85;">
-                    MARCAR COMO LEÍDA ✓
-                </button>
-            </div>
+            <!-- EL BOTÓN FUE MOVIDO A LESSON-UI -->
 
             <!-- SECCIÓN EXTRA (DÍA DE ENFOQUE) -->
             <div id="extra-ui" style="grid-column: 1 / -1; display: none;">
@@ -3888,8 +3911,13 @@
                     <textarea class="journal-textarea" id="journal-input" placeholder="Escribe aquí lo que esta lección ha despertado en ti..." oninput="saveUserJournal()"></textarea>
                     <div id="journal-save-status" style="font-size: 0.55rem; opacity: 0.3; text-align: right; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase;">Guardado automáticamente</div>
                 </div>
+                <!-- BOTÓN MARCAR COMO LEÍDO (AL FINAL DE LA LECCIÓN) -->
+                <div id="leido-cta-container" style="display: none; padding: 30px 0; text-align: center; width: 100%;">
+                    <button id="btn-marcar-leido" onclick="marcarComoLeido()" style="background: transparent; border: 1px solid rgba(181,131,58,0.35); color: var(--accent); padding: 12px 30px; border-radius: 50px; font-size: 0.70rem; letter-spacing: 2px; font-weight: 600; cursor: pointer; transition: 0.3s;">
+                        MARCAR COMO LEÍDA ✓
+                    </button>
+                </div>
             </div>
-            <!-- VISTA DE PAUSA CONSCIENTE (SINCRONIZADA CON EXPANSIONES) -->
             <div class="pausa-container responsive-mesh" id="pausa-ui" style="display: none; padding-top: 40px; min-height: 80vh; width: 100% !important; max-width: 1400px !important; margin: 0 auto !important; box-sizing: border-box; grid-column: 1 / -1;">
                 
                 <!-- VISTA 1: Lista -->
@@ -5643,7 +5671,10 @@
                 }
             }
 
+            localStorage.setItem('lumina_streak', streak.toString()); // GUARDAR RACHA CORRECTAMENTE
             localStorage.setItem('lumina_last_activity', new Date().toISOString()); // Registrar actividad
+            localStorage.setItem('lumina_last_visit_ts', now.getTime().toString()); // Registrar visita de medionoche
+            
             pushSync(); // Guardar racha en la nube
 
             if (diffDays !== 0) {
@@ -5683,7 +5714,8 @@
             for (let day in journey) {
                 if (journey[day].completed) completed++;
             }
-            return Math.floor(completed / 7);
+            let librosLeidos = parseInt(localStorage.getItem('lumina_libros_leidos') || '0');
+            return Math.floor(completed / 7) + Math.floor(librosLeidos / 7);
         }
 
         function updateGamification() {
@@ -5926,6 +5958,13 @@
                 visitLog.push(todayStr);
                 if (visitLog.length > 30) visitLog.splice(0, visitLog.length - 30);
                 localStorage.setItem('lumina_visit_log', JSON.stringify(visitLog));
+            }
+            
+            // Incrementar registro de libros para medallas (Logro cada 7)
+            if (cat === 'libros') {
+                let librosLeidos = parseInt(localStorage.getItem('lumina_libros_leidos') || '0');
+                librosLeidos++;
+                localStorage.setItem('lumina_libros_leidos', librosLeidos.toString());
             }
 
             // Actualizar racha
@@ -6340,7 +6379,18 @@
                     backBtn.id = 'btn-back-hub';
                     backBtn.className = 'btn-back-glass';
                     backBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
-                    backBtn.onclick = () => showHub(); 
+                    backBtn.onclick = () => {
+                        playSound('click');
+                        if (currentCategory === 'pausa') {
+                            if (document.getElementById('pausa-view-session').style.display === 'flex') {
+                                endPausaEarly();
+                            } else {
+                                showHub();
+                            }
+                        } else {
+                            showHub();
+                        }
+                    };
                     document.body.appendChild(backBtn);
                 }
                 backBtn.style.setProperty('display', 'flex', 'important');
@@ -6394,11 +6444,12 @@
                 if (shareBtn) shareBtn.style.display = 'none';
                 
                 if (mainUI) {
-                    mainUI.classList.remove('loaded');
-                    const subviews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'pro-extra-container'];
+                    mainUI.classList.remove('loaded', 'activa', 'has-examples');
+                    mainUI.classList.add('hidden');
+                    const subviews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'pausa-view-session', 'pausa-view-end', 'pro-extra-container'];
                     subviews.forEach(id => {
                         const el = document.getElementById(id);
-                        if (el) el.style.display = 'none';
+                        if (el) el.style.setProperty('display', 'none', 'important');
                     });
                 }
                 
@@ -6504,7 +6555,7 @@
             }
         }
 
-        async function fetchContent(index = null) {
+        async function fetchContent(index = null, silent = false) {
             let cacheKey = currentCategory;
             
             // Individualizar caché para contenido Extra específico
@@ -6520,13 +6571,15 @@
             // 1. Mostrar caché inmediatamente (Si es de hoy y no pedimos uno específico)
             if (index === null && cached && (cacheDate === today || cacheKey.includes('_'))) {
                 renderContent(cached);
-                hideLoader();
+                if (!silent) hideLoader();
                 return;
             }
 
             // 2. Si es Red o pedimos uno específico
-            document.getElementById('loader').classList.remove('hidden');
-            document.getElementById('loader').style.opacity = '1';
+            if (!silent) {
+                document.getElementById('loader').classList.remove('hidden');
+                document.getElementById('loader').style.opacity = '1';
+            }
             
             try {
                 let url = `${API}?cat=${currentCategory}&_cb=${Date.now()}`;
@@ -6564,7 +6617,7 @@
                 checkOnline(); // Forzar banner si falla la red
             }
 
-            hideLoader();
+            if (!silent) hideLoader();
         }
 
         function renderContent(data) {
@@ -6616,6 +6669,8 @@
                 document.getElementById('lesson-app-pers').innerText = data.app_personal;
                 document.getElementById('lesson-refl').innerText = data.reflexion;
                 document.getElementById('header-cat').innerText = data.libro;
+                
+                currentIdx = data.index; // Guardar index para Libros
             } else {
                 // Categorías estándar: Palabras, Afirmaciones, Frases
                 document.getElementById('word-title').innerText = data.palabra || data.word || data.afirmacion || data.frase || "Lúmina";
@@ -6797,11 +6852,15 @@
             // Forzar sincronización inmediata con la nube
             pushSync();
 
-            // Cargar el siguiente índice
-            const nextIdx = currentIdx + Math.floor(Math.random() * 50) + 1;
-            fetchContent(nextIdx);
+            // Cargar el siguiente índice (Modo Silencioso)
+            let baseIdx = (typeof currentIdx === 'number' && !isNaN(currentIdx) && currentIdx >= 0) ? currentIdx : Math.floor(Math.random() * 500);
+            const nextIdx = baseIdx + Math.floor(Math.random() * 50) + 1;
             
-            // Actualizar UI
+            // Refrescar ID actual inmediatamente para evitar bucles si falla la carga
+            currentIdx = nextIdx;
+            fetchContent(nextIdx, true);
+            
+            // Actualizar UI - Feedback inmediato
             const countEl = document.getElementById('pro-count-display');
             if (countEl) countEl.innerText = `${dailyData.counts[cat]}/5`;
             
@@ -6809,7 +6868,7 @@
                 btn.disabled = false;
                 btn.style.opacity = "1";
                 btn.classList.remove('rotating');
-            }, 1000);
+            }, 1200);
 
             if (navigator.vibrate) navigator.vibrate(20);
         }
@@ -8839,29 +8898,40 @@
                 toggleAmbient('none');
                 clearInterval(pausaTimerInterval);
                 clearInterval(breathInterval);
-                renderPausaList();
+                
+                // Limpieza total y retorno
+                const sessionView = document.getElementById('pausa-view-session');
+                if (sessionView) sessionView.style.setProperty('display', 'none', 'important');
+                
+                showHub();
             });
         }
 
         function endPausaSuccess() {
-            playSound('success');
-            addLuminaActivity(`Completaste una meditación: ${window._lastPausaTitle || "Silencio"}`, "meditation");
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]); // Patrón de zumbido
-            
-            // CELEBRACIÓN: Confetti premium
-            if (window.confetti) {
-                confetti({
-                    particleCount: 150,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#b5833a', '#f5f1e8', '#fff8e1']
-                });
-            }
-
             clearInterval(pausaTimerInterval);
             clearInterval(breathInterval);
-            document.getElementById('pausa-view-session').style.display = 'none';
-            document.getElementById('pausa-view-end').style.display = 'block';
+
+            try {
+                playSound('success');
+                addLuminaActivity(`Completaste una meditación: ${window._lastPausaTitle || "Silencio"}`, "meditation");
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]); // Patrón de zumbido
+                
+                // CELEBRACIÓN: Confetti premium
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#b5833a', '#f5f1e8', '#fff8e1']
+                    });
+                }
+            } catch(e) { console.error("Error UI end Pausa", e); }
+
+            const sessionView = document.getElementById('pausa-view-session');
+            if (sessionView) sessionView.style.setProperty('display', 'none', 'important');
+            
+            const endView = document.getElementById('pausa-view-end');
+            if (endView) endView.style.setProperty('display', 'block', 'important');
 
             // Preparar captura de pantalla para compartir
             setTimeout(() => prepareShareBlob('pausa'), 500);
@@ -9323,8 +9393,8 @@
         </div>
     </div>
 
-    <div id="exp-read-ui" class="modal" style="background: var(--bg); z-index: 1700;">
-        <div class="modal-content" style="max-width: 900px; padding: 100px 30px 140px; min-height: 100vh; background: transparent; box-shadow: none; border: none; text-align: left;">
+    <div id="exp-read-ui" class="modal" style="background: var(--bg); z-index: 1700; overflow-y: scroll !important; height: 100vh; position: fixed; inset: 0; -webkit-overflow-scrolling: touch;">
+        <div class="modal-content" style="max-width: 900px; padding: 100px 30px 400px; min-height: max-content; background: transparent; box-shadow: none; border: none; text-align: left; overflow: visible;">
             <div class="hero-bg-blur" style="left: 10%; top: -5%; opacity: 0.15; pointer-events: none;"></div>
             
             <button onclick="history.back()" class="btn-back-glass" style="z-index: 20;">
@@ -9396,10 +9466,10 @@
 
     <div id="profile-modal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
-            <div style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.1); padding-bottom: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                <button class="profile-tab active" onclick="switchProfileTab('identidad')">Perfil</button>
-                <button class="profile-tab" onclick="switchProfileTab('diario')">Reflexiones</button>
-                <button class="profile-tab" onclick="switchProfileTab('favs')">Favoritos</button>
+            <div style="display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.1); padding-bottom: 15px; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; white-space: nowrap; flex-wrap: nowrap; align-items: flex-start;">
+                <button class="profile-tab active" style="flex-shrink:0;" onclick="switchProfileTab('identidad')">Perfil</button>
+                <button class="profile-tab" style="flex-shrink:0;" onclick="switchProfileTab('diario')">Reflexiones</button>
+                <button class="profile-tab" style="flex-shrink:0;" onclick="switchProfileTab('favs')">Favoritos</button>
             </div>
 
             <div class="modal-body">
@@ -10191,7 +10261,7 @@
     </div>
 
     <!-- Toast de Confirmación Desvinculación -->
-    <div id="confirm-toast" class="toast-modal" style="display: flex; flex-direction: column; gap: 15px; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s;">
+    <div id="confirm-toast" class="toast-modal" style="display: flex; flex-direction: column; gap: 15px; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100000; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s;">
         <div style="background: var(--bg); padding: 30px; border-radius: 20px; max-width: 320px; text-align: center; border: 1px solid var(--accent);">
             <p id="confirm-msg" style="margin-top: 0; line-height: 1.6;"></p>
             <div style="display: flex; gap: 10px; justify-content: space-between; margin-top: 20px;">
