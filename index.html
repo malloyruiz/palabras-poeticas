@@ -10347,8 +10347,85 @@
 
 
 
+    <!-- Recursos para Notificaciones de Meditación -->
+    <div style="display:none;">
+        <svg id="meditation-svg" width="192" height="192" viewBox="0 0 24 24" fill="none" stroke="#b5833a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 21C12 21 7 18 7 14C7 11 9 9 12 9C15 9 17 11 17 14C17 18 12 21 12 21Z" fill="#b5833a"/>
+            <circle cx="12" cy="5" r="3" fill="#b5833a"/>
+            <path d="M5 19C5 19 2 17 2 14C2 12.5 3.5 11 5 11" stroke="#b5833a" stroke-width="1.5"/>
+            <path d="M19 19C19 19 22 17 22 14C22 12.5 20.5 11 19 11" stroke="#b5833a" stroke-width="1.5"/>
+        </svg>
+        <canvas id="meditation-canvas" width="192" height="192"></canvas>
+    </div>
 
-    
+    <!-- Script de Notificaciones de Meditación -->
+    <script>
+        /**
+         * SISTEMA DE NOTIFICACIONES DE MEDITACIÓN (LÚMINA)
+         * Genera una notificación local persistente con icono dinámico.
+         */
+        async function startMeditationNotification() {
+            if (!('Notification' in window)) {
+                console.warn('Notificaciones no soportadas.');
+                return;
+            }
 
+            if (Notification.permission === 'default') {
+                await Notification.requestPermission();
+            }
+
+            if (Notification.permission !== 'granted') return;
+
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                const iconUrl = await generateMeditationIcon();
+
+                await registration.showNotification('Momento de meditar', {
+                    body: 'Sesión de meditación activa. Respira profundo.',
+                    icon: iconUrl,
+                    badge: iconUrl,
+                    tag: 'meditacion-activa', // Solo una a la vez
+                    requireInteraction: true,
+                    silent: true,
+                    vibrate: [100],
+                    data: { url: window.location.href }
+                });
+                console.log('Notificación de meditación iniciada.');
+            } catch (err) {
+                console.error('Error al mostrar notificación:', err);
+            }
+        }
+
+        function stopMeditationNotification() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.getNotifications({ tag: 'meditacion-activa' }).then(notifications => {
+                        notifications.forEach(n => n.close());
+                    });
+                });
+            }
+        }
+
+        async function generateMeditationIcon() {
+            return new Promise((resolve) => {
+                const svg = document.getElementById('meditation-svg');
+                const canvas = document.getElementById('meditation-canvas');
+                if (!svg || !canvas) return resolve('icon-192.png');
+
+                const ctx = canvas.getContext('2d');
+                const xml = new XMLSerializer().serializeToString(svg);
+                const svg64 = btoa(unescape(encodeURIComponent(xml)));
+                const image = new Image();
+
+                image.onload = function() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(image, 0, 0, 192, 192);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                image.onerror = () => resolve('icon-192.png');
+                image.src = 'data:image/svg+xml;base64,' + svg64;
+            });
+        }
+    </script>
 </body>
 </html>

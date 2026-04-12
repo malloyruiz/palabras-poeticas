@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lumina-v9'; // v9: Actualización de API URL y fixes de diseño
+const CACHE_NAME = 'lumina-v10'; // v10: Notificaciones de meditación y recursos dinámicos
 const ASSETS = [
     "index.html",
     "manifest.json",
