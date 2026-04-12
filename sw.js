@@ -1,6 +1,6 @@
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const CACHE_NAME = 'lumina-v11'; // v11: Notificaciones mejoradas vía postMessage
+const CACHE_NAME = 'lumina-v14'; // v14: Branding update (PRO/LITE)
 const ASSETS = [
     "index.html",
     "manifest.json",
@@ -56,24 +56,6 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
-  // Soporte para notificaciones de meditación activadas desde la página
-  if (event.data && event.data.type === 'LUMINA_MEDITATION_NOTIF') {
-    const { title, options } = event.data.payload;
-    event.waitUntil(
-        self.registration.showNotification(title, options)
-    );
-  }
-});
-
-self.addEventListener('notificationclick', e => {
-    e.notification.close();
-    e.waitUntil(
-        clients.matchAll({ type: 'window' }).then(clientList => {
-            if (clientList.length > 0) return clientList[0].focus();
-            return clients.openWindow('./');
-        })
-    );
 });
 
 self.addEventListener('periodicsync', (event) => {

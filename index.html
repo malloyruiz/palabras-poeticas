@@ -43,6 +43,8 @@
     
     <!-- PWABuilder Components -->
     <script>
+      const LUMINA_VERSION = 'v14'; // Global PWA Version
+      var syncTimeout; // Global declaration for synchronization debounce (using var for broad scope)
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
@@ -2824,11 +2826,11 @@
                     
                     console.log("Portal forzado a DISPLAY FLEX");
                 } else {
-                    alert("Error crítico: No se encontró el portal de login. Recarga la página.");
+                    showToast("Error crítico: No se encontró el portal de login. Recarga la página.", "error");
                 }
             } catch (e) {
                 console.error("Error en openAuth:", e);
-                alert("Error al abrir portal: " + e.message);
+                showToast("Error al abrir portal: " + e.message, "error");
             }
         }
 
@@ -3305,9 +3307,12 @@
 
         // --- INICIALIZACIÓN FINAL ---
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("Lúmina: Arranque.");
+            console.log("Lúmina: Arranque " + LUMINA_VERSION);
             if (typeof init === 'function') init();
-            else console.error("Error Crítico: init() no definida.");
+            else {
+                console.error("Error Crítico: init() no definida. Reintentando...");
+                setTimeout(() => { if (typeof init === 'function') init(); }, 500);
+            }
 
             // Failsafe: si en 8s el loader sigue visible, forzar cierre
             setTimeout(() => {
@@ -3682,7 +3687,8 @@
                     </div>
                     <div id="hub-user-greeting" style="font-size: 0.78rem; letter-spacing: 2px; color: var(--accent); opacity: 1; font-weight: 700; text-transform: uppercase;">CARGANDO...</div>
                 </div>
-                <div class="meta" style="margin-bottom: 20px; font-weight: 600; font-size: 0.75rem; letter-spacing: 4px; opacity: 0.8;">BIENVENIDO A</div>
+
+
                 <h1 id="hero-title">Lúmina</h1>
                 <p id="hero-tagline">CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL</p>
                 
@@ -4500,10 +4506,10 @@
         function updateHeroTitle(isProUser, trialActive) {
             const heroTitle = document.getElementById('hero-title');
             if (!heroTitle) return;
+            
+            // Siempre Lúmina, con badge PRO solo si es suscripción pagada
             if (isProUser) {
-                heroTitle.innerHTML = 'LúminaPro <span class="logo-pro-badge">PRO</span>';
-            } else if (trialActive) {
-                heroTitle.innerText = 'LúminaTrial';
+                heroTitle.innerHTML = 'Lúmina <span class="logo-pro-badge">PRO</span>';
             } else {
                 heroTitle.innerText = 'Lúmina';
             }
@@ -5048,21 +5054,21 @@
             const planBadge = document.getElementById('profile-plan-badge');
             if (planBadge) {
                 const proVal = localStorage.getItem('lumina_pro') === 'true';
-                const trial = isTrialActive();
                 if (proVal) {
                     planBadge.innerText = "LÚMINA PRO";
                     planBadge.className = "pro-badge pro-unlocked";
                     planBadge.style.display = "inline-block";
-                } else if (trial) {
-                    planBadge.innerText = "PRUEBA ACTIVA";
-                    planBadge.className = "pro-badge";
-                    planBadge.style.display = "inline-block";
+                    planBadge.style.background = "var(--accent)";
+                    planBadge.style.color = "white";
+                    planBadge.style.border = "none";
                 } else {
-                    planBadge.innerText = "PLAN GRATUITO";
+                    // Solo es PRO si tiene suscripción. El resto (Trial/Gratis) es LITE.
+                    planBadge.innerText = "PLAN LITE";
                     planBadge.className = "pro-badge";
                     planBadge.style.display = "inline-block";
                     planBadge.style.border = "1px solid rgba(128,128,128,0.2)";
                     planBadge.style.color = "var(--text-dim)";
+                    planBadge.style.background = "rgba(128,128,128,0.05)";
                 }
             }
 
@@ -6075,7 +6081,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=14').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
@@ -6159,7 +6165,7 @@
             setTimeout(() => toast.classList.remove('active'), 3500);
         }
 
-        let activeConfirmCallback = null;
+        let _confirmCallback = null;
 
         function showConfirm(msg, callback) {
             const toast = document.getElementById('confirm-toast');
@@ -6168,12 +6174,12 @@
             if (!toast || !msgEl || !actionBtn) return;
             
             msgEl.innerText = msg;
-            activeConfirmCallback = callback;
+            _confirmCallback = callback;
             
-            // Clean previous click event listeners if any
+            // Asegurar que el callback se limpie tras usarlo
             actionBtn.onclick = () => {
-                if(activeConfirmCallback) {
-                    activeConfirmCallback();
+                if(typeof _confirmCallback === 'function') {
+                    _confirmCallback();
                 }
                 hideConfirm();
             };
@@ -6185,7 +6191,7 @@
         function hideConfirm() {
             const toast = document.getElementById('confirm-toast');
             if (toast) toast.classList.remove('active');
-            activeConfirmCallback = null;
+            _confirmCallback = null;
         }
 
         async function activatePro() {
@@ -6382,11 +6388,8 @@
                     backBtn.onclick = () => {
                         playSound('click');
                         if (currentCategory === 'pausa') {
-                            if (document.getElementById('pausa-view-session').style.display === 'flex') {
-                                endPausaEarly();
-                            } else {
-                                showHub();
-                            }
+                            // Siempre volver al Hub desde el botón superior izquierdo
+                            showHub();
                         } else {
                             showHub();
                         }
@@ -6555,7 +6558,7 @@
             }
         }
 
-        async function fetchContent(index = null, silent = false) {
+        async function fetchContent(index = null) {
             let cacheKey = currentCategory;
             
             // Individualizar caché para contenido Extra específico
@@ -6571,15 +6574,13 @@
             // 1. Mostrar caché inmediatamente (Si es de hoy y no pedimos uno específico)
             if (index === null && cached && (cacheDate === today || cacheKey.includes('_'))) {
                 renderContent(cached);
-                if (!silent) hideLoader();
+                hideLoader();
                 return;
             }
 
-            // 2. Si es Red o pedimos uno específico
-            if (!silent) {
-                document.getElementById('loader').classList.remove('hidden');
-                document.getElementById('loader').style.opacity = '1';
-            }
+            // 2. Red o índice específico — mostrar loader
+            const loaderEl = document.getElementById('loader');
+            if (loaderEl) { loaderEl.classList.remove('hidden'); loaderEl.style.opacity = '1'; }
             
             try {
                 let url = `${API}?cat=${currentCategory}&_cb=${Date.now()}`;
@@ -6591,34 +6592,36 @@
                     const extraId = (match && match[1]) ? match[1] : '';
                     const uType = (localStorage.getItem('lumina_pro') === 'true') ? 'PRO' : (isTrialActive() ? 'TRIAL' : 'FREE');
                     url = `${API}?action=extra&userType=${uType}${extraId ? '&id=' + encodeURIComponent(extraId) : ''}`;
+                    if (index !== null) url += `&indexReq=${index}`;
                 }
 
                 const response = await fetch(url);
                 const data = await response.json();
                 
-                if (currentCategory === 'extra' && data.error) {
+                if (currentCategory === 'extra' && data && data.error) {
                     showToast(data.error, "error");
-                    hideLoader();
                     history.back();
                     return;
                 }
 
                 if (index === null) setCache(cacheKey, data);
                 renderContent(data);
-                loadUserJournal(); // Cargar diario
+                loadUserJournal();
                 checkOnline();
             } catch (e) {
-                console.warn("Error red, usando mejor caché disponible");
+                console.warn("Error de red al cargar contenido:", e);
                 if (cached) {
                     renderContent(cached);
                 } else {
                     renderFallbacks();
                 }
-                checkOnline(); // Forzar banner si falla la red
+                checkOnline();
+            } finally {
+                // SIEMPRE ocultar el loader, sin importar el resultado
+                hideLoader();
             }
-
-            if (!silent) hideLoader();
         }
+
 
         function renderContent(data) {
             const extraUI = document.getElementById('extra-ui');
@@ -6831,11 +6834,12 @@
             }
 
             const btn = document.getElementById('btn-refresh-word');
-            btn.disabled = true;
-            btn.style.opacity = "0.5";
-            btn.classList.add('rotating'); 
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('rotating'); 
+            }
 
-            // Actualizar objeto consolidado
+            // Incrementar contador local
             const today = getLocalToday();
             let dailyData = { date: today, counts: {} };
             try {
@@ -6849,16 +6853,12 @@
             dailyData.counts[cat] = (dailyData.counts[cat] || 0) + 1;
             localStorage.setItem('lumina_daily_counts', JSON.stringify(dailyData));
 
-            // Forzar sincronización inmediata con la nube
-            pushSync();
-
-            // Cargar el siguiente índice (Modo Silencioso)
-            let baseIdx = (typeof currentIdx === 'number' && !isNaN(currentIdx) && currentIdx >= 0) ? currentIdx : Math.floor(Math.random() * 500);
+            // Cargar el siguiente índice
+            const baseIdx = (typeof currentIdx === 'number' && !isNaN(currentIdx) && currentIdx >= 0) ? currentIdx : Math.floor(Math.random() * 500);
             const nextIdx = baseIdx + Math.floor(Math.random() * 50) + 1;
             
-            // Refrescar ID actual inmediatamente para evitar bucles si falla la carga
+            // Actualizar ID actual y cargar
             currentIdx = nextIdx;
-            fetchContent(nextIdx, true);
             
             // Actualizar UI - Feedback inmediato
             const countEl = document.getElementById('pro-count-display');
@@ -6869,6 +6869,9 @@
                 btn.style.opacity = "1";
                 btn.classList.remove('rotating');
             }, 1200);
+
+            // REGENERAR EL CONTENIDO (usa la fetchContent original que gestiona todas las vistas)
+            fetchContent(nextIdx);
 
             if (navigator.vibrate) navigator.vibrate(20);
         }
@@ -8090,7 +8093,7 @@
                         }
                     }
                 } else {
-                    alert("Cargando sistema de alertas...");
+                    showToast("Sincronizando sistema de alertas...", "info");
                 }
             } catch (e) { 
                 console.warn("TogglePush error:", e);
@@ -8893,18 +8896,29 @@
         }
 
         function endPausaEarly() {
+            // Guardrail contra bloqueos: si el toast de confirmación no responde, permitimos salida directa tras 2 clicks
+            window._confirmFails = (window._confirmFails || 0) + 1;
+            
             showConfirm("¿Abandonar tu momento de paz? Aún no has terminado tu sesión.", () => {
-                playSound('click');
-                toggleAmbient('none');
-                clearInterval(pausaTimerInterval);
-                clearInterval(breathInterval);
-                
-                // Limpieza total y retorno
-                const sessionView = document.getElementById('pausa-view-session');
-                if (sessionView) sessionView.style.setProperty('display', 'none', 'important');
-                
-                showHub();
+                window._confirmFails = 0;
+                forceExitPausa();
             });
+
+            // Safeguard: si el usuario está atascado, un segundo click forzará la salida al Listado
+            if (window._confirmFails > 1) {
+                forceExitPausa();
+                window._confirmFails = 0;
+            }
+        }
+
+        function forceExitPausa() {
+            playSound('click');
+            toggleAmbient('none');
+            clearInterval(pausaTimerInterval);
+            clearInterval(breathInterval);
+            
+            // Limpieza total y retorno al LISTADO (como en la versión funcional)
+            renderPausaList();
         }
 
         function endPausaSuccess() {
@@ -10347,91 +10361,18 @@
 
 
 
-    <!-- Recursos para Notificaciones de Meditación -->
-    <div style="display:none;">
-        <svg id="meditation-svg" width="192" height="192" viewBox="0 0 24 24" fill="none" stroke="#b5833a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 21C12 21 7 18 7 14C7 11 9 9 12 9C15 9 17 11 17 14C17 18 12 21 12 21Z" fill="#b5833a"/>
-            <circle cx="12" cy="5" r="3" fill="#b5833a"/>
-            <path d="M5 19C5 19 2 17 2 14C2 12.5 3.5 11 5 11" stroke="#b5833a" stroke-width="1.5"/>
-            <path d="M19 19C19 19 22 17 22 14C22 12.5 20.5 11 19 11" stroke="#b5833a" stroke-width="1.5"/>
-        </svg>
-        <canvas id="meditation-canvas" width="192" height="192"></canvas>
-    </div>
-
-    <!-- Script de Notificaciones de Meditación -->
     <script>
-        /**
-         * SISTEMA DE NOTIFICACIONES DE MEDITACIÓN (LÚMINA - v2)
-         * Envía un mensaje al Service Worker para disparar la notificación (más fiable en Android).
-         */
-        async function startMeditationNotification() {
-            if (!('Notification' in window)) return;
-            if (Notification.permission === 'default') await Notification.requestPermission();
-            if (Notification.permission !== 'granted') return;
+        // Lúmina PWA v14 - Sistema de Estabilidad y Auto-Actualización
+        console.log("Lúmina " + LUMINA_VERSION + " activa.");
+        
+        // Sincronizar versión visual en el pie de página
+        const footerVer = document.querySelector('footer p');
+        if (footerVer) footerVer.innerText = "LÚMINA " + LUMINA_VERSION;
 
-            try {
-                const iconUrl = await generateMeditationIcon();
-                
-                // Verificamos si hay un Service Worker controlador
-                if (navigator.serviceWorker.controller) {
-                    navigator.serviceWorker.controller.postMessage({
-                        type: 'LUMINA_MEDITATION_NOTIF',
-                        payload: {
-                            title: 'Momento de meditar',
-                            options: {
-                                body: 'Sesión de meditación activa. Respira profundo.',
-                                icon: iconUrl,
-                                badge: iconUrl,
-                                tag: 'meditacion-activa',
-                                requireInteraction: true,
-                                silent: true,
-                                vibrate: [100]
-                            }
-                        }
-                    });
-                    console.log('Mensaje de notificación enviado al SW.');
-                } else {
-                    // Fallback si el SW aún no controla la página
-                    const registration = await navigator.serviceWorker.ready;
-                    registration.showNotification('Momento de meditar', {
-                        body: 'Sesión de meditación activa. Respira profundo.',
-                        icon: iconUrl,
-                        tag: 'meditacion-activa'
-                    });
-                }
-            } catch (err) {
-                console.error('Error en el sistema de notificaciones:', err);
-            }
-        }
-
-        function stopMeditationNotification() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(registration => {
-                    registration.getNotifications({ tag: 'meditacion-activa' }).then(notifications => {
-                        notifications.forEach(n => n.close());
-                    });
-                });
-            }
-        }
-
-        async function generateMeditationIcon() {
-            return new Promise((resolve) => {
-                const svg = document.getElementById('meditation-svg');
-                const canvas = document.getElementById('meditation-canvas');
-                if (!svg || !canvas) return resolve('icon-192.png');
-
-                const ctx = canvas.getContext('2d');
-                const xml = new XMLSerializer().serializeToString(svg);
-                const svg64 = btoa(unescape(encodeURIComponent(xml)));
-                const image = new Image();
-
-                image.onload = function() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(image, 0, 0, 192, 192);
-                    resolve(canvas.toDataURL('image/png'));
-                };
-                image.onerror = () => resolve('icon-192.png');
-                image.src = 'data:image/svg+xml;base64,' + svg64;
+        // Detectar si el Service Worker ha cargado una nueva versión
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
             });
         }
     </script>
