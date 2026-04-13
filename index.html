@@ -2001,10 +2001,18 @@
 
         /* --- QR SCANNER UI (PREMIUM) --- */
         .qr-scanner-modal {
-            position: fixed; inset: 0; background: #000;
+            position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             z-index: 2100000000; display: none; flex-direction: column;
             align-items: center; justify-content: center; padding: 20px;
             color: white; text-align: center;
+        }
+        /* Modo Vinculación: Fondo totalmente negro y sólido para evitar problemas en móviles */
+        .qr-scanner-modal.pairing-mode {
+            background: #000 !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
         .qr-scanner-modal.active { display: flex; animation: fadeIn 0.4s ease; }
         .scanner-container {
@@ -6206,7 +6214,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=22').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=23').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
@@ -9130,6 +9138,13 @@
             const identityModal = document.getElementById('portal-identidad-lumina');
             if (identityModal) identityModal.classList.remove('active');
 
+            // Diferenciar entre escaneo de Sabiduría (premium) y Vinculación (sólido)
+            if (window._isPairingScan) {
+                modal.classList.add('pairing-mode');
+            } else {
+                modal.classList.remove('pairing-mode');
+            }
+
             modal.classList.add('active');
             const status = document.getElementById('scanner-status');
             const zoomContainer = document.getElementById('scanner-zoom-container');
@@ -9237,7 +9252,9 @@
             } catch (e) {
                 console.warn("Error al detener cámara:", e);
             } finally {
-                document.getElementById('qr-scanner-modal').classList.remove('active');
+                const modal = document.getElementById('qr-scanner-modal');
+                modal.classList.remove('active');
+                modal.classList.remove('pairing-mode');
                 
                 // Restaurar la interfaz adecuada según si hay sesión o no
                 const email = localStorage.getItem('lumina_user_email');
