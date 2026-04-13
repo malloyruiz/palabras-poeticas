@@ -3343,9 +3343,10 @@
                 <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="landing-logo">
                 <span class="logo-text">Lúmina</span>
             </div>
-            <div style="display: flex; gap: 15px;" class="nav-desktop-actions">
+            <div style="display: flex; gap: 10px;" class="nav-desktop-actions">
                 <button class="btn-portal-open" style="background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="openAuth('signup')">Suscríbete ahora</button>
                 <button class="btn-portal-open" onclick="openAuth('login')">Entrar</button>
+                <button class="btn-portal-open" style="background: transparent; border: 1px solid rgba(181,131,58,0.3); color: var(--accent); padding: 5px 15px; font-size: 0.65rem;" onclick="startQRLogin()">Vincular Pantalla 📷</button>
             </div>
             <button class="btn-hamburger" onclick="toggleMobileNav(event)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -3356,6 +3357,7 @@
         <div class="mobile-nav-drawer" id="mobile-nav-drawer">
             <button class="btn-portal-open" style="display:block !important; width: 220px;" onclick="openAuth('signup'); toggleMobileNav()">Suscríbete ahora</button>
             <button class="btn-portal-open" style="display:block !important; width: 220px; background: white; border: 2px solid var(--accent); color: var(--accent);" onclick="openAuth('login'); toggleMobileNav()">Entrar</button>
+            <button class="btn-portal-open" style="display:block !important; width: 220px; background: transparent; border: 1px solid rgba(181,131,58,0.4); color: var(--accent); margin-top: 15px;" onclick="startQRLogin(); toggleMobileNav()">Vincular Dispositivo 📷</button>
         </div>
 
         <header class="landing-hero" id="landing-hero">
@@ -6205,7 +6207,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=18').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=19').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
