@@ -6207,7 +6207,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=19').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=20').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
@@ -9118,6 +9118,10 @@
             const modal = document.getElementById('qr-scanner-modal');
             if (!modal) return;
             
+            // Ocultamos el landing si estamos en él para que no estorbe
+            const landing = document.getElementById('landing-ui');
+            if (landing) landing.style.display = 'none';
+
             modal.classList.add('active');
             const status = document.getElementById('scanner-status');
             const zoomContainer = document.getElementById('scanner-zoom-container');
@@ -9226,6 +9230,13 @@
                 console.warn("Error al detener cámara:", e);
             } finally {
                 document.getElementById('qr-scanner-modal').classList.remove('active');
+                
+                // Si no hay sesión, volver a mostrar el landing al cerrar el escáner
+                if (!localStorage.getItem('lumina_user_email')) {
+                    const landing = document.getElementById('landing-ui');
+                    if (landing) landing.style.display = 'block';
+                }
+
                 if (document.getElementById('scanner-status')) document.getElementById('scanner-status').innerText = "";
                 const zoomContainer = document.getElementById('scanner-zoom-container');
                 if (zoomContainer) zoomContainer.style.display = 'none';
