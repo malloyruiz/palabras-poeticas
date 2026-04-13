@@ -43,7 +43,7 @@
     
     <!-- PWABuilder Components -->
     <script>
-      const LUMINA_VERSION = 'v32'; // PWA Estable - Rescate Final v32
+      const LUMINA_VERSION = 'v14'; // Global PWA Version
       var syncTimeout; // Global declaration for synchronization debounce (using var for broad scope)
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -1000,7 +1000,7 @@
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch;
         }
-        .modal.active { display: flex !important; animation: fadeIn 0.4s ease; opacity: 1 !important; visibility: visible !important; }
+        .modal.active { display: flex; animation: fadeIn 0.4s ease; }
 
         .modal-content {
             background: var(--modal-bg-solid);
@@ -2003,11 +2003,11 @@
         .qr-scanner-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            z-index: 2100000000; display: none; flex-direction: column;
+            z-index: 10000; display: none; flex-direction: column;
             align-items: center; justify-content: center; padding: 20px;
             color: white; text-align: center;
         }
-        .qr-scanner-modal.active { display: flex !important; animation: fadeIn 0.4s ease; opacity: 1 !important; visibility: visible !important; }
+        .qr-scanner-modal.active { display: flex; animation: fadeIn 0.4s ease; }
         .scanner-container {
             width: 100%; max-width: 400px; aspect-ratio: 1/1;
             background: #000; border-radius: 40px; overflow: hidden;
@@ -2715,7 +2715,7 @@
             align-items: center; justify-content: center;
             padding: 20px;
         }
-        .portal-overlay-lumina.active { display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+        .portal-overlay-lumina.active { display: flex !important; }
         .auth-card-lumina {
             width: 100% !important; max-width: 440px !important;
             background: #ffffff !important; color: #000000 !important;
@@ -2818,13 +2818,17 @@
                 
                 const portal = document.getElementById('portal-identidad-lumina');
                 if (portal) {
-                    portal.style.display = ''; 
-                    portal.style.visibility = '';
-                    portal.style.opacity = '';
+                    // PRUEBA ROJA: Forzar por JS a lo bruto
+                    portal.style.zIndex = '999999999';
+                    portal.style.display = 'flex';
+                    portal.style.visibility = 'visible';
+                    portal.style.opacity = '1';
                     portal.classList.add('active');
                     
+                    // Asegurar que el body no haga scroll
                     document.body.style.overflow = 'hidden';
-                    console.log("Portal abierto correctamente.");
+                    
+                    console.log("Portal forzado a DISPLAY FLEX");
                 } else {
                     showToast("Error crítico: No se encontró el portal de login. Recarga la página.", "error");
                 }
@@ -2849,20 +2853,54 @@
                     loader.classList.add('hidden');
                     loader.classList.remove('fade-out');
                     loader.style.pointerEvents = 'none';
-                    
-                    // Notificar carga completa a la UI
-                    const mui = document.getElementById('main-ui');
-                    if (mui) mui.classList.add('loaded');
-                    
-                    // Carga de datos secundaria post-loader
-                    if (typeof loadUserJournal === 'function') loadUserJournal();
                 }, 520);
             }
         }
 
         async function checkUserSession() {
+            console.log("Lúmina: Verificando sesión...");
             const email = localStorage.getItem('lumina_user_email');
-            return !!email;
+            const landing = document.getElementById('landing-ui');
+            const hub = document.getElementById('hub');
+            const mainUI = document.getElementById('main-ui');
+            const app = document.getElementById('app-viewport');
+
+            if (!email) {
+                console.log("Lúmina: Modo Invitado detectado.");
+                document.body.classList.add('is-guest');
+                if (landing) {
+                    landing.style.setProperty('display', 'block', 'important');
+                    landing.classList.remove('hidden');
+                }
+                if (app) app.style.display = 'none';
+                if (hub) hub.classList.add('hidden');
+                if (mainUI) mainUI.classList.add('hidden');
+                
+                hideLoader();
+                if (typeof checkLandingInit === 'function') await checkLandingInit();
+                return false;
+            }
+            
+            console.log("Lúmina: Sesión activa para", email);
+            // USUARIO AUTENTICADO: Transición Atómica
+            document.body.classList.remove('is-guest');
+            if (landing) {
+                landing.style.display = 'none';
+                landing.classList.add('hidden');
+            }
+            
+            if (app) app.style.display = 'grid';
+            if (mainUI) mainUI.classList.remove('hidden');
+            
+            if (hub) {
+                hub.classList.remove('hidden');
+                hub.classList.add('activa');
+                hub.style.opacity = '1';
+                hub.style.visibility = 'visible';
+                hub.style.pointerEvents = 'auto';
+                if (typeof loadUserAvatars === 'function') loadUserAvatars();
+            }
+            return true;
         }
 
         // Stubs mejorados para evitar cuellos de botella
@@ -4363,33 +4401,6 @@
                 } catch (e) {
                     showToast("Error de conexión.", "error");
                 }
-            });
-        }
-
-        async function logoutAllSessions() {
-            const email = localStorage.getItem('lumina_user_email');
-            if (!email) return;
-
-            showConfirm("¿Cerrar todas las demás sesiones activas?", async () => {
-                try {
-                    const formData = new URLSearchParams();
-                    formData.append('action', 'logout_all');
-                    formData.append('email', email);
-                    formData.append('keep_id', getDeviceId());
-
-                    const response = await fetch(API, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    const res = await response.json();
-                    if (res.success) {
-                        showToast("Todas las sesiones cerradas 🔥", "success");
-                        addLuminaActivity(`Cerraste todas las sesiones remotas`, "security");
-                        localStorage.setItem('lumina_devices_cache', JSON.stringify(res.devices));
-                        renderDeviceList(res.devices);
-                    }
-                } catch (e) { showToast("Error al cerrar sesiones.", "error"); }
             });
         }
 
@@ -6027,66 +6038,79 @@
         }
 
         async function init() {
+            console.log("Lúmina: Fase 1 - Identidad");
             const hasUser = await checkUserSession();
-            console.log("Lúmina: Arranque v32 - Modo", hasUser ? "Usuario" : "Invitado");
-            
-            const landing = document.getElementById('landing-ui');
-            const app = document.getElementById('app-viewport');
-            const mainUI = document.getElementById('main-ui');
-            const hub = document.getElementById('hub');
+            if (!hasUser) return; // checkUserSession ya llama hideLoader() para invitados
 
-            if (!hasUser) {
-                document.body.classList.add('is-guest');
-                if (landing) landing.style.display = 'block';
-                if (app) app.style.display = 'none';
-                if (mainUI) mainUI.classList.add('hidden');
-                
-                if (typeof checkLandingInit === 'function') await checkLandingInit();
-                setTimeout(hideLoader, 300);
-                return;
+            hideLoader();
+
+            // --- Inicialización secundaria (solo usuarios autenticados) ---
+            // Limpieza de claves PRO antiguas
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('lumina_extra_count_')) {
+                        localStorage.removeItem(key); i--;
+                    }
+                }
+            } catch(e) {}
+
+            if (typeof updateProExtraUI === 'function') updateProExtraUI();
+            if (localStorage.getItem('lumina_wake_lock') === 'true' && typeof requestWakeLock === 'function') requestWakeLock();
+
+            // Deep-links desde notificaciones
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('modal') === 'habitos' || window.location.hash === '#habitos') {
+                setTimeout(() => {
+                    const modal = document.getElementById('habitos-modal');
+                    if (modal && !modal.classList.contains('active') && typeof toggleHabitos === 'function') toggleHabitos();
+                }, 800);
             }
 
-            // MODO USUARIO
-            document.body.classList.remove('is-guest');
-            if (landing) landing.style.display = 'none';
-            if (app) app.style.display = 'grid';
-            if (mainUI) mainUI.classList.remove('hidden');
-            if (hub) hub.classList.remove('hidden');
+            console.log("Lúmina: Fase 2 - Módulos");
+            try {
+                const runSync = (fn, name) => {
+                    try { if (typeof fn === 'function') fn(); }
+                    catch(e) { console.warn('Error en ' + name, e); }
+                };
 
-            // --- ESTABILIZACIÓN DE MÓDULOS v32 ---
-            const runSync = (fn, name) => {
-                try { if (typeof fn === 'function') fn(); }
-                catch(e) { console.warn('Error en ' + name, e); }
-            };
+                runSync(checkMidnightRefresh, 'CierreDía');
+                runSync(updateGamification, 'Gamificación');
+                runSync(loadTheme, 'Tema');
+                runSync(populateVoices, 'Voces');
+                runSync(loadProState, 'EstadoPro');
+                runSync(updateHeaderDate, 'Reloj');
+                runSync(createMotes, 'Motes');
+                runSync(initAmbient, 'Ambiente');
+                runSync(renderBitacoraTemplates, 'Bitácora');
+                runSync(updateMoodSummaryUI, 'Ánimo');
 
-            runSync(loadTheme, 'Tema');
-            runSync(loadProState, 'EstadoPro');
-            runSync(updateHeaderDate, 'Reloj');
-            runSync(initAmbient, 'Ambiente');
-            runSync(renderBitacoraTemplates, 'Bitácora');
-            runSync(loadUserJournal, 'Diario');
-            // --- RUTA Y RENDER FINAL (SIN PARPADEOS) ---
-            const targetCatFull = window.location.hash.replace('#', '') || 'hub';
-            const targetCatIdx = targetCatFull.split(':')[0];
-            const validSet = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
+                // Módulos asíncronos (API)
+                if (typeof updateHubInfo === 'function') updateHubInfo();
+                if (typeof checkNotifications === 'function') checkNotifications();
+                if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
-            if (targetCatIdx !== 'hub' && validSet.includes(targetCatIdx) && typeof openCategory === 'function') {
-                await openCategory(targetCatIdx, targetCatIdx === 'libros', true, targetCatFull);
-            } else {
-                if (typeof updateHubInfo === 'function') await updateHubInfo();
-                if (hub) hub.style.opacity = '1';
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('sw.js?v=16').catch(() => {});
+                }
+
+                // Ruta inicial desde URL hash
+                const targetCat = window.location.hash.replace('#', '') || 'hub';
+                if (targetCat !== 'hub' && typeof openCategory === 'function') {
+                    setTimeout(() => {
+                        const valid = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
+                        if (valid.includes(targetCat.split(':')[0])) {
+                            openCategory(targetCat.split(':')[0], targetCat === 'libros', true, targetCat);
+                        }
+                    }, 500);
+                }
+
+                setInterval(checkMidnightRefresh, 1000 * 60 * 10);
+            } catch (e) {
+                console.error("Init Error", e);
+                hideLoader();
             }
-
-            if (typeof checkNotifications === 'function') checkNotifications();
-            if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js?v=32').catch(() => {});
-            }
-
-            setTimeout(hideLoader, 400);
-            setInterval(checkMidnightRefresh, 1000 * 60 * 10);
         }
-
 
         // Actualizar novedades cuando el usuario vuelve a la pestaña/app
         document.addEventListener('visibilitychange', () => {
@@ -6531,7 +6555,18 @@
 
         let currentIdx = -1; // Índice actual del contenido (para Extras PRO)
 
-
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    const mui = document.getElementById('main-ui');
+                    if (mui) mui.classList.add('loaded');
+                    loadUserJournal(); // Asegurar carga de diario al finalizar loader
+                }, 400);
+            }
+        }
 
         async function fetchContent(index = null) {
             let cacheKey = currentCategory;
@@ -7183,10 +7218,6 @@
                 history.replaceState(null, '', prevHash);
             } else {
                 closeModals(true);
-                // Limpiamos cualquier rastro de display:none que closeModals haya dejado
-                modal.style.display = '';
-                modal.style.visibility = '';
-                modal.style.opacity = '';
                 modal.classList.add('active');
                 history.pushState({ modal: 'settings' }, "", "#settings");
                 updateSubscriptionUI().catch(e => console.warn("Sync error:", e));
@@ -7370,9 +7401,8 @@
             const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 'portal-identidad-lumina', 'lightbox-portal'];
             modals.forEach(id => {
                 const m = document.getElementById(id);
-                if (m) {
+                if (m && (m.classList.contains('active') || m.style.display === 'flex' || m.style.visibility === 'visible')) {
                     m.classList.remove('active');
-                    // Restauramos el cierre físico para no bloquear la pantalla
                     m.style.display = 'none';
                     m.style.visibility = 'hidden';
                     m.style.opacity = '0';
@@ -9037,9 +9067,7 @@
             
             // Procesar el texto para encontrar la categoría
             // Formatos: luminapp.today/#libros, lmn://pausa, o solo 'frases'
-            const raw = decodedText.trim();
-            
-            let cat = raw.toLowerCase();
+            let cat = decodedText.toLowerCase();
             if (cat.includes('#')) cat = cat.split('#')[1];
             else if (cat.includes('://')) cat = cat.split('://')[1];
             else if (cat.includes('/')) cat = cat.split('/').pop();
@@ -9071,9 +9099,7 @@
             } catch (e) {
                 console.warn("Error al detener cámara:", e);
             } finally {
-                const modal = document.getElementById('qr-scanner-modal');
-                modal.classList.remove('active');
-                
+                document.getElementById('qr-scanner-modal').classList.remove('active');
                 if (document.getElementById('scanner-status')) document.getElementById('scanner-status').innerText = "";
                 const zoomContainer = document.getElementById('scanner-zoom-container');
                 if (zoomContainer) zoomContainer.style.display = 'none';
@@ -9636,13 +9662,11 @@
 
                 <!-- DISPOSITIVOS CONECTADOS -->
                 <div style="margin-top: 25px; padding: 22px; background: rgba(128,128,128,0.02); border-radius: 20px; border: 1px solid rgba(128,128,128,0.05); text-align: left;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <div style="font-size: 0.60rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; opacity: 0.6;">Dispositivos Conectados</div>
-                        <button onclick="logoutAllSessions()" style="background: none; border: none; color: #ef4444; font-size: 0.55rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; opacity: 0.5; padding: 5px;">CERRAR TODO</button>
-                    </div>
+                    <div style="font-size: 0.60rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; opacity: 0.6;">Dispositivos Conectados</div>
                     <div id="profile-device-list" style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="font-size: 0.7rem; opacity: 0.3; text-align: center; padding: 10px;">Cargando sesiones...</div>
                     </div>
+                </div>
 
                 <!-- ACTIVIDAD RECIENTE (LOG) -->
                 <div style="margin-top: 25px; padding: 22px; background: rgba(181, 131, 58, 0.02); border-radius: 20px; border: 1px solid rgba(181, 131, 58, 0.05); text-align: left;">
