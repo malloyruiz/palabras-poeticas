@@ -43,7 +43,7 @@
     
     <!-- PWABuilder Components -->
     <script>
-      const LUMINA_VERSION = 'v29'; // PWA Estable - Sistema Original Restaurado
+      const LUMINA_VERSION = 'v30'; // PWA Estable - Corrección de Modales Persistentes
       var syncTimeout; // Global declaration for synchronization debounce (using var for broad scope)
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -6118,7 +6118,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=29').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=30').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
@@ -7428,11 +7428,12 @@
             const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 'portal-identidad-lumina', 'lightbox-portal'];
             modals.forEach(id => {
                 const m = document.getElementById(id);
-                if (m && (m.classList.contains('active') || m.style.display === 'flex' || m.style.visibility === 'visible')) {
+                if (m) {
                     m.classList.remove('active');
-                    m.style.display = 'none';
-                    m.style.visibility = 'hidden';
-                    m.style.opacity = '0';
+                    // Limpiamos estilos en línea que pueden bloquear la reapertura vía CSS
+                    m.style.display = '';
+                    m.style.visibility = '';
+                    m.style.opacity = '';
                 }
             });
             
