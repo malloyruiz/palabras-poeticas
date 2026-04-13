@@ -43,7 +43,7 @@
     
     <!-- PWABuilder Components -->
     <script>
-      const LUMINA_VERSION = 'v30'; // PWA Estable - Corrección de Modales Persistentes
+      const LUMINA_VERSION = 'v31'; // PWA Estable - Estabilización de Arranque y Modales
       var syncTimeout; // Global declaration for synchronization debounce (using var for broad scope)
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -1000,7 +1000,7 @@
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch;
         }
-        .modal.active { display: flex; animation: fadeIn 0.4s ease; }
+        .modal.active { display: flex !important; animation: fadeIn 0.4s ease; opacity: 1 !important; visibility: visible !important; }
 
         .modal-content {
             background: var(--modal-bg-solid);
@@ -6069,7 +6069,7 @@
             const hasUser = await checkUserSession();
             if (!hasUser) return; // checkUserSession ya llama hideLoader() para invitados
 
-            hideLoader();
+            // hideLoader(); // Movido al final para evitar parpadeos
 
             // --- Inicialización secundaria (solo usuarios autenticados) ---
             // Limpieza de claves PRO antiguas
@@ -6112,25 +6112,28 @@
                 runSync(renderBitacoraTemplates, 'Bitácora');
                 runSync(updateMoodSummaryUI, 'Ánimo');
 
-                // Módulos asíncronos (API)
-                if (typeof updateHubInfo === 'function') updateHubInfo();
+                // --- RUTA INICIAL OPTIMIZADA (SIN PARPADEOS) ---
+                const targetCatFull = window.location.hash.replace('#', '') || 'hub';
+                const targetCat = targetCatFull.split(':')[0];
+                const valid = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
+                
+                if (targetCat !== 'hub' && typeof openCategory === 'function' && valid.includes(targetCat)) {
+                    // Si vamos a una categoría, la abrimos DIRECTAMENTE
+                    await openCategory(targetCat, targetCat === 'libros', true, targetCatFull);
+                } else {
+                    // Si vamos al hub, cargamos su info y lo mostramos
+                    if (typeof updateHubInfo === 'function') await updateHubInfo();
+                }
+
                 if (typeof checkNotifications === 'function') checkNotifications();
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
-
+                
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=30').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=31').catch(() => {});
                 }
 
-                // Ruta inicial desde URL hash
-                const targetCat = window.location.hash.replace('#', '') || 'hub';
-                if (targetCat !== 'hub' && typeof openCategory === 'function') {
-                    setTimeout(() => {
-                        const valid = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
-                        if (valid.includes(targetCat.split(':')[0])) {
-                            openCategory(targetCat.split(':')[0], targetCat === 'libros', true, targetCat);
-                        }
-                    }, 500);
-                }
+                // Estabilización final y fin de carga
+                setTimeout(hideLoader, 300);
 
                 setInterval(checkMidnightRefresh, 1000 * 60 * 10);
             } catch (e) {
@@ -7245,6 +7248,10 @@
                 history.replaceState(null, '', prevHash);
             } else {
                 closeModals(true);
+                // Limpiamos cualquier rastro de display:none que closeModals haya dejado
+                modal.style.display = '';
+                modal.style.visibility = '';
+                modal.style.opacity = '';
                 modal.classList.add('active');
                 history.pushState({ modal: 'settings' }, "", "#settings");
                 updateSubscriptionUI().catch(e => console.warn("Sync error:", e));
@@ -7430,10 +7437,10 @@
                 const m = document.getElementById(id);
                 if (m) {
                     m.classList.remove('active');
-                    // Limpiamos estilos en línea que pueden bloquear la reapertura vía CSS
-                    m.style.display = '';
-                    m.style.visibility = '';
-                    m.style.opacity = '';
+                    // Restauramos el cierre físico para no bloquear la pantalla
+                    m.style.display = 'none';
+                    m.style.visibility = 'hidden';
+                    m.style.opacity = '0';
                 }
             });
             
