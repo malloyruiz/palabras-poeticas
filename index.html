@@ -2003,7 +2003,7 @@
         .qr-scanner-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            z-index: 10000; display: none; flex-direction: column;
+            z-index: 2100000000; display: none; flex-direction: column;
             align-items: center; justify-content: center; padding: 20px;
             color: white; text-align: center;
         }
@@ -4484,6 +4484,10 @@
         }
 
         function startQRLogin() {
+            // Cerramos el modal de login/identidad para evitar conflictos visuales
+            const loginModal = document.getElementById('portal-identidad-lumina');
+            if (loginModal) loginModal.classList.remove('active');
+            
             // Reutilizar el escáner existente pero con un flag especial
             window._isPairingScan = true;
             showScanner();
@@ -6201,7 +6205,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=16').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=18').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
