@@ -4404,6 +4404,52 @@
             });
         }
 
+        async function logoutAllSessions() {
+            const email = localStorage.getItem('lumina_user_email');
+            if (!email) return;
+
+            showConfirm("¿Cerrar todas las demás sesiones activas?", async () => {
+                const btn = document.getElementById('btn-logout-all');
+                const originalText = btn ? btn.innerHTML : "CERRAR TODO";
+                
+                try {
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<div class="spinner" style="width:12px; height:12px; border-width:2px; margin:0;"></div>';
+                        btn.style.opacity = "1";
+                    }
+
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'logout_all');
+                    formData.append('email', email);
+                    formData.append('keep_id', getDeviceId());
+
+                    const response = await fetch(API, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const res = await response.json();
+                    if (res.success) {
+                        showToast("Todas las sesiones cerradas 🔥", "success");
+                        addLuminaActivity(`Cerraste todas las sesiones remotas`, "security");
+                        localStorage.setItem('lumina_devices_cache', JSON.stringify(res.devices));
+                        renderDeviceList(res.devices);
+                    } else {
+                        showToast(res.error || "No se pudieron cerrar las sesiones.", "error");
+                    }
+                } catch (e) { 
+                    showToast("Error de conexión.", "error"); 
+                } finally {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        btn.style.opacity = "0.5";
+                    }
+                }
+            });
+        }
+
         function addLuminaActivity(msg, type = 'info') {
             const logStr = localStorage.getItem('lumina_activity_log') || '[]';
             let log = [];
@@ -9662,7 +9708,10 @@
 
                 <!-- DISPOSITIVOS CONECTADOS -->
                 <div style="margin-top: 25px; padding: 22px; background: rgba(128,128,128,0.02); border-radius: 20px; border: 1px solid rgba(128,128,128,0.05); text-align: left;">
-                    <div style="font-size: 0.60rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 15px; text-transform: uppercase; opacity: 0.6;">Dispositivos Conectados</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div style="font-size: 0.60rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; opacity: 0.6;">Dispositivos Conectados</div>
+                        <button id="btn-logout-all" onclick="logoutAllSessions()" style="background: none; border: none; color: #ef4444; font-size: 0.55rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; opacity: 0.5; padding: 5px; transition: 0.3s; display: flex; align-items: center; justify-content: center; min-width: 60px;">CERRAR TODO</button>
+                    </div>
                     <div id="profile-device-list" style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="font-size: 0.7rem; opacity: 0.3; text-align: center; padding: 10px;">Cargando sesiones...</div>
                     </div>
