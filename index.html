@@ -43,7 +43,7 @@
     
     <!-- PWABuilder Components -->
     <script>
-      const LUMINA_VERSION = 'v26'; // Global PWA Version Diagnóstico
+      const LUMINA_VERSION = 'v27'; // Global PWA Version "Transparencia"
       var syncTimeout; // Global declaration for synchronization debounce (using var for broad scope)
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -63,7 +63,9 @@
         // Auto-solicitar permiso con un ligero delay para no asustar
         setTimeout(() => {
             if (OneSignal.Notifications.permission !== true) {
-                OneSignal.Slidedown.promptDefault();
+                try {
+          if (OneSignal.Slidedown) OneSignal.Slidedown.promptDefault();
+        } catch(e) { console.warn("OneSignal Slidedown no disponible"); }
             }
         }, 2000);
 
@@ -2029,9 +2031,9 @@
             display: flex; align-items: center; justify-content: center;
         }
         .scanner-frame {
-            width: 260px; height: 260px; border: 2px solid var(--accent);
+            width: 260px; height: 260px; border: 4px solid var(--accent);
             border-radius: 30px; position: relative;
-            box-shadow: 0 0 0 2000px rgba(0,0,0,0.4);
+            box-shadow: 0 0 20px rgba(181, 131, 58, 0.4); /* Sombra suave interna únicamente */
         }
         .scanner-line {
             position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -6214,7 +6216,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=26').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=27').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
@@ -9151,10 +9153,10 @@
             const zoomContainer = document.getElementById('scanner-zoom-container');
             const zoomRange = document.getElementById('scanner-zoom-range');
             
-            status.innerText = "Preparando visión v26...";
+            status.innerText = "Preparando visión v27...";
             if (zoomContainer) zoomContainer.style.display = 'none';
 
-            console.log("LÚMINA: Iniciando escáner v26...");
+            console.log("LÚMINA: Iniciando escáner v27...");
 
             // PAUSA CRÍTICA: Esperar a que el buscador del navegador renderice el modal antes de pedir la cámara
             await new Promise(r => setTimeout(r, 600));
