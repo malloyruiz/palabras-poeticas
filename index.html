@@ -43,7 +43,7 @@
     
     <!-- PWABuilder Components -->
     <script>
-      const LUMINA_VERSION = 'v31'; // PWA Estable - Estabilización de Arranque y Modales
+      const LUMINA_VERSION = 'v32'; // PWA Estable - Rescate Final v32
       var syncTimeout; // Global declaration for synchronization debounce (using var for broad scope)
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -2007,7 +2007,7 @@
             align-items: center; justify-content: center; padding: 20px;
             color: white; text-align: center;
         }
-        .qr-scanner-modal.active { display: flex; animation: fadeIn 0.4s ease; }
+        .qr-scanner-modal.active { display: flex !important; animation: fadeIn 0.4s ease; opacity: 1 !important; visibility: visible !important; }
         .scanner-container {
             width: 100%; max-width: 400px; aspect-ratio: 1/1;
             background: #000; border-radius: 40px; overflow: hidden;
@@ -2715,7 +2715,7 @@
             align-items: center; justify-content: center;
             padding: 20px;
         }
-        .portal-overlay-lumina.active { display: flex !important; }
+        .portal-overlay-lumina.active { display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
         .auth-card-lumina {
             width: 100% !important; max-width: 440px !important;
             background: #ffffff !important; color: #000000 !important;
@@ -2818,17 +2818,13 @@
                 
                 const portal = document.getElementById('portal-identidad-lumina');
                 if (portal) {
-                    // PRUEBA ROJA: Forzar por JS a lo bruto
-                    portal.style.zIndex = '999999999';
-                    portal.style.display = 'flex';
-                    portal.style.visibility = 'visible';
-                    portal.style.opacity = '1';
+                    portal.style.display = ''; 
+                    portal.style.visibility = '';
+                    portal.style.opacity = '';
                     portal.classList.add('active');
                     
-                    // Asegurar que el body no haga scroll
                     document.body.style.overflow = 'hidden';
-                    
-                    console.log("Portal forzado a DISPLAY FLEX");
+                    console.log("Portal abierto correctamente.");
                 } else {
                     showToast("Error crítico: No se encontró el portal de login. Recarga la página.", "error");
                 }
@@ -2853,54 +2849,20 @@
                     loader.classList.add('hidden');
                     loader.classList.remove('fade-out');
                     loader.style.pointerEvents = 'none';
+                    
+                    // Notificar carga completa a la UI
+                    const mui = document.getElementById('main-ui');
+                    if (mui) mui.classList.add('loaded');
+                    
+                    // Carga de datos secundaria post-loader
+                    if (typeof loadUserJournal === 'function') loadUserJournal();
                 }, 520);
             }
         }
 
         async function checkUserSession() {
-            console.log("Lúmina: Verificando sesión...");
             const email = localStorage.getItem('lumina_user_email');
-            const landing = document.getElementById('landing-ui');
-            const hub = document.getElementById('hub');
-            const mainUI = document.getElementById('main-ui');
-            const app = document.getElementById('app-viewport');
-
-            if (!email) {
-                console.log("Lúmina: Modo Invitado detectado.");
-                document.body.classList.add('is-guest');
-                if (landing) {
-                    landing.style.setProperty('display', 'block', 'important');
-                    landing.classList.remove('hidden');
-                }
-                if (app) app.style.display = 'none';
-                if (hub) hub.classList.add('hidden');
-                if (mainUI) mainUI.classList.add('hidden');
-                
-                hideLoader();
-                if (typeof checkLandingInit === 'function') await checkLandingInit();
-                return false;
-            }
-            
-            console.log("Lúmina: Sesión activa para", email);
-            // USUARIO AUTENTICADO: Transición Atómica
-            document.body.classList.remove('is-guest');
-            if (landing) {
-                landing.style.display = 'none';
-                landing.classList.add('hidden');
-            }
-            
-            if (app) app.style.display = 'grid';
-            if (mainUI) mainUI.classList.remove('hidden');
-            
-            if (hub) {
-                hub.classList.remove('hidden');
-                hub.classList.add('activa');
-                hub.style.opacity = '1';
-                hub.style.visibility = 'visible';
-                hub.style.pointerEvents = 'auto';
-                if (typeof loadUserAvatars === 'function') loadUserAvatars();
-            }
-            return true;
+            return !!email;
         }
 
         // Stubs mejorados para evitar cuellos de botella
@@ -6065,82 +6027,66 @@
         }
 
         async function init() {
-            console.log("Lúmina: Fase 1 - Identidad");
             const hasUser = await checkUserSession();
-            if (!hasUser) return; // checkUserSession ya llama hideLoader() para invitados
+            console.log("Lúmina: Arranque v32 - Modo", hasUser ? "Usuario" : "Invitado");
+            
+            const landing = document.getElementById('landing-ui');
+            const app = document.getElementById('app-viewport');
+            const mainUI = document.getElementById('main-ui');
+            const hub = document.getElementById('hub');
 
-            // hideLoader(); // Movido al final para evitar parpadeos
-
-            // --- Inicialización secundaria (solo usuarios autenticados) ---
-            // Limpieza de claves PRO antiguas
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && key.startsWith('lumina_extra_count_')) {
-                        localStorage.removeItem(key); i--;
-                    }
-                }
-            } catch(e) {}
-
-            if (typeof updateProExtraUI === 'function') updateProExtraUI();
-            if (localStorage.getItem('lumina_wake_lock') === 'true' && typeof requestWakeLock === 'function') requestWakeLock();
-
-            // Deep-links desde notificaciones
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('modal') === 'habitos' || window.location.hash === '#habitos') {
-                setTimeout(() => {
-                    const modal = document.getElementById('habitos-modal');
-                    if (modal && !modal.classList.contains('active') && typeof toggleHabitos === 'function') toggleHabitos();
-                }, 800);
-            }
-
-            console.log("Lúmina: Fase 2 - Módulos");
-            try {
-                const runSync = (fn, name) => {
-                    try { if (typeof fn === 'function') fn(); }
-                    catch(e) { console.warn('Error en ' + name, e); }
-                };
-
-                runSync(checkMidnightRefresh, 'CierreDía');
-                runSync(updateGamification, 'Gamificación');
-                runSync(loadTheme, 'Tema');
-                runSync(populateVoices, 'Voces');
-                runSync(loadProState, 'EstadoPro');
-                runSync(updateHeaderDate, 'Reloj');
-                runSync(createMotes, 'Motes');
-                runSync(initAmbient, 'Ambiente');
-                runSync(renderBitacoraTemplates, 'Bitácora');
-                runSync(updateMoodSummaryUI, 'Ánimo');
-
-                // --- RUTA INICIAL OPTIMIZADA (SIN PARPADEOS) ---
-                const targetCatFull = window.location.hash.replace('#', '') || 'hub';
-                const targetCat = targetCatFull.split(':')[0];
-                const valid = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
+            if (!hasUser) {
+                document.body.classList.add('is-guest');
+                if (landing) landing.style.display = 'block';
+                if (app) app.style.display = 'none';
+                if (mainUI) mainUI.classList.add('hidden');
                 
-                if (targetCat !== 'hub' && typeof openCategory === 'function' && valid.includes(targetCat)) {
-                    // Si vamos a una categoría, la abrimos DIRECTAMENTE
-                    await openCategory(targetCat, targetCat === 'libros', true, targetCatFull);
-                } else {
-                    // Si vamos al hub, cargamos su info y lo mostramos
-                    if (typeof updateHubInfo === 'function') await updateHubInfo();
-                }
-
-                if (typeof checkNotifications === 'function') checkNotifications();
-                if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
-                
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=31').catch(() => {});
-                }
-
-                // Estabilización final y fin de carga
+                if (typeof checkLandingInit === 'function') await checkLandingInit();
                 setTimeout(hideLoader, 300);
-
-                setInterval(checkMidnightRefresh, 1000 * 60 * 10);
-            } catch (e) {
-                console.error("Init Error", e);
-                hideLoader();
+                return;
             }
+
+            // MODO USUARIO
+            document.body.classList.remove('is-guest');
+            if (landing) landing.style.display = 'none';
+            if (app) app.style.display = 'grid';
+            if (mainUI) mainUI.classList.remove('hidden');
+            if (hub) hub.classList.remove('hidden');
+
+            // --- ESTABILIZACIÓN DE MÓDULOS v32 ---
+            const runSync = (fn, name) => {
+                try { if (typeof fn === 'function') fn(); }
+                catch(e) { console.warn('Error en ' + name, e); }
+            };
+
+            runSync(loadTheme, 'Tema');
+            runSync(loadProState, 'EstadoPro');
+            runSync(updateHeaderDate, 'Reloj');
+            runSync(initAmbient, 'Ambiente');
+            runSync(renderBitacoraTemplates, 'Bitácora');
+            runSync(loadUserJournal, 'Diario');
+            // --- RUTA Y RENDER FINAL (SIN PARPADEOS) ---
+            const targetCatFull = window.location.hash.replace('#', '') || 'hub';
+            const targetCatIdx = targetCatFull.split(':')[0];
+            const validSet = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
+
+            if (targetCatIdx !== 'hub' && validSet.includes(targetCatIdx) && typeof openCategory === 'function') {
+                await openCategory(targetCatIdx, targetCatIdx === 'libros', true, targetCatFull);
+            } else {
+                if (typeof updateHubInfo === 'function') await updateHubInfo();
+                if (hub) hub.style.opacity = '1';
+            }
+
+            if (typeof checkNotifications === 'function') checkNotifications();
+            if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js?v=32').catch(() => {});
+            }
+
+            setTimeout(hideLoader, 400);
+            setInterval(checkMidnightRefresh, 1000 * 60 * 10);
         }
+
 
         // Actualizar novedades cuando el usuario vuelve a la pestaña/app
         document.addEventListener('visibilitychange', () => {
@@ -6585,18 +6531,7 @@
 
         let currentIdx = -1; // Índice actual del contenido (para Extras PRO)
 
-        function hideLoader() {
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => {
-                    loader.classList.add('hidden');
-                    const mui = document.getElementById('main-ui');
-                    if (mui) mui.classList.add('loaded');
-                    loadUserJournal(); // Asegurar carga de diario al finalizar loader
-                }, 400);
-            }
-        }
+
 
         async function fetchContent(index = null) {
             let cacheKey = currentCategory;
