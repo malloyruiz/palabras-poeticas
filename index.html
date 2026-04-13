@@ -43,7 +43,7 @@
     
     <!-- PWABuilder Components -->
     <script>
-      const LUMINA_VERSION = 'v14'; // Global PWA Version
+      const LUMINA_VERSION = 'v26'; // Global PWA Version Diagnóstico
       var syncTimeout; // Global declaration for synchronization debounce (using var for broad scope)
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -2017,8 +2017,8 @@
         .qr-scanner-modal.active { display: flex; animation: fadeIn 0.4s ease; }
         .scanner-container {
             width: 280px; height: 280px;
-            background: transparent !important; border-radius: 40px; overflow: hidden;
-            position: relative; border: 2px solid rgba(181, 131, 58, 0.4);
+            background: #111 !important; border-radius: 40px; overflow: hidden;
+            position: relative; border: 3px solid #ff4444; /* Borde rojo de diagnóstico */
             box-shadow: 0 30px 80px rgba(0,0,0,0.8);
             margin-bottom: 30px;
         }
@@ -6214,7 +6214,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=24').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=26').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
@@ -9146,29 +9146,44 @@
             }
 
             modal.classList.add('active');
+            
             const status = document.getElementById('scanner-status');
             const zoomContainer = document.getElementById('scanner-zoom-container');
             const zoomRange = document.getElementById('scanner-zoom-range');
             
-            status.innerText = "Iniciando cámara...";
+            status.innerText = "Preparando visión v26...";
             if (zoomContainer) zoomContainer.style.display = 'none';
 
+            console.log("LÚMINA: Iniciando escáner v26...");
+
+            // PAUSA CRÍTICA: Esperar a que el buscador del navegador renderice el modal antes de pedir la cámara
+            await new Promise(r => setTimeout(r, 600));
+
             try {
-                if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+                if (html5QrCode) {
+                    try { await html5QrCode.stop(); } catch(e) {}
+                }
+                
+                html5QrCode = new Html5Qrcode("reader");
                 
                 const config = { 
-                    fps: 15, 
+                    fps: 20, 
                     qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0
+                    aspectRatio: 1.0,
+                    showTorchButtonIfSupported: true
                 };
 
+                status.innerText = "Abriendo sensor...";
+                
+                // Intentar abrir cámara con configuración robusta
                 await html5QrCode.start(
                     { facingMode: "environment" }, 
                     config, 
                     onScanSuccess
                 );
                 
-                status.innerText = "Buscando código...";
+                console.log("LÚMINA: Cámara iniciada con éxito");
+                status.innerText = "Buscando código QR...";
                 if (navigator.vibrate) navigator.vibrate(10);
 
                 // Detectar capacidades de Zoom
