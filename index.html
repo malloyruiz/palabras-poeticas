@@ -43,7 +43,7 @@
     
     <!-- PWABuilder Components -->
     <script>
-      const LUMINA_VERSION = 'v27'; // Global PWA Version "Transparencia"
+      const LUMINA_VERSION = 'v29'; // PWA Estable - Sistema Original Restaurado
       var syncTimeout; // Global declaration for synchronization debounce (using var for broad scope)
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -63,9 +63,7 @@
         // Auto-solicitar permiso con un ligero delay para no asustar
         setTimeout(() => {
             if (OneSignal.Notifications.permission !== true) {
-                try {
-          if (OneSignal.Slidedown) OneSignal.Slidedown.promptDefault();
-        } catch(e) { console.warn("OneSignal Slidedown no disponible"); }
+                OneSignal.Slidedown.promptDefault();
             }
         }, 2000);
 
@@ -2003,37 +2001,30 @@
 
         /* --- QR SCANNER UI (PREMIUM) --- */
         .qr-scanner-modal {
-            position: fixed; inset: 0; 
-            background: rgba(0,0,0,0.85);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             z-index: 2100000000; display: none; flex-direction: column;
             align-items: center; justify-content: center; padding: 20px;
             color: white; text-align: center;
         }
-        /* Modo Vinculación: Fondo totalmente negro y sólido para evitar problemas en móviles */
-        .qr-scanner-modal.pairing-mode {
-            background: #000 !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-        }
         .qr-scanner-modal.active { display: flex; animation: fadeIn 0.4s ease; }
         .scanner-container {
-            width: 280px; height: 280px;
-            background: #111 !important; border-radius: 40px; overflow: hidden;
-            position: relative; border: 3px solid #ff4444; /* Borde rojo de diagnóstico */
+            width: 100%; max-width: 400px; aspect-ratio: 1/1;
+            background: #000; border-radius: 40px; overflow: hidden;
+            position: relative; border: 2px solid rgba(181, 131, 58, 0.4);
             box-shadow: 0 30px 80px rgba(0,0,0,0.8);
             margin-bottom: 30px;
         }
-        #reader { width: 100% !important; height: 100% !important; border: none !important; background: transparent !important; }
-        #reader video { display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; }
+        #reader { width: 100% !important; height: 100% !important; border: none !important; }
+        #reader video { object-fit: cover !important; }
         .scanner-overlay {
             position: absolute; inset: 0; z-index: 10; pointer-events: none;
             display: flex; align-items: center; justify-content: center;
         }
         .scanner-frame {
-            width: 260px; height: 260px; border: 4px solid var(--accent);
+            width: 260px; height: 260px; border: 2px solid var(--accent);
             border-radius: 30px; position: relative;
-            box-shadow: 0 0 20px rgba(181, 131, 58, 0.4); /* Sombra suave interna únicamente */
+            box-shadow: 0 0 0 2000px rgba(0,0,0,0.4);
         }
         .scanner-line {
             position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -2787,14 +2778,6 @@
 
             <button id="btn-portal-submit" class="btn-save" onclick="handlePortalAction()" style="width: 100%; margin-top: 20px; background: #000; color: #fff; border:none; border-radius:50px; padding:18px; font-weight:700; cursor:pointer;">ENTRAR</button>
 
-            <!-- LOGIN CON QR -->
-            <div id="login-qr-section" style="margin-top: 15px;">
-                <button onclick="startQRLogin()" style="width: 100%; background: transparent; color: #000; border: 1px solid rgba(0,0,0,0.1); border-radius:50px; padding:15px; font-weight:600; font-size: 0.75rem; letter-spacing: 1px; cursor:pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                    ACCEDER CON QR
-                </button>
-            </div>
-
             <div id="portal-links" style="margin-top: 35px; display: flex; justify-content: center; gap: 15px; align-items: center;">
                 <a id="link-signup" class="auth-link" onclick="setPortalMode('signup')" style="color:#666; font-size:0.8rem; cursor:pointer;">Crear Cuenta</a>
                 <a id="link-login" class="auth-link" style="display: none; color:#666; font-size:0.8rem; cursor:pointer;" onclick="setPortalMode('login')">Ya tengo cuenta</a>
@@ -3352,10 +3335,9 @@
                 <img src="https://github.com/malloyruiz/palabras-poeticas/blob/main/logoLMN.svg?raw=true" alt="Lúmina" class="landing-logo">
                 <span class="logo-text">Lúmina</span>
             </div>
-            <div style="display: flex; gap: 10px;" class="nav-desktop-actions">
+            <div style="display: flex; gap: 15px;" class="nav-desktop-actions">
                 <button class="btn-portal-open" style="background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="openAuth('signup')">Suscríbete ahora</button>
                 <button class="btn-portal-open" onclick="openAuth('login')">Entrar</button>
-                <button class="btn-portal-open" style="background: transparent; border: 1px solid rgba(181,131,58,0.3); color: var(--accent); padding: 5px 15px; font-size: 0.65rem;" onclick="startQRLogin()">Vincular Pantalla 📷</button>
             </div>
             <button class="btn-hamburger" onclick="toggleMobileNav(event)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -3366,7 +3348,6 @@
         <div class="mobile-nav-drawer" id="mobile-nav-drawer">
             <button class="btn-portal-open" style="display:block !important; width: 220px;" onclick="openAuth('signup'); toggleMobileNav()">Suscríbete ahora</button>
             <button class="btn-portal-open" style="display:block !important; width: 220px; background: white; border: 2px solid var(--accent); color: var(--accent);" onclick="openAuth('login'); toggleMobileNav()">Entrar</button>
-            <button class="btn-portal-open" style="display:block !important; width: 220px; background: transparent; border: 1px solid rgba(181,131,58,0.4); color: var(--accent); margin-top: 15px;" onclick="startQRLogin(); toggleMobileNav()">Vincular Dispositivo 📷</button>
         </div>
 
         <header class="landing-hero" id="landing-hero">
@@ -4448,85 +4429,6 @@
                     }
                 } catch (e) { showToast("Error al cerrar sesiones.", "error"); }
             });
-        }
-
-        // --- LÓGICA DE SINCRONIZACIÓN QR (VINCULACIÓN) ---
-        let syncTimer;
-        async function requestSyncToken() {
-            const email = localStorage.getItem('lumina_user_email');
-            if (!email) return;
-
-            try {
-                showToast("Generando código...", "info");
-                const res = await fetch(`${API}?action=gen_sync_token&email=${encodeURIComponent(email)}`);
-                const data = await res.json();
-
-                if (data.success) {
-                    const modal = document.getElementById('qr-sync-modal');
-                    const qrBox = document.getElementById('sync-qr-box');
-                    const timerEl = document.getElementById('sync-qr-timer');
-                    
-                    qrBox.innerHTML = '';
-                    new QRCode(qrBox, {
-                        text: `lmnsync:${data.token}`,
-                        width: 200, height: 200, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
-                    });
-
-                    modal.classList.add('active');
-                    
-                    let timeLeft = 120;
-                    clearInterval(syncTimer);
-                    syncTimer = setInterval(() => {
-                        timeLeft--;
-                        const mins = Math.floor(timeLeft / 60);
-                        const secs = timeLeft % 60;
-                        timerEl.innerText = `Expira en ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                        if (timeLeft <= 0) {
-                            clearInterval(syncTimer);
-                            modal.classList.remove('active');
-                            showToast("El código ha expirado.", "info");
-                        }
-                    }, 1000);
-
-                } else {
-                    showToast(data.error || "No se pudo generar el código.", "error");
-                }
-            } catch (e) { showToast("Error de conexión.", "error"); }
-        }
-
-        function startQRLogin() {
-            // Cerramos el modal de login/identidad para evitar conflictos visuales
-            const loginModal = document.getElementById('portal-identidad-lumina');
-            if (loginModal) loginModal.classList.remove('active');
-            
-            // Reutilizar el escáner existente pero con un flag especial
-            window._isPairingScan = true;
-            showScanner();
-        }
-
-        async function verifyPairingToken(token) {
-            try {
-                showToast("Vinculando cuenta...", "info");
-                const res = await fetch(`${API}?action=verify_sync_token&token=${token}`);
-                const data = await res.json();
-
-                if (data.success) {
-                    // LOGIN INSTANTÁNEO
-                    localStorage.setItem('lumina_user_email', data.email);
-                    localStorage.setItem('lumina_user_pass_hash', data.passHash);
-                    localStorage.setItem('lumina_user_name', data.name);
-                    localStorage.setItem('lumina_is_pro', data.isPro ? 'true' : 'false');
-                    if (data.birthday) localStorage.setItem('lumina_birthday', data.birthday);
-                    if (data.data) localStorage.setItem('lumina_user_data', data.data);
-                    
-                    showToast(`¡Bienvenido de nuevo, ${data.name}! ✨`, "success");
-                    playSound('success');
-                    
-                    setTimeout(() => window.location.reload(), 1500);
-                } else {
-                    showToast(data.error || "Vinculación fallida", "error");
-                }
-            } catch (e) { showToast("Error en la vinculación.", "error"); }
         }
 
         function addLuminaActivity(msg, type = 'info') {
@@ -6216,7 +6118,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=27').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=29').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
@@ -9127,65 +9029,30 @@
             const modal = document.getElementById('qr-scanner-modal');
             if (!modal) return;
             
-            // Ocultamos el landing y los modales para que el escáner sea TOTALMENTE limpio
-            const landing = document.getElementById('landing-ui');
-            if (landing) landing.style.display = 'none';
-            
-            const mainUI = document.getElementById('main-ui');
-            if (mainUI) mainUI.style.display = 'none';
-            
-            const loader = document.getElementById('loader');
-            if (loader) loader.classList.add('hidden');
-            
-            const identityModal = document.getElementById('portal-identidad-lumina');
-            if (identityModal) identityModal.classList.remove('active');
-
-            // Diferenciar entre escaneo de Sabiduría (premium) y Vinculación (sólido)
-            if (window._isPairingScan) {
-                modal.classList.add('pairing-mode');
-            } else {
-                modal.classList.remove('pairing-mode');
-            }
-
             modal.classList.add('active');
-            
             const status = document.getElementById('scanner-status');
             const zoomContainer = document.getElementById('scanner-zoom-container');
             const zoomRange = document.getElementById('scanner-zoom-range');
             
-            status.innerText = "Preparando visión v27...";
+            status.innerText = "Iniciando cámara...";
             if (zoomContainer) zoomContainer.style.display = 'none';
 
-            console.log("LÚMINA: Iniciando escáner v27...");
-
-            // PAUSA CRÍTICA: Esperar a que el buscador del navegador renderice el modal antes de pedir la cámara
-            await new Promise(r => setTimeout(r, 600));
-
             try {
-                if (html5QrCode) {
-                    try { await html5QrCode.stop(); } catch(e) {}
-                }
-                
-                html5QrCode = new Html5Qrcode("reader");
+                if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
                 
                 const config = { 
-                    fps: 20, 
+                    fps: 15, 
                     qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0,
-                    showTorchButtonIfSupported: true
+                    aspectRatio: 1.0
                 };
 
-                status.innerText = "Abriendo sensor...";
-                
-                // Intentar abrir cámara con configuración robusta
                 await html5QrCode.start(
                     { facingMode: "environment" }, 
                     config, 
                     onScanSuccess
                 );
                 
-                console.log("LÚMINA: Cámara iniciada con éxito");
-                status.innerText = "Buscando código QR...";
+                status.innerText = "Buscando código...";
                 if (navigator.vibrate) navigator.vibrate(10);
 
                 // Detectar capacidades de Zoom
@@ -9229,14 +9096,6 @@
             // Formatos: luminapp.today/#libros, lmn://pausa, o solo 'frases'
             const raw = decodedText.trim();
             
-            // CASO ESPECIAL: VINCULACIÓN DE CUENTA
-            if (raw.startsWith('lmnsync:')) {
-                const token = raw.split(':')[1];
-                stopScanner();
-                verifyPairingToken(token);
-                return;
-            }
-
             let cat = raw.toLowerCase();
             if (cat.includes('#')) cat = cat.split('#')[1];
             else if (cat.includes('://')) cat = cat.split('://')[1];
@@ -9271,18 +9130,7 @@
             } finally {
                 const modal = document.getElementById('qr-scanner-modal');
                 modal.classList.remove('active');
-                modal.classList.remove('pairing-mode');
                 
-                // Restaurar la interfaz adecuada según si hay sesión o no
-                const email = localStorage.getItem('lumina_user_email');
-                if (email) {
-                    const mainUI = document.getElementById('main-ui');
-                    if (mainUI) mainUI.style.display = 'block';
-                } else {
-                    const landing = document.getElementById('landing-ui');
-                    if (landing) landing.style.display = 'block';
-                }
-
                 if (document.getElementById('scanner-status')) document.getElementById('scanner-status').innerText = "";
                 const zoomContainer = document.getElementById('scanner-zoom-container');
                 if (zoomContainer) zoomContainer.style.display = 'none';
@@ -9852,30 +9700,6 @@
                     <div id="profile-device-list" style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="font-size: 0.7rem; opacity: 0.3; text-align: center; padding: 10px;">Cargando sesiones...</div>
                     </div>
-
-                    <button onclick="requestSyncToken()" style="width: 100%; margin-top: 15px; background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 12px; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                        VINCULAR NUEVA PANTALLA
-                    </button>
-                </div>
-
-                <!-- MODAL DE VINCULACIÓN QR -->
-                <div id="qr-sync-modal" class="portal-overlay-lumina" style="z-index: 10001;" onclick="if(event.target === this) this.classList.remove('active')">
-                    <div class="auth-card-lumina" style="text-align: center; max-width: 350px;">
-                        <div style="font-size: 0.60rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">Vincular Pantalla</div>
-                        <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 10px;">Escanea para entrar</h2>
-                        <p style="font-size: 0.75rem; opacity: 0.6; margin-bottom: 30px;">Abre Lúmina en otra pantalla, elige "Acceder con QR" y escanea este código.</p>
-                        
-                        <div id="sync-qr-container" style="background: #fff; padding: 20px; border-radius: 20px; display: inline-block; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                            <!-- QR se genera aquí -->
-                            <div id="sync-qr-box"></div>
-                        </div>
-
-                        <div id="sync-qr-timer" style="font-size: 0.65rem; font-weight: 700; color: var(--accent); letter-spacing: 1px;">Expira en 02:00</div>
-                        
-                        <button onclick="document.getElementById('qr-sync-modal').classList.remove('active')" style="margin-top: 30px; background: none; border: 1px solid rgba(0,0,0,0.1); padding: 10px 25px; border-radius: 50px; font-size: 0.65rem; font-weight: 700; cursor: pointer;">CANCELAR</button>
-                    </div>
-                </div>
 
                 <!-- ACTIVIDAD RECIENTE (LOG) -->
                 <div style="margin-top: 25px; padding: 22px; background: rgba(181, 131, 58, 0.02); border-radius: 20px; border: 1px solid rgba(181, 131, 58, 0.05); text-align: left;">
