@@ -2016,14 +2016,14 @@
         }
         .qr-scanner-modal.active { display: flex; animation: fadeIn 0.4s ease; }
         .scanner-container {
-            width: 100%; max-width: 400px; aspect-ratio: 1/1;
-            background: #000; border-radius: 40px; overflow: hidden;
+            width: 280px; height: 280px;
+            background: transparent !important; border-radius: 40px; overflow: hidden;
             position: relative; border: 2px solid rgba(181, 131, 58, 0.4);
             box-shadow: 0 30px 80px rgba(0,0,0,0.8);
             margin-bottom: 30px;
         }
-        #reader { width: 100% !important; height: 100% !important; border: none !important; }
-        #reader video { object-fit: cover !important; }
+        #reader { width: 100% !important; height: 100% !important; border: none !important; background: transparent !important; }
+        #reader video { display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; }
         .scanner-overlay {
             position: absolute; inset: 0; z-index: 10; pointer-events: none;
             display: flex; align-items: center; justify-content: center;
@@ -6214,7 +6214,7 @@
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js?v=23').catch(() => {});
+                    navigator.serviceWorker.register('sw.js?v=24').catch(() => {});
                 }
 
                 // Ruta inicial desde URL hash
