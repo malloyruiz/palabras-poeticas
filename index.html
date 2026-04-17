@@ -32,8 +32,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@200;300;400;500;600&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- OneSignal SDK -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <!-- Custom Native Push Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -43,38 +42,8 @@
     
     <!-- PWABuilder Components -->
     <script>
-      const LUMINA_VERSION = 'v14'; // Global PWA Version
+      const LUMINA_VERSION = 'v15'; // Global PWA Version
       var syncTimeout; // Global declaration for synchronization debounce (using var for broad scope)
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "6a0df359-5798-42a3-9583-30ea6c825d4c",
-          serviceWorkerPath: 'sw.js',
-          serviceWorkerParam: { scope: '/' },
-          notifyButton: {
-            enable: false, 
-          },
-          allowLocalhostAsSecureOrigin: true // Para pruebas locales si es necesario
-        });
-
-        // Sincronizar UI inmediatamente después de init
-        if (typeof updateSubscriptionUI === "function") updateSubscriptionUI();
-
-        // Auto-solicitar permiso con un ligero delay para no asustar
-        setTimeout(() => {
-            if (OneSignal.Notifications.permission !== true) {
-                OneSignal.Slidedown.promptDefault();
-            }
-        }, 2000);
-
-        // Sincronizar UI cuando cambie algo externamente
-        OneSignal.Notifications.addEventListener("permissionChange", () => {
-             if (typeof updateSubscriptionUI === "function") updateSubscriptionUI();
-        });
-        OneSignal.User.PushSubscription.addEventListener("change", () => {
-             if (typeof updateSubscriptionUI === "function") updateSubscriptionUI();
-        });
-      });
     </script>
     <style>
         :root {
@@ -369,6 +338,11 @@
             align-items: center;
             box-shadow: 0 4px 15px rgba(181, 131, 58, 0.4);
             text-transform: uppercase;
+        }
+        
+        .logo-pro-badge.lite {
+            background: linear-gradient(135deg, #a0a0a0, #707070);
+            box-shadow: 0 4px 15px rgba(160, 160, 160, 0.4);
         }
 
         /* Responsive Mobile */
@@ -2793,6 +2767,9 @@ body[data-cat="sendas"] #header-cat {
     width: 100%;
     margin-top: 15px;
 }
+@media (max-width: 600px) {
+    .checkin-options-grid { grid-template-columns: 1fr; gap: 10px; }
+}
 .checkin-option-btn {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -2804,6 +2781,10 @@ body[data-cat="sendas"] #header-cat {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-height: 80px;
+}
+@media (max-width: 600px) {
+    .checkin-option-btn { padding: 22px 18px; min-height: 90px; }
 }
 .checkin-option-btn:hover, .checkin-option-btn.selected {
     border-color: var(--accent);
@@ -2852,14 +2833,14 @@ body[data-cat="sendas"] #header-cat {
 .senda-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
 .senda-card-title { 
     font-family: 'Playfair Display', serif; 
-    font-size: 1.5rem; /* Ajustado a 1.5rem */
-    font-style: italic; /* Cursiva como pidió */
+    font-size: clamp(1.2rem, 5vw, 1.5rem);
+    font-style: italic;
     font-weight: 700; 
     color: var(--accent); 
-    line-height: 1.25; 
+    line-height: 1.2; 
     flex: 1; 
 }
-.senda-card-mode { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; flex-shrink: 0; margin-left: 10px; margin-top: 5px; font-weight: 600; }
+.senda-card-mode { font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.6; flex-shrink: 0; margin-left: 10px; margin-top: 5px; font-weight: 600; }
 .senda-progress-bar-bg { height: 6px; background: var(--card-border); border-radius: 3px; overflow: hidden; margin: 12px 0 8px; }
 .senda-progress-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s ease; }
 .senda-card-meta { font-size: 0.9rem; opacity: 0.8; display: flex; justify-content: space-between; font-weight: 400; }
@@ -2892,6 +2873,10 @@ body[data-cat="sendas"] #header-cat {
     margin-right: auto;
     width: 100%;
 }
+@media (max-width: 600px) {
+    .sendas-header { margin-bottom: 25px; padding-right: 15px; }
+    .sendas-header h2 { font-size: 2.8rem !important; }
+}
 .sendas-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -2913,6 +2898,11 @@ body[data-cat="sendas"] #header-cat {
     padding-top: 12px;
     border-top: 1px solid var(--card-border);
     justify-content: flex-end;
+    flex-wrap: wrap;
+}
+@media (max-width: 480px) {
+    .senda-card-actions { justify-content: stretch; }
+    .senda-card-actions button { flex: 1; min-width: 100px; }
 }
 .senda-action-btn {
     background: transparent;
@@ -2963,8 +2953,22 @@ body[data-cat="sendas"] #header-cat {
 .sendas-empty-state svg { width: 40px; height: 40px; stroke: var(--accent); fill: none; margin-bottom: 20px; opacity: 0.5; stroke-width: 1.5; }
 .sendas-empty-state p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 25px; }
 @media (max-width: 600px) {
-    #sendas-ui { padding: 10px; padding-top: calc(80px + env(safe-area-inset-top)); }
-    /* .sendas-grid { grid-template-columns: 1fr; } -- Handled above with media query */
+    #sendas-ui { padding: 15px; padding-top: calc(80px + env(safe-area-inset-top)); }
+    .sendas-header-main { flex-direction: column; align-items: stretch !important; gap: 15px !important; }
+    .sendas-header-main h1 { font-size: 2.8rem !important; }
+    .sendas-header-main .btn-save { width: 100%; justify-content: center; }
+}
+
+/* Senda Reader Mobile Surgery */
+@media (max-width: 600px) {
+    .senda-reader-content { padding: 80px 20px 300px !important; }
+    .exp-reader-nav-container { padding: 20px 15px !important; gap: 8px !important; }
+    .btn-exp-nav { padding: 12px 18px !important; font-size: 0.65rem !important; }
+    .btn-exp-nav.complete { padding: 12px 22px !important; }
+    .btn-exp-nav .nav-text { display: none; }
+    .btn-exp-nav.complete .nav-text { display: inline; }
+    .lesson-body { font-size: 1.1rem !important; line-height: 1.8 !important; margin-bottom: 40px !important; }
+    .app-box, .reflection-box { padding: 30px 20px !important; }
 }
     </style>
 </head>
@@ -4416,7 +4420,7 @@ body[data-cat="sendas"] #header-cat {
             <!-- VISTA 1: Lista de sendas activas e Historial (Integrado) -->
             <div id="sendas-view-list">
                 <div class="sendas-header" style="margin-bottom: 40px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                    <div class="sendas-header-main" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
                         <div>
                             <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Mis Sendas</h1>
                             <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6; margin: 0 0 25px 0;">Rutas personalizadas forjadas desde tu estado interior.</p>
@@ -4949,11 +4953,11 @@ body[data-cat="sendas"] #header-cat {
             const heroTitle = document.getElementById('hero-title');
             if (!heroTitle) return;
             
-            // Siempre Lúmina, con badge PRO solo si es suscripción pagada
+            // Siempre Lúmina, con badge PRO o LITE según el tipo de suscripción
             if (isProUser) {
                 heroTitle.innerHTML = 'Lúmina <span class="logo-pro-badge">PRO</span>';
             } else {
-                heroTitle.innerText = 'Lúmina';
+                heroTitle.innerHTML = 'Lúmina <span class="logo-pro-badge lite">LITE</span>';
             }
         }
 
@@ -5438,6 +5442,7 @@ body[data-cat="sendas"] #header-cat {
                 modal.classList.add('active');
                 history.pushState({ modal: 'profile' }, "", "#profile");
                 updateProfileUI();
+                if (typeof syncLuminaStats === 'function') syncLuminaStats();
                 playSound('click');
                 if (navigator.vibrate) navigator.vibrate(10);
             }
@@ -6082,6 +6087,21 @@ body[data-cat="sendas"] #header-cat {
             }
         }
 
+        function getMedalCount() {
+            // Medallas: 1 cada 7 días de racha + 1 cada 10 entradas bitácora + 1 cada 10 lecciones senda
+            const streak = parseInt(localStorage.getItem('lumina_streak') || '0');
+            const bitacora = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]').length;
+            
+            const activeSendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+            const archivedSendas = JSON.parse(localStorage.getItem('lumina_archived_sendas') || '[]');
+            let sendaLessons = 0;
+            [...activeSendas, ...archivedSendas].forEach(s => {
+                sendaLessons += (s.currentDay || 0);
+            });
+            
+            return Math.floor(streak / 7) + Math.floor(bitacora / 10) + Math.floor(sendaLessons / 10);
+        }
+
         function updateStreak() {
             const now = new Date();
             now.setHours(0, 0, 0, 0);
@@ -6122,12 +6142,10 @@ body[data-cat="sendas"] #header-cat {
                 }
             }
 
-            localStorage.setItem('lumina_streak', streak.toString()); // GUARDAR RACHA CORRECTAMENTE
-            localStorage.setItem('lumina_last_activity', new Date().toISOString()); // Registrar actividad
-            localStorage.setItem('lumina_last_visit_ts', now.getTime().toString()); // Registrar visita de medionoche
+            localStorage.setItem('lumina_streak', streak.toString());
+            localStorage.setItem('lumina_last_activity', new Date().toISOString());
+            localStorage.setItem('lumina_last_visit_ts', now.getTime().toString());
             
-            pushSync(); // Guardar racha en la nube
-
             if (diffDays !== 0) {
                 const todayStr = new Date().toDateString();
                 const visitLog = JSON.parse(localStorage.getItem('lumina_visit_log') || '[]');
@@ -6137,61 +6155,102 @@ body[data-cat="sendas"] #header-cat {
                     localStorage.setItem('lumina_visit_log', JSON.stringify(visitLog));
                 }
             }
-
-            const streakEl = document.getElementById('streak-val');
-            if (streakEl) streakEl.innerText = streak;
-            const profileStreakEl = document.getElementById('profile-streak-val');
-            if (profileStreakEl) profileStreakEl.innerText = streak;
-
-            // Stats adicionales: Pausas
-            const pausasTotal = parseInt(localStorage.getItem('lumina_pausa_mins') || '0');
-            const pVal = document.getElementById('pausas-val');
-            if (pVal) pVal.innerText = pausasTotal;
-            const ppVal = document.getElementById('profile-pausas-val');
-            if (ppVal) ppVal.innerText = pausasTotal;
-
-            // Stats adicionales: Bitácora
-            const bitacoraData = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
-            const bitacoraTotal = bitacoraData.length;
-            const bVal = document.getElementById('bitacora-stats-val');
-            if (bVal) bVal.innerText = bitacoraTotal;
-            const bpVal = document.getElementById('profile-bitacora-val');
-            if (bpVal) bpVal.innerText = bitacoraTotal;
         }
 
-        function getMedalCount() {
-            const journey = JSON.parse(localStorage.getItem('lumina_journey_prog') || '{}');
-            let completed = 0;
-            for (let day in journey) {
-                if (journey[day].completed) completed++;
-            }
-            let librosLeidos = parseInt(localStorage.getItem('lumina_libros_leidos') || '0');
-            return Math.floor(completed / 7) + Math.floor(librosLeidos / 7);
-        }
-
-        function updateGamification() {
-            updateStreak();
+        function syncLuminaStats() {
+            console.log("Lúmina: Sincronizando Estadísticas Globales...");
+            
+            // 1. Racha
+            updateStreak(); 
+            const streak = parseInt(localStorage.getItem('lumina_streak') || '0');
+            
+            // 2. Pausas (Minutos acumulados)
+            const pauseHistory = JSON.parse(localStorage.getItem('lumina_pausas_history') || '[]');
+            let totalMins = 0;
+            pauseHistory.forEach(h => totalMins += (h.min || 0));
+            // Asegurar que lumina_pausa_mins esté sincronizado
+            localStorage.setItem('lumina_pausa_mins', totalMins);
+            
+            // 3. Bitácora (Entradas totales)
+            const bitacora = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
+            const bitacoraTotal = bitacora.length;
+            
+            // 4. Sendas (Lecciones completadas)
+            const activeSendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+            const archivedSendas = JSON.parse(localStorage.getItem('lumina_archived_sendas') || '[]');
+            let sendaLessons = 0;
+            [...activeSendas, ...archivedSendas].forEach(s => {
+                sendaLessons += (s.currentDay || 0);
+            });
+            
+            // 5. Medallas
             const medals = getMedalCount();
-            document.getElementById('medals-val').innerText = medals;
-            const profileMedals = document.getElementById('profile-medals-val');
-            if (profileMedals) profileMedals.innerText = medals;
+            
+            // ACTUALIZAR UI (Múltiples destinos)
+            const updateUI = (id, val) => {
+                const els = document.querySelectorAll(`[id="${id}"]`);
+                els.forEach(el => {
+                    if (el.tagName === 'SPAN' || el.tagName === 'DIV' || el.tagName === 'H3') el.innerText = val;
+                });
+            };
+
+            updateUI('streak-val', streak);
+            updateUI('profile-streak-val', streak);
+            updateUI('pausas-val', totalMins);
+            updateUI('profile-pausas-val', totalMins);
+            updateUI('bitacora-stats-val', bitacoraTotal);
+            updateUI('profile-bitacora-val', bitacoraTotal);
+            updateUI('medals-val', medals);
+            updateUI('profile-medals-val', medals);
+            
+            // Nueva estadística: Sendas (buscamos si existen los IDs, si no, los ignoramos)
+            updateUI('sendas-stats-val', sendaLessons);
+            updateUI('profile-sendas-val', sendaLessons);
+
+            // Actualizar visuales dependientes
             renderRachaVisual();
             updateLogroDelDia();
+            updateMoodSummaryUI();
             
-            // ACTUALIZAR GRÁFICOS (Chart.js)
+            // Gráficos
             setTimeout(renderHabitsCharts, 50);
+            
+            console.log("Lúmina: Estadísticas sincronizadas ✨");
+        }
+
+        // Alias para mantener compatibilidad con llamadas existentes
+        function updateGamification() {
+            syncLuminaStats();
         }
 
         let habitsChartInstance = null;
         let profileChartInstance = null;
+        function logSendaActivity(title) {
+            try {
+                const history = JSON.parse(localStorage.getItem('lumina_senda_history') || '[]');
+                history.push({ 
+                    date: new Date().toDateString(), 
+                    timestamp: new Date().getTime(),
+                    title: title || 'Lección de Senda'
+                });
+                if (history.length > 200) history.shift();
+                localStorage.setItem('lumina_senda_history', JSON.stringify(history));
+                if (typeof syncLuminaStats === 'function') syncLuminaStats(); // Sincronizar UI tras log
+            } catch(e) { console.error("Error logging senda activity:", e); }
+        }
 
         function renderHabitsCharts() {
             const visitLog = JSON.parse(localStorage.getItem('lumina_visit_log') || '[]');
             const pauseLog = JSON.parse(localStorage.getItem('lumina_pausas_history') || '[]');
-            
+
+            const bitacoraLog = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
+            const sendaLog = JSON.parse(localStorage.getItem('lumina_senda_history') || '[]');
+
             const days = [];
             const consistencyData = [];
             const peaceData = [];
+            const bitacoraData = [];
+            const sendaData = [];
             
             const accent = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b5833a';
             const isDark = document.body.getAttribute('data-theme') === 'dark';
@@ -6205,12 +6264,20 @@ body[data-cat="sendas"] #header-cat {
                 // Labels resumidos (Lun, Mar...)
                 days.push(d.toLocaleDateString('es-ES', { weekday: 'short' }));
                 
-                // Dato 1: Consistencia (1 si entró, 0 si no)
+                // Dato 1: Consistencia
                 consistencyData.push(visitLog.includes(dStr) ? 1 : 0);
                 
                 // Dato 2: Minutos de Paz
                 const pauseEntry = pauseLog.find(p => p.date === dStr);
                 peaceData.push(pauseEntry ? pauseEntry.min : 0);
+                
+                // Dato 3: Reflexiones (Bitácora)
+                const reflCount = bitacoraLog.filter(e => new Date(e.timestamp).toDateString() === dStr).length;
+                bitacoraData.push(reflCount);
+                
+                // Dato 4: Lecciones (Sendas)
+                const sendaCount = sendaLog.filter(e => e.date === dStr).length;
+                sendaData.push(sendaCount);
             }
 
             const chartConfig = (data, pData) => ({
@@ -6222,9 +6289,9 @@ body[data-cat="sendas"] #header-cat {
                             label: 'Minutos de Paz',
                             data: pData,
                             borderColor: accent,
-                            backgroundColor: isDark ? accent + '44' : accent + '22', // Más visible en modo noche
+                            backgroundColor: isDark ? accent + '44' : accent + '22',
                             fill: true,
-                            tension: 0.4, // Curva suave (Smooth)
+                            tension: 0.4,
                             borderWidth: 3,
                             pointRadius: 4,
                             pointBackgroundColor: accent,
@@ -6232,12 +6299,33 @@ body[data-cat="sendas"] #header-cat {
                             yAxisID: 'y'
                         },
                         {
-                            label: 'Consistencia',
-                            data: data,
-                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                            label: 'Reflexiones',
+                            data: bitacoraData,
+                            borderColor: 'rgba(75, 192, 192, 1)',
                             backgroundColor: 'transparent',
                             borderWidth: 2,
-                            borderDash: [5, 5],
+                            pointRadius: 3,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Lecciones',
+                            data: sendaData,
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.2)',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [2, 2],
+                            pointRadius: 3,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Consistencia',
+                            data: data,
+                            borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                            backgroundColor: 'transparent',
+                            borderWidth: 1,
+                            borderDash: [10, 5],
                             tension: 0.4,
                             pointRadius: 0,
                             yAxisID: 'y1'
@@ -6258,7 +6346,14 @@ body[data-cat="sendas"] #header-cat {
                             padding: 10,
                             displayColors: false,
                             callbacks: {
-                                label: (ctx) => ctx.datasetIndex === 0 ? `${ctx.raw} min de paz` : (ctx.raw ? 'Visitado' : 'Sin visita')
+                                label: (ctx) => {
+                                    const val = ctx.raw;
+                                    if (ctx.dataset.label === 'Minutos de Paz') return `${val} min de paz`;
+                                    if (ctx.dataset.label === 'Reflexiones') return `${val} reflexiones`;
+                                    if (ctx.dataset.label === 'Lecciones') return `${val} lecciones senda`;
+                                    if (ctx.dataset.label === 'Consistencia') return (val ? 'Visitado' : 'Sin visita');
+                                    return `${val}`;
+                                }
                             }
                         }
                     },
@@ -6271,7 +6366,7 @@ body[data-cat="sendas"] #header-cat {
                             }
                         },
                         y: { display: false, beginAtZero: true, max: Math.max(...pData, 5) + 2 },
-                        y1: { display: false, beginAtZero: true, max: 2 }
+                        y1: { display: false, beginAtZero: true, max: Math.max(...bitacoraData, ...sendaData, 2) + 1 }
                     }
                 }
             });
@@ -6327,14 +6422,6 @@ body[data-cat="sendas"] #header-cat {
                 appendMoodDataset(habitsChartInstance);
                 appendMoodDataset(profileChartInstance);
             }, 100);
-
-            // Actualizar Conteos de Bitácora en UI
-            const bitacoraData = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
-            const bitacoraCount = new Set(bitacoraData.map(e => new Date(e.timestamp).toDateString())).size;
-            const bVal = document.getElementById('bitacora-stats-val');
-            const pbVal = document.getElementById('profile-bitacora-val');
-            if (bVal) bVal.innerText = bitacoraCount;
-            if (pbVal) pbVal.innerText = bitacoraCount;
         }
         function renderRachaVisual() {
             const container = document.getElementById('racha-visual');
@@ -6410,6 +6497,7 @@ body[data-cat="sendas"] #header-cat {
                 if (visitLog.length > 30) visitLog.splice(0, visitLog.length - 30);
                 localStorage.setItem('lumina_visit_log', JSON.stringify(visitLog));
             }
+            if (typeof syncLuminaStats === 'function') syncLuminaStats();
             
             // Incrementar registro de libros para medallas (Logro cada 7)
             if (cat === 'libros') {
@@ -7544,6 +7632,7 @@ if (id === 'content-header' || id === 'side-panel') {
             const data = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
             data.unshift(entry);
             localStorage.setItem('lumina_bitacora', JSON.stringify(data));
+            if (typeof syncLuminaStats === 'function') syncLuminaStats();
             
             // Limpiar draft
             localStorage.removeItem('lumina_bitacora_draft_' + selectedBitacoraTemplate.id);
@@ -7850,6 +7939,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 history.pushState({ modal: 'habitos' }, "", "#habitos");
                 playSound('click');
                 if (navigator.vibrate) navigator.vibrate(10);
+                if (typeof syncLuminaStats === 'function') syncLuminaStats();
                 setTimeout(renderHabitsCharts, 100);
                 
                 // Pre-captura para compartir instantáneamente
@@ -7964,9 +8054,37 @@ if (id === 'content-header' || id === 'side-panel') {
             list.innerHTML = '';
             let count = 0;
 
-            const addNotif = (cat, tit, msg, link, isExtra = false) => {
+            const getPushedNotifs = () => JSON.parse(localStorage.getItem('lumina_pushed_notifs') || '[]');
+            const pushedNotifs = getPushedNotifs();
+
+            const addNotif = (cat, tit, msg, link, isExtra = false, imagen = "") => {
                 const nId = (cat || 'extra') + ":" + btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32);
                 if (dismissed.includes(nId)) return;
+
+
+                // Enviar notificación flotante native si no se ha enviado antes
+                if (!pushedNotifs.includes(nId)) {
+                    pushedNotifs.push(nId);
+                    localStorage.setItem('lumina_pushed_notifs', JSON.stringify(pushedNotifs));
+                    
+                    if (window.Notification && Notification.permission === 'granted') {
+                        const iconUrl = 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/logoLMN.png';
+                        try {
+                            const notifOptions = { body: msg, icon: iconUrl, badge: iconUrl, tag: nId };
+                            if (imagen) notifOptions.image = imagen; // Agregamos la imagen si viene del Excel
+                            
+                            if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+                                navigator.serviceWorker.ready.then(reg => {
+                                    reg.showNotification('Lúmina: ' + tit, notifOptions);
+                                }).catch(() => {
+                                    new Notification('Lúmina: ' + tit, notifOptions);
+                                });
+                            } else {
+                                new Notification('Lúmina: ' + tit, notifOptions);
+                            }
+                        } catch(err) {}
+                    }
+                }
 
                 const currentDate = new Date();
                 const dateStr = currentDate.getDate() + ' ' + ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][currentDate.getMonth()];
@@ -8084,7 +8202,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 if (libroData) setCache('libros', libroData);
                 
                 if (Array.isArray(extras)) {
-                    extras.forEach(n => addNotif(n.cat || 'extra', n.titulo || 'Aviso', n.mensaje || '', n.link, true));
+                    extras.forEach(n => addNotif(n.cat || 'extra', n.titulo || 'Aviso', n.mensaje || '', n.link, true, n.imagen || ''));
                 }
 
                 if (hasAnySub) {
@@ -8378,32 +8496,11 @@ if (id === 'content-header' || id === 'side-panel') {
                     else wakeLockBtn.classList.remove('active');
                 }
 
-                if (window.OneSignal && OneSignal.User && OneSignal.User.getTags) {
-                    const tags = await OneSignal.User.getTags();
-                    if (tags) {
-                        const now = Date.now();
-                        ['palabras', 'afirmaciones', 'frases', 'libros'].forEach(cat => {
-                            // GUARD: si el usuario tocó este toggle hace menos de 3 seg, ignorar datos de OneSignal
-                            if (_pendingSync[cat] && (now - _pendingSync[cat]) < 3000) return;
-                            const btn = document.getElementById(`sub-${cat}`);
-                            if (btn) {
-                                if (tags[cat] === 'true') {
-                                    btn.classList.add('active');
-                                    localStorage.setItem(`lumina_sub_${cat}`, 'true');
-                                } else if (tags[cat] === 'false') {
-                                    btn.classList.remove('active');
-                                    localStorage.setItem(`lumina_sub_${cat}`, 'false');
-                                }
-                            }
-                        });
-                    }
-                }
             } catch (e) { console.warn("Sync error:", e); }
 
             const pushBtn = document.getElementById('sub-push');
-            if (pushBtn && window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
-                const isOptedIn = OneSignal.User.PushSubscription.optedIn;
-                if (isOptedIn) pushBtn.classList.add('active');
+            if (pushBtn && window.Notification) {
+                if (Notification.permission === 'granted') pushBtn.classList.add('active');
                 else pushBtn.classList.remove('active');
             }
 
@@ -8503,16 +8600,9 @@ if (id === 'content-header' || id === 'side-panel') {
                     btn.classList.remove('active');
                 }
                 
-                // 2. SYNC ASYNC (ONESIGNAL)
-                if (window.OneSignal && OneSignal.User) {
-                    if (OneSignal.Notifications.permission !== true) {
-                        OneSignal.Notifications.requestPermission();
-                    }
-                    if (isSubscribed) {
-                        OneSignal.User.removeTag(cat);
-                    } else {
-                        OneSignal.User.addTag(cat, "true");
-                    }
+                // 2. PEDIR PERMISOS NATIVOS SI AÚN NO SE TIENEN
+                if (window.Notification && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                    Notification.requestPermission();
                 }
                 
                 // Sincronizar notificaciones internas en segundo plano
@@ -8549,21 +8639,23 @@ if (id === 'content-header' || id === 'side-panel') {
 
             try {
                 if (navigator.vibrate) navigator.vibrate(12);
-                if (window.OneSignal && OneSignal.User && OneSignal.Notifications) {
-                    btn.classList.add('busy');
-                    const permission = OneSignal.Notifications.permission;
-                    if (!permission) {
-                        await OneSignal.Slidedown.promptDefault();
-                    } else {
-                        btn.classList.toggle('active');
-                        const sub = OneSignal.User.PushSubscription;
-                        if (sub) {
-                            if (sub.optedIn) await sub.optOut();
-                            else await sub.optIn();
-                        }
+                if (!window.Notification) {
+                    showToast("Notificaciones no soportadas en este navegador", "error");
+                    return;
+                }
+                
+                btn.classList.add('busy');
+                
+                if (Notification.permission === 'granted') {
+                    showToast("Debes revocar el permiso manualmente desde los ajustes de tu navegador o teléfono.", "info");
+                } else if (Notification.permission !== 'denied') {
+                    const perm = await Notification.requestPermission();
+                    if(perm === 'granted') {
+                        btn.classList.add('active');
+                        showToast("Notificaciones activadas", "success");
                     }
                 } else {
-                    showToast("Sincronizando sistema de alertas...", "info");
+                    showToast("Las notificaciones están bloqueadas en tu navegador", "warning");
                 }
             } catch (e) { 
                 console.warn("TogglePush error:", e);
@@ -8740,12 +8832,12 @@ if (id === 'content-header' || id === 'side-panel') {
             headerEl.innerText = getSmartTitle(cat);
             
             if (cat === 'habitos') {
-                titleEl.textContent = "Estado de Disciplina";
                 const streak = document.getElementById('streak-val')?.textContent || "0";
                 const medals = document.getElementById('medals-val')?.textContent || "0";
                 const pausas = document.getElementById('pausas-val')?.textContent || "0";
                 const bitacora = document.getElementById('bitacora-stats-val')?.textContent || "0";
-                const mood = document.getElementById('mood-val')?.textContent || "—";
+                const sendas = document.getElementById('sendas-stats-val')?.textContent || "0";
+                const mood = document.getElementById('mood-stats-val')?.textContent?.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').trim() || "—";
                 
                 bodyEl.textContent = "Mis hitos de sabiduría acumulados hasta hoy en Lúmina.";
                 
@@ -8762,16 +8854,20 @@ if (id === 'content-header' || id === 'side-panel') {
                         </div>
                         <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
                             <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:#b5833a;">${pausas}</div>
-                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Pausas</div>
+                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Minutos</div>
                         </div>
                     </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; text-align:center; margin-top:10px;">
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; text-align:center; margin-top:10px;">
                         <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
-                            <div style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; color:#b5833a;">${bitacora}</div>
-                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Bitácora</div>
+                            <div style="font-family:'Playfair Display', serif; font-size:1.1rem; font-weight:700; color:#b5833a;">${bitacora}</div>
+                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Reflejos</div>
                         </div>
                         <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
-                            <div style="font-family:'Playfair Display', serif; font-size:1.2rem; font-weight:700; color:#b5833a; margin-top:3px;">${mood.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '').trim() || '—'}</div>
+                            <div style="font-family:'Playfair Display', serif; font-size:1.1rem; font-weight:700; color:#b5833a;">${sendas}</div>
+                            <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Lecciones</div>
+                        </div>
+                        <div style="background:rgba(181,131,58,0.06); padding:12px 5px; border-radius:15px; border:1px solid rgba(181,131,58,0.1);">
+                            <div style="font-family:'Playfair Display', serif; font-size:1.0rem; font-weight:700; color:#b5833a; margin-top:2px;">${mood || '—'}</div>
                             <div style="font-size:0.5rem; letter-spacing:1px; opacity:0.6; font-weight:700; text-transform:uppercase;">Ánimo</div>
                         </div>
                     </div>`;
@@ -9446,6 +9542,7 @@ if (id === 'content-header' || id === 'side-panel') {
             
             showToast("Momento de paz guardado en tu historial 🌿", "success");
             addLuminaActivity(`Guardaste un hábito de paz: ${window._lastPausaTitle || "Meditación"}`, "habit");
+            if (typeof syncLuminaStats === 'function') syncLuminaStats();
             pushSync(); // Sincronizar pausa
             toggleAmbient('none');
             renderPausaList(); // Volver al inicio de pausas
@@ -9893,7 +9990,7 @@ if (id === 'content-header' || id === 'side-panel') {
     </div>
 
     <div id="exp-read-ui" class="modal" style="background: var(--bg); z-index: 1700; overflow-y: scroll !important; height: 100vh; position: fixed; inset: 0; -webkit-overflow-scrolling: touch;">
-        <div class="modal-content" style="max-width: 900px; padding: 100px 30px 400px; min-height: max-content; background: transparent; box-shadow: none; border: none; text-align: left; overflow: visible;">
+        <div class="modal-content senda-reader-content" style="max-width: 900px; padding: 100px 30px 400px; min-height: max-content; background: transparent; box-shadow: none; border: none; text-align: left; overflow: visible;">
             <div class="hero-bg-blur" style="left: 10%; top: -5%; opacity: 0.15; pointer-events: none;"></div>
             
             <button onclick="history.back()" class="btn-back-glass" style="z-index: 20;">
@@ -9905,7 +10002,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     <div class="date-full" id="exp-read-meta-path" style="color: var(--accent); font-weight: 700; letter-spacing: 2px; font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px;">---</div>
                     <div id="exp-read-meta-author" style="letter-spacing: 2px; font-weight: 500; opacity: 0.6; font-size: 0.85rem; margin-bottom: 10px; font-family: 'Playfair Display', serif; font-style: italic;">---</div>
                     
-                    <h1 class="word-display" id="exp-read-title" style="margin: 5px 0 10px; font-style: italic; font-weight: 900; line-height: 1.1;">---</h1>
+                    <h1 class="word-display" id="exp-read-title" style="margin: 5px 0 10px; font-style: italic; font-weight: 900; line-height: 1.1; font-size: clamp(2.5rem, 8vw, 4.5rem);">---</h1>
                     
                     <div class="content-actions">
                         <button class="btn-speak" id="btn-speak-exp" onclick="speakExpContent()" title="Escuchar">
@@ -9949,18 +10046,18 @@ if (id === 'content-header' || id === 'side-panel') {
             </div>
 
             <!-- NAVEGACIÓN FIJA INFERIOR -->
-            <div id="exp-reader-nav" style="position: fixed; bottom: 0; left: 0; right: 0; padding: 30px; background: linear-gradient(0deg, var(--bg) 60%, transparent); display: flex; justify-content: center; align-items: center; gap: 15px; z-index: 10; pointer-events: none;">
-                <button class="btn-fab-item" id="btn-exp-prev" onclick="expPrev()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px;">
+            <div id="exp-reader-nav" class="exp-reader-nav-container" style="position: fixed; bottom: 0; left: 0; right: 0; padding: 30px; background: linear-gradient(0deg, var(--bg) 60%, transparent); display: flex; justify-content: center; align-items: center; gap: 15px; z-index: 10; pointer-events: none;">
+                <button class="btn-fab-item btn-exp-nav" id="btn-exp-prev" onclick="expPrev()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    ANTERIOR
+                    <span class="nav-text">ANTERIOR</span>
                 </button>
                 
-                <button class="btn-fab-item" id="btn-senda-complete" onclick="markSendaLessonDone()" style="pointer-events: auto; padding: 15px 35px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px; background: #2ecc71; color: #fff; border:none; display:none; filter: drop-shadow(0 10px 20px rgba(46, 204, 113, 0.3)); font-weight: 800;">
-                    COMPLETAR LECCIÓN <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:8px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <button class="btn-fab-item btn-exp-nav complete" id="btn-senda-complete" onclick="markSendaLessonDone()" style="pointer-events: auto; padding: 15px 35px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px; background: #2ecc71; color: #fff; border:none; display:none; filter: drop-shadow(0 10px 20px rgba(46, 204, 113, 0.3)); font-weight: 800;">
+                    <span class="nav-text">COMPLETAR</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:8px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </button>
 
-                <button class="btn-fab-item" id="btn-exp-next" onclick="expNext()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px; background: var(--accent); color: #fff;">
-                    SIGUIENTE
+                <button class="btn-fab-item btn-exp-nav" id="btn-exp-next" onclick="expNext()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px; background: var(--accent); color: #fff;">
+                    <span class="nav-text">SIGUIENTE</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </button>
             </div>
@@ -11135,6 +11232,8 @@ async function finalizeCheckIn() {
         if (sendas.length > 5) sendas.length = 5;
         localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
 
+        if (typeof syncLuminaStats === 'function') syncLuminaStats();
+        if (typeof logSendaActivity === 'function') logSendaActivity('Check-in Senda');
         if (typeof syncData === 'function') syncData();
 
         showToast(`✨ Senda "${newSenda.title}" creada`, 'success');
@@ -11335,17 +11434,20 @@ function markSendaLessonDone() {
             s.currentDay++;
             localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
             showToast('¡Lección completada! Tu progreso ha aumentado.', 'success');
+            logSendaActivity(s.title);
             
             // Actualizar tarjetas de fondo inmediatamente
             renderMisSendas();
             
             if (s.currentDay < s.duration) {
                 openSendaLesson(sIdx, s.currentDay);
+                if (typeof syncLuminaStats === 'function') syncLuminaStats();
             } else {
                 showToast("¡Felicidades! Has completado esta senda.", "success");
                 setTimeout(() => {
                     closeModals();
                     archiveSenda(sIdx);
+                    if (typeof syncLuminaStats === 'function') syncLuminaStats();
                 }, 1500);
             }
         }
