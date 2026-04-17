@@ -993,12 +993,11 @@
 
         /* Refactored Modal (Restore Functionality) */
         .modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85);
             display: none; align-items: center; justify-content: center;
-            z-index: 10000; 
+            z-index: 20000; 
             padding: calc(20px + env(safe-area-inset-top)) 25px calc(20px + env(safe-area-inset-bottom));
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
+            overflow: hidden;
         }
         .modal.active { display: flex; animation: fadeIn 0.4s ease; }
 
@@ -2723,6 +2722,250 @@
             position: relative; z-index: 1000;
             box-shadow: 0 40px 100px rgba(0,0,0,0.5);
         }
+
+/* ===== MIS SENDAS / CONTEXT ANALYST ===== */
+/* checkin-ui is now embedded inside #sendas-view-checkin — no overlay needed */
+#checkin-ui { display: none !important; } /* legacy, keep to avoid errors */
+
+/* Ocultar branding superior en la vista principal de sendas, sin afectar al lector */
+body.cat-sendas #main-ui .content-header,
+body.cat-sendas #main-ui .hero-bg-blur,
+body.cat-sendas #cap-header-smart,
+body.cat-sendas .header-logo,
+body.cat-sendas #header-cat,
+body.cat-sendas #word-title,
+body.cat-sendas #header-date {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+body[data-cat="sendas"] #header-cat {
+    display: none !important;
+}
+
+.checkin-header {
+    padding: 60px 30px 20px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(181,131,58,0.08) 0%, transparent 100%);
+}
+.checkin-header .checkin-tagline {
+    display: none;
+}
+.checkin-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin: 0 0 6px;
+    line-height: 1.3;
+}
+.checkin-context-reminder {
+    font-size: 0.78rem;
+    opacity: 0.5;
+    margin-top: 6px;
+    min-height: 20px;
+    font-style: italic;
+    transition: opacity 0.3s;
+}
+.checkin-step { display: none; padding: 20px 25px; animation: fadeInUp 0.3s ease; }
+.checkin-step.active { display: block; }
+.checkin-step-label {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.7;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+.checkin-question {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin: 0 0 24px;
+    line-height: 1.5;
+}
+.checkin-options-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 12px; 
+    width: 100%;
+    margin-top: 15px;
+}
+.checkin-option-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 18px 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.checkin-option-btn:hover, .checkin-option-btn.selected {
+    border-color: var(--accent);
+    background: rgba(181,131,58,0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(181,131,58,0.12);
+}
+.checkin-option-btn svg {
+    width: 22px; height: 22px;
+    stroke: var(--accent); fill: none;
+    stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    flex-shrink: 0;
+}
+.checkin-option-label { font-size: 0.8rem; font-weight: 600; line-height: 1.4; color: var(--text); transition: color 0.3s; }
+.checkin-option-desc { font-size: 0.68rem; color: var(--text); opacity: 0.6; line-height: 1.4; font-weight: 400; transition: opacity 0.3s; }
+.sendas-grid, #sendas-history-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    position: relative;
+}
+.template-card { position: relative; overflow: hidden; }
+@media (min-width: 768px) {
+    .sendas-grid, #sendas-history-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+.checkin-nav { display: flex; gap: 10px; padding: 20px 25px 0; align-items: center; }
+.checkin-btn-back {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text); opacity: 0.6;
+    border-radius: 50px; padding: 14px 22px;
+    font-size: 0.72rem; letter-spacing: 1px; cursor: pointer; flex-shrink: 0;
+}
+.checkin-btn-close {
+    background: transparent; border: none;
+    color: var(--text); opacity: 0.4; cursor: pointer; padding: 10px; margin-left: auto;
+}
+.senda-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px; padding: 20px; margin-bottom: 14px; transition: 0.2s;
+    cursor: default;
+}
+.senda-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.senda-card-title { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 1.5rem; /* Ajustado a 1.5rem */
+    font-style: italic; /* Cursiva como pidió */
+    font-weight: 700; 
+    color: var(--accent); 
+    line-height: 1.25; 
+    flex: 1; 
+}
+.senda-card-mode { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; flex-shrink: 0; margin-left: 10px; margin-top: 5px; font-weight: 600; }
+.senda-progress-bar-bg { height: 6px; background: var(--card-border); border-radius: 3px; overflow: hidden; margin: 12px 0 8px; }
+.senda-progress-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s ease; }
+.senda-card-meta { font-size: 0.9rem; opacity: 0.8; display: flex; justify-content: space-between; font-weight: 400; }
+.senda-roadmap { margin-top: 22px; border-top: 1px solid var(--card-border); padding-top: 18px; }
+.senda-roadmap-label { font-size: 0.75rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); opacity: 0.6; margin-bottom: 12px; font-weight: 700; }
+.senda-lesson-item { font-size: 0.95rem; opacity: 0.9; padding: 6px 0; display: flex; align-items: center; gap: 10px; font-style: normal; font-weight: 300 !important; }
+.senda-lesson-item.done { opacity: 0.4; text-decoration: line-through; }
+.senda-lesson-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; opacity: 0.5; }
+.senda-lesson-item.done .senda-lesson-dot { background: var(--text); opacity: 0.2; }
+
+/* ===== SECCIÓN MIS SENDAS ===== */
+#sendas-ui {
+    display: none;
+    padding: 40px;
+    padding-top: calc(80px + env(safe-area-inset-top));
+    min-height: 100vh;
+    box-sizing: border-box;
+    animation: fadeIn 0.4s ease;
+    flex-direction: column;
+    width: 100% !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    grid-column: 1 / -1;
+}
+.sendas-header {
+    text-align: left;
+    margin-bottom: 40px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+.sendas-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding-bottom: 60px;
+}
+@media (min-width: 768px) {
+    .sendas-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+.senda-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--card-border);
+    justify-content: flex-end;
+}
+.senda-action-btn {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--text);
+    opacity: 0.6;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.senda-action-btn:hover { opacity: 1; }
+.senda-action-btn.delete { color: #e05252; border-color: rgba(224,82,82,0.3); }
+.senda-action-btn.delete:hover { background: rgba(224,82,82,0.08); border-color: rgba(224,82,82,0.6); }
+.senda-action-btn.archive { color: var(--accent); border-color: rgba(181,131,58,0.3); }
+.senda-action-btn.archive:hover { background: rgba(181,131,58,0.08); border-color: var(--accent); }
+.sendas-expiry-notice {
+    max-width: 900px;
+    margin: 0 auto 28px auto;
+    width: 100%;
+    background: rgba(181,131,58,0.06);
+    border: 1px solid rgba(181,131,58,0.15);
+    border-radius: 16px;
+    padding: 14px 20px;
+    font-size: 0.72rem;
+    color: var(--text);
+    opacity: 0.7;
+    line-height: 1.6;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sendas-expiry-notice svg { width: 16px; height: 16px; stroke: var(--accent); flex-shrink: 0; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.sendas-empty-state {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+    padding: 60px 20px;
+    opacity: 0.5;
+}
+.sendas-empty-state svg { width: 40px; height: 40px; stroke: var(--accent); fill: none; margin-bottom: 20px; opacity: 0.5; stroke-width: 1.5; }
+.sendas-empty-state p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 25px; }
+@media (max-width: 600px) {
+    #sendas-ui { padding: 10px; padding-top: calc(80px + env(safe-area-inset-top)); }
+    /* .sendas-grid { grid-template-columns: 1fr; } -- Handled above with media query */
+}
     </style>
 </head>
 <body class="is-guest">
@@ -2935,6 +3178,29 @@
             } catch (e) {
                 console.warn("Fallo al cargar slides dinámicos, usando fallback.", e);
             }
+        }
+
+        function showLuminaConfirm(title, desc, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            const titleEl = document.getElementById('confirm-title');
+            const descEl = document.getElementById('confirm-desc');
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            
+            if (!modal) return;
+            if (titleEl) titleEl.innerText = title;
+            if (descEl) descEl.innerText = desc;
+            
+            yesBtn.onclick = () => {
+                closeConfirmModal();
+                if (typeof onConfirm === 'function') onConfirm();
+            };
+            
+            modal.classList.add('active');
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            if (modal) modal.classList.remove('active');
         }
 
         function toggleMobileNav(e) {
@@ -3769,9 +4035,19 @@
                 <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
             </div>
 
-            <!-- 05 Expansiones -->
-            <div class="hub-item" onmouseenter="updateHero('Expansiones', 'Series exclusivas de conocimiento profundo y transformación.', 40, 80)" onclick="openCategory('expansiones')">
+            <!-- 05 Mis Sendas -->
+            <div class="hub-item pro-only-item" id="hub-item-sendas" onmouseenter="updateHero('Mis Sendas', 'Tu analista de contexto personal. Forja una ruta a tu medida.', 80, 20)" onclick="openCategory('sendas')">
                 <span class="item-num">05</span>
+                <div class="item-content">
+                    <h3>Mis Sendas <small class="pro-locked" style="position: relative; top: auto; right: auto; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; margin-left: 12px; vertical-align: middle; border: 1px solid rgba(181, 131, 58, 0.3); border-radius: 20px; padding: 2px 10px; color: var(--accent); font-weight: 400; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px;">Pro <svg viewBox="0 0 24 24" style="width: 10px; height: 10px; stroke: var(--accent); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></small></h3>
+                    <p class="hub-desc">Rutas personalizadas basadas en tu estado emocional de hoy.</p>
+                </div>
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+            </div>
+
+            <!-- 06 Expansiones -->
+            <div class="hub-item" onmouseenter="updateHero('Expansiones', 'Series exclusivas de conocimiento profundo y transformación.', 40, 80)" onclick="openCategory('expansiones')">
+                <span class="item-num">06</span>
                 <div class="item-content">
                     <h3>Expansiones <small class="pro-locked" style="position: relative; top: auto; right: auto; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; margin-left: 12px; vertical-align: middle; border: 1px solid rgba(181, 131, 58, 0.3); border-radius: 20px; padding: 2px 10px; color: var(--accent); font-weight: 400; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px;">Pro <svg viewBox="0 0 24 24" style="width: 10px; height: 10px; stroke: var(--accent); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></small></h3>
                     <p class="hub-desc">Series temáticas y libros independientes desbloqueables.</p>
@@ -4131,6 +4407,117 @@
                 </div>
                 <button class="btn-save" onclick="toggleBitacoraView('templates')" style="width: 100%; padding: 18px; margin-top: 30px; border-radius: 50px; background: transparent; border: 1px solid rgba(128,128,128,0.1);">VOLVER A PLANTILLAS</button>
             </div>
+        </div>
+
+
+        <!-- SECCIÓN: MIS SENDAS (MULTI-VISTA) -->
+        <div id="sendas-ui" style="display: none; flex-direction: column;">
+
+            <!-- VISTA 1: Lista de sendas activas e Historial (Integrado) -->
+            <div id="sendas-view-list">
+                <div class="sendas-header" style="margin-bottom: 40px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                        <div>
+                            <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Mis Sendas</h1>
+                            <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6; margin: 0 0 25px 0;">Rutas personalizadas forjadas desde tu estado interior.</p>
+                        </div>
+                        <button class="btn-save" onclick="showSendasView('checkin')" style="margin: 0; padding: 12px 25px; font-size: 0.7rem; border-radius: 50px; background: var(--accent); color: #fff; border: none; white-space: nowrap;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 8px; vertical-align: middle;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            NUEVA SENDA
+                        </button>
+                    </div>
+
+                    <!-- Selector de Vista (Tabs) -->
+                    <div style="display: flex; gap: 25px; margin-top: 20px; border-bottom: 1px solid rgba(128,128,128,0.1); padding-bottom: 10px;">
+                        <button id="sendas-title-active" onclick="toggleSendasView('active')" style="background:transparent; border:none; color:var(--text); font-family:'Playfair Display', serif; font-size: 1.4rem; font-style: italic; cursor:pointer; padding:0; transition: 0.3s; font-weight: 600;">Activas</button>
+                        <button id="sendas-title-history" onclick="toggleSendasView('history')" style="background:transparent; border:none; color:var(--text); font-family:'Playfair Display', serif; font-size: 1.4rem; font-style: italic; cursor:pointer; padding:0; transition: 0.3s; opacity: 0.3;">Historial</button>
+                    </div>
+                </div>
+
+                <!-- VISTA 1.1: Formulario de nueva senda (reubicado) -->
+                <div id="sendas-view-checkin" style="display: none; max-width: 680px; margin: 30px 0 60px; width: 100%; animation: fadeInUp 0.35s ease;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 40px;">
+                         <div style="background: rgba(181,131,58,0.1); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="20" height="20"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 4px;">Analista de Contexto</div>
+                            <h2 id="sendas-checkin-title" style="font-family:'Playfair Display', serif; font-size: 1.8rem; font-weight: 400; margin: 0; line-height: 1.2;">¿Cómo estás hoy?</h2>
+                        </div>
+                    </div>
+                    <!-- Resumen de selecciones -->
+                    <div class="checkin-context-reminder" id="checkin-reminder" style="margin-bottom: 20px; padding: 10px 16px; background: rgba(181,131,58,0.05); border-radius: 12px; min-height: 0;"></div>
+                    <!-- Pasos -->
+                    <div class="checkin-step active" id="checkin-step-1">
+                        <div class="checkin-step-label">Paso 1 · Tu estado</div>
+                        <div class="checkin-question">En este momento siento...</div>
+                        <div class="checkin-options-grid" id="checkin-options-1"></div>
+                    </div>
+                    <div class="checkin-step" id="checkin-step-2">
+                        <div class="checkin-step-label">Paso 2 · Tu medicina</div>
+                        <div class="checkin-question">Y me gustaría cultivar más...</div>
+                        <div class="checkin-options-grid" id="checkin-options-2"></div>
+                    </div>
+                    <div class="checkin-step" id="checkin-step-3">
+                        <div class="checkin-step-label">Paso 3 · Tu arena</div>
+                        <div class="checkin-question">Para aplicarlo en mi...</div>
+                        <div class="checkin-options-grid" id="checkin-options-3"></div>
+                    </div>
+                    <div class="checkin-step" id="checkin-step-4">
+                        <div class="checkin-step-label">Paso Final · La Ruta</div>
+                        <div class="checkin-question">¿Cuánto tiempo tienes para esta senda?</div>
+                        <div class="checkin-options-grid" id="checkin-options-4"></div>
+                    </div>
+                    <!-- Nav del checkin -->
+                    <div class="checkin-nav" style="padding: 20px 0 0;">
+                        <button class="checkin-btn-back" id="checkin-back-btn" onclick="prevCheckInStep()" style="display:none">← Atrás</button>
+                        <button onclick="showSendasView('list')" style="background:transparent; border:none; color:var(--text); opacity:0.5; font-size:0.75rem; cursor:pointer;">Cancelar</button>
+                    </div>
+                </div>
+
+                <!-- Contenedor Único Dinámico -->
+                <div id="sendas-main-container">
+                    <!-- Grid de sendas activas -->
+                    <div class="sendas-grid" id="sendas-grid-container">
+                        <!-- Se inyecta por JS (renderMisSendas) -->
+                    </div>
+
+                    <!-- Grid de historial (Oculto inicialmente) -->
+                    <div class="sendas-grid" id="sendas-history-container" style="display: none;">
+                        <!-- Se inyecta por JS (renderSendasHistorial) -->
+                    </div>
+                </div>
+
+                <!-- Aviso de expiración -->
+                <div id="sendas-notice" class="sendas-expiry-notice" style="margin-top: 30px;">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="12" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span>Las sendas se eliminan automáticamente <strong>45 días</strong> después de su creación.</span>
+                </div>
+                
+                <!-- Botón volver (Solo visible en historial) -->
+                <button id="btn-back-to-active" onclick="toggleSendasView('active')" style="display: none; width: 100%; border: 1px dashed rgba(128,128,128,0.2); background: transparent; color: var(--text); padding: 15px; border-radius: 20px; font-size: 0.7rem; letter-spacing: 2px; margin-top: 30px; cursor: pointer; opacity: 0.5;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px; height:12px; margin-right:8px; transform: rotate(180deg);"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg>
+                    VOLVER A ACTIVAS
+                </button>
+            </div>
+
+
+            <!-- VISTA 3: Historial de sendas archivadas -->
+            <div id="sendas-view-history" style="display: none; max-width: 900px; margin: 0 auto; width: 100%; animation: fadeInUp 0.35s ease;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 40px;">
+                    <button onclick="showSendasView('list')" style="background: transparent; border: 1px solid var(--card-border); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--card-border)'">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </button>
+                    <div>
+                        <div style="font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 4px;">Sendas</div>
+                        <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; font-weight: 400; margin: 0; line-height: 1.2;">Historial</h2>
+                    </div>
+                </div>
+                <div class="sendas-grid" id="sendas-history-container" style="padding-bottom: 80px;">
+                    <!-- Se inyecta por JS -->
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -4900,8 +5287,11 @@
             // Guardar Progreso Automáticamente
             localStorage.setItem(`lumina_exp_prog_${currentExpId}_${currentExpBook}`, currentExpIdx);
             
-            document.getElementById('btn-exp-prev').disabled = (currentExpIdx === 0);
-            document.getElementById('btn-exp-next').disabled = (currentExpIdx === currentExpLessons.length - 1);
+            // Reset de nav buttons
+            const prevBtn = document.getElementById('btn-exp-prev');
+            const nextBtn = document.getElementById('btn-exp-next');
+            if (prevBtn) prevBtn.style.display = 'flex';
+            if (nextBtn) nextBtn.style.display = 'flex';
             
             updateExpFavUI();
             loadExpJournal();
@@ -6322,7 +6712,6 @@
             }
         }
 
-        // Wrapper para el modal de perfil
         function activateProProfile() {
             activatePro();
         }
@@ -6338,6 +6727,13 @@
             }
             
             currentCategory = cat;
+            
+            // Ocultar branding Lúmina en sendas de forma agresiva
+            const capHeader = document.getElementById('cap-header-smart');
+            if (capHeader) {
+                capHeader.style.display = (cat === 'sendas') ? 'none' : 'block';
+                capHeader.style.opacity = (cat === 'sendas') ? '0' : '1';
+            }
             
             document.body.className = `cat-${cat} view-${cat} ${isPro ? 'pro-unlocked' : ''} ${localStorage.getItem('theme') === 'dark' ? 'dark-mode' : ''}`;
             if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
@@ -6360,7 +6756,7 @@
                 mainUI.classList.add('activa');
                 
                 // Mostrar solo la sub-vista requerida (SISTEMA V1.1)
-                const subViews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui'];
+                const subViews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'sendas-ui'];
                 subViews.forEach(id => {
                     const el = document.getElementById(id);
                     if (!el) return;
@@ -6371,8 +6767,10 @@
                     else if (cat === 'expansiones' && id === 'expansions-ui') shouldShow = true;
                     else if (['palabras','afirmaciones','frases','libros'].includes(cat) && id === 'lesson-ui') shouldShow = true;
                     else if (cat === 'extra' && id === 'extra-ui') shouldShow = true;
+                    else if (cat === 'sendas' && id === 'sendas-ui') shouldShow = true;
 
-                    el.style.setProperty('display', shouldShow ? (id === 'bitacora-ui' ? 'flex' : 'block') : 'none', shouldShow ? 'important' : '');
+                    const displayVal = (id === 'bitacora-ui' || id === 'sendas-ui') ? 'flex' : 'block';
+                    el.style.setProperty('display', shouldShow ? displayVal : 'none', shouldShow ? 'important' : '');
                 });
 
                 // Botón de Maestría Diaria (Pro)
@@ -6398,12 +6796,21 @@
                     if (!el) return;
                     el.style.display = 'none'; 
                     el.classList.remove('wisdom-box-active'); 
-                    if (id === 'content-header' || id === 'side-panel') {
+if (id === 'content-header' || id === 'side-panel') {
                         el.style.display = (['palabras', 'afirmaciones', 'frases', 'libros', 'extra'].includes(cat)) ? 'block' : 'none';
                     }
                 });
 
                 // Lógica de carga específica
+                if (document.getElementById('cap-header-smart')) {
+                    document.getElementById('cap-header-smart').style.display = (cat === 'sendas') ? 'none' : 'block';
+                }
+                
+                // Si entramos a sendas, forzar vista de lista
+                if (cat === 'sendas') {
+                    showSendasView('list');
+                }
+
                 if (cat === 'pausa') {
                     if (!window.location.hash.includes(':')) {
                         renderPausaList();
@@ -6414,6 +6821,9 @@
                     renderBitacoraTemplates();
                     loadBitacoraHistory();
                     toggleBitacoraView('templates');
+                } else if (cat === 'sendas') {
+                    renderMisSendas();
+                    showSendasView('list');
                 }
 
                 // Header Label dinámico
@@ -6505,7 +6915,7 @@
                 if (mainUI) {
                     mainUI.classList.remove('loaded', 'activa', 'has-examples');
                     mainUI.classList.add('hidden');
-                    const subviews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'pausa-view-session', 'pausa-view-end', 'pro-extra-container'];
+                    const subviews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'sendas-ui', 'pausa-view-session', 'pausa-view-end', 'pro-extra-container'];
                     subviews.forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.style.setProperty('display', 'none', 'important');
@@ -6547,9 +6957,13 @@
             const activeModal = document.querySelector('.modal.active');
             if (activeModal) {
                 activeModal.classList.remove('active');
+                // Restaurar UI del lector por si era una senda
+                const dateEl = document.getElementById('exp-read-date');
+                if (dateEl) { dateEl.style.display = 'block'; dateEl.style.opacity = '1'; }
+                const metaEl = document.getElementById('exp-read-meta');
+                if (metaEl) metaEl.style.opacity = '0.6';
+
                 if (navigator.vibrate) navigator.vibrate(8);
-                // Si el evento vino del botón atrás físico, el popstate ya ocurrió.
-                // No necesitamos llamar a history.back() porque ya retrocedimos.
                 return;
             }
 
@@ -9280,7 +9694,9 @@
             } else {
                 ids.forEach(id => {
                     const el = document.getElementById(id);
-                    if (el) el.innerText = (id.includes('summary')) ? 'Explora tu mente' : '—';
+                    if (el) {
+                        el.innerText = (id.includes('summary')) ? 'Explora tu mente' : '—';
+                    }
                 });
             }
         }
@@ -9363,6 +9779,19 @@
         }
 
         // init() se invoca desde DOMContentLoaded (script de arranque)
+        
+        function markSendaLessonDone() {
+            const lessonId = window._currentSendaLessonId;
+            if (!lessonId) return;
+            
+            let progress = JSON.parse(localStorage.getItem('lumina_senda_progress') || '{}');
+            progress[lessonId] = true;
+            localStorage.setItem('lumina_senda_progress', JSON.stringify(progress));
+            
+            showToast("¡Lección completada!", "success");
+            document.getElementById('senda-completion-zone').style.display = 'none';
+            pushSync();
+        }
 	
 	</script>
 
@@ -9473,11 +9902,10 @@
 
             <div id="exp-read-content">
                 <div class="content-header" style="margin-bottom: 50px; padding-left: 0;">
-                    <div class="date-full" id="exp-read-date" style="color: var(--accent); font-weight: 700; letter-spacing: 2px; font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px;">---</div>
-                    <div class="cat-label" id="exp-read-meta" style="letter-spacing: 4px; font-weight: 500; opacity: 0.6; font-size: 0.75rem; margin-bottom: 5px;">---</div>
-                    <div class="date-full" id="exp-read-progress" style="opacity: 0.4; font-size: 0.65rem; letter-spacing: 1px;">---</div>
+                    <div class="date-full" id="exp-read-meta-path" style="color: var(--accent); font-weight: 700; letter-spacing: 2px; font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px;">---</div>
+                    <div id="exp-read-meta-author" style="letter-spacing: 2px; font-weight: 500; opacity: 0.6; font-size: 0.85rem; margin-bottom: 10px; font-family: 'Playfair Display', serif; font-style: italic;">---</div>
                     
-                    <h1 class="word-display" id="exp-read-title" style="margin: 15px 0 10px; font-style: italic; font-weight: 900;">---</h1>
+                    <h1 class="word-display" id="exp-read-title" style="margin: 5px 0 10px; font-style: italic; font-weight: 900; line-height: 1.1;">---</h1>
                     
                     <div class="content-actions">
                         <button class="btn-speak" id="btn-speak-exp" onclick="speakExpContent()" title="Escuchar">
@@ -9521,11 +9949,16 @@
             </div>
 
             <!-- NAVEGACIÓN FIJA INFERIOR -->
-            <div style="position: fixed; bottom: 0; left: 0; right: 0; padding: 30px; background: linear-gradient(0deg, var(--bg) 60%, transparent); display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;">
+            <div id="exp-reader-nav" style="position: fixed; bottom: 0; left: 0; right: 0; padding: 30px; background: linear-gradient(0deg, var(--bg) 60%, transparent); display: flex; justify-content: center; align-items: center; gap: 15px; z-index: 10; pointer-events: none;">
                 <button class="btn-fab-item" id="btn-exp-prev" onclick="expPrev()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                     ANTERIOR
                 </button>
+                
+                <button class="btn-fab-item" id="btn-senda-complete" onclick="markSendaLessonDone()" style="pointer-events: auto; padding: 15px 35px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px; background: #2ecc71; color: #fff; border:none; display:none; filter: drop-shadow(0 10px 20px rgba(46, 204, 113, 0.3)); font-weight: 800;">
+                    COMPLETAR LECCIÓN <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:8px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </button>
+
                 <button class="btn-fab-item" id="btn-exp-next" onclick="expNext()" style="pointer-events: auto; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 2px; background: var(--accent); color: #fff;">
                     SIGUIENTE
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -10438,5 +10871,749 @@
             });
         }
     </script>
+<!-- CHECKIN UI: now lives inside #sendas-view-checkin -->
+
+<script>
+// ===== MIS SENDAS: CONTEXT ANALYST ENGINE =====
+
+const CONTEXT_MAP = {
+    climas: {
+        'ansiedad':      { label: 'El tiempo parece perseguirme',   icon: '<path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/>' },
+        'tristeza':      { label: 'Siento un peso en el pecho',     icon: '<path d="M3 18c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="M12 2v4M4.9 4.9l2.8 2.8M19.1 4.9l-2.8 2.8"/>' },
+        'ira':           { label: 'Las cosas no fluyen como quiero', icon: '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>' },
+        'bloqueo':       { label: 'Me siento bloqueado o sin ideas', icon: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>' },
+        'inseguridad':   { label: 'La duda me detiene',              icon: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>' },
+        'agotamiento':   { label: 'Me siento vacío o agotado',      icon: '<path d="M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7"/>' },
+        'gratitud':      { label: 'Estoy en plenitud y quiero crecer', icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',  plenitud: true }
+    },
+    virtudes: {
+        'claridad':      { label: 'Claridad mental',      icon: '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>',  plenitud: true },
+        'disciplina':    { label: 'Disciplina y voluntad', icon: '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>' },
+        'coraje':        { label: 'Coraje y acción',       icon: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' },
+        'persistencia':  { label: 'Persistencia',          icon: '<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>' },
+        'ecuanimidad':   { label: 'Paz interior',          icon: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' },
+        'gratitud':      { label: 'Gratitud y cosecha',    icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',  plenitud: true },
+        'opcionalidad':  { label: 'Libertad y opciones',   icon: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>',  plenitud: true }
+    },
+    situaciones: {
+        'trabajo':       { label: 'Trabajo o carrera',     icon: '<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>' },
+        'pareja':        { label: 'Mi relación de pareja', icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>' },
+        'familia':       { label: 'Mi familia',            icon: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' },
+        'personal':      { label: 'Mi desarrollo personal', icon: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
+        'salud':         { label: 'Mi salud y energía',    icon: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>' },
+        'finanzas':      { label: 'Mis finanzas',          icon: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
+        'social':        { label: 'Mis relaciones sociales', icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>' }
+    }
+};
+
+const ROUTE_MODES = [
+    { key:'EMERGENCY', label:'Kit de Emergencia',  desc:'5 lecciones. Para hoy mismo.',      days:5,  icon:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' },
+    { key:'SPRINT',    label:'Sprint de Enfoque',   desc:'7 días de práctica sostenida.',     days:7,  icon:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>' },
+    { key:'HABIT',     label:'Reto de Hábito',      desc:'21 días para forjar el cambio.',    days:21, icon:'<polyline points="23 4 23 10 17 10"/><path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>'},
+    { key:'MASTERY',   label:'Maestría Total',       desc:'30 días hacia el dominio pleno.',   days:30, icon:'<path d="M12 2l-3.5 2v4l3.5 2 3.5-2v-4L12 2z"/><path d="M7.5 10l-3.5 2v4l3.5 2 3.5-2v-4l-3.5-2z"/><path d="M16.5 10l-3.5 2v4l3.5 2 3.5-2v-4l-3.5-2z"/>'}  
+];
+
+let checkinStep = 1;
+let checkinSelections = { clima: null, virtud: null, situacion: null, modo: null };
+let checkinMetadata = { climas: [], virtudes: [], situaciones: [] };
+let checkinIsPlenitud = false;
+
+function showSendasView(view) {
+    // Si entramos en modo checkin, ocultamos TODO el contenedor de la lista (grids y avisos)
+    if (view === 'checkin') {
+        const listContainer = document.getElementById('sendas-main-container');
+        const notice = document.getElementById('sendas-notice');
+        const backBtn = document.getElementById('btn-back-to-active');
+        
+        if (listContainer) listContainer.style.display = 'none';
+        if (notice) notice.style.display = 'none';
+        if (backBtn) backBtn.style.display = 'none';
+
+        const form = document.getElementById('sendas-view-checkin');
+        if (form) form.style.display = 'block';
+        
+        openCheckIn(true);
+        window.scrollTo(0, 0);
+        return;
+    }
+
+    // Para otras vistas (list, history), ocultamos el form
+    const form = document.getElementById('sendas-view-checkin');
+    if (form) form.style.display = 'none';
+
+    ['sendas-view-list','sendas-view-history'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    const target = document.getElementById('sendas-view-' + view);
+    if (target) target.style.display = 'block';
+    
+    if (view === 'list') {
+        renderMisSendas();
+        // Asegurar que se vean las activas y el aviso
+        const main = document.getElementById('sendas-main-container');
+        if (main) main.style.display = 'block';
+        const activeGrid = document.getElementById('sendas-grid-container');
+        if (activeGrid) activeGrid.style.display = 'grid';
+        
+        document.getElementById('sendas-notice').style.display = 'flex';
+        document.getElementById('sendas-history-container').style.display = 'none';
+        document.getElementById('btn-back-to-active').style.display = 'none';
+    }
+    if (view === 'history') renderSendasHistorial();
+    
+    window.scrollTo(0, 0);
+}
+
+function openCheckIn(fromInternal) {
+    if (!isPro) {
+        document.getElementById('pro-modal').classList.add('active');
+        history.pushState({ modal: 'pro' }, '', '#pro');
+        return;
+    }
+    
+    if (!fromInternal) {
+        showSendasView('checkin');
+        return;
+    }
+    checkinStep = 1;
+    checkinSelections = { clima: null, virtud: null, situacion: null, modo: null };
+    checkinIsPlenitud = false;
+    const backBtn = document.getElementById('checkin-back-btn');
+    if (backBtn) backBtn.style.display = 'none';
+    
+    // Forzar el renderizado del analista con prioridad
+    setTimeout(() => {
+        if (typeof renderCheckInStep === 'function') {
+            renderCheckInStep(1);
+        }
+    }, 150);
+    
+    const rem = document.getElementById('checkin-reminder');
+    if (rem) rem.textContent = '';
+
+    // Pre-cargar metadata del backend y asegurar render inicial
+    renderCheckInStep(1); // Llamada inmediata
+    
+    if (!checkinMetadata.climas || !checkinMetadata.climas.length) {
+        fetch(API + '?action=intent_metadata')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    checkinMetadata = data;
+                    renderCheckInStep(1);
+                }
+            }).catch(() => {
+                // Si falla el fetch, al menos usamos el mapa estático
+                renderCheckInStep(1);
+            });
+    }
+}
+
+function closeCheckIn() {
+    showSendasView('list');
+}
+
+function renderCheckInStep(step) {
+    document.querySelectorAll('.checkin-step').forEach(s => s.classList.remove('active'));
+    const stepEl = document.getElementById('checkin-step-' + step);
+    if (stepEl) stepEl.classList.add('active');
+    document.getElementById('checkin-back-btn').style.display = step > 1 ? 'block' : 'none';
+
+    if (step === 1) renderIntentOptions(1, Object.entries(CONTEXT_MAP.climas), 'clima');
+    else if (step === 2) {
+        const virtudes = checkinIsPlenitud
+            ? Object.entries(CONTEXT_MAP.virtudes).filter(([k, v]) => v.plenitud)
+            : Object.entries(CONTEXT_MAP.virtudes);
+        renderIntentOptions(2, virtudes, 'virtud');
+    }
+    else if (step === 3) renderIntentOptions(3, Object.entries(CONTEXT_MAP.situaciones), 'situacion');
+    else if (step === 4) renderModeOptions();
+
+    updateCheckinReminder();
+}
+
+function renderIntentOptions(step, entries, selKey) {
+    const grid = document.getElementById('checkin-options-' + step);
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    // Si tenemos metadatos dinámicos del backend, los usamos para los labels
+    const dynamicData = checkinMetadata[selKey + 's'] || {}; // ej: climas, virtudes
+    
+    entries.forEach(([key, data]) => {
+        const btn = document.createElement('button');
+        btn.className = 'checkin-option-btn';
+        if (checkinSelections[selKey] === key) btn.classList.add('selected');
+        
+        // El label puede venir del backend o del CONTEXT_MAP (fallback)
+        const label = dynamicData[key] || data.label || key;
+        
+        btn.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22">${data.icon}</svg><span class="checkin-option-label">${label}</span>`;
+        btn.onclick = () => {
+            checkinSelections[selKey] = key;
+            if (selKey === 'clima') checkinIsPlenitud = !!data.plenitud;
+            nextCheckInStep();
+        };
+        grid.appendChild(btn);
+    });
+}
+
+function renderModeOptions() {
+    const grid = document.getElementById('checkin-options-4');
+    if (!grid) return;
+    grid.innerHTML = '';
+    ROUTE_MODES.forEach(mode => {
+        const btn = document.createElement('button');
+        btn.className = 'checkin-option-btn';
+        if (checkinSelections.modo === mode.key) btn.classList.add('selected');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22">${mode.icon}</svg><span class="checkin-option-label">${mode.label}</span><span class="checkin-option-desc">${mode.desc}</span>`;
+        btn.onclick = () => {
+            checkinSelections.modo = mode.key;
+            finalizeCheckIn();
+        };
+        grid.appendChild(btn);
+    });
+}
+
+function updateCheckinReminder() {
+    const el = document.getElementById('checkin-reminder');
+    if (!el) return;
+    const parts = [];
+    if (checkinSelections.clima) {
+        const c = CONTEXT_MAP.climas[checkinSelections.clima];
+        if (c) parts.push(`"${c.label}"`);
+    }
+    if (checkinSelections.virtud) {
+        const v = CONTEXT_MAP.virtudes[checkinSelections.virtud];
+        if (v) parts.push(v.label);
+    }
+    el.textContent = parts.length ? parts.join(' · ') : '';
+}
+
+function nextCheckInStep() {
+    if (checkinStep < 4) {
+        checkinStep++;
+        renderCheckInStep(checkinStep);
+    }
+}
+
+function prevCheckInStep() {
+    if (checkinStep > 1) {
+        checkinStep--;
+        renderCheckInStep(checkinStep);
+    }
+}
+
+async function finalizeCheckIn() {
+    const { clima, virtud, situacion, modo } = checkinSelections;
+    if (!clima || !virtud || !situacion || !modo) return;
+
+    showToast('Forjando tu senda...', 'info');
+
+    try {
+        const url = `${API}?action=generate_pro_plan&l=${encodeURIComponent(clima)}&m=${encodeURIComponent(virtud)}&n=${encodeURIComponent(situacion)}&mode=${modo}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        if (!data.success) throw new Error(data.error || 'Error al generar plan');
+
+        const newSenda = {
+            id: Date.now(),
+            title: data.planTitle || 'Mi Senda',
+            mode: modo,
+            duration: data.duration || 7,
+            lessons: data.lessons || [],
+            lessonDetails: data.lessonDetails || [],
+            currentDay: 0,
+            startDate: new Date().toISOString()
+        };
+
+        const sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+        sendas.unshift(newSenda);
+        if (sendas.length > 5) sendas.length = 5;
+        localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
+
+        if (typeof syncData === 'function') syncData();
+
+        showToast(`✨ Senda "${newSenda.title}" creada`, 'success');
+
+        // Volver a la lista y abrir la primera lección automáticamente
+        closeCheckIn();
+        setTimeout(() => { openSendaLesson(0, 0); }, 400);
+
+    } catch(e) {
+        showToast('Error de conexión. Intenta de nuevo.', 'error');
+        console.error('finalizeCheckIn error:', e);
+    }
+}
+
+function deleteSenda(idx) {
+    showLuminaConfirm('¿Eliminar esta senda?', 'Perderás todo el progreso acumulado en esta ruta.', () => {
+        let sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+        sendas.splice(idx, 1);
+        localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
+        showToast('Senda eliminada', 'info');
+        renderMisSendas();
+    });
+}
+
+function archiveSenda(idx) {
+    showLuminaConfirm('¿Archivar esta senda?', 'Se moverá a tu historial para que puedas consultarla después.', () => {
+        let sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+        let archived = JSON.parse(localStorage.getItem('lumina_archived_sendas') || '[]');
+        
+        const senda = sendas[idx];
+        senda.archivedAt = new Date().toISOString();
+        archived.unshift(senda);
+        sendas.splice(idx, 1);
+        
+        localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
+        localStorage.setItem('lumina_archived_sendas', JSON.stringify(archived));
+        
+        showToast('Senda archivada correctamente', 'success');
+        renderMisSendas();
+    });
+}
+
+// Abrir lección de una senda con carga dinámica y control de navegación
+async function openSendaLesson(sendaIdx, lessonIdx) {
+    const sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+    const senda = sendas[sendaIdx];
+    if (!senda) return;
+    
+    lessonIdx = (lessonIdx !== undefined) ? lessonIdx : senda.currentDay;
+    const details = senda.lessonDetails || [];
+    const meta = details[lessonIdx];
+    if (!meta) { showToast('Lección no disponible.', 'info'); return; }
+
+    const container = document.getElementById('exp-read-ui');
+    if (!container) return;
+
+    // Guardar contexto actual para el botón de completar
+    window.currentSendaIdx = sendaIdx;
+    window.currentSendaLessonIdx = lessonIdx;
+
+    // Mostrar/Ocultar zona de completado (solo si es el día actual)
+    const completionZone = document.getElementById('senda-completion-zone');
+    if (completionZone) {
+        completionZone.style.display = (lessonIdx === senda.currentDay) ? 'block' : 'none';
+    }
+
+    // Mostrar estado de carga y ocultar elementos previos
+    document.getElementById('exp-read-title').innerText = "Cargando...";
+    document.getElementById('exp-read-text').innerHTML = '<div class="spinner" style="margin:20px auto"></div>';
+    
+    // UI Cleanup: Mostrar metadata inmediatamente
+    const pathEl = document.getElementById('exp-read-meta-path');
+    if (pathEl) {
+        pathEl.style.opacity = '1';
+        pathEl.innerHTML = `PASO ${lessonIdx + 1} &mdash; ${senda.title.toUpperCase()}`;
+    }
+    const authorEl = document.getElementById('exp-read-meta-author');
+    if (authorEl) authorEl.innerHTML = '---';
+
+    container.classList.add('active');
+    history.pushState({ modal: 'senda_read', sendaIdx, lessonIdx }, '', '#senda_read');
+
+    let url = '';
+    try {
+        // Cargar contenido completo usando expId para evitar duplicados
+        url = `${API}?action=exp_content&index=${meta.idx}`;
+        if (meta.expId && meta.expId !== 'undefined') {
+            url += `&expId=${meta.expId}`;
+        }
+        
+        // Siempre enviamos el título como fallback de búsqueda
+        const fallbackTitle = meta.title || meta.titulo || '';
+        if (fallbackTitle) {
+            url += `&title=${encodeURIComponent(fallbackTitle)}`;
+        }
+        
+        const resp = await fetch(url);
+        const lesson = await resp.json();
+
+        // QUITAMOS EL SPINNER SIEMPRE QUE LLEGUE RESPUESTA
+        const loader = document.querySelector('.senda-reader-loader');
+        if (loader) loader.style.display = 'none';
+
+        if (lesson && !lesson.error) {
+            // Sincronizar título final
+            const finalTitle = lesson.titulo || lesson.title || meta.title;
+            document.getElementById('exp-read-title').innerText = finalTitle;
+
+            // Enriquecer metadata con Paso, Senda, Categoría, Libro y Autor
+            const pathEl = document.getElementById('exp-read-meta-path');
+            if (pathEl) {
+                const catStr = (lesson.categoria || lesson.category || '').toUpperCase();
+                pathEl.innerHTML = `PASO ${lessonIdx + 1} &mdash; ${senda.title.toUpperCase()}${catStr ? ': ' + catStr : ''}`;
+            }
+            const authorEl = document.getElementById('exp-read-meta-author');
+            if (authorEl) {
+                const autorStr = lesson.autor || lesson.author || 'Anónimo';
+                const libroStr = lesson.book || lesson.libro || 'Obra Desconocida';
+                authorEl.innerHTML = `${libroStr} &mdash; ${autorStr}`;
+            }
+            
+            const lessonText = (lesson.contenido || lesson.content || '');
+            document.getElementById('exp-read-text').innerHTML = lessonText.replace(/\n/g, '<br>');
+            document.getElementById('exp-read-app-prof').innerText = lesson.app_prof || lesson.professional_application || '---';
+            document.getElementById('exp-read-app-pers').innerText = lesson.app_pers || lesson.personal_application || '---';
+            document.getElementById('exp-read-refl').innerText = lesson.refl || lesson.reflection || '---';
+        } else {
+            throw new Error("No se pudo cargar la lección");
+        }
+    } catch (e) {
+        // QUITAMOS EL SPINNER EN CASO DE ERROR
+        const loader = document.querySelector('.senda-reader-loader');
+        if (loader) loader.style.display = 'none';
+        
+        document.getElementById('exp-read-title').innerText = "Ocurrió un Problema";
+        document.getElementById('exp-read-text').innerHTML = `
+            <div style="text-align:center; padding: 20px;">
+                <p style="opacity:0.8; margin-bottom: 20px;">No se pudo conectar con el servidor o el contenido no está disponible.</p>
+                <div style="font-size: 0.7rem; opacity: 0.4; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; font-family: monospace; text-align: left; word-break: break-all;">
+                    DETALLE TÉCNICO: ${e.message}<br>
+                    URL: ${url ? url.substring(0, 50) : 'N/A'}...
+                </div>
+                <button onclick="location.reload()" style="margin-top: 30px; background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 0.8rem; cursor: pointer;">REINTENTAR AHORA</button>
+            </div>
+        `;
+    }
+
+    // Lógica de Navegación Secuencial
+    const prevBtn = document.getElementById('btn-exp-prev');
+    const nextBtn = document.getElementById('btn-exp-next');
+    
+    if (prevBtn && nextBtn) {
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+        
+        const completeBtn = document.getElementById('btn-senda-complete');
+        if (completeBtn) {
+            // Mostrar botón de completar solo si es el día actual del programa
+            const isClickable = (senda.mode === 'EMERGENCY' || lessonIdx === senda.currentDay);
+            completeBtn.style.display = isClickable ? 'flex' : 'none';
+        }
+
+        prevBtn.disabled = (lessonIdx === 0);
+        prevBtn.onclick = (e) => { e.stopPropagation(); openSendaLesson(sendaIdx, lessonIdx - 1); };
+
+        const isEmergency = (senda.mode === 'EMERGENCY');
+        const isLast = (lessonIdx >= senda.duration - 1);
+        
+        if (isLast) {
+            nextBtn.disabled = true;
+        } else if (isEmergency) {
+            nextBtn.disabled = false;
+        } else {
+            nextBtn.disabled = (lessonIdx >= senda.currentDay);
+        }
+
+        nextBtn.onclick = (e) => { 
+            e.stopPropagation(); 
+            if (nextBtn.disabled) return;
+            openSendaLesson(sendaIdx, lessonIdx + 1); 
+        };
+    }
+
+    container.scrollTo(0, 0);
+}
+
+function markSendaLessonDone() {
+    const sIdx = window.currentSendaIdx;
+    const lIdx = window.currentSendaLessonIdx;
+    if (sIdx === undefined) return;
+    
+    let sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+    let s = sendas[sIdx];
+    if (!s) return;
+    
+    if (s.mode === 'EMERGENCY' || lIdx === s.currentDay) {
+        if (s.currentDay < s.duration) {
+            s.currentDay++;
+            localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
+            showToast('¡Lección completada! Tu progreso ha aumentado.', 'success');
+            
+            // Actualizar tarjetas de fondo inmediatamente
+            renderMisSendas();
+            
+            if (s.currentDay < s.duration) {
+                openSendaLesson(sIdx, s.currentDay);
+            } else {
+                showToast("¡Felicidades! Has completado esta senda.", "success");
+                setTimeout(() => {
+                    closeModals();
+                    archiveSenda(sIdx);
+                }, 1500);
+            }
+        }
+    }
+}
+
+function toggleSendasView(view) {
+    const grid = document.getElementById('sendas-grid-container');
+    const history = document.getElementById('sendas-history-container');
+    const titleActive = document.getElementById('sendas-title-active');
+    const titleHistory = document.getElementById('sendas-title-history');
+    const backBtn = document.getElementById('btn-back-to-active');
+    const notice = document.getElementById('sendas-notice');
+    const form = document.getElementById('sendas-view-checkin');
+
+    // Ocultar siempre el form al cambiar entre activas/historial
+    if (form) form.style.display = 'none';
+
+    if (view === 'history') {
+        grid.style.display = 'none';
+        history.style.display = 'grid';
+        titleActive.style.opacity = '0.3';
+        titleActive.style.fontWeight = '400';
+        titleHistory.style.opacity = '1';
+        titleHistory.style.fontWeight = '600';
+        if (backBtn) backBtn.style.display = 'block';
+        if (notice) notice.style.display = 'none';
+        renderSendasHistorial();
+    } else {
+        grid.style.display = 'grid';
+        history.style.display = 'none';
+        titleActive.style.opacity = '1';
+        titleActive.style.fontWeight = '600';
+        titleHistory.style.opacity = '0.3';
+        titleHistory.style.fontWeight = '400';
+        if (backBtn) backBtn.style.display = 'none';
+        if (notice) notice.style.display = 'flex';
+        renderMisSendas();
+    }
+}
+
+function renderSendasHistorial() {
+    const container = document.getElementById('sendas-history-container');
+    if (!container) return;
+    const archived = JSON.parse(localStorage.getItem('lumina_archived_sendas') || '[]');
+    
+    if (!archived || !archived.length) {
+        container.innerHTML = `<div class="sendas-empty-state" style="grid-column:1/-1">
+            <svg viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+            <p>Aún no tienes sendas archivadas.<br>Las sendas que archives aparecerán aquí.</p>
+        </div>`;
+        return;
+    }
+    
+    container.innerHTML = '';
+    archived.forEach((senda, idx) => {
+        const pct = senda.duration > 0 ? Math.min(100, Math.round((senda.currentDay / senda.duration) * 100)) : 0;
+        const modeLabel = { EMERGENCY: 'Emergencia', SPRINT: 'Sprint', HABIT: 'Hábito', MASTERY: 'Maestría' }[senda.mode] || senda.mode;
+        const archivedDate = senda.archivedAt ? new Date(senda.archivedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        const card = document.createElement('div');
+        card.className = 'template-card';
+        card.style.cssText = 'cursor:default; text-align:left; align-items:flex-start; gap:0; padding:22px; opacity:0.75;';
+        card.innerHTML = `
+            <div class="senda-card-top" style="width:100%">
+                <div class="senda-card-title">${senda.title}</div>
+                <div class="senda-card-mode">${modeLabel}</div>
+            </div>
+            <div class="senda-progress-bar-bg" style="width:100%; margin-top:10px;"><div class="senda-progress-bar-fill" style="width:${pct}%"></div></div>
+            <div class="senda-card-meta" style="width:100%; margin-top:6px;">
+                <span>Día ${senda.currentDay} de ${senda.duration} — ${pct}%</span>
+                ${archivedDate ? `<span style="opacity:0.5;">Archivada: ${archivedDate}</span>` : ''}
+            </div>
+            <div class="senda-card-actions">
+                <button class="senda-action-btn" onclick="restoreSenda(${idx})" style="flex:1; background: var(--accent); color: #fff; gap: 8px;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    Restaurar
+                </button>
+                <button class="senda-action-btn delete" onclick="deleteArchivedSenda(${idx})" title="Eliminar definitivamente">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path></svg>
+                    Eliminar
+                </button>
+            </div>`;
+        container.appendChild(card);
+    });
+}
+
+function deleteArchivedSenda(idx) {
+    showLuminaConfirm('¿Eliminar definitivamente?', 'Esta senda se borrará del historial para siempre.', () => {
+        let archived = JSON.parse(localStorage.getItem('lumina_archived_sendas') || '[]');
+        archived.splice(idx, 1);
+        localStorage.setItem('lumina_archived_sendas', JSON.stringify(archived));
+        showToast('Senda eliminada del historial', 'info');
+        renderSendasHistorial();
+    });
+}
+
+function renderMisSendas() {
+    const container = document.getElementById('sendas-grid-container');
+    if (!container) return;
+
+    const sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+
+    if (!sendas.length) {
+        container.innerHTML = `
+            <div class="sendas-empty-state" style="grid-column: 1 / -1;">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+                <p>Aún no tienes sendas activas.<br>Forja tu primera ruta personalizada.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = '';
+
+    sendas.forEach((senda, idx) => {
+        const pct = senda.duration > 0 ? Math.min(100, Math.round((senda.currentDay / senda.duration) * 100)) : 0;
+        const modeLabel = { EMERGENCY: 'Emergencia', SPRINT: 'Sprint', HABIT: 'Hábito', MASTERY: 'Maestría' }[senda.mode] || senda.mode;
+
+        // Roadmap preview limitado a los 3 primeros ítems
+        const previewCount = 3;
+        const totalLessons = (senda.lessonDetails || []).length;
+        
+        const lessonItems = (senda.lessonDetails || []).slice(0, previewCount).map((ld, li) => {
+            const done = li < senda.currentDay;
+            const current = li === senda.currentDay;
+            const title = ld.title || ld.titulo || ('Lección ' + (li + 1));
+            return `<div class="senda-lesson-item${done?' done':''}${current?' current':''}">
+                <span class="senda-lesson-dot"></span>
+                <span class="senda-lesson-text">${title}</span>
+            </div>`;
+        }).join('');
+        
+        const remaining = totalLessons - previewCount;
+        const moreHtml = remaining > 0 ? `<div style="font-size:0.75rem; opacity:0.4; margin-top:10px; padding-left:20px;">+ ${remaining} lecciones</div>` : '';
+
+        // Calcular fecha de expiración (3 meses desde creación)
+        let expiryInfo = '';
+        if (senda.startDate) {
+            const start = new Date(senda.startDate);
+            const expiry = new Date(start);
+            expiry.setDate(expiry.getDate() + 45);
+            const daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+            if (daysLeft > 0 && daysLeft <= 30) {
+                expiryInfo = `<span style="color:#e05252; font-size:0.6rem;">Expira en ${daysLeft}d</span>`;
+            }
+        }
+
+        const card = document.createElement('div');
+        card.className = 'template-card';
+        // Las tarjetas SÍ abren la lección actual
+        card.style.cssText = 'cursor:pointer; text-align:left; align-items:flex-start; gap:0; padding:22px;';
+        card.onclick = () => openSendaLesson(idx, senda.currentDay < senda.duration ? senda.currentDay : 0);
+        card.innerHTML = `
+            <div class="senda-card-top" style="width:100%">
+                <div class="senda-card-title">${senda.title}</div>
+                <div class="senda-card-mode">${modeLabel}</div>
+            </div>
+            <div class="senda-progress-bar-bg" style="width:100%; margin-top:10px;"><div class="senda-progress-bar-fill" style="width:${pct}%"></div></div>
+            <div class="senda-card-meta" style="width:100%; margin-top:6px;">
+                <span>Día ${senda.currentDay} de ${senda.duration}</span>
+                <span style="display:flex;gap:8px;align-items:center;">${expiryInfo}<span>${pct}%</span></span>
+            </div>
+            ${lessonItems ? `<div class="senda-roadmap" style="width:100%"><div class="senda-roadmap-label">Hoja de Ruta</div>${lessonItems}${moreHtml}</div>` : ''}
+            <div class="senda-card-actions">
+                <button class="senda-action-btn archive" onclick="event.stopPropagation(); archiveSenda(${idx})" title="Archivar senda">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                    Archivar
+                </button>
+                <button class="senda-action-btn delete" onclick="event.stopPropagation(); deleteSenda(${idx})" title="Borrar senda">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
+                    Borrar
+                </button>
+            </div>
+            <button onclick="event.stopPropagation(); shareSenda(${idx})" style="position:absolute; bottom:12px; right:12px; background:none; border:none; color:var(--accent); cursor:pointer; padding:6px; opacity:0.4; transition:0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.4'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button>
+`;
+        container.appendChild(card);
+    });
+}
+
+// Hookeamos marcarComoLeido para actualizar progreso de sendas
+const _origMarcarComoLeido = marcarComoLeido;
+marcarComoLeido = function() {
+    _origMarcarComoLeido();
+    try {
+        const sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+        if (!sendas.length) return;
+        const catData = JSON.parse(localStorage.getItem('lumina_data_' + (window.currentCategory || currentCategory)) || 'null');
+        const currentIdx = catData && catData.index !== undefined ? catData.index : null;
+        let changed = false;
+        sendas.forEach(s => {
+            if (currentIdx !== null && s.lessons && s.lessons[s.currentDay] === currentIdx) {
+                if (s.currentDay < s.duration) { s.currentDay++; changed = true; }
+            }
+        });
+        if (changed) {
+            localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
+            renderMisSendas();
+        }
+    } catch(e) {}
+};
+
+function restoreSenda(idx) {
+    const archived = JSON.parse(localStorage.getItem('lumina_archived_sendas') || '[]');
+    const actives = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+    if (archived[idx]) {
+        const senda = archived.splice(idx, 1)[0];
+        delete senda.archivedAt;
+        actives.push(senda);
+        localStorage.setItem('lumina_archived_sendas', JSON.stringify(archived));
+        localStorage.setItem('lumina_active_sendas', JSON.stringify(actives));
+        showToast("Senda restaurada con éxito ✨", "success");
+        renderSendasHistorial();
+    }
+}
+
+function shareSenda(idx) {
+    const sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+    const s = sendas[idx];
+    if (!s) return;
+    
+    // Obtener contexto (situación) de la senda si existe
+    const situacion = s.contexto || s.situacion || 'Crecimiento personal';
+    const pct = s.duration > 0 ? Math.min(100, Math.round((s.currentDay / s.duration) * 100)) : 0;
+    const modeLabel = { EMERGENCY: 'Emergencia', SPRINT: 'Sprint', HABIT: 'Hábito', MASTERY: 'Maestría' }[s.mode] || s.mode;
+    
+    const shareText = `🌿 Lúmina: Mi Senda de Crecimiento\n\n` +
+                      `Ruta: ${s.title}\n` +
+                      `Propósito: ${situacion}\n` +
+                      `Enfoque: ${modeLabel}\n` +
+                      `Progreso: ${pct}% completado\n\n` +
+                      `*Forjado desde mi estado interior. ✨*`;
+                      
+    if (navigator.share) {
+        navigator.share({
+            title: 'Mi Senda en Lúmina',
+            text: shareText
+        }).catch(() => {});
+    } else {
+        if (typeof copyToClipboard === 'function') {
+            copyToClipboard(shareText);
+            showToast("¡Resumen de senda copiado! 📤", "success");
+        } else {
+            navigator.clipboard.writeText(shareText).then(() => {
+                showToast("¡Resumen de senda copiado! 📤", "success");
+            });
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+        <div id="confirm-modal" class="modal" style="z-index: 20000;">
+            <div class="modal-content" style="max-width:320px; padding:40px; text-align:center;">
+                <h3 id="confirm-title" style="font-family:'Playfair Display', serif; font-size:1.5rem; margin-bottom:10px;">¿Estás seguro?</h3>
+                <p id="confirm-desc" style="opacity:0.6; font-size:0.9rem; margin-bottom:30px;">Esta acción no se puede deshacer.</p>
+                <div style="display:flex; gap:10px; flex-direction:column;">
+                    <button id="confirm-yes-btn" style="background:#e05252; color:#fff; border:none; padding:15px; border-radius:50px; cursor:pointer;">SÍ, PROCEDER</button>
+                    <button onclick="closeConfirmModal()" style="background:transparent; color:var(--text); border:1px solid rgba(128,128,128,0.1); padding:15px; border-radius:50px; cursor:pointer;">CANCELAR</button>
+                </div>
+            </div>
+        </div>`;
+    document.body.appendChild(div);
+});
+
+// Renderizar al cargar (solo si la sección está visible)
+document.addEventListener('DOMContentLoaded', () => {
+    // renderMisSendas se llama al abrir la sección via openCategory('sendas')
+});
+</script>
 </body>
 </html>
