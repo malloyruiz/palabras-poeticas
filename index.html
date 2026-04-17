@@ -8068,23 +8068,24 @@ if (id === 'content-header' || id === 'side-panel') {
                     localStorage.setItem('lumina_pushed_notifs', JSON.stringify(pushedNotifs));
                     
                     if (window.Notification && Notification.permission === 'granted') {
-                        // Usamos el icono local de la PWA para evitar problemas de CORS o descargas remotas bloqueadas por el navegador
-                        const iconUrl = 'icon-192.png';
+                        const iconUrl = 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/logoLMN.png';
                         try {
-                            // Badge suele requerir ser PNG monocromático transparente en Android. Es más seguro omitirlo si no tenemos uno, el OS usará iconUrl.
                             const notifOptions = { body: msg, icon: iconUrl, tag: nId };
-                            if (imagen) notifOptions.image = imagen; // Agregamos la imagen superior si viene del Excel
+                            if (imagen) notifOptions.image = imagen;
                             
                             if (navigator.serviceWorker && navigator.serviceWorker.ready) {
                                 navigator.serviceWorker.ready.then(reg => {
-                                    reg.showNotification('Lúmina: ' + tit, notifOptions);
-                                }).catch(() => {
+                                    reg.showNotification('Lúmina: ' + tit, notifOptions).catch(e => console.error("SW showNotification error:", e));
+                                }).catch(e => {
+                                    console.error("SW ready error:", e);
                                     new Notification('Lúmina: ' + tit, notifOptions);
                                 });
                             } else {
                                 new Notification('Lúmina: ' + tit, notifOptions);
                             }
-                        } catch(err) {}
+                        } catch(err) {
+                            console.error("Native push error:", err);
+                        }
                     }
                 }
 
