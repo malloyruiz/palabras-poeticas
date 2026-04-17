@@ -599,11 +599,19 @@
             .bitacora-container { padding: 10px !important; }
 
             /* AJUSTE MÍNIMO PARA MODALES EN MÓVIL (QUIRÚRGICO) */
+            .modal {
+                padding-left: 12px;
+                padding-right: 12px;
+                align-items: flex-start;
+                padding-top: calc(24px + env(safe-area-inset-top));
+            }
             .modal-content {
-                width: 96%;
-                max-width: 480px;
-                margin: auto;
-                padding: 35px 25px;
+                width: 100%;
+                max-width: 100%;
+                margin: 0 auto;
+                border-radius: 24px;
+                padding: 28px 20px;
+                max-height: calc(100vh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
             }
 
             /* Alineación ESPECÍFICA para Bitácora y Pausa (Centrado real en móviles) */
@@ -969,9 +977,11 @@
         .modal {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85);
             display: none; align-items: center; justify-content: center;
-            z-index: 20000; 
-            padding: calc(20px + env(safe-area-inset-top)) 25px calc(20px + env(safe-area-inset-bottom));
-            overflow: hidden;
+            z-index: 20000;
+            box-sizing: border-box;
+            padding: calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));
+            overflow-y: auto;
+            overflow-x: hidden;
         }
         .modal.active { display: flex; animation: fadeIn 0.4s ease; }
 
@@ -983,13 +993,15 @@
             width: 100%;
             max-width: 440px;
             max-height: calc(100vh - 80px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-            margin: auto; 
+            margin: auto;
+            flex-shrink: 0;
             position: relative;
             box-shadow: 0 25px 60px rgba(0,0,0,0.3);
             animation: modalFadeIn 0.5s cubic-bezier(0.2, 0, 0, 1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            box-sizing: border-box;
         }
         /* Área scrollable específica para no romper headers/footers */
         .modal-body {
@@ -7796,20 +7808,29 @@ if (id === 'content-header' || id === 'side-panel') {
         function switchInfoTab(tab) {
             const btnFilo = document.getElementById('btn-tab-filosofia');
             const btnViaje = document.getElementById('btn-tab-viaje');
+            const btnPlanes = document.getElementById('btn-tab-planes');
             const tabFilo = document.getElementById('info-tab-filosofia');
             const tabViaje = document.getElementById('info-tab-viaje');
+            const tabPlanes = document.getElementById('info-tab-planes');
+            const entendidoBtn = document.getElementById('info-entendido-btn');
 
-            // Reset
-            [btnFilo, btnViaje].forEach(b => b?.classList.remove('active'));
-            [tabFilo, tabViaje].forEach(t => t ? t.style.display = 'none' : null);
+            // Reset all
+            [btnFilo, btnViaje, btnPlanes].forEach(b => b?.classList.remove('active'));
+            [tabFilo, tabViaje, tabPlanes].forEach(t => { if (t) t.style.display = 'none'; });
 
             if (tab === 'filosofia') {
-                btnFilo.classList.add('active');
-                tabFilo.style.display = 'block';
+                btnFilo?.classList.add('active');
+                if (tabFilo) tabFilo.style.display = 'block';
+                if (entendidoBtn) entendidoBtn.style.display = '';
             } else if (tab === 'viaje') {
-                btnViaje.classList.add('active');
-                tabViaje.style.display = 'block';
+                btnViaje?.classList.add('active');
+                if (tabViaje) tabViaje.style.display = 'block';
+                if (entendidoBtn) entendidoBtn.style.display = '';
                 renderJourney();
+            } else if (tab === 'planes') {
+                btnPlanes?.classList.add('active');
+                if (tabPlanes) tabPlanes.style.display = 'block';
+                if (entendidoBtn) entendidoBtn.style.display = 'none'; // El tab tiene su propio CTA
             }
         }
 
@@ -10523,6 +10544,7 @@ if (id === 'content-header' || id === 'side-panel') {
             <div class="modal-tabs">
                 <button class="tab-btn active" id="btn-tab-filosofia" onclick="switchInfoTab('filosofia')">LÚMINA</button>
                 <button class="tab-btn" id="btn-tab-viaje" onclick="switchInfoTab('viaje')">MI VIAJE</button>
+                <button class="tab-btn" id="btn-tab-planes" onclick="switchInfoTab('planes')">PLANES</button>
             </div>
 
             <div class="modal-body">
@@ -10571,8 +10593,86 @@ if (id === 'content-header' || id === 'side-panel') {
                         <div style="padding: 40px; opacity: 0.5;">Cargando cronograma...</div>
                     </div>
                 </div>
+
+                <!-- TAB: PLANES (PRECIOS) -->
+                <div id="info-tab-planes" style="display: none;">
+                    <h2 style="font-family:'Playfair Display', serif; margin: 20px 0 6px; font-style: italic; font-size: 2rem;">Planes</h2>
+                    <p style="font-size: 0.8rem; opacity: 0.5; margin-bottom: 24px; letter-spacing: 0.5px;">Invierte en tu mente. Sin contratos forzados.</p>
+
+                    <!-- Gratis -->
+                    <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                            <span style="font-weight: 700; font-size: 0.9rem;">Gratis</span>
+                            <span style="font-size: 1.1rem; font-weight: 700;">$0</span>
+                        </div>
+                        <p style="font-size: 0.75rem; opacity: 0.6; margin: 0; line-height: 1.5;">Palabra, frase y afirmación diaria. Monitor de hábitos, diario y herramientas de bienestar.</p>
+                    </div>
+
+                    <!-- PRO Mensual -->
+                    <div style="background: rgba(181,131,58,0.06); border: 1px solid rgba(181,131,58,0.2); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                            <span style="font-weight: 700; font-size: 0.9rem; color: var(--accent);">PRO Mensual</span>
+                            <span style="font-size: 1.1rem; font-weight: 700;">$9.99<span style="font-size:0.65rem; opacity:0.5;">/mes</span></span>
+                        </div>
+                        <p style="font-size: 0.75rem; opacity: 0.7; margin: 0; line-height: 1.5;">Lecciones diarias completas, regeneración (5x) y personalización total.</p>
+                    </div>
+
+                    <!-- PRO Trimestral -->
+                    <div style="background: rgba(181,131,58,0.06); border: 1px solid rgba(181,131,58,0.2); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px; position: relative;">
+                        <div style="position:absolute; top:-10px; right:16px; background:var(--accent); color:#fff; font-size:0.55rem; font-weight:700; letter-spacing:1.5px; padding: 3px 10px; border-radius: 20px;">AHORRA 16%</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                            <span style="font-weight: 700; font-size: 0.9rem; color: var(--accent);">PRO Trimestral</span>
+                            <span style="font-size: 1.1rem; font-weight: 700;">$24.99<span style="font-size:0.65rem; opacity:0.5;">/3m</span></span>
+                        </div>
+                        <p style="font-size: 0.75rem; opacity: 0.7; margin: 0; line-height: 1.5;">Todo lo de PRO. Pago único cada 3 meses. Ideal para consolidar el hábito.</p>
+                    </div>
+
+                    <!-- PRO Anual - DESTACADO -->
+                    <div style="background: linear-gradient(135deg, rgba(181,131,58,0.15), rgba(181,131,58,0.05)); border: 1.5px solid var(--accent); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px; position: relative; box-shadow: 0 8px 30px rgba(181,131,58,0.12);">
+                        <div style="position:absolute; top:-10px; right:16px; background: linear-gradient(90deg,#b5833a,#f0c060); color:#fff; font-size:0.55rem; font-weight:700; letter-spacing:1.5px; padding: 3px 10px; border-radius: 20px;">MEJOR VALOR — AHORRA 33%</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                            <span style="font-weight: 700; font-size: 0.9rem; color: var(--accent);">PRO Anual</span>
+                            <div style="text-align:right;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">$79.99<span style="font-size:0.65rem; opacity:0.5;">/año</span></div>
+                                <div style="font-size:0.65rem; opacity:0.5;">~$6.66/mes</div>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.75rem; opacity: 0.7; margin: 0; line-height: 1.5;">Todo lo de PRO. El mejor valor por mes. Para el disciplinado que busca cambio a largo plazo.</p>
+                    </div>
+
+                    <!-- Vitalicia -->
+                    <div style="background: linear-gradient(135deg, rgba(30,20,10,0.06), rgba(181,131,58,0.08)); border: 1px solid rgba(181,131,58,0.3); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px; position: relative;">
+                        <div style="position:absolute; top:-9px; left:16px; font-size:0.6rem; opacity:0.7; letter-spacing:1px; font-style:italic; background: var(--modal-bg-solid); padding: 0 6px;">Estándar de Oro ★</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                            <span style="font-weight: 700; font-size: 0.9rem;">PRO Vitalicia</span>
+                            <span style="font-size: 1.1rem; font-weight: 700;">$119.00</span>
+                        </div>
+                        <p style="font-size: 0.75rem; opacity: 0.7; margin: 0; line-height: 1.5;">Todo el contenido actual y futuro para siempre. Libros y expansiones incluidas.</p>
+                    </div>
+
+                    <!-- Separador -->
+                    <div style="margin: 20px 0 12px; font-size:0.6rem; letter-spacing:3px; opacity:0.4; text-transform:uppercase; text-align:center;">Complementos À La Carte</div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px;">
+                        <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 16px; padding: 16px;">
+                            <div style="font-size: 1rem; font-weight:700; margin-bottom:4px;">$4.99</div>
+                            <div style="font-size: 0.75rem; font-weight:600; margin-bottom:6px;">Expansión</div>
+                            <p style="font-size: 0.7rem; opacity: 0.55; margin:0; line-height:1.4;">Pack de 5 libros temáticos. ~$1 por libro.</p>
+                        </div>
+                        <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 16px; padding: 16px;">
+                            <div style="font-size: 1rem; font-weight:700; margin-bottom:4px;">$1.99</div>
+                            <div style="font-size: 0.75rem; font-weight:600; margin-bottom:6px;">Libro Individual</div>
+                            <p style="font-size: 0.7rem; opacity: 0.55; margin:0; line-height:1.4;">Lección profunda sobre un tema puntual.</p>
+                        </div>
+                    </div>
+
+                    <button class="btn-cta-light" onclick="toggleInfo(); openSettings();" style="letter-spacing:1.5px;">
+                        OBTENER LÚMINA PRO →
+                    </button>
+                </div>
+
             </div> <!-- modal-body end -->
-            <button class="btn-save" onclick="toggleInfo()" style="width: 100%; margin-top: 30px; padding: 15px;">ENTENDIDO</button>
+            <button class="btn-save" id="info-entendido-btn" onclick="toggleInfo()" style="width: 100%; margin-top: 30px; padding: 15px;">ENTENDIDO</button>
         </div>
     </div>
 
@@ -11297,10 +11397,27 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
     window.currentSendaIdx = sendaIdx;
     window.currentSendaLessonIdx = lessonIdx;
 
-    // Mostrar/Ocultar zona de completado (solo si es el día actual)
+    // Mostrar/Ocultar zona de completado
     const completionZone = document.getElementById('senda-completion-zone');
     if (completionZone) {
-        completionZone.style.display = (lessonIdx === senda.currentDay) ? 'block' : 'none';
+        const isEmergency = (senda.mode === 'EMERGENCY');
+        const todayStr = new Date().toDateString();
+        const alreadyDoneToday = !isEmergency && (senda.lastCompletedDate === todayStr);
+        const isCurrentLesson = (lessonIdx === senda.currentDay);
+        
+        // Mostrar el botón solo si es la lección actual Y no se ha completado hoy (o es emergencia)
+        completionZone.style.display = (isCurrentLesson && !alreadyDoneToday) ? 'block' : 'none';
+        
+        // Si ya completó hoy, mostrar mensaje de que vuelva mañana
+        let tomorrowMsg = document.getElementById('senda-tomorrow-msg');
+        if (!tomorrowMsg) {
+            tomorrowMsg = document.createElement('div');
+            tomorrowMsg.id = 'senda-tomorrow-msg';
+            tomorrowMsg.style.cssText = 'text-align:center; padding: 20px 0; opacity: 0.6; font-size: 0.85rem; line-height: 1.6;';
+            completionZone.parentNode.insertBefore(tomorrowMsg, completionZone.nextSibling);
+        }
+        tomorrowMsg.style.display = (alreadyDoneToday && isCurrentLesson) ? 'block' : 'none';
+        tomorrowMsg.innerHTML = '<span style="font-size:1.4rem">🌙</span><br>Lección de hoy completada.<br><strong>Vuelve mañana</strong> para continuar tu senda.';
     }
 
     // Mostrar estado de carga y ocultar elementos previos
@@ -11404,13 +11521,16 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
 
         const isEmergency = (senda.mode === 'EMERGENCY');
         const isLast = (lessonIdx >= senda.duration - 1);
+        const todayStr = new Date().toDateString();
+        const alreadyDoneToday = !isEmergency && (senda.lastCompletedDate === todayStr);
         
         if (isLast) {
             nextBtn.disabled = true;
         } else if (isEmergency) {
             nextBtn.disabled = false;
         } else {
-            nextBtn.disabled = (lessonIdx >= senda.currentDay);
+            // Solo puede avanzar si no completó hoy y está en la lección actual
+            nextBtn.disabled = (lessonIdx >= senda.currentDay) || alreadyDoneToday;
         }
 
         nextBtn.onclick = (e) => { 
@@ -11432,26 +11552,42 @@ function markSendaLessonDone() {
     let s = sendas[sIdx];
     if (!s) return;
     
-    if (s.mode === 'EMERGENCY' || lIdx === s.currentDay) {
+    const isEmergency = s.mode === 'EMERGENCY';
+    const todayStr = new Date().toDateString();
+    const lastDone = s.lastCompletedDate || '';
+    const alreadyDoneToday = (lastDone === todayStr);
+    
+    // Gate: modos no-emergencia solo permiten 1 lección por día
+    if (!isEmergency && alreadyDoneToday) {
+        showToast('Ya completaste tu lección de hoy. \uD83C\uDF19 Vuelve mañana para desbloquear la siguiente.', 'info');
+        return;
+    }
+    
+    if (isEmergency || lIdx === s.currentDay) {
         if (s.currentDay < s.duration) {
             s.currentDay++;
+            if (!isEmergency) s.lastCompletedDate = todayStr; // Guardar la fecha de la lección completada
             localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
-            showToast('¡Lección completada! Tu progreso ha aumentado.', 'success');
-            logSendaActivity(s.title);
             
-            // Actualizar tarjetas de fondo inmediatamente
-            renderMisSendas();
-            
-            if (s.currentDay < s.duration) {
-                openSendaLesson(sIdx, s.currentDay);
-                if (typeof syncLuminaStats === 'function') syncLuminaStats();
-            } else {
-                showToast("¡Felicidades! Has completado esta senda.", "success");
+            if (s.currentDay >= s.duration) {
+                showToast('¡Felicidades! Has completado esta senda. 🏆', 'success');
+                renderMisSendas();
                 setTimeout(() => {
                     closeModals();
-                    archiveSenda(sIdx);
+                    archiveSenda(s.currentDay < sendas.length ? sIdx : sIdx);
                     if (typeof syncLuminaStats === 'function') syncLuminaStats();
                 }, 1500);
+            } else {
+                showToast(isEmergency ? '¡Lección completada! Siguiente disponible.' : '¡Lección de hoy completada! 🔥 Vuelve mañana.', 'success');
+                logSendaActivity(s.title);
+                renderMisSendas();
+                if (isEmergency) {
+                    openSendaLesson(sIdx, s.currentDay);
+                } else {
+                    // Cerramos el lector, la siguiente lección se desbloquea mañana
+                    setTimeout(() => closeModals(), 1200);
+                }
+                if (typeof syncLuminaStats === 'function') syncLuminaStats();
             }
         }
     }
