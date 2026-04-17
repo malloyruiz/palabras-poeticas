@@ -8068,10 +8068,12 @@ if (id === 'content-header' || id === 'side-panel') {
                     localStorage.setItem('lumina_pushed_notifs', JSON.stringify(pushedNotifs));
                     
                     if (window.Notification && Notification.permission === 'granted') {
-                        const iconUrl = 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/logoLMN.png';
+                        // Usamos el icono local de la PWA para evitar problemas de CORS o descargas remotas bloqueadas por el navegador
+                        const iconUrl = 'icon-192.png';
                         try {
-                            const notifOptions = { body: msg, icon: iconUrl, badge: iconUrl, tag: nId };
-                            if (imagen) notifOptions.image = imagen; // Agregamos la imagen si viene del Excel
+                            // Badge suele requerir ser PNG monocromático transparente en Android. Es más seguro omitirlo si no tenemos uno, el OS usará iconUrl.
+                            const notifOptions = { body: msg, icon: iconUrl, tag: nId };
+                            if (imagen) notifOptions.image = imagen; // Agregamos la imagen superior si viene del Excel
                             
                             if (navigator.serviceWorker && navigator.serviceWorker.ready) {
                                 navigator.serviceWorker.ready.then(reg => {
