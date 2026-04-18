@@ -6808,6 +6808,7 @@ body[data-cat="sendas"] #header-cat {
 
                 runSync(checkMidnightRefresh, 'CierreDía');
                 runSync(updateGamification, 'Gamificación');
+                runSync(checkCalendarGaps, 'Agenda');
                 runSync(loadTheme, 'Tema');
                 runSync(populateVoices, 'Voces');
                 runSync(loadProState, 'EstadoPro');
@@ -7189,6 +7190,11 @@ if (id === 'content-header' || id === 'side-panel') {
         function showHub(isUserAction = true) {
             if (isUserAction) {
                 history.pushState({ cat: 'hub' }, "", "#hub");
+            }
+            
+            // Verificación automática de agenda cada vez que se vuelve al Hub
+            if (typeof checkCalendarGaps === 'function') {
+                setTimeout(() => checkCalendarGaps(false), 800);
             }
             
             if (currentCategory === 'pausa') {
@@ -8282,8 +8288,8 @@ if (id === 'content-header' || id === 'side-panel') {
             // Cargar notificaciones locales (Integraciones)
             const localNotifs = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
 
-            const addNotif = (cat, tit, msg, link, isExtra = false, imagen = "") => {
-                const nId = (cat || 'extra') + ":" + btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32);
+            const addNotif = (cat, tit, msg, link, isExtra = false, imagen = "", customId = "") => {
+                const nId = customId || ((cat || 'extra') + ":" + btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32));
                 if (dismissed.includes(nId)) return;
 
 
@@ -8404,6 +8410,11 @@ if (id === 'content-header' || id === 'side-panel') {
                 list.appendChild(item);
                 count++;
             };
+
+            // --- INYECCIÓN DE NOTIFICACIONES LOCALES (Integraciones) ---
+            localNotifs.forEach(n => {
+                addNotif(n.cat || 'profile', n.tit, n.msg, n.link, true, "", n.id);
+            });
 
             const isSub = (c) => localStorage.getItem(`lumina_sub_${c}`) !== 'false';
             const hasAnySub = ['palabras', 'afirmaciones', 'frases', 'libros'].some(c => isSub(c));
@@ -12210,7 +12221,7 @@ function toggleIntegration(id) {
     if (navigator.vibrate) navigator.vibrate(isActive ? 15 : 8);
     showToast(isActive ? 'Integración activa' : 'Integración pausada', 'success');
 
-    if (id === 'gcal' && isActive) checkCalendarGaps();
+    if (id === 'gcal' && isActive) checkCalendarGaps(true);
     if (id === 'gdocs') syncIntegrationsUI(); 
 }
 
@@ -12226,28 +12237,49 @@ function syncIntegrationsUI() {
     if (expArea) expArea.style.display = gdocs ? 'block' : 'none';
 }
 
-async function checkCalendarGaps() {
+async function checkCalendarGaps(isManual = false) {
     if (localStorage.getItem('lumina_gcal_active') !== 'true') return;
     
+    if (isManual) showToast('Revisando tu agenda...', 'info');
     console.log("Revisando agenda para detectar huecos...");
+    
     try {
         const resp = await fetch(API + "?action=get_calendar_gaps");
         const data = await resp.json();
         
-        if (data.success && data.gaps && data.gaps.length > 0) {
-            // Buscamos el primer hueco que sea en el futuro cercano
+        if (!data.success) {
+            console.error("Error GCal Backend:", data.error);
+            // Si es manual o el error es de permisos, pedimos autorización
+            if (isManual || data.error.includes("Permisos")) {
+                showLuminaConfirm(
+                    'Acceso al Calendario', 
+                    'Para sugerirte pausas inteligentes en tus momentos libres, Lúmina necesita permiso para leer tu agenda de Google.', 
+                    () => { window.open(API, '_blank'); }, 
+                    'AUTORIZAR ACCESO'
+                );
+            }
+            return;
+        }
+
+        if (data.gaps && data.gaps.length > 0) {
             const now = new Date();
             const gap = data.gaps.find(g => new Date(g.start) > now);
             
             if (gap) {
                 const start = new Date(gap.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 const msg = `Tienes un hueco de ${gap.duration} min a las ${start}. ¿Dedicamos un tiempo a la calma?`;
-                
-                // Inyectar en Novedades (Panel interno)
                 injectIntegrationNews("Agenda Lúmina", msg, "#pausa");
+                if (isManual) showToast('¡Hueco encontrado! Revisa Novedades.', 'success');
+            } else if (isManual) {
+                showToast('No encontré más huecos libres para hoy.', 'info');
             }
+        } else if (isManual) {
+            showToast('No encontré huecos libres en tu agenda actual.', 'info');
         }
-    } catch(e) { console.error("Error GCal:", e); }
+    } catch(e) { 
+        console.error("Error de conexión GCal:", e); 
+        if (isManual) showToast('Error al conectar con tu Calendario.', 'error');
+    }
 }
 
 function injectIntegrationNews(tit, msg, link) {
@@ -12269,7 +12301,8 @@ function injectIntegrationNews(tit, msg, link) {
 
     localStorage.setItem('lumina_local_notifs', JSON.stringify(localNotifs));
     
-    // Actualizar badge y UI
+    // Forzar actualización inmediata de la UI
+    isCheckingNotifs = false; 
     checkNotifications();
 }
 
