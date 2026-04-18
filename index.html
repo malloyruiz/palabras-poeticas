@@ -4574,6 +4574,10 @@ body[data-cat="sendas"] #header-cat {
                     <button id="btn-bitacora-history" class="btn-save" onclick="toggleBitacoraView('history')" style="margin: 0; padding: 12px 25px; font-size: 0.7rem; border-radius: 50px; background: transparent; border: 1px solid rgba(128,128,128,0.1); color: var(--text); opacity: 0.6;">
                         HISTORIAL
                     </button>
+                    <button id="btn-bitacora-export-main" class="btn-save" onclick="showExportOptions()" style="display: none; margin: 0; padding: 12px 25px; font-size: 0.7rem; border-radius: 50px; background: #4285F4; color: #fff; border: none; font-weight: 700; gap: 8px; align-items: center;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        CRÓNICAS
+                    </button>
                 </div>
             </div>
 
@@ -6812,6 +6816,7 @@ body[data-cat="sendas"] #header-cat {
                 runSync(loadTheme, 'Tema');
                 runSync(populateVoices, 'Voces');
                 runSync(loadProState, 'EstadoPro');
+                runSync(syncIntegrationsUI, 'Integraciones');
                 runSync(updateHeaderDate, 'Reloj');
                 runSync(createMotes, 'Motes');
                 runSync(initAmbient, 'Ambiente');
@@ -11406,25 +11411,8 @@ if (id === 'content-header' || id === 'side-panel') {
                     <canvas id="bitacora-chart"></canvas>
                 </div>
 
-                <!-- Exportar a Google Docs -->
-                <div id="export-docs-area" style="display: none; border-top: 1px solid rgba(181,131,58,0.15); padding-top: 20px; margin-top: 20px;">
-                    <button class="btn-save" id="btn-export-doc" onclick="showExportOptions()" 
-                        style="background: #4285F4; color: #fff; width: 100%; border-radius: 50px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.75rem;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                        GENERAR CRÓNICAS DE LÚMINA
-                    </button>
-                </div>
             </div>
 
-            <!-- Diálogo Opciones Exportación (Oculto por defecto) -->
-            <div id="export-options-box" style="display: none; background: var(--card-bg); border: 1px solid var(--accent); padding: 20px; border-radius: 20px; margin-top: -150px; position: absolute; z-index: 10; left: 20px; right: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-                <h4 style="margin: 0 0 15px 0; font-family:'Playfair Display', serif; font-style:italic;">Opciones del Libro</h4>
-                <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                    <button class="btn-save" onclick="exportBitacoraDoc('continuo')" style="font-size: 0.7rem; background: rgba(181,131,58,0.1); color: var(--text); border: none;">Diario Continuo (Completo)</button>
-                    <button class="btn-save" onclick="exportBitacoraDoc('resumen')" style="font-size: 0.7rem; background: rgba(181,131,58,0.1); color: var(--text); border: none;">Resumen de Viaje</button>
-                    <button class="btn-save" onclick="document.getElementById('export-options-box').style.display='none'" style="font-size: 0.7rem; background: transparent; color: var(--text); border: 1px solid rgba(128,128,128,0.3); margin-top: 5px;">Cancelar</button>
-                </div>
-            </div>
 
             <button class="btn-save" onclick="closeModals()" style="width: 100%; border-radius: 50px; background: transparent; border: 1px solid var(--accent); color: var(--accent); opacity: 0.8;">CERRAR VENTANA</button>
         </div>
@@ -12233,8 +12221,8 @@ function syncIntegrationsUI() {
     document.getElementById('toggle-gdocs')?.classList.toggle('active', gdocs);
 
     // Mostrar área de exportación en Bitácora si GDocs está activo
-    const expArea = document.getElementById('export-docs-area');
-    if (expArea) expArea.style.display = gdocs ? 'block' : 'none';
+    const expMain = document.getElementById('btn-bitacora-export-main');
+    if (expMain) expMain.style.display = gdocs ? 'flex' : 'none';
 }
 
 async function checkCalendarGaps(isManual = false) {
@@ -12254,7 +12242,7 @@ async function checkCalendarGaps(isManual = false) {
                 showLuminaConfirm(
                     'Acceso al Calendario', 
                     'Para sugerirte pausas inteligentes en tus momentos libres, Lúmina necesita permiso para leer tu agenda de Google.', 
-                    () => { window.open(API, '_blank'); }, 
+                    () => { window.open(API + '?action=authorize', '_blank'); }, 
                     'AUTORIZAR ACCESO'
                 );
             }
@@ -12311,15 +12299,28 @@ function showExportOptions() {
 }
 
 async function exportBitacoraDoc(type) {
-    document.getElementById('export-options-box').style.display = 'none';
+    const optionsBox = document.getElementById('export-options-box');
+    if (optionsBox) optionsBox.style.display = 'none';
+    
     showToast('Generando tu Libro de Viaje...', 'info');
     
     const bitacora = localStorage.getItem('lumina_bitacora') || '[]';
     const userName = localStorage.getItem('lumina_user_name') || 'Viajero';
     
     try {
-        const url = `${API}?action=export_bitacora_doc&name=${encodeURIComponent(userName)}&type=${type}&entries=${encodeURIComponent(bitacora)}`;
-        const resp = await fetch(url);
+        const formData = new URLSearchParams();
+        formData.append('action', 'export_bitacora_doc');
+        formData.append('name', userName);
+        formData.append('type', type);
+        formData.append('entries', bitacora);
+
+        const resp = await fetch(API, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
         const data = await resp.json();
         
         if (data.success) {
@@ -12327,10 +12328,21 @@ async function exportBitacoraDoc(type) {
                 window.open(data.url, '_blank');
             }, 'VER DOCUMENTO');
         } else {
-            showToast('Error: ' + data.error, 'error');
+            const errorMsg = data.message || '';
+            if (errorMsg.includes('DocumentApp') || errorMsg.includes('permiso')) {
+                showLuminaConfirm(
+                    'Acceso a Google Docs', 
+                    'Lúmina necesita permiso para crear documentos en tu Drive. Por favor, autoriza el acceso para continuar.', 
+                    () => { window.open(API + '?action=authorize', '_blank'); }, 
+                    'AUTORIZAR ACCESO'
+                );
+            } else {
+                showToast('Error: ' + errorMsg, 'error');
+            }
         }
-    } catch(e) {
+    } catch (e) {
         showToast('Error de conexión', 'error');
+        console.error(e);
     }
 }
 
@@ -12395,5 +12407,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // renderMisSendas se llama al abrir la sección via openCategory('sendas')
 });
 </script>
+    <!-- Diálogo Opciones Exportación (Global para evitar conflictos de posicionamiento) -->
+    <div id="export-options-box" style="display: none; background: var(--bg); border: 1px solid var(--accent); padding: 30px; border-radius: 20px; position: fixed; z-index: 200000; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 350px; box-shadow: 0 10px 50px rgba(0,0,0,0.5); animation: modalFadeIn 0.3s ease; backdrop-filter: blur(10px);">
+        <h4 style="margin: 0 0 10px 0; font-family:'Playfair Display', serif; font-size: 1.5rem; font-style:italic;">Libro de Viaje</h4>
+        <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 20px;">Elige el formato para tus Crónicas:</p>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+            <button class="btn-save" onclick="exportBitacoraDoc('continuo')" style="font-size: 0.75rem; background: var(--accent); color: #fff; padding: 15px; border-radius: 12px; margin: 0; font-weight: 700;">DIARIO CONTINUO</button>
+            <button class="btn-save" onclick="exportBitacoraDoc('resumen')" style="font-size: 0.75rem; background: rgba(181,131,58,0.1); color: var(--text); padding: 15px; border-radius: 12px; margin: 0; border: 1px solid rgba(181,131,58,0.2);">RESUMEN MENSUAL</button>
+            <button class="btn-save" onclick="document.getElementById('export-options-box').style.display='none'" style="font-size: 0.7rem; background: transparent; color: var(--text); opacity: 0.5; border: none; margin-top: 5px;">Cancelar</button>
+        </div>
+    </div>
 </body>
 </html>
