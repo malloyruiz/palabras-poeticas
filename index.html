@@ -55,6 +55,8 @@
             --card-border: rgba(181, 131, 58, 0.1);
             --modal-bg-solid: #ffffff;
             --transition: 0.3s cubic-bezier(0.2, 0, 0, 1);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Inter', sans-serif;
         }
 
         [data-theme="dark"] {
@@ -434,11 +436,12 @@
             opacity: 0;
             text-align: center;
             max-width: 80%;
-            line-height: 1.5;
+            line-height: 1.6;
             color: var(--text);
             transition: opacity 0.5s ease;
+            text-transform: none; /* Asegurar Mayúsculas/Minúsculas */
         }
-        #loader-text.visible { opacity: 0.6; }
+        #loader-text.visible { opacity: 0.8; }
         #offline-banner {
             position: fixed;
             bottom: 20px;
@@ -1038,8 +1041,8 @@
         /* --- SISTEMA DE AUTENTICACION --- */
         .auth-bg-glow { position: absolute; background: var(--accent); border-radius: 50%; filter: blur(100px); opacity: 0.18; pointer-events: none; z-index: 1; }
         .auth-field { text-align: left; margin-bottom: 22px; }
-        .auth-label { font-size: 0.58rem; letter-spacing: 3px; opacity: 0.4; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; display: block; color: var(--accent); }
-        .auth-input { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.15); background: rgba(255,255,255,0.03); color: var(--text); font-family: 'Inter', sans-serif; outline: none; box-sizing: border-box; font-size: 1rem; transition: var(--transition); }
+        .auth-label { font-size: 0.58rem; letter-spacing: 3px; opacity: 0.4; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; display: block; color: var(--accent); font-family: var(--font-body); }
+        .auth-input { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.15); background: rgba(255,255,255,0.03); color: var(--text); font-family: var(--font-body); outline: none; box-sizing: border-box; font-size: 1rem; transition: var(--transition); }
         .auth-input:focus { border-color: var(--accent); background: rgba(181, 131, 58, 0.05); }
         
         /* --- BOTÓN EXTRA PRO (MAESTRÍA DIARIA) --- */
@@ -2876,10 +2879,12 @@
         .portal-overlay-lumina.active { display: flex !important; }
         .auth-card-lumina {
             width: 100% !important; max-width: 440px !important;
+            max-height: 85vh !important; overflow-y: auto !important;
             background: #ffffff !important; color: #000000 !important;
             padding: 50px 40px; border-radius: 35px; text-align: center;
             position: relative; z-index: 1000;
             box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            font-family: var(--font-body) !important;
         }
 
 /* ===== MIS SENDAS / CONTEXT ANALYST ===== */
@@ -3168,9 +3173,9 @@ body[data-cat="sendas"] #header-cat {
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
 
-            <div class="meta" style="margin-bottom: 20px; font-weight:700; letter-spacing:3px; font-size:0.6rem; color:#aaa;">LÚMINA</div>
-            <h1 id="portal-title" style="font-family:'Playfair Display', serif; font-size: 3.2rem; font-style: italic; margin-bottom: 10px; line-height: 1; color:#000;">Identidad</h1>
-            <p id="portal-desc" style="font-size: 0.9rem; opacity: 0.5; margin-bottom: 45px; letter-spacing: 1px; color:#000;">Tu viaje de sabiduría sincronizado.</p>
+            <div class="meta" style="margin-bottom: 20px; font-weight:700; letter-spacing:3px; font-size:0.6rem; color:#aaa; font-family: var(--font-body);">Lúmina</div>
+            <h1 id="portal-title" style="font-family: var(--font-heading); font-size: 3.2rem; font-style: italic; font-weight: 400; margin-bottom: 10px; line-height: 1; color:#000;">Identidad</h1>
+            <p id="portal-desc" style="font-family: var(--font-body); font-size: 0.9rem; opacity: 0.5; font-weight: 400; margin-bottom: 45px; letter-spacing: 1px; color:#000;">Tu viaje de sabiduría sincronizado.</p>
             
             <div id="portal-fields">
                 <div class="auth-field">
@@ -3287,12 +3292,22 @@ body[data-cat="sendas"] #header-cat {
                     clearInterval(window._loaderInterval);
                     window._loaderInterval = null;
                 }
-                // Fade out suave antes de ocultar
+                
+                // Efecto de desvanecimiento suave y liberación de clics
                 loader.classList.add('fade-out');
+                loader.style.opacity = '0';
+                loader.style.pointerEvents = 'none';
+                
                 setTimeout(() => {
                     loader.classList.add('hidden');
                     loader.classList.remove('fade-out');
-                    loader.style.pointerEvents = 'none';
+                    
+                    // Marcar UI principal como lista
+                    const mui = document.getElementById('main-ui');
+                    if (mui) mui.classList.add('loaded');
+                    
+                    // Carga de contenido secundario (Diario) si está disponible
+                    if (typeof loadUserJournal === 'function') loadUserJournal();
                 }, 520);
             }
         }
@@ -4081,7 +4096,7 @@ body[data-cat="sendas"] #header-cat {
         </footer>
     </div>
 
-    <div id="offline-banner">MODO OFFLINE — VIENDO CONTENIDO GUARDADO</div>
+    <div id="offline-banner">Modo offline — Viendo contenido guardado</div>
     <div class="atm-motes" id="atm-motes"></div>
 
     <div id="loader">
@@ -7327,18 +7342,6 @@ if (id === 'content-header' || id === 'side-panel') {
 
         let currentIdx = -1; // Índice actual del contenido (para Extras PRO)
 
-        function hideLoader() {
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => {
-                    loader.classList.add('hidden');
-                    const mui = document.getElementById('main-ui');
-                    if (mui) mui.classList.add('loaded');
-                    loadUserJournal(); // Asegurar carga de diario al finalizar loader
-                }, 400);
-            }
-        }
 
         async function fetchContent(index = null) {
             let cacheKey = currentCategory;
@@ -8181,22 +8184,28 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         function closeModals(preventBack = false) {
-            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal'];
+            const modals = [
+                'settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 
+                'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 
+                'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 
+                'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal',
+                'reentry-modal', 'export-options-box'
+            ];
             modals.forEach(id => {
                 const m = document.getElementById(id);
                 if (m && (m.classList.contains('active') || m.style.display === 'flex' || m.style.visibility === 'visible' || m.style.display === 'block')) {
                     m.classList.remove('active');
-                    m.style.display = 'none';
-                    m.style.visibility = 'hidden';
-                    m.style.opacity = '0';
+                    m.style.display = '';
+                    m.style.visibility = '';
+                    m.style.opacity = '';
                 }
             });
             
             document.body.style.overflow = '';
             document.body.style.position = '';
-            window._luminaShareBlob = null;
+            document.body.style.pointerEvents = 'auto';
+            if (window._luminaShareBlob) window._luminaShareBlob = null;
             window._lastShareType = "";
-            // Nunca llamamos history.back() aqui para evitar desincronización
         }
  
         // Gestión de Descarte de Notificaciones
@@ -9502,9 +9511,9 @@ if (id === 'content-header' || id === 'side-panel') {
         // --- SISTEMA DE URL Y BOTÓN ATRÁS (HARDWARE) ---
         window.addEventListener('hashchange', () => {
             const h = window.location.hash;
-            // Ignorar transiciones de navegación de categorías y hub para no cerrar modales accidentalmente
-            const isNavTransition = h.startsWith('#pausa') || h.startsWith('#exp') || h === '#hub' || h === '';
-            const isModalHash = h.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos)/);
+            // Solo cerramos modales cuando el usuario navega HACIA una sección de contenido base (não modal)
+            const isNavTransition = h.startsWith('#pausa') || h.startsWith('#exp') || h.startsWith('#sendas') || h === '#hub' || h === '';
+            const isModalHash = h.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos|mood|integrations)/);
             if (!isNavTransition && !isModalHash) {
                 closeModals(true);
             }
@@ -11896,8 +11905,13 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
         } else if (isEmergency) {
             nextBtn.disabled = false;
         } else {
-            // Solo puede avanzar si no completó hoy y está en la lección actual
-            nextBtn.disabled = (lessonIdx >= senda.currentDay) || alreadyDoneToday;
+            // REPARACIÓN: Permitir navegar hacia adelante si es una lección ya superada anteriormente
+            if (lessonIdx < senda.currentDay) {
+                nextBtn.disabled = false;
+            } else {
+                // Si estamos en la lección actual, bloqueamos si ya se completó el cupo de hoy
+                nextBtn.disabled = alreadyDoneToday || (lessonIdx >= senda.currentDay);
+            }
         }
 
         nextBtn.onclick = (e) => { 
