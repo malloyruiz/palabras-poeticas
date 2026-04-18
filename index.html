@@ -1402,6 +1402,179 @@
             pointer-events: none;
         }
         .confirm-toast.active { bottom: 40px; opacity: 1; pointer-events: auto; }
+
+        /* --- RE-ENTRY MODAL (WELCOME BACK) --- */
+        #reentry-modal { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+            display: none; align-items: center; justify-content: center; z-index: 30000;
+            padding: 20px; box-sizing: border-box;
+        }
+        #reentry-modal.active { display: flex; animation: fadeIn 0.8s ease; }
+        /* --- RE-ENTRY MODAL (WELCOME BACK) --- */
+        #reentry-modal { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
+            display: none; align-items: center; justify-content: center; z-index: 30000;
+            padding: 20px; box-sizing: border-box;
+        }
+        #reentry-modal.active { display: flex; animation: fadeIn 0.8s ease; }
+        .reentry-card {
+            background: var(--modal-bg-solid);
+            border: 2px solid var(--accent);
+            border-radius: 40px; padding: 50px 30px;
+            width: 100%; max-width: 400px; text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 30px rgba(181,131,58,0.2);
+            position: relative; overflow: hidden;
+            animation: modalScaleUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            color: var(--text);
+        }
+        [data-theme="dark"] .reentry-card {
+            background: #1a1a1a;
+            border-color: var(--accent);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 40px rgba(181,131,58,0.3);
+        }
+        .reentry-card::before {
+            content: ''; position: absolute; top: -10%; left: -10%; width: 120%; height: 120%;
+            background: radial-gradient(circle at top right, rgba(181,131,58,0.1), transparent 50%);
+            pointer-events: none;
+        }
+        .reentry-icon { 
+            font-size: 4rem; margin-bottom: 25px; 
+            background: rgba(181,131,58,0.1); 
+            width: 90px; height: 90px; 
+            line-height: 90px; border-radius: 50%; 
+            margin-left: auto; margin-right: auto;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 20px rgba(181,131,58,0.4);
+        }
+        .reentry-title { 
+            font-family: 'Playfair Display', serif; font-size: 2.2rem; font-style: italic; 
+            margin-bottom: 12px; color: var(--text); font-weight: 700;
+        }
+        .reentry-text { 
+            font-size: 1.05rem; line-height: 1.6; margin-bottom: 30px; 
+            color: var(--text); opacity: 0.9; font-style: italic;
+            max-width: 280px; margin-left: auto; margin-right: auto;
+        }
+        .reentry-gift {
+            background: var(--accent); color: #fff;
+            padding: 16px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-bottom: 35px; font-weight: 800; font-size: 0.75rem; letter-spacing: 1.5px;
+            box-shadow: 0 10px 20px rgba(181,131,58,0.4);
+            text-transform: uppercase;
+        }
+        .btn-reentry {
+            background: var(--text); color: var(--modal-bg-solid); 
+            border: none; padding: 20px; border-radius: 50px;
+            font-weight: 800; font-size: 0.85rem; cursor: pointer; letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: 0.3s; width: 100%;
+            text-transform: uppercase;
+        }
+        .btn-reentry:active { transform: scale(0.96); }
+        [data-theme="dark"] .reentry-text { opacity: 1; color: #fff; }
+        [data-theme="dark"] .reentry-title { color: #fff; }
+
+        /* --- RICH CONTENT (HTML/SPOTIFY) --- */
+        #word-def, #extra-thought, #extra-quote, #exp-detail-desc, .exp-read-body, .itinerary-content {
+            line-height: 1.6;
+        }
+        #word-def iframe, #extra-thought iframe, #extra-quote iframe, #exp-detail-desc iframe, .exp-read-body iframe {
+            width: 100% !important;
+            border-radius: 18px;
+            border: none;
+            margin: 20px 0;
+            display: block;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        /* Spotify Player specifically */
+        iframe[src*="spotify.com"] {
+            min-height: 80px; 
+        }
+        #word-def img, #extra-thought img, #extra-quote img, #exp-detail-desc img, .exp-read-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 18px;
+            margin: 15px 0;
+        }
+        #word-def a, #extra-thought a, #extra-quote a, #exp-detail-desc a, .exp-read-body a {
+            color: var(--accent);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            font-weight: 600;
+        }
+
+        /* --- INTEGRATIONS UI --- */
+        .integration-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .integration-card {
+            background: rgba(181, 131, 58, 0.05);
+            border: 1px solid rgba(181, 131, 58, 0.15);
+            border-radius: 20px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: 0.3s;
+        }
+        .integration-card:hover {
+            border-color: var(--accent);
+            background: rgba(181, 131, 58, 0.08);
+        }
+        .integration-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .integration-info {
+            flex: 1;
+            text-align: left;
+        }
+        .integration-info h4 {
+            margin: 0 0 4px 0;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+        .integration-info p {
+            margin: 0;
+            font-size: 0.75rem;
+            opacity: 0.6;
+            line-height: 1.4;
+        }
+        .integration-toggle {
+            width: 44px;
+            height: 24px;
+            background: rgba(128,128,128,0.2);
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .integration-toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 18px; height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .integration-toggle.active {
+            background: var(--accent);
+        }
+        .integration-toggle.active::after {
+            left: 23px;
+        }
+
         .confirm-msg { 
             font-size: 0.95rem; 
             color: var(--text); 
@@ -3018,6 +3191,14 @@ body[data-cat="sendas"] #header-cat {
                         <select id="reg-question" class="auth-input">
                             <option value="Nombre de tu primera mascota">¿Nombre de tu primera mascota?</option>
                             <option value="Ciudad donde naciste">¿Ciudad donde naciste?</option>
+                            <option value="Nombre de tu mejor amigo de infancia">¿Nombre de tu mejor amigo de infancia?</option>
+                            <option value="Modelo de tu primer auto">¿Modelo de tu primer auto?</option>
+                            <option value="Nombre de tu escuela primaria">¿Nombre de tu escuela primaria?</option>
+                            <option value="Apodo de tu abuela materna">¿Apodo de tu abuela materna?</option>
+                            <option value="Calle donde creciste">¿Calle donde creciste?</option>
+                            <option value="Nombre de tu personaje favorito de infancia">¿Nombre de tu personaje favorito de infancia?</option>
+                            <option value="Comida favorita de tu madre">¿Comida favorita de tu madre?</option>
+                            <option value="Lugar donde conociste a tu mejor amigo">¿Lugar donde conociste a tu mejor amigo?</option>
                         </select>
                     </div>
                     <div class="auth-field">
@@ -5135,7 +5316,7 @@ body[data-cat="sendas"] #header-cat {
             
             const exp = (allExpansions && allExpansions.length > 0) ? allExpansions.find(e => e.id === id) : null;
             document.getElementById('exp-detail-title').innerText = title;
-            document.getElementById('exp-detail-desc').innerText = desc;
+            document.getElementById('exp-detail-desc').innerHTML = desc;
             
             // Renderizamos Tema si existe
             const detailTitle = document.getElementById('exp-detail-title');
@@ -5156,7 +5337,7 @@ body[data-cat="sendas"] #header-cat {
                     const bookSource = exp.LibrosIncluded || (exp.descripcion.match(/Contiene:?\s*(.*)/i) || [])[1];
                     const cleanDesc = bookSource ? exp.descripcion.replace(/Contiene:?.*$/i, '').trim() : exp.descripcion;
                     
-                    document.getElementById('exp-detail-desc').innerText = cleanDesc;
+                    document.getElementById('exp-detail-desc').innerHTML = cleanDesc;
                     if (bookSource) {
                         detailHeader.insertAdjacentHTML('beforeend', renderPackBadges(bookSource));
                     }
@@ -6157,6 +6338,15 @@ body[data-cat="sendas"] #header-cat {
             localStorage.setItem('lumina_streak', streak.toString());
             localStorage.setItem('lumina_last_activity', new Date().toISOString());
             localStorage.setItem('lumina_last_visit_ts', now.getTime().toString());
+
+            // --- DETECCIÓN DE RE-ENTRADA (DEEP ENGAGEMENT) ---
+            if (diffDays >= 3) {
+                window._showWelcomeBack = true;
+                // Otorgar medalla de constancia por volver
+                const currentMedals = parseInt(localStorage.getItem('lumina_bonus_medals') || '0');
+                localStorage.setItem('lumina_bonus_medals', (currentMedals + 1).toString());
+                if (typeof syncLuminaStats === 'function') syncLuminaStats();
+            }
             
             if (diffDays !== 0) {
                 const todayStr = new Date().toDateString();
@@ -6604,6 +6794,12 @@ body[data-cat="sendas"] #header-cat {
             }
 
             console.log("Lúmina: Fase 2 - Módulos");
+            
+            // Ping al Service Worker para marcar actividad
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'UPDATE_ACTIVITY' });
+            }
+
             try {
                 const runSync = (fn, name) => {
                     try { if (typeof fn === 'function') fn(); }
@@ -6623,6 +6819,11 @@ body[data-cat="sendas"] #header-cat {
 
                 // Módulos asíncronos (API)
                 if (typeof updateHubInfo === 'function') updateHubInfo();
+
+                // --- TRIGGER BIENVENIDA ---
+                if (window._showWelcomeBack) {
+                    setTimeout(() => showReentryModal(), 1500);
+                }
                 if (typeof checkNotifications === 'function') checkNotifications();
                 if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
 
@@ -7212,7 +7413,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     const el = document.getElementById(id);
                     const sec = document.getElementById(sectionId);
                     if (content && content !== "---" && content !== "") {
-                        el.innerText = content;
+                        el.innerHTML = content;
                         if (sec) sec.style.display = 'block';
                     } else if (sec) {
                         sec.style.display = 'none';
@@ -7237,17 +7438,17 @@ if (id === 'content-header' || id === 'side-panel') {
                 document.getElementById('lesson-cat-label').innerText = (data.libro || "LIBRO").toUpperCase();
                 document.getElementById('lesson-day').innerText = `LECCIÓN ${data.dia} DE ${data.total}`;
                 document.getElementById('lesson-title').innerText = data.titulo;
-                document.getElementById('lesson-text').innerText = data.explicacion;
-                document.getElementById('lesson-app-prof').innerText = data.app_profesional;
-                document.getElementById('lesson-app-pers').innerText = data.app_personal;
-                document.getElementById('lesson-refl').innerText = data.reflexion;
+                document.getElementById('lesson-text').innerHTML = data.explicacion;
+                document.getElementById('lesson-app-prof').innerHTML = data.app_profesional;
+                document.getElementById('lesson-app-pers').innerHTML = data.app_personal;
+                document.getElementById('lesson-refl').innerHTML = data.reflexion;
                 document.getElementById('header-cat').innerText = data.libro;
                 
                 currentIdx = data.index; // Guardar index para Libros
             } else {
                 // Categorías estándar: Palabras, Afirmaciones, Frases
                 document.getElementById('word-title').innerText = data.palabra || data.word || data.afirmacion || data.frase || "Lúmina";
-                document.getElementById('word-def').innerText = data.definicion || data.meaning || data.autor || "";
+                document.getElementById('word-def').innerHTML = data.definicion || data.meaning || data.autor || "";
                 
                 // Actualizar estado de Extras PRO
                 currentIdx = data.index;
@@ -7969,10 +8170,10 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         function closeModals(preventBack = false) {
-            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 'portal-identidad-lumina', 'lightbox-portal'];
+            const modals = ['settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal'];
             modals.forEach(id => {
                 const m = document.getElementById(id);
-                if (m && (m.classList.contains('active') || m.style.display === 'flex' || m.style.visibility === 'visible')) {
+                if (m && (m.classList.contains('active') || m.style.display === 'flex' || m.style.visibility === 'visible' || m.style.display === 'block')) {
                     m.classList.remove('active');
                     m.style.display = 'none';
                     m.style.visibility = 'hidden';
@@ -8077,6 +8278,9 @@ if (id === 'content-header' || id === 'side-panel') {
 
             const getPushedNotifs = () => JSON.parse(localStorage.getItem('lumina_pushed_notifs') || '[]');
             const pushedNotifs = getPushedNotifs();
+            
+            // Cargar notificaciones locales (Integraciones)
+            const localNotifs = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
 
             const addNotif = (cat, tit, msg, link, isExtra = false, imagen = "") => {
                 const nId = (cat || 'extra') + ":" + btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32);
@@ -8821,6 +9025,13 @@ if (id === 'content-header' || id === 'side-panel') {
                 return `Una reflexión profunda de mi Bitácora Lúmina: "${snippet}" ✨ Evolucionando mi mente paso a paso. ${url}`;
             }
 
+            if (cat === 'senda') {
+                const s = window._lastSendaShared;
+                if (!s) return `Forjando mi camino en Lúmina. ✨ ${url}`;
+                const pct = s.duration > 0 ? Math.min(100, Math.round((s.currentDay / s.duration) * 100)) : 0;
+                return `Mi Senda de Crecimiento: "${s.title}". ¡Llevo un ${pct}% de progreso! 🌿 Forja tu ruta en Lúmina: ${url}`;
+            }
+
             return `Explorando sabiduría diaria en Lúmina. ✨ ${domain}`;
         }
 
@@ -9004,6 +9215,33 @@ if (id === 'content-header' || id === 'side-panel') {
                 let dateDisplay = entry.date;
                 if (dateDisplay.includes('T')) dateDisplay = new Date(dateDisplay).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
                 footerEl.textContent = dateDisplay || "Lúmina Presencia";
+            } else if (cat === 'senda') {
+                const s = window._lastSendaShared || { title: "Mi Senda", currentDay: 0, duration: 1, mode: "HABIT" };
+                const situacion = s.contexto || s.situacion || 'Crecimiento personal';
+                const pct = s.duration > 0 ? Math.min(100, Math.round((s.currentDay / s.duration) * 100)) : 0;
+                const modeLabel = { EMERGENCY: 'Emergencia', SPRINT: 'Sprint', HABIT: 'Hábito', MASTERY: 'Maestría' }[s.mode] || s.mode;
+
+                titleEl.textContent = "Senda de Crecimiento";
+                
+                bodyEl.innerHTML = `
+                    <div style="font-family:'Playfair Display', serif; font-size:1.6rem; font-style:italic; color:#b5833a; margin-bottom:10px;">${s.title}</div>
+                    <div style="font-size:0.7rem; letter-spacing:2px; font-weight:700; color:#1a1a1a; text-transform:uppercase; opacity:0.6; margin-bottom:20px;">${modeLabel}</div>
+                    <div style="font-family:'Playfair Display', serif; font-style:italic; font-size:1.1rem; line-height:1.4; color:#1a1a1a; opacity:0.8; margin-bottom:25px;">"${situacion}"</div>
+                `;
+                
+                const extraList = document.getElementById('cap-extra-list');
+                if (extraList) {
+                    extraList.innerHTML = `<div style="background:rgba(181,131,58,0.06); padding:20px; border-radius:20px; border:1px solid rgba(181,131,58,0.15); text-align:center;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
+                            <span style="font-size:0.6rem; letter-spacing:1px; font-weight:700; opacity:0.6; text-transform:uppercase;">Progreso Actual</span>
+                            <span style="font-family:'Playfair Display', serif; font-size:1.4rem; font-style:italic; color:#b5833a;">${pct}%</span>
+                        </div>
+                        <div style="height:6px; background:rgba(0,0,0,0.05); border-radius:10px; overflow:hidden;">
+                            <div style="height:100%; width:${pct}%; background:#b5833a; border-radius:10px;"></div>
+                        </div>
+                    </div>`;
+                }
+                footerEl.textContent = "Lúmina: Forjando Maestría Personal";
             } else {
                 const wordVal = document.getElementById('word-title')?.innerText || "";
                 titleEl.innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
@@ -10676,6 +10914,25 @@ if (id === 'content-header' || id === 'side-panel') {
         </div>
     </div>
 
+    <!-- Modal Bienvenido de Nuevo -->
+    <div id="reentry-modal">
+        <div class="reentry-card">
+            <div class="reentry-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 45px; height: 45px; display: block; margin: 22px auto;">
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                    <path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"/>
+                </svg>
+            </div>
+            <h2 class="reentry-title" id="reentry-greeting">Bienvenido de Nuevo</h2>
+            <p class="reentry-text" id="reentry-quote">"La calma es el portal hacia la sabiduría."</p>
+            <div class="reentry-gift">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path></svg>
+                REGALO: +1 MEDALLA DE CONSTANCIA
+            </div>
+            <button class="btn-reentry" onclick="closeReentryModal()">CONTINUAR MI SENDA</button>
+        </div>
+    </div>
+
     <!-- Modal Ajustes -->
     <div id="settings-modal" class="modal">
         <div class="modal-content" style="position:relative;">
@@ -10859,6 +11116,14 @@ if (id === 'content-header' || id === 'side-panel') {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4M7 10l5 5 5-5M12 15V3"/></svg>
                     INSTALAR APLICACIÓN
                 </button>
+
+                <!-- INTEGRACIONES GOOGLE -->
+                <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">CONECTIVIDAD</div>
+                <button class="btn-save" onclick="toggleIntegrationsModal()" 
+                    style="background:rgba(181,131,58,0.1); color: var(--accent); border: 1px solid rgba(181,131,58,0.2); width: 100%; padding: 15px; font-size: 0.85rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    GESTIONAR INTEGRACIONES
+                </button>
             </div> <!-- modal-body end -->
 
             <button class="btn-save" onclick="toggleSettings()" style="width: 100%; margin-top: 25px; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); opacity: 0.6;">CERRAR</button>
@@ -10956,6 +11221,90 @@ if (id === 'content-header' || id === 'side-panel') {
             <button class="btn-save" onclick="closeModals()" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;">CERRAR</button>
         </div>
     </div>
+    <!-- Modal Integraciones -->
+    <div id="integrations-modal" class="modal" style="z-index: 2100;">
+        <div class="modal-content" style="max-width: 480px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; font-style:italic;">Integraciones</h2>
+                <div style="background: var(--accent); color: #fff; font-size: 0.6rem; padding: 4px 10px; border-radius: 20px; font-weight: 700; letter-spacing: 1px;">GOOGLE CLOUD</div>
+            </div>
+            <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 25px;">Potencia Lúmina conectándola con tu ecosistema digital.</p>
+            
+            <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                <div class="integration-grid">
+                    <!-- Google Calendar -->
+                    <div class="integration-card">
+                        <div class="integration-icon-box">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#4285F4"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
+                        </div>
+                        <div class="integration-info">
+                            <h4>Google Calendar</h4>
+                            <p>Detecta huecos en tu agenda y sugiere pausas conscientes.</p>
+                        </div>
+                        <div class="integration-toggle" id="toggle-gcal" onclick="toggleIntegration('gcal')"></div>
+                    </div>
+
+                    <!-- Google Docs -->
+                    <div class="integration-card">
+                        <div class="integration-icon-box">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#4285F4"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        </div>
+                        <div class="integration-info">
+                            <h4>Google Docs</h4>
+                            <p>Exporta tu bitácora personal como un libro digital elegante.</p>
+                        </div>
+                        <div class="integration-toggle" id="toggle-gdocs" onclick="toggleIntegration('gdocs')"></div>
+                    </div>
+
+                    <!-- Notion (Coming Soon) -->
+                    <div class="integration-card" style="opacity: 0.5; filter: grayscale(1);">
+                        <div class="integration-icon-box">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#000"><path d="M4.15 4.54a.71.71 0 0 1 .18-.54c.16-.18.42-.3.72-.3L17.7 3c.4 0 .7.12.92.3.2.2.3.48.3.84v14.46c0 .42-.12.72-.36.96-.2.2-.5.36-.88.36l-13.34.84a1.3 1.3 0 0 1-.78-.24c-.2-.14-.36-.42-.36-.84V4.54zm1.5.78v13.56l11.4-.72V4.48l-11.4.84zm1.8 1.98h1.2v7.5h.06L11.65 7.3h1.38v9h-1.2V8.8h-.06L8.83 16.3H7.45v-9z"/></svg>
+                        </div>
+                        <div class="integration-info">
+                            <h4>Notion</h4>
+                            <p>Sincroniza tus sendas y hitos de maestría.</p>
+                        </div>
+                    </div>
+
+                    <!-- IFTTT (Coming Soon) -->
+                    <div class="integration-card" style="opacity: 0.5; filter: grayscale(1);">
+                        <div class="integration-icon-box" style="background: #000;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M11 12.1l-2.7 2.7-1.4-1.4 2.7-2.7-2.7-2.7 1.4-1.4 2.7 2.7 2.7-2.7 1.4 1.4-2.7 2.7 2.7 2.7-1.4 1.4-2.7-2.7z"/></svg>
+                        </div>
+                        <div class="integration-info">
+                            <h4>IFTTT</h4>
+                            <p>Conecta Lúmina con más de 700 servicios externos.</p>
+                        </div>
+                    </div>
+
+                    <!-- Salud / Bienestar (Coming Soon) -->
+                    <div class="integration-card" style="opacity: 0.5; filter: grayscale(1);">
+                        <div class="integration-icon-box" style="background: #f8fafc;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#ef4444"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </div>
+                        <div class="integration-info">
+                            <h4>Salud & Bienestar</h4>
+                            <p>Sincroniza tus minutos de meditación con iOS y Android.</p>
+                        </div>
+                    </div>
+
+                    <!-- Bots (Coming Soon) -->
+                    <div class="integration-card" style="opacity: 0.5; filter: grayscale(1);">
+                        <div class="integration-icon-box" style="background: #0088cc;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.98-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.35-.01-1.02-.2-1.52-.37-.62-.2-1.1-.31-1.06-.65.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .24z"/></svg>
+                        </div>
+                        <div class="integration-info">
+                            <h4>Telegram & WhatsApp</h4>
+                            <p>Recibe tu sabiduría diaria y retos directamente en tu chat.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="toggleIntegrationsModal()" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%; margin-top: 20px;">CERRAR</button>
+        </div>
+    </div>
 
     <!-- Banner de Actualización de Sistema -->
     <div id="update-banner">
@@ -11044,6 +11393,25 @@ if (id === 'content-header' || id === 'side-panel') {
 
                 <div style="height: 180px; margin: 30px 0; position: relative;">
                     <canvas id="bitacora-chart"></canvas>
+                </div>
+
+                <!-- Exportar a Google Docs -->
+                <div id="export-docs-area" style="display: none; border-top: 1px solid rgba(181,131,58,0.15); padding-top: 20px; margin-top: 20px;">
+                    <button class="btn-save" id="btn-export-doc" onclick="showExportOptions()" 
+                        style="background: #4285F4; color: #fff; width: 100%; border-radius: 50px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.75rem;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        GENERAR CRÓNICAS DE LÚMINA
+                    </button>
+                </div>
+            </div>
+
+            <!-- Diálogo Opciones Exportación (Oculto por defecto) -->
+            <div id="export-options-box" style="display: none; background: var(--card-bg); border: 1px solid var(--accent); padding: 20px; border-radius: 20px; margin-top: -150px; position: absolute; z-index: 10; left: 20px; right: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                <h4 style="margin: 0 0 15px 0; font-family:'Playfair Display', serif; font-style:italic;">Opciones del Libro</h4>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+                    <button class="btn-save" onclick="exportBitacoraDoc('continuo')" style="font-size: 0.7rem; background: rgba(181,131,58,0.1); color: var(--text); border: none;">Diario Continuo (Completo)</button>
+                    <button class="btn-save" onclick="exportBitacoraDoc('resumen')" style="font-size: 0.7rem; background: rgba(181,131,58,0.1); color: var(--text); border: none;">Resumen de Viaje</button>
+                    <button class="btn-save" onclick="document.getElementById('export-options-box').style.display='none'" style="font-size: 0.7rem; background: transparent; color: var(--text); border: 1px solid rgba(128,128,128,0.3); margin-top: 5px;">Cancelar</button>
                 </div>
             </div>
 
@@ -11477,9 +11845,9 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
             
             const lessonText = (lesson.contenido || lesson.content || '');
             document.getElementById('exp-read-text').innerHTML = lessonText.replace(/\n/g, '<br>');
-            document.getElementById('exp-read-app-prof').innerText = lesson.app_prof || lesson.professional_application || '---';
-            document.getElementById('exp-read-app-pers').innerText = lesson.app_pers || lesson.personal_application || '---';
-            document.getElementById('exp-read-refl').innerText = lesson.refl || lesson.reflection || '---';
+            document.getElementById('exp-read-app-prof').innerHTML = lesson.app_prof || lesson.professional_application || '---';
+            document.getElementById('exp-read-app-pers').innerHTML = lesson.app_pers || lesson.personal_application || '---';
+            document.getElementById('exp-read-refl').innerHTML = lesson.refl || lesson.reflection || '---';
         } else {
             throw new Error("No se pudo cargar la lección");
         }
@@ -11806,33 +12174,171 @@ function shareSenda(idx) {
     const s = sendas[idx];
     if (!s) return;
     
-    // Obtener contexto (situación) de la senda si existe
-    const situacion = s.contexto || s.situacion || 'Crecimiento personal';
-    const pct = s.duration > 0 ? Math.min(100, Math.round((s.currentDay / s.duration) * 100)) : 0;
-    const modeLabel = { EMERGENCY: 'Emergencia', SPRINT: 'Sprint', HABIT: 'Hábito', MASTERY: 'Maestría' }[s.mode] || s.mode;
-    
-    const shareText = `🌿 Lúmina: Mi Senda de Crecimiento\n\n` +
-                      `Ruta: ${s.title}\n` +
-                      `Propósito: ${situacion}\n` +
-                      `Enfoque: ${modeLabel}\n` +
-                      `Progreso: ${pct}% completado\n\n` +
-                      `*Forjado desde mi estado interior. ✨*`;
-                      
-    if (navigator.share) {
-        navigator.share({
-            title: 'Mi Senda en Lúmina',
-            text: shareText
-        }).catch(() => {});
+    // Preparar para la captura de imagen
+    window._lastSendaShared = s;
+    shareAsImage('senda');
+}
+
+function closeReentryModal() {
+    const modal = document.getElementById('reentry-modal');
+    if (modal) modal.style.display = 'none';
+    if (navigator.vibrate) navigator.vibrate(10);
+}
+
+// ===== INTEGRACIONES GOOGLE (CALENDAR & DOCS) =====
+
+function toggleIntegrationsModal() {
+    const modal = document.getElementById('integrations-modal');
+    if (modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        history.back();
     } else {
-        if (typeof copyToClipboard === 'function') {
-            copyToClipboard(shareText);
-            showToast("¡Resumen de senda copiado! 📤", "success");
-        } else {
-            navigator.clipboard.writeText(shareText).then(() => {
-                showToast("¡Resumen de senda copiado! 📤", "success");
-            });
-        }
+        // Primero cerramos cualquier otro modal (como el de Ajustes)
+        closeModals(true); 
+        
+        modal.classList.add('active');
+        history.pushState({ modal: 'integrations' }, '', '#integrations');
+        syncIntegrationsUI();
     }
+}
+
+function toggleIntegration(id) {
+    const btn = document.getElementById('toggle-' + id);
+    const isActive = btn.classList.toggle('active');
+    localStorage.setItem('lumina_' + id + '_active', isActive);
+    
+    if (navigator.vibrate) navigator.vibrate(isActive ? 15 : 8);
+    showToast(isActive ? 'Integración activa' : 'Integración pausada', 'success');
+
+    if (id === 'gcal' && isActive) checkCalendarGaps();
+    if (id === 'gdocs') syncIntegrationsUI(); 
+}
+
+function syncIntegrationsUI() {
+    const gcal = localStorage.getItem('lumina_gcal_active') === 'true';
+    const gdocs = localStorage.getItem('lumina_gdocs_active') === 'true';
+    
+    document.getElementById('toggle-gcal')?.classList.toggle('active', gcal);
+    document.getElementById('toggle-gdocs')?.classList.toggle('active', gdocs);
+
+    // Mostrar área de exportación en Bitácora si GDocs está activo
+    const expArea = document.getElementById('export-docs-area');
+    if (expArea) expArea.style.display = gdocs ? 'block' : 'none';
+}
+
+async function checkCalendarGaps() {
+    if (localStorage.getItem('lumina_gcal_active') !== 'true') return;
+    
+    console.log("Revisando agenda para detectar huecos...");
+    try {
+        const resp = await fetch(API + "?action=get_calendar_gaps");
+        const data = await resp.json();
+        
+        if (data.success && data.gaps && data.gaps.length > 0) {
+            // Buscamos el primer hueco que sea en el futuro cercano
+            const now = new Date();
+            const gap = data.gaps.find(g => new Date(g.start) > now);
+            
+            if (gap) {
+                const start = new Date(gap.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const msg = `Tienes un hueco de ${gap.duration} min a las ${start}. ¿Dedicamos un tiempo a la calma?`;
+                
+                // Inyectar en Novedades (Panel interno)
+                injectIntegrationNews("Agenda Lúmina", msg, "#pausa");
+            }
+        }
+    } catch(e) { console.error("Error GCal:", e); }
+}
+
+function injectIntegrationNews(tit, msg, link) {
+    // Recuperar notificaciones actuales de localStorage (las extras/locales)
+    let localNotifs = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
+    
+    // Evitar duplicados del mismo mensaje hoy
+    const id = "gcal_" + new Date().toDateString();
+    if (localNotifs.some(n => n.id === id)) return;
+
+    localNotifs.push({
+        id: id,
+        cat: 'profile',
+        tit: tit,
+        msg: msg,
+        link: link,
+        date: new Date().toISOString()
+    });
+
+    localStorage.setItem('lumina_local_notifs', JSON.stringify(localNotifs));
+    
+    // Actualizar badge y UI
+    checkNotifications();
+}
+
+function showExportOptions() {
+    document.getElementById('export-options-box').style.display = 'block';
+}
+
+async function exportBitacoraDoc(type) {
+    document.getElementById('export-options-box').style.display = 'none';
+    showToast('Generando tu Libro de Viaje...', 'info');
+    
+    const bitacora = localStorage.getItem('lumina_bitacora') || '[]';
+    const userName = localStorage.getItem('lumina_user_name') || 'Viajero';
+    
+    try {
+        const url = `${API}?action=export_bitacora_doc&name=${encodeURIComponent(userName)}&type=${type}&entries=${encodeURIComponent(bitacora)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        
+        if (data.success) {
+            showLuminaConfirm('¡Libro Generado!', `Tu libro "${data.name}" está listo en Google Docs.`, () => {
+                window.open(data.url, '_blank');
+            }, 'VER DOCUMENTO');
+        } else {
+            showToast('Error: ' + data.error, 'error');
+        }
+    } catch(e) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function showReentryModal() {
+    const modal = document.getElementById('reentry-modal');
+    if (!modal) return;
+    
+    const name = localStorage.getItem('lumina_user_name') || 'Viajero';
+    const firstLetter = (name.charAt(0) || '').toUpperCase();
+    const cleanName = firstLetter + name.slice(1).toLowerCase();
+    
+    const greetingEl = document.getElementById('reentry-greeting');
+    if (greetingEl) greetingEl.innerText = `Bienvenido de Nuevo, ${cleanName}`;
+    
+    // Frase aleatoria de re-entrada
+    const quotes = [
+        "\"La perseverancia es el trabajo duro que haces después de cansarte del trabajo duro que ya hiciste.\"",
+        "\"No importa lo despacio que vayas, siempre y cuando no te detengas.\"",
+        "\"La disciplina es el puente entre las metas y los logros.\"",
+        "\"Tu refugio mental te ha echado de menos. Retoma tu senda.\"",
+        "\"La constancia es la virtud por la cual todas las otras virtudes dan fruto.\""
+    ];
+    const quoteEl = document.getElementById('reentry-quote');
+    if (quoteEl) quoteEl.innerText = quotes[Math.floor(Math.random() * quotes.length)];
+    
+    modal.classList.add('active');
+    
+    // Confeti
+    if (typeof confetti === 'function') {
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#b5833a', '#f5f1e8', '#ffffff']
+        });
+    }
+}
+
+function closeReentryModal() {
+    const modal = document.getElementById('reentry-modal');
+    if (modal) modal.classList.remove('active');
 }
 
 document.addEventListener('DOMContentLoaded', () => {

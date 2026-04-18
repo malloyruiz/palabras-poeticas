@@ -1,6 +1,5 @@
-importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
+const CACHE_NAME = 'lumina-v15'; // v15: Native Local Push Notifications
 
-const CACHE_NAME = 'lumina-v14'; // v14: Branding update (PRO/LITE)
 const ASSETS = [
     "index.html",
     "manifest.json",
@@ -53,6 +52,12 @@ self.addEventListener('fetch', e => {
 });
 
 self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'UPDATE_ACTIVITY') {
+     const cachePromise = caches.open(CACHE_NAME).then(cache => {
+        return cache.put('last-activity-ts', new Response(Date.now().toString()));
+     });
+     event.waitUntil(cachePromise);
+  }
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
@@ -74,4 +79,56 @@ async function fetchDailyWisdom() {
         await cache.put('last-periodic-sync', new Response(JSON.stringify({date: new Date().toDateString(), data})));
      }
   } catch (e) { console.error("Periodic sync fetch failed", e); }
+
+  // --- NOTIFICACIÓN DE RETENCIÓN (TE ECHAMOS DE MENOS) ---
+  try {
+     const lastActivity = await cache.match('last-activity-ts');
+     if (lastActivity) {
+        const lastTs = parseInt(await lastActivity.text());
+        const diffDays = Math.round((Date.now() - lastTs) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 3) {
+           self.registration.showNotification('Lúmina: Te echamos de menos', {
+               body: 'Un momento de paz te espera para renovar tu energía. Tu senda continúa aquí.',
+               icon: 'icon-192.png',
+               badge: 'icon-192.png',
+               tag: 'retention'
+           });
+        }
+     }
+  } catch (e) { console.warn("Retention check failed", e); }
 }
+
+// Escuchar el clic sobre una notificación y abrir la PWA en la pestaña correcta
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close(); // Cierra la notificación
+
+    // Extraer la ruta base usando el "tag" que mandamos desde index.html (ej: "libros:abcxyz" -> "#libros")
+    const hashRoute = event.notification.tag ? '#' + event.notification.tag.split(':')[0] : '#hub';
+    const urlToOpen = new URL('/', self.location.origin).href + hashRoute;
+
+    const promiseChain = clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+    }).then((windowClients) => {
+        let matchingClient = null;
+
+        for (let i = 0; i < windowClients.length; i++) {
+            const windowClient = windowClients[i];
+            // Si la PWA ya está abierta en alguna ventana, la enfocamos y cambiamos el hash
+            if (windowClient.url.includes(self.location.origin)) {
+                matchingClient = windowClient;
+                break;
+            }
+        }
+
+        if (matchingClient) {
+            matchingClient.navigate(urlToOpen); // Fuerza a la app a rutear a la categoría correcta
+            return matchingClient.focus();
+        } else {
+            // Si la app está completamente cerrada, abrimos una nueva ventana/instancia
+            return clients.openWindow(urlToOpen);
+        }
+    });
+
+    event.waitUntil(promiseChain);
+});
