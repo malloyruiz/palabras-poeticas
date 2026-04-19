@@ -412,7 +412,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.3s ease;
             pointer-events: auto;
         }
 
@@ -1000,7 +1000,7 @@
             flex-shrink: 0;
             position: relative;
             box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-            animation: modalFadeIn 0.5s cubic-bezier(0.2, 0, 0, 1);
+            animation: modalFadeIn 0.3s cubic-bezier(0.2, 0, 0, 1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -2382,16 +2382,51 @@
         }
         .node-tag { color: var(--accent); font-weight: 800; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; font-family: 'Outfit', sans-serif; }
         .node-title { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; opacity: 0.8; }
+        .slider-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #fff;
+            color: var(--accent);
+            border: 1px solid rgba(181, 131, 58, 0.3);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(181, 131, 58, 0.2);
+            transition: 0.3s;
+        }
+        .slider-nav-btn:hover { background: var(--accent); color: #fff; transform: translateY(-50%) scale(1.1); }
+        .slider-nav-btn.left { left: 0px; }
+        .slider-nav-btn.right { right: 0px; }
+        @media (max-width: 899px) { .hide-on-mobile { display: none !important; } }
+
 
         /* Pricing */
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-top: 60px; }
+        .pricing-grid { 
+            display: flex; gap: 30px; margin-top: 60px; 
+            overflow-x: auto; scroll-snap-type: x mandatory;
+            padding: 10px 0px 40px; scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .pricing-grid::-webkit-scrollbar { display: none; }
+        .pricing-grid > * { flex: 0 0 85%; max-width: 380px; scroll-snap-align: center; }
+        @media (min-width: 900px) {
+            .pricing-grid { padding: 40px 20px 80px; }
+            .pricing-grid > * { flex: 0 0 320px; }
+        }
         .price-card { 
             background: #fff; border: 2px solid rgba(181, 131, 58, 0.1); 
-            padding: 70px 45px; border-radius: 35px;
+            padding: 50px 35px; border-radius: 35px;
             text-align: center; transition: 0.5s;
             box-shadow: 0 10px 40px rgba(0,0,0,0.02);
+            position: relative; /* Para el absolute del badge ahorro */
         }
-        .price-card.featured { border: 3px solid var(--accent); transform: scale(1.08); box-shadow: 0 40px 80px rgba(181, 131, 58, 0.15); z-index: 10; }
+        .price-card.featured { border: 3px solid var(--accent); transform: scale(1.05); box-shadow: 0 40px 80px rgba(181, 131, 58, 0.15); z-index: 10; }
         .p-name { color: var(--accent); font-weight: 800; letter-spacing: 4px; font-size: 0.75rem; margin-bottom: 20px; text-transform: uppercase; font-family: 'Outfit', sans-serif; }
         .p-price { font-family: 'Playfair Display', serif; font-size: 4rem; margin-bottom: 35px; font-weight: 900; }
         .p-features { list-style: none; padding: 0; margin-bottom: 45px; text-align: left; font-size: 1rem; }
@@ -2428,7 +2463,6 @@
 
         @media (max-width: 768px) {
             .landing-hero h1 { font-size: 2.8rem !important; }
-            .pricing-grid { grid-template-columns: 1fr !important; }
             .price-card.featured { transform: none !important; }
         }
 
@@ -3308,7 +3342,7 @@ body[data-cat="sendas"] #header-cat {
                     
                     // Carga de contenido secundario (Diario) si está disponible
                     if (typeof loadUserJournal === 'function') loadUserJournal();
-                }, 520);
+                }, 320);
             }
         }
 
@@ -3337,6 +3371,9 @@ body[data-cat="sendas"] #header-cat {
             }
             
             console.log("Lúmina: Sesión activa para", email);
+            
+            // Cargar datos dinámicos en silencio (para el modal 'Planes')
+            if (typeof fetchLandingData === 'function') fetchLandingData();
             // USUARIO AUTENTICADO: Transición Atómica
             document.body.classList.remove('is-guest');
             if (landing) {
@@ -3373,6 +3410,7 @@ body[data-cat="sendas"] #header-cat {
         let heroicSlides = [];
         let currentHeroSlide = 0;
         let heroTimer = null;
+        let luminaPlanes = []; // Nueva persistencia para planes dinámicos
 
         async function checkLandingInit() {
             await fetchLandingData();
@@ -3384,11 +3422,71 @@ body[data-cat="sendas"] #header-cat {
             try {
                 const resp = await fetch(`${API}?action=landing_data`);
                 const data = await resp.json();
-                if (data.success && data.hero && data.hero.length > 0) {
-                    heroicSlides = data.hero;
+                if (data.success) {
+                    if (data.hero && data.hero.length > 0) heroicSlides = data.hero;
+                    if (data.planes && data.planes.length > 0) {
+                        luminaPlanes = data.planes;
+                        renderLandingPlanes(); // Poblar landing
+                    }
                 }
             } catch (e) {
-                console.warn("Fallo al cargar slides dinámicos, usando fallback.", e);
+                console.warn("Fallo al cargar datos dinámicos del landing.", e);
+            }
+        }
+
+        function renderPlanes(containerId, isLanding = true) {
+            const container = document.getElementById(containerId);
+            if (!container || !luminaPlanes || !luminaPlanes.length) return;
+            
+            container.innerHTML = '';
+            
+            luminaPlanes.forEach(p => {
+                const isFeatured = p.featured;
+                const featuresHtml = p.detalles.map(d => `<li>${d}</li>`).join('');
+                const ctaAction = p.link ? `window.open('${p.link}', '_blank')` : `openAuth('signup')`;
+                
+                let cardHtml = '';
+                if (isLanding) {
+                    cardHtml = `
+                    <div class="price-card ${isFeatured ? 'featured' : ''}" style="position:relative;">
+                        ${p.ahorro ? `<div class="badge-ahorro" style="position:absolute; top:-12px; right:15px; background:var(--accent); color:#fff; font-size:0.6rem; font-weight:700; padding:4px 12px; border-radius:20px; box-shadow:0 4px 10px rgba(181,131,58,0.3); z-index:10;">${p.ahorro}</div>` : ''}
+                        <div class="p-name">${p.nombre.toUpperCase()}</div>
+                        <div class="p-price">${p.precio}${p.frecuencia ? `<small style="font-size: 0.8rem; opacity: 0.5;">${p.frecuencia}</small>` : ''}</div>
+                        ${p.subtitulo ? `<div style="font-size:0.75rem; opacity:0.6; margin-bottom:15px; font-weight:600; color:var(--accent);">${p.subtitulo}</div>` : ''}
+                        <ul class="p-features">
+                            ${featuresHtml}
+                        </ul>
+                        <button class="${isFeatured ? 'btn-cta-gold' : 'btn-portal-open'}" style="width: 100%; ${!isFeatured ? 'border-color: #ddd; color: #666;' : 'padding:15px;'}" onclick="${ctaAction}">${p.cta}</button>
+                    </div>`;
+                } else {
+                    const bgColor = isFeatured ? 'linear-gradient(135deg, rgba(181,131,58,0.15), rgba(181,131,58,0.05))' : 'rgba(128,128,128,0.04)';
+                    const borderColor = isFeatured ? 'var(--accent)' : 'rgba(128,128,128,0.12)';
+                    
+                    cardHtml = `
+                    <div style="background: ${bgColor}; border: ${isFeatured ? '1.5px' : '1px'} solid ${borderColor}; border-radius: 18px; padding: 18px 20px; margin-bottom: 12px; position: relative; ${isFeatured ? 'box-shadow: 0 8px 30px rgba(181,131,58,0.12);' : ''}">
+                        ${p.ahorro ? `<div style="position:absolute; top:-10px; right:16px; background:${isFeatured ? 'linear-gradient(90deg,#b5833a,#f0c060)' : 'var(--accent)'}; color:#fff; font-size:0.55rem; font-weight:700; letter-spacing:1.5px; padding: 3px 10px; border-radius: 20px;">${p.ahorro}</div>` : ''}
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                            <span style="font-weight: 700; font-size: 0.9rem; ${isFeatured ? 'color: var(--accent);' : ''}">${p.nombre}</span>
+                            <div style="text-align:right;">
+                                <div style="font-size: 1.1rem; font-weight: 700;">${p.precio}${p.frecuencia ? `<span style="font-size:0.65rem; opacity:0.5;">${p.frecuencia}</span>` : ''}</div>
+                                ${p.subtitulo ? `<div style="font-size:0.65rem; opacity:0.5;">${p.subtitulo}</div>` : ''}
+                            </div>
+                        </div>
+                        <p style="font-size: 0.75rem; opacity: 0.7; margin: 0 0 12px; line-height: 1.5;">${p.detalles.join('. ')}</p>
+                        <button class="${isFeatured ? 'btn-cta-gold' : 'btn-portal-open'}" style="width: 100%; border-radius:12px; font-size:0.75rem; padding:8px;" onclick="${ctaAction}">${p.cta}</button>
+                    </div>`;
+                }
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function renderLandingPlanes() { renderPlanes('pricing-grid-dynamic', true); }
+        function renderInfoPlanes() { renderPlanes('info-planes-dynamic', false); }
+        
+        function scrollPricing(dir) {
+            const grid = document.getElementById('pricing-grid-dynamic');
+            if(grid) {
+                grid.scrollBy({ left: dir * 350, behavior: 'smooth' });
             }
         }
 
@@ -4035,38 +4133,18 @@ body[data-cat="sendas"] #header-cat {
             <section class="landing-section">
                 <div class="section-tag">Membresía</div>
                 <h2>Elige tu camino</h2>
-                <div class="pricing-grid">
-                    <div class="price-card">
-                        <div class="p-name">GRATIS</div>
-                        <div class="p-price">$0</div>
-                        <ul class="p-features">
-                            <li>Palabra del Día</li>
-                            <li>Afirmación Diaria</li>
-                            <li>Frase Célebre</li>
-                        </ul>
-                        <button class="btn-portal-open" style="width: 100%; border-color: #ddd; color: #666;" onclick="openAuth('signup')">EMPEZAR GRATIS</button>
-                    </div>
-                    <div class="price-card featured">
-                        <div class="p-name">PRO MENSUAL</div>
-                        <div class="p-price">$2.99<small style="font-size: 0.8rem; opacity: 0.5;">/mes</small></div>
-                        <ul class="p-features">
-                            <li>Todo lo gratuito</li>
-                            <li>Acceso a todos los Libros</li>
-                            <li>5 Refrescos diarios de contenido</li>
-                            <li>Voz Premium Ilimitada</li>
-                        </ul>
-                        <button class="btn-cta-gold" style="width: 100%; padding: 15px;" onclick="openAuth('signup')">PROBAR 14 DÍAS</button>
-                    </div>
-                    <div class="price-card">
-                        <div class="p-name">PRO VITALICIO</div>
-                        <div class="p-price">$49.99</div>
-                        <ul class="p-features">
-                            <li>Todo lo de Pro Mensual</li>
-                            <li>Todas las Expansiones actuales</li>
-                            <li>Futuros lanzamientos incluidos</li>
-                            <li>Un solo pago para siempre</li>
-                        </ul>
-                        <button class="btn-portal-open" style="width: 100%;" onclick="openAuth('signup')">ADQUIRIR DE POR VIDA</button>
+                
+                <div style="position: relative; max-width: 1100px; margin: 0 auto;">
+                    <button class="slider-nav-btn left hide-on-mobile" onclick="scrollPricing(-1)" aria-label="Anterior">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <button class="slider-nav-btn right hide-on-mobile" onclick="scrollPricing(1)" aria-label="Siguiente">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                    
+                    <div class="pricing-grid" id="pricing-grid-dynamic">
+                        <!-- Los planes se generarán dinámicamente aquí (renderLandingPlanes) -->
+                        <div style="padding: 40px; text-align: center; opacity: 0.5; grid-column: 1 / -1;">Cargando membresías...</div>
                     </div>
                 </div>
 
@@ -4254,7 +4332,7 @@ body[data-cat="sendas"] #header-cat {
                     <h3>Mis Sendas <small class="pro-locked" style="position: relative; top: auto; right: auto; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; margin-left: 12px; vertical-align: middle; border: 1px solid rgba(181, 131, 58, 0.3); border-radius: 20px; padding: 2px 10px; color: var(--accent); font-weight: 400; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px;">Pro <svg viewBox="0 0 24 24" style="width: 10px; height: 10px; stroke: var(--accent); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></small></h3>
                     <p class="hub-desc">Rutas personalizadas basadas en tu estado emocional de hoy.</p>
                 </div>
-                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+                                <svg class="item-icon" viewBox="0 0 100 100" style="fill: var(--accent); stroke: none; transition: 0.5s;"><path d="M21 32C9.459 32 0 41.43 0 52.94c0 4.46 1.424 8.605 3.835 12.012l14.603 25.244c2.045 2.672 3.405 2.165 5.106-.14l16.106-27.41c.325-.59.58-1.216.803-1.856A20.668 20.668 0 0 0 42 52.94C42 41.43 32.544 32 21 32zm0 9.812c6.216 0 11.16 4.931 11.16 11.129c0 6.198-4.944 11.127-11.16 11.127c-6.215 0-11.16-4.93-11.16-11.127c0-6.198 4.945-11.129 11.16-11.129z"></path><path d="M87.75 0C81.018 0 75.5 5.501 75.5 12.216c0 2.601.83 5.019 2.237 7.006l8.519 14.726c1.193 1.558 1.986 1.262 2.978-.082l9.395-15.99c.19-.343.339-.708.468-1.082a12.05 12.05 0 0 0 .903-4.578C100 5.5 94.484 0 87.75 0zm0 5.724c3.626 0 6.51 2.876 6.51 6.492c0 3.615-2.884 6.49-6.51 6.49c-3.625 0-6.51-2.875-6.51-6.49c0-3.616 2.885-6.492 6.51-6.492z"></path><path d="M88.209 37.412c-2.247.05-4.5.145-6.757.312l.348 5.532a126.32 126.32 0 0 1 6.513-.303zm-11.975.82c-3.47.431-6.97 1.045-10.43 2.032l1.303 5.361c3.144-.896 6.402-1.475 9.711-1.886zM60.623 42.12a24.52 24.52 0 0 0-3.004 1.583l-.004.005l-.006.002c-1.375.866-2.824 1.965-4.007 3.562c-.857 1.157-1.558 2.62-1.722 4.35l5.095.565c.038-.406.246-.942.62-1.446h.002v-.002c.603-.816 1.507-1.557 2.582-2.235l.004-.002a19.64 19.64 0 0 1 2.388-1.256zM58 54.655l-3.303 4.235c.783.716 1.604 1.266 2.397 1.726l.01.005l.01.006c2.632 1.497 5.346 2.342 7.862 3.144l1.446-5.318c-2.515-.802-4.886-1.576-6.918-2.73c-.582-.338-1.092-.691-1.504-1.068zm13.335 5.294l-1.412 5.327l.668.208l.82.262c2.714.883 5.314 1.826 7.638 3.131l2.358-4.92c-2.81-1.579-5.727-2.611-8.538-3.525l-.008-.002l-.842-.269zm14.867 7.7l-3.623 3.92c.856.927 1.497 2.042 1.809 3.194l.002.006l.002.009c.372 1.345.373 2.927.082 4.525l5.024 1.072c.41-2.256.476-4.733-.198-7.178c-.587-2.162-1.707-4.04-3.098-5.548zM82.72 82.643a11.84 11.84 0 0 1-1.826 1.572h-.002c-1.8 1.266-3.888 2.22-6.106 3.04l1.654 5.244c2.426-.897 4.917-1.997 7.245-3.635l.006-.005l.003-.002a16.95 16.95 0 0 0 2.639-2.287zm-12.64 6.089c-3.213.864-6.497 1.522-9.821 2.08l.784 5.479c3.421-.575 6.856-1.262 10.27-2.18zm-14.822 2.836c-3.346.457-6.71.83-10.084 1.148l.442 5.522c3.426-.322 6.858-.701 10.285-1.17zm-15.155 1.583c-3.381.268-6.77.486-10.162.67l.256 5.536c3.425-.185 6.853-.406 10.28-.678zm-15.259.92c-2.033.095-4.071.173-6.114.245l.168 5.541a560.1 560.1 0 0 0 6.166-.246z" fill-rule="evenodd"></path></svg>
             </div>
 
             <!-- 06 Expansiones -->
@@ -4264,10 +4342,32 @@ body[data-cat="sendas"] #header-cat {
                     <h3>Expansiones <small class="pro-locked" style="position: relative; top: auto; right: auto; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; margin-left: 12px; vertical-align: middle; border: 1px solid rgba(181, 131, 58, 0.3); border-radius: 20px; padding: 2px 10px; color: var(--accent); font-weight: 400; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px;">Pro <svg viewBox="0 0 24 24" style="width: 10px; height: 10px; stroke: var(--accent); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></small></h3>
                     <p class="hub-desc">Series temáticas y libros independientes desbloqueables.</p>
                 </div>
-                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2l-3.5 2v4l3.5 2 3.5-2v-4L12 2z"></path>
-                    <path d="M7.5 10l-3.5 2v4l3.5 2 3.5-2v-4l-3.5-2z"></path>
-                    <path d="M16.5 10l-3.5 2v4l3.5 2 3.5-2v-4l-3.5-2z"></path>
+                <svg class="item-icon" viewBox="0 0 35 32" style="fill: var(--accent); stroke: none; transition: 0.5s;">
+                    <path d="M20.042,3.907C20.042,1.962,18.483,0,15,0c-3.067,0-5.129,1.57-5.129,3.907
+		c0,1.364,0.552,1.986,0.917,2.398c0.193,0.217,0.271,0.315,0.271,0.413c0,0.162,0,0.26-0.558,0.282H4.403C2.058,7,0,8.869,0,11
+		v3.732c0.038,0.944,0.571,1.531,1.392,1.531c0.467,0,0.813-0.267,1.149-0.526C2.991,15.392,3.5,15,4.5,15C6.196,15,8,16.402,8,19
+		c0,2.629-1.828,4.462-3.469,4.462c-0.99,0-1.508-0.429-1.966-0.807c-0.343-0.284-0.697-0.578-1.174-0.578
+		c-0.82,0-1.354,0.587-1.392,1.551v4.102C0,29.965,2.099,32,4.403,32l6.129,0c0.928-0.038,1.527-0.585,1.527-1.396
+		c0-0.487-0.277-0.8-0.522-1.076c-0.328-0.369-0.666-0.75-0.666-1.734c0-1.766,1.604-2.907,4.085-2.907
+		c2.482,0,4.086,1.141,4.086,2.907c0,0.984-0.339,1.365-0.666,1.734c-0.245,0.276-0.523,0.589-0.523,1.076
+		c0,0.822,0.585,1.356,1.548,1.395L23.342,32c2.152,0,3.656-1.677,3.656-4.078v-4.65c0.026-0.122,0.334-0.588,0.804-0.588
+		c0.096,0,0.193,0.079,0.409,0.271c0.41,0.367,1.031,0.922,2.393,0.922C32.788,23.876,35,22.202,35,19c0-3.454-2.009-5-4-5
+		c-1.344,0-2.12,0.614-2.634,1.02c-0.228,0.18-0.442,0.35-0.564,0.35c-0.471,0-0.779-0.468-0.802-0.571
+		c-0.001-0.008-0.001-0.016-0.002-0.024v-3.583C26.998,8.763,25.46,7,23.342,7h-3.921c-0.013-0.001-0.026-0.002-0.04-0.003
+		c-0.528-0.02-0.528-0.117-0.528-0.279c0-0.098,0.078-0.195,0.271-0.413C19.489,5.894,20.042,5.271,20.042,3.907z M18.376,5.642
+		c-0.245,0.276-0.523,0.59-0.523,1.077c0,0.55,0.251,1.212,1.471,1.277C19.347,7.999,19.37,8,19.394,8h3.948
+		C25.086,8,26,9.606,26,11.192v3.633c0,0.036-0.007,0.071,0,0.105c0.092,0.611,0.842,1.439,1.802,1.439
+		c0.47,0,0.816-0.274,1.185-0.565C29.463,15.427,30.004,15,31,15c1.822,0,3,1.57,3,4c0,2.664-1.761,3.876-3.396,3.876
+		c-0.979,0-1.359-0.339-1.727-0.667c-0.276-0.246-0.589-0.525-1.075-0.525c-0.96,0-1.711,0.829-1.802,1.44
+		c-0.007,0.034,0,0.069,0,0.105v4.694C26,29.454,25.177,31,23.342,31h-3.921c-0.568-0.023-0.568-0.285-0.568-0.396
+		c0-0.097,0.078-0.195,0.271-0.413c0.365-0.412,0.918-1.034,0.918-2.398c0-1.945-1.572-3.907-5.086-3.907
+		c-3.041,0-5.085,1.57-5.085,3.907c0,1.364,0.552,1.986,0.918,2.398c0.192,0.217,0.271,0.315,0.271,0.413
+		c0,0.112,0,0.374-0.548,0.396H4.403C2.686,31,1,29.38,1,27.73v-4.082c0.022-0.571,0.281-0.571,0.392-0.571
+		c0.116,0,0.32,0.169,0.537,0.348c0.498,0.413,1.253,1.037,2.603,1.037C6.689,24.462,9,22.267,9,19c0-3.248-2.318-5-4.5-5
+		c-1.34,0-2.079,0.568-2.568,0.945c-0.222,0.171-0.414,0.318-0.54,0.318c-0.11,0-0.369,0-0.392-0.551V11c0-1.768,1.794-3,3.403-3
+		h6.115c0.016,0,0.031-0.001,0.047-0.002v0c1.235-0.046,1.494-0.722,1.494-1.28c0-0.487-0.277-0.8-0.522-1.076
+		c-0.328-0.369-0.666-0.75-0.666-1.735C10.871,2.168,12.53,1,15,1c2.455,0,4.042,1.141,4.042,2.907
+		C19.042,4.891,18.703,5.273,18.376,5.642z"></path>
                 </svg>
             </div>
             
@@ -5382,34 +5482,50 @@ body[data-cat="sendas"] #header-cat {
 
             try {
                 const email = localStorage.getItem('lumina_user_email') || "";
-                const respList = await fetch(`${API}?action=exp_list&email=${encodeURIComponent(email)}`);
-                const allExpansions = await respList.json();
-                const exp = allExpansions.find(e => e.id === id);
+                const userType = localStorage.getItem('lumina_pro_type') || 'FREE';
+                
+                // Re-obtenemos la lista para asegurar estado de desbloqueo actualizado (ej. tras canje reciente)
+                const respList = await fetch(`${API}?action=exp_list&email=${encodeURIComponent(email)}&userType=${userType}`);
+                const listData = await respList.json();
+                
+                // Actualizamos el caché global si la respuesta es válida
+                if (Array.isArray(listData)) {
+                    allExpansions = listData;
+                }
+
+                const exp = Array.isArray(allExpansions) ? allExpansions.find(e => e.id === id) : null;
                 
                 if (!exp || !exp.libros || exp.libros.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; opacity:0.4; padding: 40px; grid-column: 1 / -1;">No hay libros definidos.</div>';
+                    container.innerHTML = '<div style="text-align:center; opacity:0.4; padding: 40px; grid-column: 1 / -1;">No hay libros definidos o no tienes acceso.</div>';
                     return;
                 }
 
+                // Cargar todo el contenido de la expansión para extraer metadatos de los libros
                 const respContent = await fetch(`${API}?action=exp_content&expId=${id}`);
                 const allContent = await respContent.json();
                 
                 container.innerHTML = exp.libros.map(bookName => {
-                    const meta = Array.isArray(allContent) ? allContent.find(c => c.book.trim().toLowerCase() === bookName.trim().toLowerCase()) : null;
-                    const totalLessons = Array.isArray(allContent) ? allContent.filter(c => c.book.trim().toLowerCase() === bookName.trim().toLowerCase()).length : 0;
+                    const bNameTrim = String(bookName || "").trim();
+                    if (!bNameTrim) return '';
+
+                    const bNameLower = bNameTrim.toLowerCase();
+                    const isArrayContent = Array.isArray(allContent);
+                    
+                    const meta = isArrayContent ? allContent.find(c => String(c.book || "").trim().toLowerCase() === bNameLower) : null;
+                    const totalLessons = isArrayContent ? allContent.filter(c => String(c.book || "").trim().toLowerCase() === bNameLower).length : 0;
                     
                     // Cálculo de progreso
-                    const savedProg = parseInt(localStorage.getItem(`lumina_exp_prog_${id}_${bookName.trim()}`)) || 0;
+                    const savedProg = parseInt(localStorage.getItem(`lumina_exp_prog_${id}_${bNameTrim}`)) || 0;
                     const progressPercent = totalLessons > 0 ? Math.round(((savedProg + 1) / totalLessons) * 100) : 0;
                     const progressLabel = totalLessons > 0 ? `LECCIÓN ${savedProg + 1} DE ${totalLessons}` : 'SIN CONTENIDO';
 
                     return `
-                        <div class="exp-card" onclick="openBook('${id}', \`${bookName.trim()}\`)">
+                        <div class="exp-card" onclick="openBook('${id}', \`${bNameTrim}\`)">
                             <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
                             
                             <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 100%;">
                                 <span style="font-size: 0.6rem; color: var(--accent); letter-spacing: 2px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; opacity: 0.6;">${(meta && meta.autor) ? meta.autor : 'LÚMINA'}</span>
-                                <h4 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.2;">${bookName.trim()}</h4>
+                                <h4 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.2;">${bNameTrim}</h4>
                                 <p style="opacity: 0.4; font-size: 0.8rem; line-height: 1.5; max-width: 90%; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${(meta && meta.descripcion) ? meta.descripcion : 'Continuar con el viaje de conocimiento.'}</p>
                             </div>
 
@@ -5427,7 +5543,8 @@ body[data-cat="sendas"] #header-cat {
                 }).join('');
 
             } catch (e) {
-                container.innerHTML = '<div style="text-align:center; opacity:0.4; padding: 40px; grid-column: 1 / -1;">Error al conectar con la sabiduría.</div>';
+                console.error("Error en openExpansion:", e);
+                container.innerHTML = '<div style="text-align:center; opacity:0.4; padding: 40px; grid-column: 1 / -1;">Error al conectar con la sabiduría. Verifica tu conexión.</div>';
             }
         }
 
@@ -5453,6 +5570,11 @@ body[data-cat="sendas"] #header-cat {
                 const resp = await fetch(`${API}?action=exp_content&expId=${expId}&book=${encodeURIComponent(bookName)}`);
                 currentExpLessons = await resp.json();
                 
+                if (currentExpLessons && currentExpLessons.error) {
+                    showToast(currentExpLessons.error, "error");
+                    return;
+                }
+
                 if (Array.isArray(currentExpLessons) && currentExpLessons.length > 0) {
                     // Recuperar progreso guardado (último índice)
                     const savedIdx = parseInt(localStorage.getItem(`lumina_exp_prog_${expId}_${bookName}`)) || 0;
@@ -5481,35 +5603,64 @@ body[data-cat="sendas"] #header-cat {
         function renderExpansionContent() {
             const lesson = currentExpLessons[currentExpIdx];
             if (!lesson) return;
+            window.currentLessonData = { ...lesson, cat: 'expansiones', book: currentExpBook };
             
             // Fecha Actual en formato Lúmina
             const now = new Date();
             const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
-            document.getElementById('exp-read-date').innerText = dateStr;
+            
+            const elMetaTop = document.getElementById('exp-read-meta-top');
+            if (elMetaTop) {
+                elMetaTop.innerText = dateStr;
+                elMetaTop.style.opacity = '0.6';
+            }
 
             // Meta: LIBRO — AUTOR
             const metaStr = `${currentExpBook.toUpperCase()} ${lesson.autor ? ' &mdash; ' + lesson.autor.toUpperCase() : ''}`;
-            document.getElementById('exp-read-meta').innerHTML = metaStr;
+            const elMetaBottom = document.getElementById('exp-read-meta-bottom');
+            if (elMetaBottom) elMetaBottom.innerHTML = metaStr;
 
-            document.getElementById('exp-read-title').innerText = lesson.titulo;
-            document.getElementById('exp-read-text').innerHTML = lesson.contenido.replace(/\n/g, '<br>');
+            const elTitle = document.getElementById('exp-read-title');
+            if (elTitle) elTitle.innerText = lesson.titulo || '---';
+
+            const elText = document.getElementById('exp-read-text');
+            if (elText) elText.innerHTML = (lesson.contenido || '').replace(/\n/g, '<br>');
             
-            document.getElementById('exp-read-app-prof').innerText = lesson.app_prof;
-            document.getElementById('exp-read-app-pers').innerText = lesson.app_pers;
+            const elProf = document.getElementById('exp-read-app-prof');
+            if (elProf) elProf.innerText = lesson.app_prof || '---';
+
+            const elPers = document.getElementById('exp-read-app-pers');
+            if (elPers) elPers.innerText = lesson.app_pers || '---';
             
-            document.getElementById('exp-read-refl').innerText = lesson.refl;
-            document.getElementById('exp-read-progress').innerText = `LECCIÓN ${currentExpIdx + 1} DE ${currentExpLessons.length}`;
+            const elRefl = document.getElementById('exp-read-refl');
+            if (elRefl) elRefl.innerText = lesson.refl || '---';
+
+            const elProgress = document.getElementById('exp-read-progress');
+            if (elProgress) elProgress.innerText = `LECCIÓN ${currentExpIdx + 1} DE ${currentExpLessons.length}`;
             
-            // Guardar Progreso Automáticamente
-            localStorage.setItem(`lumina_exp_prog_${currentExpId}_${currentExpBook}`, currentExpIdx);
+            // Guardar Progreso Automáticamente SOLO si estamos en modo Expansión
+            if (history.state && history.state.modal === 'exp_read') {
+                localStorage.setItem(`lumina_exp_prog_${currentExpId}_${currentExpBook}`, currentExpIdx);
+            }
             
-            // Reset de nav buttons
+            // Reset de nav buttons y liberación de navegación para libros
             const prevBtn = document.getElementById('btn-exp-prev');
             const nextBtn = document.getElementById('btn-exp-next');
-            if (prevBtn) prevBtn.style.display = 'flex';
-            if (nextBtn) nextBtn.style.display = 'flex';
+            const completeBtn = document.getElementById('btn-senda-complete');
             
-            updateExpFavUI();
+            if (prevBtn) {
+                prevBtn.style.display = 'flex';
+                prevBtn.disabled = (currentExpIdx === 0);
+                prevBtn.onclick = (e) => { e.stopPropagation(); expPrev(); };
+            }
+            if (nextBtn) {
+                nextBtn.style.display = 'flex';
+                nextBtn.disabled = (currentExpIdx === currentExpLessons.length - 1);
+                nextBtn.onclick = (e) => { e.stopPropagation(); expNext(); };
+            }
+            if (completeBtn) completeBtn.style.display = 'none';
+            
+            updateFavoriteIcon();
             loadExpJournal();
             document.querySelector('#exp-read-ui .modal-content').scrollTo(0, 0);
             
@@ -5519,25 +5670,6 @@ body[data-cat="sendas"] #header-cat {
             }
         }
 
-        function toggleFavoriteExp() {
-            const lesson = currentExpLessons[currentExpIdx];
-            if(!lesson) return;
-            const key = `lumina_exp_fav_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
-            const isFav = localStorage.getItem(key) === 'true';
-            localStorage.setItem(key, !isFav);
-            updateExpFavUI();
-            playSound('click');
-        }
-
-        function updateExpFavUI() {
-            const lesson = currentExpLessons[currentExpIdx];
-            if(!lesson) return;
-            const key = `lumina_exp_fav_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
-            const isFav = localStorage.getItem(key) === 'true';
-            const btn = document.getElementById('btn-fav-exp');
-            if (isFav) btn.classList.add('active');
-            else btn.classList.remove('active');
-        }
 
         let expJournalDebounce;
         function saveExpJournal() {
@@ -5589,13 +5721,13 @@ body[data-cat="sendas"] #header-cat {
         }
 
         async function speakExpContent() {
-            const lesson = currentExpLessons[currentExpIdx];
+            const lesson = window.currentLessonData;
             if (!lesson) return;
             
-            let textToSpeak = `${lesson.titulo}. ${lesson.contenido}. `;
-            if (lesson.app_prof) textToSpeak += `Aplicación profesional: ${lesson.app_prof}. `;
-            if (lesson.app_pers) textToSpeak += `Aplicación personal: ${lesson.app_pers}. `;
-            if (lesson.refl) textToSpeak += `Reflexión del día: ${lesson.refl}. `;
+            let textToSpeak = `${lesson.titulo || lesson.title}. ${lesson.contenido || lesson.content}. `;
+            if (lesson.app_prof || lesson.professional_application) textToSpeak += `Aplicación profesional: ${lesson.app_prof || lesson.professional_application}. `;
+            if (lesson.app_pers || lesson.personal_application) textToSpeak += `Aplicación personal: ${lesson.app_pers || lesson.personal_application}. `;
+            if (lesson.refl || lesson.reflection) textToSpeak += `Reflexión del día: ${lesson.refl || lesson.reflection}. `;
             
             textToSpeak += "Contenido original de Lúmina.";
             speakText(textToSpeak);
@@ -7669,12 +7801,31 @@ if (id === 'content-header' || id === 'side-panel') {
 
         function toggleFavorite() {
             const favs = getFavorites();
-            const id = (currentCategory === 'libros' ? 
-                       document.getElementById('lesson-title').innerText : 
-                       document.getElementById('word-title').innerText).trim();
-            const subtitle = (currentCategory === 'libros' ? 
+            let id, subtitle, cat;
+
+            // Detectar si estamos en el lector compartido (Sendas/Expansiones)
+            const expUI = document.getElementById('exp-read-ui');
+            if (expUI && expUI.classList.contains('active') && window.currentLessonData) {
+                const lesson = window.currentLessonData;
+                id = (lesson.titulo || lesson.title || "Lección").trim();
+                cat = lesson.cat || 'extra';
+                // Si es una senda, usar el nombre de la senda como subtítulo
+                if (cat === 'sendas') {
+                    subtitle = (lesson.sendaTitle || "Senda Activa").toUpperCase();
+                } else {
+                    subtitle = (lesson.book || "Expansión").toUpperCase();
+                }
+            } else {
+                // Lógica original para categorías estándar
+                const titleEl = (currentCategory === 'libros' || currentCategory === 'palabras') ? 
+                               document.getElementById(currentCategory === 'libros' ? 'lesson-title' : 'word-title') : null;
+                if (!titleEl) return;
+                id = titleEl.innerText.trim();
+                subtitle = (currentCategory === 'libros' ? 
                              document.getElementById('lesson-cat-label').innerText : 
                              document.getElementById('word-def').innerText).trim();
+                cat = currentCategory;
+            }
             
             const index = favs.findIndex(f => f.id === id);
             
@@ -7687,7 +7838,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 favs.push({
                     id: id,
                     subtitle: subtitle,
-                    cat: currentCategory,
+                    cat: cat,
                     timestamp: Date.now()
                 });
                 showToast("Guardado en favoritos", "success");
@@ -7703,12 +7854,23 @@ if (id === 'content-header' || id === 'side-panel') {
 
         function updateFavoriteIcon() {
             const favs = getFavorites();
-            const id = (currentCategory === 'libros' ? 
-                       document.getElementById('lesson-title').innerText : 
-                       document.getElementById('word-title').innerText).trim();
+            let id = "";
+
+            const expUI = document.getElementById('exp-read-ui');
+            if (expUI && expUI.classList.contains('active') && window.currentLessonData) {
+                id = (window.currentLessonData.titulo || window.currentLessonData.title || "").trim();
+            } else {
+                const titleEl = (currentCategory === 'libros' || currentCategory === 'palabras' || currentCategory === 'frases' || currentCategory === 'afirmaciones') ? 
+                               document.getElementById(currentCategory === 'libros' ? 'lesson-title' : 'word-title') : null;
+                if (titleEl) id = titleEl.innerText.trim();
+            }
             
-            const isFav = favs.some(f => f.id === id);
-            const btns = [document.getElementById('btn-fav-main'), document.getElementById('btn-fav-lesson')];
+            const isFav = id ? favs.some(f => f.id === id) : false;
+            const btns = [
+                document.getElementById('btn-fav-main'), 
+                document.getElementById('btn-fav-lesson'),
+                document.getElementById('btn-fav-exp')
+            ];
             
             btns.forEach(btn => {
                 if (btn) {
@@ -8046,6 +8208,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 btnPlanes?.classList.add('active');
                 if (tabPlanes) tabPlanes.style.display = 'block';
                 if (entendidoBtn) entendidoBtn.style.display = 'none'; // El tab tiene su propio CTA
+                renderInfoPlanes();
             }
         }
 
@@ -8354,11 +8517,24 @@ if (id === 'content-header' || id === 'side-panel') {
                     profile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
                     pro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg>',
                     trial: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg>',
-                    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>'
+                    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+                    anuncios: '<svg viewBox="0 0 28 28" fill="currentColor" stroke="none"><path d="M21.6185 10.2153C22.6769 9.15692 22.6769 7.44086 21.6185 6.38243C20.5601 5.32399 18.844 5.32399 17.7856 6.38243C16.7271 7.44086 16.7271 9.15692 17.7856 10.2153C18.844 11.2738 20.5601 11.2738 21.6185 10.2153ZM20.4897 7.51122C20.9247 7.94623 20.9247 8.65154 20.4897 9.08656C20.0547 9.52158 19.3494 9.52158 18.9144 9.08656C18.4793 8.65154 18.4793 7.94623 18.9144 7.51122C19.3494 7.0762 20.0547 7.0762 20.4897 7.51122Z" fill="currentColor" fill-rule="evenodd"/><path d="M1.58445 13.9772C0.805182 14.7564 0.805185 16.0199 1.58445 16.7991L11.2009 26.4155C11.9801 27.1948 13.2436 27.1948 14.0228 26.4155L26.4156 14.0228C26.7898 13.6486 27 13.1411 27 12.6119V2.99543C27 1.89339 26.1066 1 25.0046 1H15.3881C14.8589 1 14.3514 1.21023 13.9772 1.58445L1.58445 13.9772ZM13.319 24.2975C12.9284 24.688 12.2953 24.688 11.9047 24.2975L3.70254 16.0952C3.31202 15.7047 3.31202 15.0716 3.70254 14.681L15.0952 3.28833C15.2828 3.10079 15.5371 2.99543 15.8024 2.99543H24.0046C24.5568 2.99543 25.0046 3.44315 25.0046 3.99543V12.1976C25.0046 12.4629 24.8992 12.7172 24.7117 12.9047L13.319 24.2975Z" fill="currentColor" fill-rule="evenodd"/></svg>',
+                    senda7: '<svg viewBox="0 0 100 100" fill="currentColor"><path d="M21 32C9.459 32 0 41.43 0 52.94c0 4.46 1.424 8.605 3.835 12.012l14.603 25.244c2.045 2.672 3.405 2.165 5.106-.14l16.106-27.41c.325-.59.58-1.216.803-1.856A20.668 20.668 0 0 0 42 52.94C42 41.43 32.544 32 21 32zm0 9.812c6.216 0 11.16 4.931 11.16 11.129c0 6.198-4.944 11.127-11.16 11.127c-6.215 0-11.16-4.93-11.16-11.127c0-6.198 4.945-11.129 11.16-11.129z"></path><path d="M87.75 0C81.018 0 75.5 5.501 75.5 12.216c0 2.601.83 5.019 2.237 7.006l8.519 14.726c1.193 1.558 1.986 1.262 2.978-.082l9.395-15.99c.19-.343.339-.708.468-1.082a12.05 12.05 0 0 0 .903-4.578C100 5.5 94.484 0 87.75 0zm0 5.724c3.626 0 6.51 2.876 6.51 6.492c0 3.615-2.884 6.49-6.51 6.49c-3.625 0-6.51-2.875-6.51-6.49c0-3.616 2.885-6.492 6.51-6.492z"></path><path d="M88.209 37.412c-2.247.05-4.5.145-6.757.312l.348 5.532a126.32 126.32 0 0 1 6.513-.303zm-11.975.82c-3.47.431-6.97 1.045-10.43 2.032l1.303 5.361c3.144-.896 6.402-1.475 9.711-1.886zM60.623 42.12a24.52 24.52 0 0 0-3.004 1.583l-.004.005l-.006.002c-1.375.866-2.824 1.965-4.007 3.562c-.857 1.157-1.558 2.62-1.722 4.35l5.095.565c.038-.406.246-.942.62-1.446h.002v-.002c.603-.816 1.507-1.557 2.582-2.235l.004-.002a19.64 19.64 0 0 1 2.388-1.256zM58 54.655l-3.303 4.235c.783.716 1.604 1.266 2.397 1.726l.01.005l.01.006c2.632 1.497 5.346 2.342 7.862 3.144l1.446-5.318c-2.515-.802-4.886-1.576-6.918-2.73c-.582-.338-1.092-.691-1.504-1.068zm13.335 5.294l-1.412 5.327l.668.208l.82.262c2.714.883 5.314 1.826 7.638 3.131l2.358-4.92c-2.81-1.579-5.727-2.611-8.538-3.525l-.008-.002l-.842-.269zm14.867 7.7l-3.623 3.92c.856.927 1.497 2.042 1.809 3.194l.002.006l.002.009c.372 1.345.373 2.927.082 4.525l5.024 1.072c.41-2.256.476-4.733-.198-7.178c-.587-2.162-1.707-4.04-3.098-5.548zM82.72 82.643a11.84 11.84 0 0 1-1.826 1.572h-.002c-1.8 1.266-3.888 2.22-6.106 3.04l1.654 5.244c2.426-.897 4.917-1.997 7.245-3.635l.006-.005l.003-.002a16.95 16.95 0 0 0 2.639-2.287zm-12.64 6.089c-3.213.864-6.497 1.522-9.821 2.08l.784 5.479c3.421-.575 6.856-1.262 10.27-2.18zm-14.822 2.836c-3.346.457-6.71.83-10.084 1.148l.442 5.522c3.426-.322 6.858-.701 10.285-1.17zm-15.155 1.583c-3.381.268-6.77.486-10.162.67l.256 5.536c3.425-.185 6.853-.406 10.28-.678zm-15.259.92c-2.033.095-4.071.173-6.114.245l.168 5.541a560.1 560.1 0 0 0 6.166-.246z" fill-rule="evenodd"></path></svg>',
+                    senda21: '<svg viewBox="0 0 100 100" fill="currentColor"><path d="M21 32C9.459 32 0 41.43 0 52.94c0 4.46 1.424 8.605 3.835 12.012l14.603 25.244c2.045 2.672 3.405 2.165 5.106-.14l16.106-27.41c.325-.59.58-1.216.803-1.856A20.668 20.668 0 0 0 42 52.94C42 41.43 32.544 32 21 32zm0 9.812c6.216 0 11.16 4.931 11.16 11.129c0 6.198-4.944 11.127-11.16 11.127c-6.215 0-11.16-4.93-11.16-11.127c0-6.198 4.945-11.129 11.16-11.129z"></path><path d="M87.75 0C81.018 0 75.5 5.501 75.5 12.216c0 2.601.83 5.019 2.237 7.006l8.519 14.726c1.193 1.558 1.986 1.262 2.978-.082l9.395-15.99c.19-.343.339-.708.468-1.082a12.05 12.05 0 0 0 .903-4.578C100 5.5 94.484 0 87.75 0zm0 5.724c3.626 0 6.51 2.876 6.51 6.492c0 3.615-2.884 6.49-6.51 6.49c-3.625 0-6.51-2.875-6.51-6.49c0-3.616 2.885-6.492 6.51-6.492z"></path><path d="M88.209 37.412c-2.247.05-4.5.145-6.757.312l.348 5.532a126.32 126.32 0 0 1 6.513-.303zm-11.975.82c-3.47.431-6.97 1.045-10.43 2.032l1.303 5.361c3.144-.896 6.402-1.475 9.711-1.886zM60.623 42.12a24.52 24.52 0 0 0-3.004 1.583l-.004.005l-.006.002c-1.375.866-2.824 1.965-4.007 3.562c-.857 1.157-1.558 2.62-1.722 4.35l5.095.565c.038-.406.246-.942.62-1.446h.002v-.002c.603-.816 1.507-1.557 2.582-2.235l.004-.002a19.64 19.64 0 0 1 2.388-1.256zM58 54.655l-3.303 4.235c.783.716 1.604 1.266 2.397 1.726l.01.005l.01.006c2.632 1.497 5.346 2.342 7.862 3.144l1.446-5.318c-2.515-.802-4.886-1.576-6.918-2.73c-.582-.338-1.092-.691-1.504-1.068zm13.335 5.294l-1.412 5.327l.668.208l.82.262c2.714.883 5.314 1.826 7.638 3.131l2.358-4.92c-2.81-1.579-5.727-2.611-8.538-3.525l-.008-.002l-.842-.269zm14.867 7.7l-3.623 3.92c.856.927 1.497 2.042 1.809 3.194l.002.006l.002.009c.372 1.345.373 2.927.082 4.525l5.024 1.072c.41-2.256.476-4.733-.198-7.178c-.587-2.162-1.707-4.04-3.098-5.548zM82.72 82.643a11.84 11.84 0 0 1-1.826 1.572h-.002c-1.8 1.266-3.888 2.22-6.106 3.04l1.654 5.244c2.426-.897 4.917-1.997 7.245-3.635l.006-.005l.003-.002a16.95 16.95 0 0 0 2.639-2.287zm-12.64 6.089c-3.213.864-6.497 1.522-9.821 2.08l.784 5.479c3.421-.575 6.856-1.262 10.27-2.18zm-14.822 2.836c-3.346.457-6.71.83-10.084 1.148l.442 5.522c3.426-.322 6.858-.701 10.285-1.17zm-15.155 1.583c-3.381.268-6.77.486-10.162.67l.256 5.536c3.425-.185 6.853-.406 10.28-.678zm-15.259.92c-2.033.095-4.071.173-6.114.245l.168 5.541a560.1 560.1 0 0 0 6.166-.246z" fill-rule="evenodd"></path></svg>',
+                    senda30: '<svg viewBox="0 0 100 100" fill="currentColor"><path d="M21 32C9.459 32 0 41.43 0 52.94c0 4.46 1.424 8.605 3.835 12.012l14.603 25.244c2.045 2.672 3.405 2.165 5.106-.14l16.106-27.41c.325-.59.58-1.216.803-1.856A20.668 20.668 0 0 0 42 52.94C42 41.43 32.544 32 21 32zm0 9.812c6.216 0 11.16 4.931 11.16 11.129c0 6.198-4.944 11.127-11.16 11.127c-6.215 0-11.16-4.93-11.16-11.127c0-6.198 4.945-11.129 11.16-11.129z"></path><path d="M87.75 0C81.018 0 75.5 5.501 75.5 12.216c0 2.601.83 5.019 2.237 7.006l8.519 14.726c1.193 1.558 1.986 1.262 2.978-.082l9.395-15.99c.19-.343.339-.708.468-1.082a12.05 12.05 0 0 0 .903-4.578C100 5.5 94.484 0 87.75 0zm0 5.724c3.626 0 6.51 2.876 6.51 6.492c0 3.615-2.884 6.49-6.51 6.49c-3.625 0-6.51-2.875-6.51-6.49c0-3.616 2.885-6.492 6.51-6.492z"></path><path d="M88.209 37.412c-2.247.05-4.5.145-6.757.312l.348 5.532a126.32 126.32 0 0 1 6.513-.303zm-11.975.82c-3.47.431-6.97 1.045-10.43 2.032l1.303 5.361c3.144-.896 6.402-1.475 9.711-1.886zM60.623 42.12a24.52 24.52 0 0 0-3.004 1.583l-.004.005l-.006.002c-1.375.866-2.824 1.965-4.007 3.562c-.857 1.157-1.558 2.62-1.722 4.35l5.095.565c.038-.406.246-.942.62-1.446h.002v-.002c.603-.816 1.507-1.557 2.582-2.235l.004-.002a19.64 19.64 0 0 1 2.388-1.256zM58 54.655l-3.303 4.235c.783.716 1.604 1.266 2.397 1.726l.01.005l.01.006c2.632 1.497 5.346 2.342 7.862 3.144l1.446-5.318c-2.515-.802-4.886-1.576-6.918-2.73c-.582-.338-1.092-.691-1.504-1.068zm13.335 5.294l-1.412 5.327l.668.208l.82.262c2.714.883 5.314 1.826 7.638 3.131l2.358-4.92c-2.81-1.579-5.727-2.611-8.538-3.525l-.008-.002l-.842-.269zm14.867 7.7l-3.623 3.92c.856.927 1.497 2.042 1.809 3.194l.002.006l.002.009c.372 1.345.373 2.927.082 4.525l5.024 1.072c.41-2.256.476-4.733-.198-7.178c-.587-2.162-1.707-4.04-3.098-5.548zM82.72 82.643a11.84 11.84 0 0 1-1.826 1.572h-.002c-1.8 1.266-3.888 2.22-6.106 3.04l1.654 5.244c2.426-.897 4.917-1.997 7.245-3.635l.006-.005l.003-.002a16.95 16.95 0 0 0 2.639-2.287zm-12.64 6.089c-3.213.864-6.497 1.522-9.821 2.08l.784 5.479c3.421-.575 6.856-1.262 10.27-2.18zm-14.822 2.836c-3.346.457-6.71.83-10.084 1.148l.442 5.522c3.426-.322 6.858-.701 10.285-1.17zm-15.155 1.583c-3.381.268-6.77.486-10.162.67l.256 5.536c3.425-.185 6.853-.406 10.28-.678zm-15.259.92c-2.033.095-4.071.173-6.114.245l.168 5.541a560.1 560.1 0 0 0 6.166-.246z" fill-rule="evenodd"></path></svg>',
                 };
 
-                const iconHtml = `<div class="notif-icon-circle" style="width: 35px; height: 35px; background: rgba(181, 131, 58, 0.1); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                    <div style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2;">${icons[cat] || icons.info}</div>
+                const colors = {
+                    senda7: '#38bdf8',
+                    senda21: '#10b981',
+                    senda30: '#f59e0b'
+                };
+                const iconColor = colors[cat.toLowerCase()] || 'var(--accent)';
+                const iconBg = colors[cat.toLowerCase()] ? `${colors[cat.toLowerCase()]}20` : 'rgba(181, 131, 58, 0.1)';
+
+                const isSenda = cat.toLowerCase().startsWith('senda');
+                const iconHtml = `<div class="notif-icon-circle" style="width: 35px; height: 35px; background: ${iconBg}; color: ${iconColor}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                    <div style="width: 18px; height: 18px; ${isSenda ? '' : 'stroke: currentColor; fill: none; stroke-width: 2;'}">${icons[cat.toLowerCase()] || icons.info}</div>
                 </div>`;
 
                 item.innerHTML = `
@@ -8409,7 +8585,9 @@ if (id === 'content-header' || id === 'side-panel') {
                         if (target.includes(':')) catName = target.split(':')[0];
                         
                         const validCats = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra'];
-                        if (validCats.includes(catName)) {
+                        if (target.startsWith('senda')) {
+                            openCategory('sendas', false, true);
+                        } else if (validCats.includes(catName)) {
                             openCategory(catName, catName === 'libros', true, target);
                         } else if (!link) {
                             // Si no hay nada claro, abrir la campana de nuevo por seguridad
@@ -8439,12 +8617,19 @@ if (id === 'content-header' || id === 'side-panel') {
                 const trialUsed = localStorage.getItem('lumina_trial_used') === 'true';
 
                 const cb = Date.now();
+                const fetchPost = async (params) => {
+                    const fd = new URLSearchParams();
+                    Object.keys(params).forEach(k => fd.append(k, params[k]));
+                    const res = await fetch(API, { method: 'POST', body: fd });
+                    return res.json().catch(() => null);
+                };
+
                 const endpoints = [
-                    fetch(`${API}?action=notifs&userType=${uType}&trialDay=${tDayNum}&trialUsed=${trialUsed}&email=${encodeURIComponent(userEmail)}&_cb=${cb}`).then(r => r.json()).catch(() => []),
-                    fetch(`${API}?cat=palabras&userType=${uType}&email=${encodeURIComponent(userEmail)}&_cb=${cb}`).then(r => r.json()).catch(() => null),
-                    fetch(`${API}?cat=afirmaciones&userType=${uType}&email=${encodeURIComponent(userEmail)}&_cb=${cb}`).then(r => r.json()).catch(() => null),
-                    fetch(`${API}?cat=frases&userType=${uType}&email=${encodeURIComponent(userEmail)}&_cb=${cb}`).then(r => r.json()).catch(() => null),
-                    fetch(`${API}?cat=libros&userType=${uType}&email=${encodeURIComponent(userEmail)}&_cb=${cb}`).then(r => r.json()).catch(() => null)
+                    fetchPost({ action: 'notifs', userType: uType, trialDay: tDayNum, trialUsed: trialUsed, email: userEmail, _cb: cb }).then(r => r || []),
+                    fetchPost({ cat: 'palabras', userType: uType, email: userEmail, _cb: cb }),
+                    fetchPost({ cat: 'afirmaciones', userType: uType, email: userEmail, _cb: cb }),
+                    fetchPost({ cat: 'frases', userType: uType, email: userEmail, _cb: cb }),
+                    fetchPost({ cat: 'libros', userType: uType, email: userEmail, _cb: cb })
                 ];
 
                 const [extras, palabraData, afirmData, fraseData, libroData] = await Promise.all(endpoints);
@@ -8455,7 +8640,11 @@ if (id === 'content-header' || id === 'side-panel') {
                 if (libroData) setCache('libros', libroData);
                 
                 if (Array.isArray(extras)) {
-                    extras.forEach(n => addNotif(n.cat || 'extra', n.titulo || 'Aviso', n.mensaje || '', n.link, true, n.imagen || ''));
+                    extras.forEach(n => {
+                        const lowCat = (n.cat || 'extra').toLowerCase();
+                        if (lowCat.startsWith('senda') && localStorage.getItem('lumina_sub_sendas') === 'false') return;
+                        addNotif(lowCat, n.titulo || 'Aviso', n.mensaje || '', n.link, true, n.imagen || '');
+                    });
                 }
 
                 if (hasAnySub) {
@@ -8733,7 +8922,7 @@ if (id === 'content-header' || id === 'side-panel') {
         async function updateSubscriptionUI() {
             try {
                 // Sincronizar UI con localStorage como base (funciona sin OneSignal)
-                ['palabras', 'afirmaciones', 'frases', 'libros'].forEach(cat => {
+                ['palabras', 'afirmaciones', 'frases', 'libros', 'sendas'].forEach(cat => {
                     const btn = document.getElementById(`sub-${cat}`);
                     if (!btn) return;
                     const isSub = localStorage.getItem(`lumina_sub_${cat}`) !== 'false';
@@ -9005,8 +9194,14 @@ if (id === 'content-header' || id === 'side-panel') {
             
             if (cat === 'libros' || cat === 'exp') {
                 const isExp = (cat === 'exp');
-                const lesson = isExp ? (typeof currentExpLessons !== 'undefined' ? currentExpLessons[currentExpIdx] : null) : getCache('libros');
-                const bookName = isExp ? (typeof currentExpBook !== 'undefined' ? currentExpBook : "Libro") : (lesson?.libro || "Su sabiduría");
+                const lesson = isExp ? (window.currentLessonData || (typeof currentExpLessons !== 'undefined' ? currentExpLessons[currentExpIdx] : null)) : getCache('libros');
+                
+                let bookName = "Sabiduría";
+                if (isExp) {
+                    bookName = (lesson && lesson.cat === 'sendas') ? (lesson.sendaTitle || "Mi Senda") : (lesson?.book || (typeof currentExpBook !== 'undefined' ? currentExpBook : "Libro"));
+                } else {
+                    bookName = (lesson?.libro || "Su sabiduría");
+                }
                 return `Me estoy sumergiendo en 📚 ${bookName} en Lúmina. ¡Acompáñame en este viaje de sabiduría! 👇 ${url}`;
             }
             
@@ -9135,19 +9330,27 @@ if (id === 'content-header' || id === 'side-panel') {
                 footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'libros' || cat === 'exp') {
                 const isExp = cat === 'exp';
-                const lesson = isExp ? currentExpLessons[currentExpIdx] : getCache('libros');
+                const lesson = isExp ? (window.currentLessonData || (typeof currentExpLessons !== 'undefined' ? currentExpLessons[currentExpIdx] : null)) : getCache('libros');
                 
-                // 1. Título de la Lección como protagonista
-                titleEl.textContent = lesson?.titulo || (isExp ? "Lección" : "Lectura");
+                titleEl.textContent = lesson?.titulo || lesson?.title || (isExp ? "Lección" : "Lectura");
                 
-                // 2. Indicador de Progreso (Lección X de Y)
-                const current = isExp ? (currentExpIdx + 1) : (lesson?.dia || 1);
-                const total = isExp ? currentExpLessons.length : (lesson?.total || 1);
-                bodyEl.innerHTML = `<div style="font-size:0.7rem; letter-spacing:2px; font-weight:700; color:#b5833a; text-transform:uppercase; margin-top:10px;">Lección ${current} de ${total}</div>`;
+                let current = 1, total = 0;
+                if (isExp) {
+                    current = (window.currentSendaLessonIdx !== undefined && lesson?.cat === 'sendas') ? (window.currentSendaLessonIdx + 1) : (currentExpIdx + 1);
+                    total = (lesson?.cat === 'sendas') ? 0 : (typeof currentExpLessons !== 'undefined' ? currentExpLessons.length : 0);
+                } else {
+                    current = lesson?.dia || 1;
+                    total = lesson?.total || 0;
+                }
                 
-                // 3. Identidad del Libro y Autor
-                const bookName = isExp ? currentExpBook : (lesson?.libro || "Lúmina");
-                const author = lesson?.autor || (isExp ? "Lúmina" : "Lúmina"); 
+                const progText = (total === 0) ? `PASO ${current}` : `LECCIÓN ${current} DE ${total}`;
+                bodyEl.innerHTML = `<div style="font-size:0.7rem; letter-spacing:2px; font-weight:700; color:#b5833a; text-transform:uppercase; margin-top:10px;">${progText}</div>`;
+                
+                let bookName = (lesson?.libro || "Lúmina");
+                if (isExp) {
+                    bookName = (lesson?.cat === 'sendas') ? (lesson.sendaTitle || "Mi Senda") : (lesson?.book || (typeof currentExpBook !== 'undefined' ? currentExpBook : "Lúmina"));
+                }
+                const author = lesson?.autor || lesson?.author || "Lúmina"; 
                 const extraList = document.getElementById('cap-extra-list');
                 
                 if (extraList) {
@@ -10286,16 +10489,18 @@ if (id === 'content-header' || id === 'side-panel') {
 
             <div id="exp-read-content">
                 <div class="content-header" style="margin-bottom: 50px; padding-left: 0;">
-                    <div class="date-full" id="exp-read-meta-path" style="color: var(--accent); font-weight: 700; letter-spacing: 2px; font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px;">---</div>
-                    <div id="exp-read-meta-author" style="letter-spacing: 2px; font-weight: 500; opacity: 0.6; font-size: 0.85rem; margin-bottom: 10px; font-family: 'Playfair Display', serif; font-style: italic;">---</div>
+                    <div class="date-full" id="exp-read-meta-top" style="color: var(--accent); font-weight: 700; letter-spacing: 2px; font-size: 0.65rem; text-transform: uppercase; margin-bottom: 8px;">---</div>
+                    <div id="exp-read-meta-bottom" style="letter-spacing: 2px; font-weight: 500; opacity: 0.6; font-size: 0.85rem; margin-bottom: 10px; font-family: 'Playfair Display', serif; font-style: italic;">---</div>
                     
                     <h1 class="word-display" id="exp-read-title" style="margin: 5px 0 10px; font-style: italic; font-weight: 900; line-height: 1.1; font-size: clamp(2.5rem, 8vw, 4.5rem);">---</h1>
+                    
+                    <div id="exp-read-progress" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase; margin-top: 10px;">---</div>
                     
                     <div class="content-actions">
                         <button class="btn-speak" id="btn-speak-exp" onclick="speakExpContent()" title="Escuchar">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                         </button>
-                        <button class="btn-fav" id="btn-fav-exp" onclick="toggleFavoriteExp()" title="Favorito">
+                        <button class="btn-fav" id="btn-fav-exp" onclick="toggleFavorite()" title="Favorito">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                         </button>
                         <button class="btn-fav" id="btn-share-exp" onclick="shareAsImage('exp')" title="Compartir sabiduría">
@@ -10862,55 +11067,8 @@ if (id === 'content-header' || id === 'side-panel') {
                     <h2 style="font-family:'Playfair Display', serif; margin: 20px 0 6px; font-style: italic; font-size: 2rem;">Planes</h2>
                     <p style="font-size: 0.8rem; opacity: 0.5; margin-bottom: 24px; letter-spacing: 0.5px;">Invierte en tu mente. Sin contratos forzados.</p>
 
-                    <!-- Gratis -->
-                    <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-                            <span style="font-weight: 700; font-size: 0.9rem;">Gratis</span>
-                            <span style="font-size: 1.1rem; font-weight: 700;">$0</span>
-                        </div>
-                        <p style="font-size: 0.75rem; opacity: 0.6; margin: 0; line-height: 1.5;">Palabra, frase y afirmación diaria. Monitor de hábitos, diario y herramientas de bienestar.</p>
-                    </div>
-
-                    <!-- PRO Mensual -->
-                    <div style="background: rgba(181,131,58,0.06); border: 1px solid rgba(181,131,58,0.2); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-                            <span style="font-weight: 700; font-size: 0.9rem; color: var(--accent);">PRO Mensual</span>
-                            <span style="font-size: 1.1rem; font-weight: 700;">$9.99<span style="font-size:0.65rem; opacity:0.5;">/mes</span></span>
-                        </div>
-                        <p style="font-size: 0.75rem; opacity: 0.7; margin: 0; line-height: 1.5;">Lecciones diarias completas, regeneración (5x) y personalización total.</p>
-                    </div>
-
-                    <!-- PRO Trimestral -->
-                    <div style="background: rgba(181,131,58,0.06); border: 1px solid rgba(181,131,58,0.2); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px; position: relative;">
-                        <div style="position:absolute; top:-10px; right:16px; background:var(--accent); color:#fff; font-size:0.55rem; font-weight:700; letter-spacing:1.5px; padding: 3px 10px; border-radius: 20px;">AHORRA 16%</div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-                            <span style="font-weight: 700; font-size: 0.9rem; color: var(--accent);">PRO Trimestral</span>
-                            <span style="font-size: 1.1rem; font-weight: 700;">$24.99<span style="font-size:0.65rem; opacity:0.5;">/3m</span></span>
-                        </div>
-                        <p style="font-size: 0.75rem; opacity: 0.7; margin: 0; line-height: 1.5;">Todo lo de PRO. Pago único cada 3 meses. Ideal para consolidar el hábito.</p>
-                    </div>
-
-                    <!-- PRO Anual - DESTACADO -->
-                    <div style="background: linear-gradient(135deg, rgba(181,131,58,0.15), rgba(181,131,58,0.05)); border: 1.5px solid var(--accent); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px; position: relative; box-shadow: 0 8px 30px rgba(181,131,58,0.12);">
-                        <div style="position:absolute; top:-10px; right:16px; background: linear-gradient(90deg,#b5833a,#f0c060); color:#fff; font-size:0.55rem; font-weight:700; letter-spacing:1.5px; padding: 3px 10px; border-radius: 20px;">MEJOR VALOR — AHORRA 33%</div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-                            <span style="font-weight: 700; font-size: 0.9rem; color: var(--accent);">PRO Anual</span>
-                            <div style="text-align:right;">
-                                <div style="font-size: 1.1rem; font-weight: 700;">$79.99<span style="font-size:0.65rem; opacity:0.5;">/año</span></div>
-                                <div style="font-size:0.65rem; opacity:0.5;">~$6.66/mes</div>
-                            </div>
-                        </div>
-                        <p style="font-size: 0.75rem; opacity: 0.7; margin: 0; line-height: 1.5;">Todo lo de PRO. El mejor valor por mes. Para el disciplinado que busca cambio a largo plazo.</p>
-                    </div>
-
-                    <!-- Vitalicia -->
-                    <div style="background: linear-gradient(135deg, rgba(30,20,10,0.06), rgba(181,131,58,0.08)); border: 1px solid rgba(181,131,58,0.3); border-radius: 18px; padding: 18px 20px; margin-bottom: 12px; position: relative;">
-                        <div style="position:absolute; top:-9px; left:16px; font-size:0.6rem; opacity:0.7; letter-spacing:1px; font-style:italic; background: var(--modal-bg-solid); padding: 0 6px;">Estándar de Oro ★</div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-                            <span style="font-weight: 700; font-size: 0.9rem;">PRO Vitalicia</span>
-                            <span style="font-size: 1.1rem; font-weight: 700;">$119.00</span>
-                        </div>
-                        <p style="font-size: 0.75rem; opacity: 0.7; margin: 0; line-height: 1.5;">Todo el contenido actual y futuro para siempre. Libros y expansiones incluidas.</p>
+                    <div id="info-planes-dynamic">
+                        <div style="padding: 20px; text-align: center; opacity: 0.5;">Cargando planes...</div>
                     </div>
 
                     <!-- Separador -->
@@ -11130,6 +11288,10 @@ if (id === 'content-header' || id === 'side-panel') {
                 <div class="sub-option" onclick="toggleTag('libros')" style="cursor:pointer;">
                     <span>Lecciones del Club</span>
                     <div class="toggle-sub" id="sub-libros"></div>
+                </div>
+                <div class="sub-option" onclick="toggleTag('sendas')" style="cursor:pointer;">
+                    <span>Notificaciones de Senda</span>
+                    <div class="toggle-sub" id="sub-sendas"></div>
                 </div>
                 
                 <!-- SECCIÓN: DISTRIBUCIÓN -->
@@ -11484,7 +11646,7 @@ const CONTEXT_MAP = {
 
 const ROUTE_MODES = [
     { key:'EMERGENCY', label:'Kit de Emergencia',  desc:'5 lecciones. Para hoy mismo.',      days:5,  icon:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' },
-    { key:'SPRINT',    label:'Sprint de Enfoque',   desc:'7 días de práctica sostenida.',     days:7,  icon:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>' },
+    { key:'SPRINT',    label:'Sprint de Enfoque',   desc:'7 días de práctica sostenida.',     days:7,  icon:'<path d="M21 32C9.459 32 0 41.43 0 52.94c0 4.46 1.424 8.605 3.835 12.012l14.603 25.244c2.045 2.672 3.405 2.165 5.106-.14l16.106-27.41c.325-.59.58-1.216.803-1.856A20.668 20.668 0 0 0 42 52.94C42 41.43 32.544 32 21 32zm0 9.812c6.216 0 11.16 4.931 11.16 11.129c0 6.198-4.944 11.127-11.16 11.127c-6.215 0-11.16-4.93-11.16-11.127c0-6.198 4.945-11.129 11.16-11.129z" fill="currentColor"></path>' },
     { key:'HABIT',     label:'Reto de Hábito',      desc:'21 días para forjar el cambio.',    days:21, icon:'<polyline points="23 4 23 10 17 10"/><path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>'},
     { key:'MASTERY',   label:'Maestría Total',       desc:'30 días hacia el dominio pleno.',   days:30, icon:'<path d="M12 2l-3.5 2v4l3.5 2 3.5-2v-4L12 2z"/><path d="M7.5 10l-3.5 2v4l3.5 2 3.5-2v-4l-3.5-2z"/><path d="M16.5 10l-3.5 2v4l3.5 2 3.5-2v-4l-3.5-2z"/>'}  
 ];
@@ -11801,13 +11963,13 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
     document.getElementById('exp-read-text').innerHTML = '<div class="spinner" style="margin:20px auto"></div>';
     
     // UI Cleanup: Mostrar metadata inmediatamente
-    const pathEl = document.getElementById('exp-read-meta-path');
-    if (pathEl) {
-        pathEl.style.opacity = '1';
-        pathEl.innerHTML = `PASO ${lessonIdx + 1} &mdash; ${senda.title.toUpperCase()}`;
+    const metaTop = document.getElementById('exp-read-meta-top');
+    if (metaTop) {
+        metaTop.style.opacity = '1';
+        metaTop.innerHTML = `PASO ${lessonIdx + 1} &mdash; ${senda.title.toUpperCase()}`;
     }
-    const authorEl = document.getElementById('exp-read-meta-author');
-    if (authorEl) authorEl.innerHTML = '---';
+    const metaBottom = document.getElementById('exp-read-meta-bottom');
+    if (metaBottom) metaBottom.innerHTML = '---';
 
     container.classList.add('active');
     history.pushState({ modal: 'senda_read', sendaIdx, lessonIdx }, '', '#senda_read');
@@ -11837,18 +11999,20 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
             // Sincronizar título final
             const finalTitle = lesson.titulo || lesson.title || meta.title;
             document.getElementById('exp-read-title').innerText = finalTitle;
+            window.currentLessonData = { ...lesson, cat: 'sendas', sendaTitle: senda.title };
+            updateFavoriteIcon();
 
             // Enriquecer metadata con Paso, Senda, Categoría, Libro y Autor
-            const pathEl = document.getElementById('exp-read-meta-path');
-            if (pathEl) {
+            const metaTop = document.getElementById('exp-read-meta-top');
+            if (metaTop) {
                 const catStr = (lesson.categoria || lesson.category || '').toUpperCase();
-                pathEl.innerHTML = `PASO ${lessonIdx + 1} &mdash; ${senda.title.toUpperCase()}${catStr ? ': ' + catStr : ''}`;
+                metaTop.innerHTML = `PASO ${lessonIdx + 1} &mdash; ${senda.title.toUpperCase()}${catStr ? ': ' + catStr : ''}`;
             }
-            const authorEl = document.getElementById('exp-read-meta-author');
-            if (authorEl) {
+            const metaBottom = document.getElementById('exp-read-meta-bottom');
+            if (metaBottom) {
                 const autorStr = lesson.autor || lesson.author || 'Anónimo';
                 const libroStr = lesson.book || lesson.libro || 'Obra Desconocida';
-                authorEl.innerHTML = `${libroStr} &mdash; ${autorStr}`;
+                metaBottom.innerHTML = `${libroStr} &mdash; ${autorStr}`;
             }
             
             const lessonText = (lesson.contenido || lesson.content || '');
@@ -12073,7 +12237,7 @@ function renderMisSendas() {
     if (!sendas.length) {
         container.innerHTML = `
             <div class="sendas-empty-state" style="grid-column: 1 / -1;">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+                                <svg viewBox="0 0 100 100" fill="currentColor"><path d="M21 32C9.459 32 0 41.43 0 52.94c0 4.46 1.424 8.605 3.835 12.012l14.603 25.244c2.045 2.672 3.405 2.165 5.106-.14l16.106-27.41c.325-.59.58-1.216.803-1.856A20.668 20.668 0 0 0 42 52.94C42 41.43 32.544 32 21 32zm0 9.812c6.216 0 11.16 4.931 11.16 11.129c0 6.198-4.944 11.127-11.16 11.127c-6.215 0-11.16-4.93-11.16-11.127c0-6.198 4.945-11.129 11.16-11.129z"></path></svg>
                 <p>Aún no tienes sendas activas.<br>Forja tu primera ruta personalizada.</p>
             </div>`;
         return;
