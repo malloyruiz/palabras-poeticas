@@ -429,19 +429,19 @@
         }
 
         #loader-text {
-            margin-top: 25px;
-            font-family: var(--font-heading);
-            font-style: italic;
-            font-size: 1.1rem;
+            margin-top: 20px;
+            font-family: var(--font-body);
+            font-size: 1rem;
             opacity: 0;
             text-align: center;
             max-width: 80%;
             line-height: 1.6;
             color: var(--text);
             transition: opacity 0.5s ease;
-            text-transform: none; /* Asegurar Mayúsculas/Minúsculas */
+            text-transform: none;
+            font-weight: 400;
         }
-        #loader-text.visible { opacity: 0.8; }
+        #loader-text.visible { opacity: 0.6; }
         #offline-banner {
             position: fixed;
             bottom: 20px;
@@ -1084,6 +1084,7 @@
         .auth-link:hover { opacity: 1; border-color: var(--accent); color: var(--accent); }
         
         @keyframes modalFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes tropheoBounce { 0% { transform: scale(0) rotate(-15deg); opacity: 0; } 60% { transform: scale(1.2) rotate(5deg); opacity: 1; } 80% { transform: scale(0.9) rotate(-3deg); } 100% { transform: scale(1) rotate(0deg); } }
 
         .spinner { width: 40px; height: 40px; border: 3px solid rgba(128,128,128,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -2832,20 +2833,7 @@
             margin-bottom: 20px;
             font-family: var(--font-body);
         }
-        #loader-text {
-            position: absolute;
-            bottom: 60px;
-            text-align: center;
-            width: 100%;
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--accent, #b5833a);
-            opacity: 0; 
-            transition: opacity 0.8s ease-in-out;
-            font-weight: 600;
-            z-index: 10;
-        }
+
         .t-action {
             font-size: 0.65rem;
             letter-spacing: 2px;
@@ -3194,6 +3182,80 @@ body[data-cat="sendas"] #header-cat {
     .lesson-body { font-size: 1.1rem !important; line-height: 1.8 !important; margin-bottom: 40px !important; }
     .app-box, .reflection-box { padding: 30px 20px !important; }
 }
+        /* --- ESTILOS MODAL PROGRAMACIÓN CALENDARIO --- */
+        #schedule-modal .gap-info-card {
+            background: rgba(181, 131, 58, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 1px solid rgba(181, 131, 58, 0.1);
+        }
+        #schedule-modal .gap-time-label {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            font-style: italic;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+        }
+        #schedule-modal .schedule-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        #schedule-modal label {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.5;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: block;
+        }
+        #schedule-modal input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(128,128,128,0.2);
+            background: rgba(0,0,0,0.02);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        /* GOOGLE LOGIN BUTTON */
+        .btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            margin-top: 15px;
+            padding: 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(128,128,128,0.2);
+            background: #fff;
+            color: #000;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: var(--font-body);
+        }
+        .btn-google:hover {
+            background: #f8f8f8;
+            border-color: rgba(128,128,128,0.4);
+            transform: translateY(-2px);
+        }
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+        }
+
     </style>
 </head>
 <body class="is-guest">
@@ -3256,6 +3318,11 @@ body[data-cat="sendas"] #header-cat {
             </div>
 
             <button id="btn-portal-submit" class="btn-save" onclick="handlePortalAction()" style="width: 100%; margin-top: 20px; background: #000; color: #fff; border:none; border-radius:50px; padding:18px; font-weight:700; cursor:pointer;">ENTRAR</button>
+            
+            <button id="btn-google-login" class="btn-google" onclick="loginWithGoogle()">
+                <img src="https://lh3.googleusercontent.com/COxitUjzInFE9nB9STq7Wsq-9vAn-pD7fWkvY0V_t_6-8uXp8Vw5C_8-HIdoT1tS9Y-m9A" alt="Google">
+                CONTINUAR CON GOOGLE
+            </button>
 
             <div id="portal-links" style="margin-top: 35px; display: flex; justify-content: center; gap: 15px; align-items: center;">
                 <a id="link-signup" class="auth-link" onclick="setPortalMode('signup')" style="color:#666; font-size:0.8rem; cursor:pointer;">Crear Cuenta</a>
@@ -3708,6 +3775,7 @@ body[data-cat="sendas"] #header-cat {
             }
         }
 
+
         async function handlePortalAction() {
             const btn = document.getElementById('btn-portal-submit');
             const error = document.getElementById('login-error');
@@ -3784,6 +3852,45 @@ body[data-cat="sendas"] #header-cat {
             btn.disabled = false;
             setPortalMode(portalMode);
         }
+
+        function loginWithGoogle() {
+            const width = 500, height = 600;
+            const left = (window.innerWidth / 2) - (width / 2);
+            const top = (window.innerHeight / 2) - (height / 2);
+            const popup = window.open(`${API}?action=google_login_verify`, 'google_login', `width=${width},height=${height},top=${top},left=${left}`);
+            
+            if (!popup) {
+                showToast("Por favor, permite las ventanas emergentes para entrar con Google.", "error");
+            }
+        }
+
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.action === 'google_login_success') {
+                const { email, token } = event.data;
+                const formData = new URLSearchParams();
+                formData.append('action', 'user_login');
+                formData.append('method', 'google');
+                formData.append('email', email);
+                formData.append('googleToken', token);
+                
+                showLoader("Iniciando sesión con Google...");
+                fetch(API, { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    hideLoader();
+                    if (data.success) {
+                        saveIdentity(email, data.name, '', []);
+                        if (data.newUser) {
+                            showToast(`¡Bienvenido ${data.name}!`, "success");
+                        }
+                        location.reload();
+                    } else {
+                        showToast(data.error, "error");
+                    }
+                })
+                .catch(e => { hideLoader(); showToast("Error de conexión con Google.", "error"); });
+            }
+        });
 
         function finalizeAccess(res, email) {
             localStorage.setItem('lumina_user_email', email);
@@ -4525,9 +4632,9 @@ body[data-cat="sendas"] #header-cat {
                         <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6;">Elige el ancla que necesitas en este momento para volver al presente.</p>
                     </div>
 
-                    <div class="pausa-tabs" style="display: flex; gap: 15px; margin-bottom: 40px; border-bottom: 1px solid rgba(181, 131, 58, 0.1); padding-bottom: 15px;">
-                        <button class="tab-btn active" id="tab-med-pausa" onclick="renderPausaList('meditacion')" style="background: none; border: none; color: var(--text); font-size: 0.75rem; letter-spacing: 2px; font-weight: 700; cursor: pointer; opacity: 0.4; transition: 0.3s; padding: 10px 20px; border-radius: 50px;">MEDITACIÓN</button>
-                        <button class="tab-btn" id="tab-resp-pausa" onclick="renderPausaList('respiracion')" style="background: none; border: none; color: var(--text); font-size: 0.75rem; letter-spacing: 2px; font-weight: 700; cursor: pointer; opacity: 0.4; transition: 0.3s; padding: 10px 20px; border-radius: 50px;">RESPIRACIÓN</button>
+                    <div class="modal-tabs" style="margin-bottom: 40px; justify-content: flex-start;">
+                        <button class="tab-btn active" id="tab-med-pausa" onclick="renderPausaList('meditacion')">MEDITACIÓN</button>
+                        <button class="tab-btn" id="tab-resp-pausa" onclick="renderPausaList('respiracion')">RESPIRACIÓN</button>
                     </div>
                     <div class="pausa-grid" id="pausa-list-container">
                         <!-- Las opciones se inyectarán por JS -->
@@ -4646,14 +4753,19 @@ body[data-cat="sendas"] #header-cat {
                 <!-- VISTA 1: Galería de Categorías -->
                 <div id="exp-gallery-view">
                     <div class="exp-header" style="max-width: 100%;">
-                        <h1>Expansiones</h1>
+                        <h1>Biblioteca</h1>
                         <p style="opacity: 0.6; font-size: 1rem; max-width: 100%; line-height: 1.6;">Series exclusivas de conocimiento profundo y transformación bibliográfica.</p>
+                        
+                        <div class="modal-tabs" style="margin-top: 30px; justify-content: flex-start;">
+                            <button class="tab-btn active" id="btn-exp-senderos" onclick="switchExpTab('senderos')">SENDEROS</button>
+                            <button class="tab-btn" id="btn-exp-libros" onclick="switchExpTab('libros')">LIBROS</button>
+                        </div>
                     </div>
                     
                     <div id="exp-list-container" class="exp-grid">
                         <div style="padding: 100px; text-align: center; opacity: 0.3; grid-column: 1 / -1;">
                             <div class="spinner" style="margin: 0 auto 20px;"></div>
-                            Cargando expansiones...
+                            Cargando colección...
                         </div>
                     </div>
                 </div>
@@ -4676,21 +4788,18 @@ body[data-cat="sendas"] #header-cat {
             </div>
         <!-- SECCIÓN: BITÁCORA PRO -->
         <div id="bitacora-ui" class="bitacora-container" style="display: none; padding-top: 40px; min-height: 80vh; width: 100% !important; max-width: 1400px !important; margin: 0 auto !important; box-sizing: border-box; grid-column: 1 / -1; flex-direction: column;">
-            <div class="bitacora-header" style="margin-bottom: 50px; text-align: inherit;">
+            <div class="bitacora-header" style="margin-bottom: 50px; text-align: left;">
                 <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Bitácora</h1>
-                <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6; margin: 0 auto 20px auto;">Registro consciente de tu evolución y maestría personal.</p>
-
+                <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6; margin: 0 0 20px 0;">Registro consciente de tu evolución y maestría personal.</p>
                 
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: inherit; flex-wrap: wrap;">
-                    <button class="btn-save" onclick="showBitacoraStats()" style="margin: 0; padding: 12px 25px; font-size: 0.7rem; border-radius: 50px; background: rgba(181,131,58,0.1); color: var(--accent); border: 1px solid rgba(181,131,58,0.2);">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 8px; vertical-align: middle;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                        ESTADÍSTICAS
-                    </button>
-                    <button id="btn-bitacora-history" class="btn-save" onclick="toggleBitacoraView('history')" style="margin: 0; padding: 12px 25px; font-size: 0.7rem; border-radius: 50px; background: transparent; border: 1px solid rgba(128,128,128,0.1); color: var(--text); opacity: 0.6;">
-                        HISTORIAL
-                    </button>
-                    <button id="btn-bitacora-export-main" class="btn-save" onclick="showExportOptions()" style="display: none; margin: 0; padding: 12px 25px; font-size: 0.7rem; border-radius: 50px; background: #4285F4; color: #fff; border: none; font-weight: 700; gap: 8px; align-items: center;">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; border-bottom: 1px solid rgba(181, 131, 58, 0.1); margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+                    <div class="modal-tabs" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0; justify-content: flex-start;">
+                        <button class="tab-btn active" id="btn-bitacora-main" onclick="toggleBitacoraView('templates')">ESCRIBIR</button>
+                        <button class="tab-btn" id="btn-bitacora-history" onclick="toggleBitacoraView('history')">HISTORIAL</button>
+                        <button class="tab-btn" id="btn-bitacora-stats" onclick="showBitacoraStats()">ESTADÍSTICAS</button>
+                    </div>
+                    <button id="btn-bitacora-export-main" class="btn-save" onclick="showExportOptions()" style="display: none; margin: 0 0 5px 0; padding: 8px 18px; font-size: 0.65rem; border-radius: 50px; background: rgba(66, 133, 244, 0.05); color: #4285F4; border: 1px solid rgba(66, 133, 244, 0.2); font-weight: 700; gap: 8px; align-items: center; transition: 0.3s; letter-spacing: 1px; cursor: pointer;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right: 5px; opacity: 0.8;"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                         CRÓNICAS
                     </button>
                 </div>
@@ -5346,42 +5455,91 @@ body[data-cat="sendas"] #header-cat {
             }
         }
 
+        window.currentExpTab = 'senderos';
+        function switchExpTab(tab) {
+            window.currentExpTab = tab;
+            document.getElementById('btn-exp-senderos').classList.toggle('active', tab === 'senderos');
+            document.getElementById('btn-exp-libros').classList.toggle('active', tab === 'libros');
+            renderExpansions(allExpansions);
+        }
+
         function renderExpansions(list) {
             const container = document.getElementById('exp-list-container');
             if (!list || list.length === 0) {
-                container.innerHTML = '<div style="padding:100px; text-align:center; opacity:0.4; grid-column: 1 / -1;">No hay expansiones disponibles actualmente.</div>';
+                container.innerHTML = '<div style="padding:100px; text-align:center; opacity:0.4; grid-column: 1 / -1;">No hay contenido disponible actualmente.</div>';
                 return;
             }
 
-            container.innerHTML = list.map(exp => {
+            // Aplicamos herencia de desbloqueo dinámico: Si tienes el sendero, tienes el libro.
+            list.forEach(exp => {
+                if (!exp.unlocked && exp.id.toLowerCase().startsWith('lib')) {
+                    const internalName = (exp.libros && exp.libros.length > 0) ? exp.libros[0].trim().toLowerCase() : String(exp.titulo).trim().toLowerCase();
+                    const hasParent = list.some(parent => 
+                        parent.unlocked && 
+                        parent.id !== exp.id && 
+                        parent.libros && 
+                        parent.libros.map(L => String(L).trim().toLowerCase()).includes(internalName)
+                    );
+                    if (hasParent) exp.unlocked = true;
+                }
+            });
+
+            // Filtrar según el tab activo
+            let filteredList = list.filter(exp => {
+                const isLibro = exp.id.toLowerCase().startsWith('lib');
+                if (window.currentExpTab === 'libros') return isLibro;
+                return !isLibro;
+            });
+
+            if (filteredList.length === 0) {
+                container.innerHTML = `<div style="padding:100px; text-align:center; opacity:0.4; grid-column: 1 / -1;">Aún no hay ${window.currentExpTab} en la biblioteca.</div>`;
+                return;
+            }
+
+            // Ordenamiento: Desbloqueados primero, el resto aleatorio
+            filteredList.sort((a, b) => {
+                if (a.unlocked && !b.unlocked) return -1;
+                if (!a.unlocked && b.unlocked) return 1;
+                // Si ambos tienen el mismo estado, ordenar pseudo-aleatoriamente basado en sus IDs para mantener el azar consistente tras canjear
+                return (Math.sin(a.id.charCodeAt(0)) - Math.sin(b.id.charCodeAt(0))) > 0 ? 1 : -1; 
+            });
+
+            container.innerHTML = filteredList.map(exp => {
                 const totalExp = exp.totalLessons || 0;
                 let completedExp = 0;
+                const isLibro = exp.id.toLowerCase().startsWith('lib');
+                const priceLabel = isLibro ? '$1.99' : '$4.99';
                 
-                // Calculamos progreso global si está desbloqueada
                 if (exp.unlocked && exp.libros) {
                     exp.libros.forEach(book => {
                         const savedProg = parseInt(localStorage.getItem(`lumina_exp_prog_${exp.id}_${book.trim()}`)) || 0;
-                        completedExp += (savedProg + 1); // +1 porque el índice es 0-based
+                        completedExp += (savedProg + 1); 
                     });
                 }
                 
                 const expProgressPercent = totalExp > 0 ? Math.round((completedExp / totalExp) * 100) : 0;
-                const hasProgress = exp.unlocked && completedExp > 1; // Solo mostrar si ha empezado al menos una lección
+                const hasProgress = exp.unlocked && completedExp > 1; 
+
+                const internalBookName = (exp.libros && exp.libros.length > 0) ? exp.libros[0].trim() : String(exp.titulo).trim();
+                const clickAction = exp.unlocked 
+                    ? (isLibro ? `openBook('${exp.id}', \`${internalBookName}\`)` : `openExpansion('${exp.id}', \`${exp.titulo}\`, \`${exp.descripcion}\`)`)
+                    : `showToast('Esta pieza está bloqueada. Adquiérela y canjéala en tu perfil.', 'info')`;
 
                 return `
-                <div class="exp-card ${exp.unlocked ? '' : 'locked'}" 
-                     onclick="${exp.unlocked ? `openExpansion('${exp.id}', \`${exp.titulo}\`, \`${exp.descripcion}\`)` : `showToast('Esta expansión está bloqueada. Canjea un código en tu perfil.', 'info')`}">
-                    
+                <div class="exp-card ${exp.unlocked ? '' : 'locked'}" onclick="${clickAction}">
                     <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
                     
                     <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 100%;">
                         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 12px;">
-                            <span style="font-size: 0.65rem; color: var(--accent); letter-spacing: 3px; font-weight: 700; text-transform: uppercase; opacity: 0.6;">${exp.unlocked ? 'Disponible' : 'Premium'}</span>
+                            <span style="font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; font-weight: 700; text-transform: uppercase; opacity: 0.6;">
+                                ${exp.unlocked ? 'Disponible' : `Premium · ${priceLabel}`}
+                            </span>
                             ${hasProgress ? `<span style="font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; color: var(--accent); opacity: 0.8;">${expProgressPercent}% COMPLETADO</span>` : ''}
                         </div>
                         
+                        ${exp.autor ? `<div style="font-size: 0.6rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; opacity: 0.7; text-align: center;">${exp.autor}</div>` : ''}
                         <h4 style="font-family: 'Playfair Display', serif; font-size: 2rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.1; text-align: center;">${exp.titulo}</h4>
-                        ${exp.tema ? `<div style="font-size: 0.6rem; letter-spacing: 3px; color: var(--accent); opacity: 0.5; text-transform: uppercase; margin: -5px 0 15px 0; font-weight: 700; text-align:center;">${exp.tema}</div>` : ''}
+                        ${exp.tema ? `<div style="font-size: 0.6rem; letter-spacing: 3px; color: var(--text); opacity: 0.4; text-transform: uppercase; margin: -5px 0 15px 0; font-weight: 600; text-align:center;">${exp.tema}</div>` : ''}
                         
                         ${(() => {
                             const bookSource = exp.LibrosIncluded || (exp.descripcion.match(/Contiene:?\s*(.*)/i) || [])[1];
@@ -5389,14 +5547,14 @@ body[data-cat="sendas"] #header-cat {
                             
                             return `
                                 <p style="opacity: 0.5; font-size: 0.95rem; line-height: 1.6; max-width: 90%; margin: 0; text-align: center;">${description}</p>
-                                ${renderPackBadges(bookSource)}
+                                ${(isLibro || !bookSource) ? '' : renderPackBadges(bookSource)}
                             `;
                         })()}
                     </div>
                     
                     <div style="display: flex; flex-direction: column; width: 100%; margin-top: 30px; position: relative; z-index: 2;">
                         <div style="font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px;">
-                            ${exp.unlocked ? 'EXPLORAR LIBROS <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> CANJEAR EN PERFIL'}
+                            ${exp.unlocked ? `EXPLORAR ${isLibro ? 'CONTENIDO' : 'LIBROS'} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>` : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> ADQUIRIR'}
                         </div>
                         ${hasProgress ? `
                         <div class="book-progress-wrapper" style="height: 3px; background: rgba(128,128,128,0.1);">
@@ -5662,6 +5820,15 @@ body[data-cat="sendas"] #header-cat {
             
             updateFavoriteIcon();
             loadExpJournal();
+            
+            // Control de visibilidad del botón de exportar (PRO y solo Libros/Senderos)
+            const isPro = localStorage.getItem('lumina_pro') === 'true';
+            const exportBtn = document.getElementById('btn-export-book');
+            if (exportBtn) {
+                // En renderExpansionContent (libros/senderos), solo validamos PRO
+                exportBtn.style.display = isPro ? 'flex' : 'none';
+            }
+
             document.querySelector('#exp-read-ui .modal-content').scrollTo(0, 0);
             
             // Pre-captura en segundo plano para compartir instantáneamente
@@ -5763,10 +5930,22 @@ body[data-cat="sendas"] #header-cat {
                 const res = await resp.json();
                 
                 if (res.success) {
-                    showToast("¡Expansión desbloqueada! ✨", "success");
                     input.value = '';
                     loadExpansions(); // Recargar lista
                     pushSync(); // Respaldar cambio
+                    
+                    // Celebrar el nuevo desbloqueo
+                    closeModals(); // Cerramos el perfil si interfiere
+                    if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+                    const successModal = document.getElementById('success-modal');
+                    if (successModal) {
+                        successModal.querySelector('p').innerHTML = `¡Felicidades!<br><br><strong>Has desbloqueado nuevo conocimiento</strong>. Estará disponible en tu Biblioteca para siempre. Disfruta tu viaje.`;
+                        successModal.classList.add('active');
+                        history.pushState({ modal: 'success' }, "", "#success");
+                    } else {
+                        showToast("¡Contenido desbloqueado! ✨", "success");
+                    }
+                    if (typeof launchConfetti === 'function') launchConfetti(); // Usa la función global si existe, o ignora
                 } else {
                     showToast(res.error || "Código inválido", "error");
                 }
@@ -7145,8 +7324,14 @@ body[data-cat="sendas"] #header-cat {
                     setTimeout(() => {
                         if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
                         const successModal = document.getElementById('success-modal');
-                        const isLifetime = data.type && data.type.toUpperCase() === 'LIFETIME';
-                        const msg = isLifetime ? "Acceso Vitalicio" : "Tu Suscripción Lúmina Pro";
+                        const typeUpp = (data.type || '').toUpperCase();
+                        const names = {
+                            'LIFETIME': 'Acceso Vitalicio',
+                            'ANNUAL': 'Suscripción Anual',
+                            'QUARTERLY': 'Suscripción Trimestral',
+                            'MONTHLY': 'Suscripción Mensual'
+                        };
+                        const msg = names[typeUpp] || 'Tu Suscripción Lúmina Pro';
                         successModal.querySelector('p').innerHTML = `¡Gracias por tu confianza!<br><br><strong>${msg}</strong> ha sido activada correctamente. Disfruta de la maestría total sin límites.`;
                         successModal.classList.add('active');
                         history.pushState({ modal: 'success' }, "", "#success");
@@ -7929,26 +8114,26 @@ if (id === 'content-header' || id === 'side-panel') {
                 'editor': 'bitacora-editor-view',
                 'history': 'bitacora-history-view'
             };
+            
+            // Gestionar clases de pestañas
+            document.querySelectorAll('#bitacora-ui .tab-btn').forEach(b => b.classList.remove('active'));
+            if (view === 'templates' || view === 'editor') {
+                const btn = document.getElementById('btn-bitacora-main');
+                if (btn) btn.classList.add('active');
+            } else if (view === 'history') {
+                const btn = document.getElementById('btn-bitacora-history');
+                if (btn) btn.classList.add('active');
+            }
+
             Object.values(views).forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
+            
             const target = document.getElementById(views[view]);
             if (target) {
                 target.style.display = (view === 'editor') ? 'flex' : 'block';
                 if (view === 'editor') target.classList.add('active');
-            }
-            
-            // Actualizar botón de historial
-            const btnHistory = document.getElementById('btn-bitacora-history');
-            if (btnHistory) {
-                if (view === 'history') {
-                    btnHistory.innerText = "NUEVA ENTRADA";
-                    btnHistory.onclick = () => toggleBitacoraView('templates');
-                } else {
-                    btnHistory.innerText = "HISTORIAL";
-                    btnHistory.onclick = () => toggleBitacoraView('history');
-                }
             }
         }
 
@@ -8352,7 +8537,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 
                 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 
                 'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal',
-                'reentry-modal', 'export-options-box'
+                'reentry-modal', 'export-options-box', 'senda-complete-modal'
             ];
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -8465,7 +8650,7 @@ if (id === 'content-header' || id === 'side-panel') {
             // Cargar notificaciones locales (Integraciones)
             const localNotifs = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
 
-            const addNotif = (cat, tit, msg, link, isExtra = false, imagen = "", customId = "") => {
+            const addNotif = (cat, tit, msg, link, isExtra = false, imagen = "", customId = "", extraData = null) => {
                 const nId = customId || ((cat || 'extra') + ":" + btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32));
                 if (dismissed.includes(nId)) return;
 
@@ -8572,6 +8757,7 @@ if (id === 'content-header' || id === 'side-panel') {
                         'pro': toggleProModal,
                         'trial': toggleProModal,
                         'success': showSuccessModal,
+                        'agenda': () => openScheduleModal(extraData),
                         'restore': () => { setPortalMode('recover'); document.getElementById('identity-portal').classList.add('active'); }
                     };
 
@@ -8605,7 +8791,7 @@ if (id === 'content-header' || id === 'side-panel') {
 
             // --- INYECCIÓN DE NOTIFICACIONES LOCALES (Integraciones) ---
             localNotifs.forEach(n => {
-                addNotif(n.cat || 'profile', n.tit, n.msg, n.link, true, "", n.id);
+                addNotif(n.cat || 'profile', n.tit, n.msg, n.link, true, "", n.id, n.gapData);
             });
 
             const isSub = (c) => localStorage.getItem(`lumina_sub_${c}`) !== 'false';
@@ -9177,7 +9363,9 @@ if (id === 'content-header' || id === 'side-panel') {
                 'habitos': ['Racha de Constancia', 'Fuego del Hábito', 'Evolución Constante'],
                 'mood': ['Clima Interno', 'Sintonía Mental', 'Estado de Presencia'],
                 'bitacora': ['Evolución Escrita', 'Huellas de Sabiduría', 'Memoria Consciente'],
-                'pausa': ['Refugio Temporal', 'Momento de Paz', 'Calma Profunda']
+                'pausa': ['Refugio Temporal', 'Momento de Paz', 'Calma Profunda'],
+                'senda': ['Mi Senda de Crecimiento', 'Ruta de Maestría', 'Camino Forjado'],
+                'senda-complete': ['Senda Completada', 'Maestría Alcanzada', 'Logro Conquistado']
             };
             const list = titles[cat] || ['Lúmina App', 'Momento de Luz'];
             return list[Math.floor(Math.random() * list.length)];
@@ -9250,6 +9438,13 @@ if (id === 'content-header' || id === 'side-panel') {
                 if (!s) return `Forjando mi camino en Lúmina. ✨ ${url}`;
                 const pct = s.duration > 0 ? Math.min(100, Math.round((s.currentDay / s.duration) * 100)) : 0;
                 return `Mi Senda de Crecimiento: "${s.title}". ¡Llevo un ${pct}% de progreso! 🌿 Forja tu ruta en Lúmina: ${url}`;
+            }
+
+            if (cat === 'senda-complete') {
+                const s = window._lastSendaCompleted;
+                if (!s) return `¡He completado una Senda de Crecimiento en Lúmina! 🏆 ¡Tú también puedes! ${url}`;
+                const days = s.duration || 0;
+                return `🏆 ¡LOGRO COMPLETADO! He terminado mi Senda "${s.title}" en Lúmina — ${days} días de crecimiento, disciplina y sabiduría. ¿Te animas tú? 👇 ${url}`;
             }
 
             return `Explorando sabiduría diaria en Lúmina. ✨ ${domain}`;
@@ -9470,6 +9665,41 @@ if (id === 'content-header' || id === 'side-panel') {
                     </div>`;
                 }
                 footerEl.textContent = "Lúmina: Forjando Maestría Personal";
+            } else if (cat === 'senda-complete') {
+                const s = window._lastSendaCompleted || { title: "Mi Senda", duration: 0, mode: "HABIT", completedAt: new Date().toISOString() };
+                const modeLabel = { EMERGENCY: 'Emergencia', SPRINT: 'Sprint', HABIT: 'Hábito', MASTERY: 'Maestría' }[s.mode] || (s.mode || 'Hábito');
+                const dias = s.duration || 0;
+                const completedDate = s.completedAt
+                    ? new Date(s.completedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                titleEl.textContent = "Senda Completada";
+
+                bodyEl.innerHTML = `
+                    <div style="font-size:2.8rem; margin-bottom:8px; line-height:1;">🏆</div>
+                    <div style="font-family:'Playfair Display', serif; font-size:1.6rem; font-style:italic; color:#b5833a; margin-bottom:8px;">${s.title}</div>
+                    <div style="font-size:0.65rem; letter-spacing:2px; font-weight:700; color:#1a1a1a; text-transform:uppercase; opacity:0.55; margin-bottom:18px;">${modeLabel}</div>
+                `;
+
+                const extraList = document.getElementById('cap-extra-list');
+                if (extraList) {
+                    extraList.innerHTML = `
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:15px;">
+                        <div style="background:rgba(181,131,58,0.07); padding:18px 10px; border-radius:18px; border:1px solid rgba(181,131,58,0.15); text-align:center;">
+                            <div style="font-family:'Playfair Display', serif; font-size:2rem; font-weight:700; color:#b5833a; font-style:italic;">${dias}</div>
+                            <div style="font-size:0.55rem; letter-spacing:1.5px; opacity:0.6; font-weight:700; text-transform:uppercase; margin-top:4px;">Días</div>
+                        </div>
+                        <div style="background:rgba(181,131,58,0.07); padding:18px 10px; border-radius:18px; border:1px solid rgba(181,131,58,0.15); text-align:center;">
+                            <div style="font-family:'Playfair Display', serif; font-size:2rem; font-weight:700; color:#b5833a; font-style:italic;">100%</div>
+                            <div style="font-size:0.55rem; letter-spacing:1.5px; opacity:0.6; font-weight:700; text-transform:uppercase; margin-top:4px;">Completado</div>
+                        </div>
+                    </div>
+                    <div style="background:linear-gradient(135deg, rgba(181,131,58,0.12), rgba(212,175,55,0.18)); padding:14px; border-radius:14px; border:1px solid rgba(181,131,58,0.2); text-align:center; margin-top:12px;">
+                        <div style="font-size:0.55rem; letter-spacing:2px; color:#b5833a; font-weight:700; text-transform:uppercase; margin-bottom:4px;">Completado el</div>
+                        <div style="font-size:0.85rem; color:#1a1a1a; opacity:0.8;">${completedDate}</div>
+                    </div>`;
+                }
+                footerEl.textContent = "Lúmina: Maestría Forjada";
             } else {
                 const wordVal = document.getElementById('word-title')?.innerText || "";
                 titleEl.innerText = (wordVal === wordVal.toUpperCase()) ? toMixedCase(wordVal) : wordVal;
@@ -10427,16 +10657,10 @@ if (id === 'content-header' || id === 'side-panel') {
                 COMENZAR PRUEBA GRATUITA
             </button>
 
-            <!-- BTN: SUSCRIPCIÓN (Outline) -->
-            <button class="btn-save" onclick="window.open('https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-4XK17925J43504944NHEDJFA', '_blank')" 
+            <!-- BTN: VER PLANES (Abre el portal en la pestaña de Planes) -->
+            <button class="btn-save" onclick="closeModals(); toggleProfile(); setTimeout(()=> { switchProfileTab('identidad'); switchInfoTab('planes'); }, 300);" 
                 style="width: 100%; border-radius: 50px; padding: 16px; font-size: 0.8rem; letter-spacing: 1.5px; font-weight: 500; background: transparent; border: 1px solid rgba(181, 131, 58, 0.4); color: var(--accent); margin-bottom: 12px;">
-                SUSCRIPCIÓN MENSUAL
-            </button>
-
-            <!-- BTN: LIFETIME (Simple Link) -->
-            <button onclick="window.open('https://www.paypal.com/ncp/payment/5YYWNJD628ULY', '_blank')" 
-                style="background:none; border: none; color: var(--accent); opacity: 0.6; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 15px; cursor: pointer; font-weight: 600;">
-                O ADQUIRIR ACCESO VITALICIO
+                VER PLANES DISPONIBLES
             </button>
 
             <button onclick="closeModals()" 
@@ -10496,15 +10720,18 @@ if (id === 'content-header' || id === 'side-panel') {
                     
                     <div id="exp-read-progress" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase; margin-top: 10px;">---</div>
                     
-                    <div class="content-actions">
+                    <div class="content-actions" style="display: flex; gap: 12px; justify-content: flex-start; margin-top: 15px;">
                         <button class="btn-speak" id="btn-speak-exp" onclick="speakExpContent()" title="Escuchar">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        </button>
+                        <button class="btn-fav" id="btn-export-exp" onclick="exportExpansionToDoc()" title="Generar Libro (Google Docs)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                         </button>
                         <button class="btn-fav" id="btn-fav-exp" onclick="toggleFavorite()" title="Favorito">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                         </button>
                         <button class="btn-fav" id="btn-share-exp" onclick="shareAsImage('exp')" title="Compartir sabiduría">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         </button>
                     </div>
                 </div>
@@ -10913,7 +11140,7 @@ if (id === 'content-header' || id === 'side-panel') {
     <!-- Modal del Ánimo (Módulo Premium) -->
     <div id="mood-modal" class="modal">
         <div class="modal-content" style="max-width: 480px; padding: 40px 30px;">
-            <div class="modal-tabs" style="margin-bottom: 30px;">
+            <div class="modal-tabs" style="margin-bottom: 30px; justify-content: flex-start;">
                 <button class="tab-btn active" id="btn-mood-now" onclick="switchMoodTab('now')">TU ESTADO</button>
                 <button class="tab-btn" id="btn-mood-history" onclick="switchMoodTab('history')">HISTORIAL</button>
             </div>
@@ -11009,7 +11236,7 @@ if (id === 'content-header' || id === 'side-panel') {
     <!-- Modal Info -->
     <div id="info-modal" class="modal">
         <div class="modal-content" style="max-width: 550px;">
-            <div class="modal-tabs">
+            <div class="modal-tabs" style="margin-bottom: 30px; justify-content: flex-start;">
                 <button class="tab-btn active" id="btn-tab-filosofia" onclick="switchInfoTab('filosofia')">LÚMINA</button>
                 <button class="tab-btn" id="btn-tab-viaje" onclick="switchInfoTab('viaje')">MI VIAJE</button>
                 <button class="tab-btn" id="btn-tab-planes" onclick="switchInfoTab('planes')">PLANES</button>
@@ -11113,6 +11340,46 @@ if (id === 'content-header' || id === 'side-panel') {
                 REGALO: +1 MEDALLA DE CONSTANCIA
             </div>
             <button class="btn-reentry" onclick="closeReentryModal()">CONTINUAR MI SENDA</button>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: SENDA COMPLETADA ===== -->
+    <div id="senda-complete-modal" class="modal" style="z-index:25000;">
+        <div class="modal-content" style="text-align:center; max-width:400px; padding:50px 35px; overflow:visible; position:relative;">
+            <!-- Trofeo animado -->
+            <div id="senda-complete-trophy" style="font-size:4rem; margin-bottom:20px; animation:tropheoBounce 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both; display:inline-block;">🏆</div>
+            <div style="font-size:0.6rem; letter-spacing:4px; color:var(--accent); font-weight:700; text-transform:uppercase; margin-bottom:14px;">LOGRO DESBLOQUEADO</div>
+            <h2 id="senda-complete-title" style="font-family:'Playfair Display',serif; font-size:2rem; font-style:italic; margin:0 0 10px; line-height:1.2;">Senda Completada</h2>
+            <p id="senda-complete-subtitle" style="font-size:0.9rem; opacity:0.6; line-height:1.7; margin:0 0 30px;">Has recorrido cada paso de tu camino con disciplina y determinación.</p>
+
+            <!-- Stats de la senda completada -->
+            <div id="senda-complete-stats" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:30px;"></div>
+
+            <!-- Botones -->
+            <button id="btn-share-senda-complete" onclick="shareSendaComplete()" style="
+                width:100%; padding:16px; border-radius:40px;
+                background:linear-gradient(135deg,var(--accent),#d4af37);
+                color:#fff; border:none; font-weight:700; font-size:0.75rem;
+                letter-spacing:2.5px; text-transform:uppercase; cursor:pointer;
+                display:flex; align-items:center; justify-content:center; gap:10px;
+                box-shadow:0 8px 25px rgba(181,131,58,0.35);
+                transition:0.3s cubic-bezier(0.2,0,0,1); margin-bottom:12px;
+            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
+                COMPARTIR MI LOGRO
+            </button>
+            <button onclick="closeSendaCompleteModal()" style="
+                width:100%; padding:14px; border-radius:40px;
+                background:transparent; color:var(--text);
+                border:1px solid rgba(128,128,128,0.2);
+                font-size:0.75rem; letter-spacing:2px; text-transform:uppercase;
+                cursor:pointer; opacity:0.6; transition:0.3s;
+            " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                CONTINUAR
+            </button>
         </div>
     </div>
 
@@ -11490,6 +11757,39 @@ if (id === 'content-header' || id === 'side-panel') {
             </div>
 
             <button class="btn-save" onclick="toggleIntegrationsModal()" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%; margin-top: 20px;">CERRAR</button>
+        </div>
+    </div>
+
+    <!-- Modal Programación Calendario -->
+    <div id="schedule-modal" class="modal" style="z-index: 2200;">
+        <div class="modal-content" style="max-width: 420px;">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom: 5px;">Tu Espacio de Pausa</h2>
+                <p style="font-size: 0.85rem; opacity: 0.6;">Sincroniza un momento de calma con tu agenda.</p>
+            </div>
+
+            <div class="gap-info-card">
+                <span class="gap-time-label" id="sch-gap-range">--:-- a --:--</span>
+                <span style="font-size: 0.7rem; letter-spacing: 1px; opacity: 0.5; text-transform: uppercase;" id="sch-gap-duration">-- min libres detectados</span>
+            </div>
+
+            <div class="schedule-controls">
+                <div>
+                    <label>Hora de Inicio</label>
+                    <input type="time" id="sch-time-input">
+                </div>
+                <div>
+                    <label>Duración (Minutos)</label>
+                    <input type="number" id="sch-duration-input" min="5" max="180" step="5" value="20">
+                </div>
+            </div>
+
+            <button class="btn-save" id="btn-confirm-schedule" onclick="confirmCalendarSchedule()" 
+                style="background:var(--accent); color: white; width: 100%; padding: 18px; font-size: 0.9rem; border-radius: 15px; font-weight: 700; letter-spacing: 1px;">
+                RESERVAR CITA CON MI CALMA
+            </button>
+            
+            <button class="btn-save" onclick="closeModals()" style="background:none; border: none; color: var(--text); width: 100%; margin-top: 15px; opacity: 0.5; font-size: 0.8rem;">CANCELAR</button>
         </div>
     </div>
 
@@ -11935,6 +12235,10 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
     window.currentSendaIdx = sendaIdx;
     window.currentSendaLessonIdx = lessonIdx;
 
+    // Ocultar botón de exportar libro (No disponible en sendas personalizadas)
+    const exportBtn = document.getElementById('btn-export-book');
+    if (exportBtn) exportBtn.style.display = 'none';
+
     // Mostrar/Ocultar zona de completado
     const completionZone = document.getElementById('senda-completion-zone');
     if (completionZone) {
@@ -12115,13 +12419,29 @@ function markSendaLessonDone() {
             localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
             
             if (s.currentDay >= s.duration) {
-                showToast('¡Felicidades! Has completado esta senda. 🏆', 'success');
+                // Marcar como completada con timestamp
+                s.completedAt = new Date().toISOString();
+                localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
                 renderMisSendas();
+                // Archivar y celebrar
                 setTimeout(() => {
-                    closeModals();
-                    archiveSenda(s.currentDay < sendas.length ? sIdx : sIdx);
                     if (typeof syncLuminaStats === 'function') syncLuminaStats();
-                }, 1500);
+                    closeModals();
+                    // Archivar automáticamente
+                    let freshSendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+                    let archived = JSON.parse(localStorage.getItem('lumina_archived_sendas') || '[]');
+                    const completedSenda = freshSendas[sIdx];
+                    if (completedSenda) {
+                        completedSenda.archivedAt = new Date().toISOString();
+                        archived.unshift(completedSenda);
+                        freshSendas.splice(sIdx, 1);
+                        localStorage.setItem('lumina_active_sendas', JSON.stringify(freshSendas));
+                        localStorage.setItem('lumina_archived_sendas', JSON.stringify(archived));
+                        renderMisSendas();
+                        // Mostrar modal de celebración
+                        showSendaCompleteModal(completedSenda);
+                    }
+                }, 800);
             } else {
                 showToast(isEmergency ? '¡Lección completada! Siguiente disponible.' : '¡Lección de hoy completada! 🔥 Vuelve mañana.', 'success');
                 logSendaActivity(s.title);
@@ -12266,21 +12586,26 @@ function renderMisSendas() {
         const remaining = totalLessons - previewCount;
         const moreHtml = remaining > 0 ? `<div style="font-size:0.75rem; opacity:0.4; margin-top:10px; padding-left:20px;">+ ${remaining} lecciones</div>` : '';
 
-        // Calcular fecha de expiración (3 meses desde creación)
-        let expiryInfo = '';
+        // Calcular fechas de vida de la senda (solo informativo, sin urgencia)
+        let startDateStr = '';
+        let expiryDateStr = '';
+
         if (senda.startDate) {
             const start = new Date(senda.startDate);
+            startDateStr = start.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
             const expiry = new Date(start);
             expiry.setDate(expiry.getDate() + 45);
-            const daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
-            if (daysLeft > 0 && daysLeft <= 30) {
-                expiryInfo = `<span style="color:#e05252; font-size:0.6rem;">Expira en ${daysLeft}d</span>`;
-            }
+            expiryDateStr = expiry.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
         }
+
+        const sendaDateFooter = startDateStr ? `
+            <div style="width:100%; margin-top:14px; padding-top:10px; border-top:1px solid rgba(128,128,128,0.07); display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <span style="font-size:0.58rem; opacity:0.3; letter-spacing:0.5px;">✦ Iniciada ${startDateStr}</span>
+                <span style="font-size:0.58rem; opacity:0.3; letter-spacing:0.5px; text-align:right;">El viento la borra el ${expiryDateStr}</span>
+            </div>` : '';
 
         const card = document.createElement('div');
         card.className = 'template-card';
-        // Las tarjetas SÍ abren la lección actual
         card.style.cssText = 'cursor:pointer; text-align:left; align-items:flex-start; gap:0; padding:22px;';
         card.onclick = () => openSendaLesson(idx, senda.currentDay < senda.duration ? senda.currentDay : 0);
         card.innerHTML = `
@@ -12291,7 +12616,7 @@ function renderMisSendas() {
             <div class="senda-progress-bar-bg" style="width:100%; margin-top:10px;"><div class="senda-progress-bar-fill" style="width:${pct}%"></div></div>
             <div class="senda-card-meta" style="width:100%; margin-top:6px;">
                 <span>Día ${senda.currentDay} de ${senda.duration}</span>
-                <span style="display:flex;gap:8px;align-items:center;">${expiryInfo}<span>${pct}%</span></span>
+                <span>${pct}%</span>
             </div>
             ${lessonItems ? `<div class="senda-roadmap" style="width:100%"><div class="senda-roadmap-label">Hoja de Ruta</div>${lessonItems}${moreHtml}</div>` : ''}
             <div class="senda-card-actions">
@@ -12303,8 +12628,12 @@ function renderMisSendas() {
                     <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
                     Borrar
                 </button>
+                <button class="senda-action-btn" onclick="event.stopPropagation(); shareSenda(${idx})" title="Compartir senda" style="margin-left:auto; color:var(--accent); border-color:rgba(181,131,58,0.25);">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Compartir
+                </button>
             </div>
-            <button onclick="event.stopPropagation(); shareSenda(${idx})" style="position:absolute; bottom:12px; right:12px; background:none; border:none; color:var(--accent); cursor:pointer; padding:6px; opacity:0.4; transition:0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.4'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button>
+            ${sendaDateFooter}
 `;
         container.appendChild(card);
     });
@@ -12360,6 +12689,81 @@ function closeReentryModal() {
     const modal = document.getElementById('reentry-modal');
     if (modal) modal.style.display = 'none';
     if (navigator.vibrate) navigator.vibrate(10);
+}
+
+// ===== CELEBRACIÓN: SENDA COMPLETADA =====
+
+function showSendaCompleteModal(senda) {
+    window._lastSendaCompleted = senda;
+    window._lastSendaShared = senda; // Para la imagen de progreso también
+
+    // Rellenar modal de celebración
+    const titleEl = document.getElementById('senda-complete-title');
+    const subtitleEl = document.getElementById('senda-complete-subtitle');
+    const statsEl = document.getElementById('senda-complete-stats');
+
+    if (titleEl) titleEl.textContent = senda.title || 'Senda Completada';
+    const dias = senda.duration || 0;
+    const modeLabel = { EMERGENCY: 'Emergencia', SPRINT: 'Sprint', HABIT: 'Hábito', MASTERY: 'Maestría' }[senda.mode] || (senda.mode || 'Hábito');
+    const completedDate = senda.completedAt
+        ? new Date(senda.completedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+        : new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    if (subtitleEl) subtitleEl.textContent = `Has recorrido ${dias} días de crecimiento con disciplina y determinación.`;
+
+    if (statsEl) {
+        statsEl.innerHTML = `
+            <div style="background:rgba(181,131,58,0.07); padding:18px 10px; border-radius:20px; border:1px solid rgba(181,131,58,0.15); text-align:center;">
+                <div style="font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:900; color:var(--accent); font-style:italic;">${dias}</div>
+                <div style="font-size:0.55rem; letter-spacing:2px; opacity:0.55; font-weight:700; text-transform:uppercase; margin-top:4px;">Días</div>
+            </div>
+            <div style="background:rgba(181,131,58,0.07); padding:18px 10px; border-radius:20px; border:1px solid rgba(181,131,58,0.15); text-align:center;">
+                <div style="font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:900; color:var(--accent); font-style:italic;">100%</div>
+                <div style="font-size:0.55rem; letter-spacing:2px; opacity:0.55; font-weight:700; text-transform:uppercase; margin-top:4px;">Completado</div>
+            </div>
+            <div style="grid-column:1/-1; background:rgba(181,131,58,0.05); padding:12px 16px; border-radius:16px; border:1px solid rgba(181,131,58,0.1); display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.65rem; letter-spacing:1px; opacity:0.5; font-weight:700; text-transform:uppercase;">${modeLabel}</span>
+                <span style="font-size:0.75rem; opacity:0.7;">${completedDate}</span>
+            </div>
+        `;
+    }
+
+    // Mostrar modal
+    const modal = document.getElementById('senda-complete-modal');
+    if (modal) {
+        modal.classList.add('active');
+        history.pushState({ modal: 'senda_complete' }, '', '#senda_complete');
+    }
+
+    // Confetti
+    if (typeof confetti === 'function') {
+        setTimeout(() => {
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.55 }, colors: ['#b5833a', '#d4af37', '#f5f1e8', '#ffd700', '#fff'] });
+            setTimeout(() => confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors: ['#b5833a', '#d4af37', '#fff'] }), 400);
+            setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: ['#b5833a', '#d4af37', '#fff'] }), 700);
+        }, 300);
+    }
+
+    if (navigator.vibrate) navigator.vibrate([30, 50, 80, 50, 150]);
+
+    // Pre-preparar imagen para compartir
+    if (typeof prepareShareBlob === 'function') {
+        setTimeout(() => prepareShareBlob('senda-complete'), 600);
+    }
+}
+
+function closeSendaCompleteModal() {
+    const modal = document.getElementById('senda-complete-modal');
+    if (modal) modal.classList.remove('active');
+    if (history.state?.modal === 'senda_complete') history.back();
+    if (navigator.vibrate) navigator.vibrate(10);
+}
+
+function shareSendaComplete() {
+    const s = window._lastSendaCompleted;
+    window._lastSendaShared = s;
+    shareAsImage('senda-complete');
+    if (navigator.vibrate) navigator.vibrate(15);
 }
 
 // ===== INTEGRACIONES GOOGLE (CALENDAR & DOCS) =====
@@ -12434,7 +12838,7 @@ async function checkCalendarGaps(isManual = false) {
             if (gap) {
                 const start = new Date(gap.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 const msg = `Tienes un hueco de ${gap.duration} min a las ${start}. ¿Dedicamos un tiempo a la calma?`;
-                injectIntegrationNews("Agenda Lúmina", msg, "#pausa");
+                injectIntegrationNews("Agenda Lúmina", msg, "#pausa", gap);
                 if (isManual) showToast('¡Hueco encontrado! Revisa Novedades.', 'success');
             } else if (isManual) {
                 showToast('No encontré más huecos libres para hoy.', 'info');
@@ -12448,7 +12852,7 @@ async function checkCalendarGaps(isManual = false) {
     }
 }
 
-function injectIntegrationNews(tit, msg, link) {
+function injectIntegrationNews(tit, msg, link, gapData = null) {
     // Recuperar notificaciones actuales de localStorage (las extras/locales)
     let localNotifs = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
     
@@ -12458,14 +12862,88 @@ function injectIntegrationNews(tit, msg, link) {
 
     localNotifs.push({
         id: id,
-        cat: 'profile',
+        cat: 'agenda',
         tit: tit,
         msg: msg,
         link: link,
+        gapData: gapData,
         date: new Date().toISOString()
     });
 
     localStorage.setItem('lumina_local_notifs', JSON.stringify(localNotifs));
+}
+
+let activeGapData = null;
+
+function openScheduleModal(gapData) {
+    if (!gapData) return;
+    activeGapData = gapData;
+    
+    const start = new Date(gapData.start);
+    const end = new Date(gapData.end);
+    
+    document.getElementById('sch-gap-range').innerText = `${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} a ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+    document.getElementById('sch-gap-duration').innerText = `${gapData.duration} min libres detectados`;
+    
+    // Default values
+    const timeInput = document.getElementById('sch-time-input');
+    const hh = String(start.getHours()).padStart(2, '0');
+    const mm = String(start.getMinutes()).padStart(2, '0');
+    timeInput.value = `${hh}:${mm}`;
+    
+    const durationInput = document.getElementById('sch-duration-input');
+    durationInput.value = Math.min(20, gapData.duration);
+    durationInput.max = gapData.duration;
+    
+    closeModals();
+    document.getElementById('schedule-modal').classList.add('active');
+}
+
+async function confirmCalendarSchedule() {
+    const btn = document.getElementById('btn-confirm-schedule');
+    const timeVal = document.getElementById('sch-time-input').value;
+    const durationVal = parseInt(document.getElementById('sch-duration-input').value);
+    
+    if (!timeVal || isNaN(durationVal)) {
+        showToast("Por favor completa los detalles.", "info");
+        return;
+    }
+
+    // Validar que la hora esté dentro del rango (opcional pero bueno para UX)
+    // Para simplificar enviamos directamente al servidor
+    
+    const originalDate = new Date(activeGapData.start);
+    const [hh, mm] = timeVal.split(':');
+    const startDate = new Date(originalDate.getFullYear(), originalDate.getMonth(), originalDate.getDate(), hh, mm);
+    
+    btn.innerText = 'PROGRAMANDO...';
+    btn.disabled = true;
+    
+    try {
+        const fd = new URLSearchParams();
+        fd.append('action', 'schedule_calendar_event');
+        fd.append('startTime', startDate.toISOString());
+        fd.append('duration', durationVal);
+        
+        const resp = await fetch(API, { method: 'POST', body: fd });
+        const result = await resp.json();
+        
+        if (result.success) {
+            showToast(`¡Pausa agendada: ${result.title}!`, 'success');
+            // Eliminar la notificación
+            dismissNotif('gcal_' + new Date().toDateString());
+            closeModals();
+        } else {
+            showToast("Error: " + result.message, "error");
+        }
+    } catch (e) {
+        showToast("Error de conexión al agendar.", "error");
+        console.error(e);
+    } finally {
+        btn.innerText = 'RESERVAR CITA CON MI CALMA';
+        btn.disabled = false;
+    }
+}
     
     // Forzar actualización inmediata de la UI
     isCheckingNotifs = false; 
@@ -12520,6 +12998,71 @@ async function exportBitacoraDoc(type) {
         }
     } catch (e) {
         showToast('Error de conexión', 'error');
+        console.error(e);
+    }
+}
+
+async function exportExpansionToDoc() {
+    if (localStorage.getItem('lumina_pro') !== 'true') {
+        showToast("Esta función requiere suscripción PRO.", "info");
+        return;
+    }
+
+    // Seguridad: No permitir si es una senda personalizada (Análisis de Contexto)
+    if (history.state && history.state.modal === 'senda_read') {
+        showToast("La exportación solo está disponible para Libros y Senderos.", "info");
+        return;
+    }
+
+    // Si GDocs no está activo, sugerimos activarlo
+    if (localStorage.getItem('lumina_gdocs_active') !== 'true') {
+        showLuminaConfirm(
+            'Google Docs Inactivo',
+            'Para generar libros, primero debes activar la integración con Google Docs en los ajustes.',
+            () => toggleIntegrationsModal(),
+            'IR A AJUSTES'
+        );
+        return;
+    }
+
+    showToast('Generando tu Libro Lúmina...', 'info');
+    
+    try {
+        const userName = localStorage.getItem('lumina_user_name') || 'Viajero';
+        const formData = new URLSearchParams();
+        formData.append('action', 'export_expansion_doc');
+        formData.append('expId', currentExpId);
+        formData.append('book', currentExpBook);
+        formData.append('userName', userName);
+
+        const resp = await fetch(API, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+        const data = await resp.json();
+        
+        if (data.success) {
+            showLuminaConfirm('¡Libro Generado!', `La obra "${data.name}" ha sido creada en tu Google Docs.`, () => {
+                window.open(data.url, '_blank');
+            }, 'VER LIBRO');
+        } else {
+            const errorMsg = data.message || '';
+            if (errorMsg.includes('DocumentApp') || errorMsg.includes('permiso')) {
+                showLuminaConfirm(
+                    'Acceso a Google Docs', 
+                    'Lúmina necesita permiso para crear documentos en tu Drive para generar libros.', 
+                    () => { window.open(API + '?action=authorize', '_blank'); }, 
+                    'AUTORIZAR ACCESO'
+                );
+            } else {
+                showToast('Error: ' + errorMsg, 'error');
+            }
+        }
+    } catch (e) {
+        showToast('Error al procesar el libro', 'error');
         console.error(e);
     }
 }
