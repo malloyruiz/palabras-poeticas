@@ -3915,8 +3915,17 @@ body[data-cat="sendas"] #header-cat {
         function finalizeAccess(res, email) {
             localStorage.setItem('lumina_user_email', email);
             localStorage.setItem('lumina_user_name', res.name);
-            if (res.proKey) localStorage.setItem('lumina_pro_key', res.proKey);
-            if (res.isPro) localStorage.setItem('lumina_pro', 'true');
+            localStorage.setItem('lumina_trial_active', 'false');
+            
+            if (res.isPro) {
+                localStorage.setItem('lumina_pro', 'true');
+                localStorage.setItem('lumina_pro_type', 'PRO');
+                if (res.proKey) localStorage.setItem('lumina_pro_key', res.proKey);
+            } else {
+                localStorage.setItem('lumina_pro', 'false');
+                localStorage.setItem('lumina_pro_type', 'FREE');
+            }
+            
             if (res.birthday) localStorage.setItem('lumina_birthday', String(res.birthday).substring(0, 10));
             if (res.data) pullSync(res.data);
             location.reload();
@@ -12790,16 +12799,18 @@ function shareSendaComplete() {
 
 function toggleIntegrationsModal() {
     const modal = document.getElementById('integrations-modal');
+    if (!modal) return;
+
     if (modal.classList.contains('active')) {
         modal.classList.remove('active');
         history.back();
     } else {
-        // Primero cerramos cualquier otro modal (como el de Ajustes)
         closeModals(true); 
-        
-        modal.classList.add('active');
-        history.pushState({ modal: 'integrations' }, '', '#integrations');
-        syncIntegrationsUI();
+        setTimeout(() => {
+            modal.classList.add('active');
+            history.pushState({ modal: 'integrations' }, '', '#integrations');
+            syncIntegrationsUI();
+        }, 10);
     }
 }
 
