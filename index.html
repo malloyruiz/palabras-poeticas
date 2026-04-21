@@ -3915,15 +3915,13 @@ body[data-cat="sendas"] #header-cat {
         function finalizeAccess(res, email) {
             localStorage.setItem('lumina_user_email', email);
             localStorage.setItem('lumina_user_name', res.name);
-            localStorage.setItem('lumina_trial_active', 'false');
             
             if (res.isPro) {
                 localStorage.setItem('lumina_pro', 'true');
-                localStorage.setItem('lumina_pro_type', 'PRO');
                 if (res.proKey) localStorage.setItem('lumina_pro_key', res.proKey);
             } else {
                 localStorage.setItem('lumina_pro', 'false');
-                localStorage.setItem('lumina_pro_type', 'FREE');
+                localStorage.removeItem('lumina_pro_key');
             }
             
             if (res.birthday) localStorage.setItem('lumina_birthday', String(res.birthday).substring(0, 10));
@@ -6558,16 +6556,17 @@ body[data-cat="sendas"] #header-cat {
             const key = localStorage.getItem('lumina_pro_key');
             if (!key) return;
             try {
+                // Sincronización robusta: Solo desconectamos si el servidor confirma explícitamente que no es válido
                 const response = await fetch(`${API}?action=val&code=${key}&_cb=${Date.now()}`);
                 const data = await response.json();
-                if (!data.success) {
+                if (data && data.success === false) {
                     console.warn("Lúmina: Llave Pro ya no es válida.");
-                    isPro = false;
                     localStorage.setItem('lumina_pro', 'false');
                     localStorage.removeItem('lumina_pro_key');
-                    // No recargamos para evitar bucles, el UI se actualizará en la próxima carga
                 }
-            } catch (e) { console.warn("Validación offline activa"); }
+            } catch (e) { 
+                console.warn("Validación offline activa o servidor ocupado."); 
+            }
         }
 
         function updateHeaderDate() {
