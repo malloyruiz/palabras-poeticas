@@ -7140,6 +7140,7 @@ body[data-cat="sendas"] #header-cat {
             } catch(e) {}
 
             if (typeof updateProExtraUI === 'function') updateProExtraUI();
+            if (typeof loadProState === 'function') loadProState();
             if (localStorage.getItem('lumina_wake_lock') === 'true' && typeof requestWakeLock === 'function') requestWakeLock();
 
             // Deep-links desde notificaciones
@@ -7152,6 +7153,9 @@ body[data-cat="sendas"] #header-cat {
             }
 
             console.log("Lúmina: Fase 2 - Módulos");
+            if (typeof updateHubInfo === 'function') updateHubInfo();
+            if (typeof checkNotifications === 'function') checkNotifications();
+            if (typeof checkEmergencyPopups === 'function') checkEmergencyPopups();
             
             // Ping al Service Worker para marcar actividad
             if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
@@ -8652,6 +8656,57 @@ if (id === 'content-header' || id === 'side-panel') {
         };
 
         let isCheckingNotifs = false;
+        function updateHeroTitle(isProUser, trialActive) {
+            const heroTitle = document.getElementById('hero-title');
+            if (!heroTitle) return;
+            if (isProUser) {
+                heroTitle.innerHTML = 'Lúmina <span class="logo-pro-badge">PRO</span>';
+            } else {
+                heroTitle.innerText = 'Lúmina';
+            }
+        }
+
+        async function loadProState() {
+            const proVal = localStorage.getItem('lumina_pro');
+            const trialActive = (typeof isTrialActive === 'function') ? isTrialActive() : false;
+            isPro = (proVal === 'true' || trialActive);
+            
+            const hubPro = document.getElementById('hub-pro-banner');
+            const trialBtn = document.getElementById('btn-start-trial');
+            const trialUsed = localStorage.getItem('lumina_trial_used') === 'true';
+
+            updateHeroTitle(proVal === 'true', trialActive);
+
+            if (isPro) {
+                document.body.classList.add('pro-unlocked');
+                if (hubPro) hubPro.style.display = 'none';
+                
+                const statusMsg = document.getElementById('premium-status-msg');
+                if (statusMsg) {
+                    statusMsg.innerText = trialActive ? "✨ Periodo de Prueba Activo" : "✨ ¡Eres Miembro Pro!";
+                    statusMsg.style.color = "#4ade80";
+                }
+                
+                const activationSection = document.getElementById('profile-pro-activation');
+                const infoSection = document.getElementById('profile-pro-info');
+                if (activationSection) activationSection.style.display = 'none';
+                if (infoSection) infoSection.style.display = 'block';
+
+                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'none');
+            } else {
+                document.body.classList.remove('pro-unlocked');
+                if (hubPro) hubPro.style.display = 'block';
+                if (trialUsed && trialBtn) trialBtn.style.display = 'none';
+                
+                const activationSection = document.getElementById('profile-pro-activation');
+                const infoSection = document.getElementById('profile-pro-info');
+                if (activationSection) activationSection.style.display = 'block';
+                if (infoSection) infoSection.style.display = 'none';
+
+                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'inline-block');
+            }
+        }
+
         async function checkNotifications() {
             if (isCheckingNotifs) return;
             isCheckingNotifs = true;
