@@ -13148,6 +13148,11 @@ function injectIntegrationNews(tit, msg, link, gapData = null) {
     });
 
     localStorage.setItem('lumina_local_notifs', JSON.stringify(localNotifs));
+
+    // Actualizar la campanita en tiempo real para que el badge aparezca de inmediato
+    if (typeof checkNotifications === 'function') {
+        setTimeout(() => checkNotifications(), 100);
+    }
 }
 
 let activeGapData = null;
