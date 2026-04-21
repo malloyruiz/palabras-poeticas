@@ -442,13 +442,8 @@
             font-weight: 400;
         }
         #loader-text.visible { opacity: 0.6; }
-        #offline-banner {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 5000;
-        }
+        /* offline-banner: primer bloque — ignorado, el definitivo está abajo */
+        #offline-banner-placeholder { display: none; }
         .capture-area { 
             width: 400px !important; 
             min-height: 711px !important; 
@@ -1298,21 +1293,42 @@
         .btn-cta-light { background: var(--accent); color: white; border: none; padding: 14px 30px; border-radius: 14px; font-weight: 700; font-size: 0.75rem; cursor: pointer; letter-spacing: 1px; width: 100%; transition: transform 0.2s; }
         .btn-cta-light:active { transform: scale(0.98); }
 
-        /* Banner Offline */
+        /* Banner Offline — pill flotante premium */
         #offline-banner {
             position: fixed;
-            top: 0; left: 0; right: 0;
-            background: var(--accent);
-            color: #fff;
-            font-size: 0.65rem;
-            letter-spacing: 2px;
-            padding: 8px;
-            text-align: center;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
             z-index: 6000;
             display: none;
-            font-weight: 600;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px 10px 14px;
+            border-radius: 50px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            animation: slideDown 0.4s ease;
+            white-space: nowrap;
+            pointer-events: none;
+            animation: offlinePillIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            /* Modo claro */
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(181, 131, 58, 0.3);
+            color: rgba(80, 60, 20, 0.85);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(181,131,58,0.15);
+        }
+        [data-theme="dark"] #offline-banner {
+            background: rgba(30, 25, 15, 0.85);
+            border-color: rgba(181, 131, 58, 0.25);
+            color: rgba(220, 190, 120, 0.9);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(181,131,58,0.2);
+        }
+        @keyframes offlinePillIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
         /* Trial UI */
@@ -3338,7 +3354,7 @@ body[data-cat="sendas"] #header-cat {
 
     <script>
         // --- CORE: ESTADO GLOBAL Y FUNCIONES DE ACCESO INMEDIATO ---
-        const API = "https://script.google.com/macros/s/AKfycbwx5LGxpNG3HKDr7wR_UYSB0rUooHMoWriR6efhMuSPIBS5TNh3xCR1YmQ7_NbjdVs6/exec";
+        const API = "https://script.google.com/macros/s/AKfycbyAIZ5rUHznpscJuPjEdhqoV1glBVHzSXnbZr-lPE8NBms7yJCk1XQTjWbzPK9Jgpw1/exec";
         let portalMode = 'login';
         let recoveryStep = 1;
         let recoveryMethod = '';
@@ -4308,7 +4324,12 @@ body[data-cat="sendas"] #header-cat {
         </footer>
     </div>
 
-    <div id="offline-banner">Modo offline — Viendo contenido guardado</div>
+    <div id="offline-banner">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+        Contenido guardado
+    </div>
     <div class="atm-motes" id="atm-motes"></div>
 
     <div id="loader">
@@ -12016,6 +12037,37 @@ if (id === 'content-header' || id === 'side-panel') {
                         <div class="integration-toggle" id="toggle-gdocs" onclick="toggleIntegration('gdocs')"></div>
                     </div>
 
+                    <!-- Telegram (ACTIVO) -->
+                    <div class="integration-card" id="card-tg" style="flex-wrap:wrap; cursor:default;">
+                        <div class="integration-icon-box" style="background:#0088cc; flex-shrink:0;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.98-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.35-.01-1.02-.2-1.52-.37-.62-.2-1.1-.31-1.06-.65.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .24z"/></svg>
+                        </div>
+                        <div class="integration-info" style="flex:1;">
+                            <h4>Telegram</h4>
+                            <p id="tg-card-desc">Recibe tu dosis diaria de sabiduría en tu chat.</p>
+                        </div>
+                        <div id="toggle-tg" class="integration-toggle" onclick="toggleTelegramPanel()"></div>
+
+                        <!-- Panel expandible -->
+                        <div id="tg-config-panel" style="display:none; width:100%; margin-top:14px; padding-top:14px; border-top:1px solid rgba(128,128,128,0.12);">
+                            <div id="tg-panel-inner"><p style="font-size:0.75rem;opacity:0.5;text-align:center;">Verificando…</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Salud / Bienestar (Coming Soon) -->
+                    <div class="integration-card" style="opacity: 0.5; filter: grayscale(1);">
+                        <div class="integration-icon-box" style="background: #f8fafc;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#ef4444"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3 C1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </div>
+                        <div class="integration-info">
+                            <h4>Salud & Bienestar</h4>
+                            <p>Sincroniza tus minutos de meditación con iOS y Android.</p>
+                        </div>
+                    </div>
+
+                    <!-- Separador Coming Soon -->
+                    <div style="font-size:0.6rem; letter-spacing:2px; opacity:0.3; text-transform:uppercase; padding: 4px 0 2px; font-weight:700;">Próximamente</div>
+
                     <!-- Notion (Coming Soon) -->
                     <div class="integration-card" style="opacity: 0.5; filter: grayscale(1);">
                         <div class="integration-icon-box">
@@ -12035,28 +12087,6 @@ if (id === 'content-header' || id === 'side-panel') {
                         <div class="integration-info">
                             <h4>IFTTT</h4>
                             <p>Conecta Lúmina con más de 700 servicios externos.</p>
-                        </div>
-                    </div>
-
-                    <!-- Salud / Bienestar (Coming Soon) -->
-                    <div class="integration-card" style="opacity: 0.5; filter: grayscale(1);">
-                        <div class="integration-icon-box" style="background: #f8fafc;">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#ef4444"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </div>
-                        <div class="integration-info">
-                            <h4>Salud & Bienestar</h4>
-                            <p>Sincroniza tus minutos de meditación con iOS y Android.</p>
-                        </div>
-                    </div>
-
-                    <!-- Bots (Coming Soon) -->
-                    <div class="integration-card" style="opacity: 0.5; filter: grayscale(1);">
-                        <div class="integration-icon-box" style="background: #0088cc;">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.98-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.35-.01-1.02-.2-1.52-.37-.62-.2-1.1-.31-1.06-.65.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .24z"/></svg>
-                        </div>
-                        <div class="integration-info">
-                            <h4>Telegram & WhatsApp</h4>
-                            <p>Recibe tu sabiduría diaria y retos directamente en tu chat.</p>
                         </div>
                     </div>
                 </div>
@@ -13075,12 +13105,11 @@ function shareSendaComplete() {
 function toggleIntegrationsModal() {
     const modal = document.getElementById('integrations-modal');
     if (!modal) return;
-
     if (modal.classList.contains('active')) {
         modal.classList.remove('active');
         history.back();
     } else {
-        closeModals(true); 
+        closeModals(true);
         setTimeout(() => {
             modal.classList.add('active');
             history.pushState({ modal: 'integrations' }, '', '#integrations');
@@ -13093,28 +13122,126 @@ function toggleIntegration(id) {
     const btn = document.getElementById('toggle-' + id);
     const isActive = btn.classList.toggle('active');
     localStorage.setItem('lumina_' + id + '_active', isActive);
-    
     if (navigator.vibrate) navigator.vibrate(isActive ? 15 : 8);
     showToast(isActive ? 'Integración activa' : 'Integración pausada', 'success');
-
     if (id === 'gcal' && isActive) checkCalendarGaps(true);
-    if (id === 'gdocs') syncIntegrationsUI(); 
+    if (id === 'gdocs') syncIntegrationsUI();
 }
 
 function syncIntegrationsUI() {
     const gcal = localStorage.getItem('lumina_gcal_active') === 'true';
     const gdocs = localStorage.getItem('lumina_gdocs_active') === 'true';
-    
     document.getElementById('toggle-gcal')?.classList.toggle('active', gcal);
     document.getElementById('toggle-gdocs')?.classList.toggle('active', gdocs);
-    
-    // UI Pausa: Mostrar/ocultar botón de sugerencias
     const gcalBtn = document.getElementById('gcal-manual-trigger');
     if (gcalBtn) gcalBtn.style.display = gcal ? 'block' : 'none';
-
-    // Mostrar área de exportación en Bitácora si GDocs está activo
     const expMain = document.getElementById('btn-bitacora-export-main');
     if (expMain) expMain.style.display = gdocs ? 'flex' : 'none';
+    // Sincronizar estado visual Telegram
+    const tgActive = localStorage.getItem('lumina_tg_connected') === 'true';
+    document.getElementById('toggle-tg')?.classList.toggle('active', tgActive);
+}
+
+// ===== TELEGRAM =====
+function toggleTelegramPanel() {
+    const toggle = document.getElementById('toggle-tg');
+    const panel  = document.getElementById('tg-config-panel');
+    if (!toggle || !panel) return;
+    const opening = panel.style.display === 'none';
+    panel.style.display = opening ? 'block' : 'none';
+    if (opening) loadTelegramStatus();
+    if (navigator.vibrate) navigator.vibrate(15);
+}
+
+async function loadTelegramStatus() {
+    const inner = document.getElementById('tg-panel-inner');
+    if (!inner) return;
+    if (!luminaUser) {
+        inner.innerHTML = renderTgPanel(false, 0, true);
+        return;
+    }
+    inner.innerHTML = '<p style="font-size:0.75rem;opacity:0.5;text-align:center;">Verificando…</p>';
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000); // 8s timeout
+    try {
+        const res  = await fetch(API + '?action=telegram_status&email=' + encodeURIComponent(luminaUser), { signal: controller.signal });
+        clearTimeout(timer);
+        const data = await res.json();
+        const connected = data.connected === true;
+        localStorage.setItem('lumina_tg_connected', connected ? 'true' : 'false');
+        document.getElementById('toggle-tg')?.classList.toggle('active', connected);
+        inner.innerHTML = renderTgPanel(connected, data.streak || 0, false);
+    } catch(e) {
+        clearTimeout(timer);
+        // Timeout o error de red: mostrar panel desconectado sin bloquear
+        inner.innerHTML = renderTgPanel(false, 0, false);
+    }
+}
+
+function renderTgPanel(connected, streak, needsLogin) {
+    if (needsLogin) return `<p style="font-size:0.8rem;opacity:0.6;text-align:center;line-height:1.6;">Inicia sesión en Lúmina para conectar Telegram.</p>`;
+    if (connected) {
+        return `
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="background:#0088cc22;border-radius:12px;padding:10px 14px;flex:1;">
+                <div style="font-size:0.65rem;opacity:0.5;letter-spacing:1px;text-transform:uppercase;">Estado</div>
+                <div style="font-size:0.85rem;font-weight:600;color:#0088cc;">✅ Conectado</div>
+            </div>
+            <div style="background:rgba(181,131,58,0.1);border-radius:12px;padding:10px 14px;flex:1;">
+                <div style="font-size:0.65rem;opacity:0.5;letter-spacing:1px;text-transform:uppercase;">Racha</div>
+                <div style="font-size:0.85rem;font-weight:700;color:var(--accent);">🔥 ${streak} día${streak!==1?'s':''}</div>
+            </div>
+        </div>
+        <button onclick="disconnectTelegram()" style="width:100%;padding:12px;border-radius:40px;background:transparent;border:1px solid rgba(128,128,128,0.25);color:var(--text);font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;opacity:0.7;">
+            DESCONECTAR
+        </button>`;
+    }
+    return `
+    <p style="font-size:0.8rem;line-height:1.7;opacity:0.7;margin-bottom:14px;">
+        Conecta tu cuenta y recibirás cada mañana la <b>palabra del día</b>, una <b>frase inspiradora</b> y tu <b>reto diario</b> directo en Telegram.
+    </p>
+    <button onclick="connectTelegram()" id="btn-tg-connect" style="
+        width:100%;padding:14px;border-radius:40px;
+        background:linear-gradient(135deg,#0088cc,#229ed9);
+        color:#fff;border:none;font-size:0.75rem;
+        letter-spacing:2px;text-transform:uppercase;
+        font-weight:700;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        box-shadow:0 6px 20px rgba(0,136,204,0.3);transition:0.2s;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.98-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.35-.01-1.02-.2-1.52-.37-.62-.2-1.1-.31-1.06-.65.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .24z"/></svg>
+        ABRIR EN TELEGRAM
+    </button>
+    <p style="font-size:0.6rem;opacity:0.4;text-align:center;margin-top:10px;line-height:1.5;">Al hacer clic se abrirá Telegram. Presiona START y tu cuenta quedará vinculada automáticamente.</p>`;
+}
+
+async function connectTelegram() {
+    if (!luminaUser) { showToast('Inicia sesión primero', 'info'); return; }
+    const btn = document.getElementById('btn-tg-connect');
+    if (btn) { btn.textContent = 'Generando enlace…'; btn.disabled = true; }
+    try {
+        const res  = await fetch(API + '?action=telegram_link&email=' + encodeURIComponent(luminaUser));
+        const data = await res.json();
+        if (data.success) {
+            window.open(data.link, '_blank');
+            showToast('Enlace abierto — presiona START en Telegram ✅', 'success');
+            // Poll status after 8s
+            setTimeout(loadTelegramStatus, 8000);
+        } else {
+            showToast(data.error || 'Bot no configurado aún.', 'info');
+        }
+    } catch(e) { showToast('Error de conexión', 'info'); }
+    if (btn) { btn.textContent = 'ABRIR EN TELEGRAM'; btn.disabled = false; }
+}
+
+async function disconnectTelegram() {
+    if (!luminaUser) return;
+    try {
+        await fetch(API + '?action=telegram_unsubscribe&email=' + encodeURIComponent(luminaUser));
+        localStorage.setItem('lumina_tg_connected', 'false');
+        document.getElementById('toggle-tg')?.classList.remove('active');
+        document.getElementById('tg-panel-inner').innerHTML = renderTgPanel(false, 0, false);
+        showToast('Telegram desconectado', 'info');
+    } catch(e) { showToast('Error al desconectar', 'info'); }
 }
 
 async function checkCalendarGaps(isManual = false) {

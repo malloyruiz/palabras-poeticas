@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lumina-v15'; // v15: Native Local Push Notifications
+const CACHE_NAME = 'lumina-v16'; // v16: Integración de Telegram
 
 const ASSETS = [
     "index.html",
