@@ -3900,7 +3900,7 @@ body[data-cat="sendas"] #header-cat {
             .then(data => {
                 hideLoader();
                 if (data.success) {
-                    saveIdentity(email, data.name, '', []);
+                    finalizeAccess(data, email);
                     if (data.newUser) {
                         showToast(`¡Bienvenido ${data.name}!`, "success");
                     }
