@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lumina-v16'; // v16: Integración de Telegram
+const CACHE_NAME = 'lumina-v18'; // v18: Fix Telegram Undefined Var
 
 const ASSETS = [
     "index.html",

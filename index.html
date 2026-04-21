@@ -13156,24 +13156,26 @@ function toggleTelegramPanel() {
 async function loadTelegramStatus() {
     const inner = document.getElementById('tg-panel-inner');
     if (!inner) return;
+    const luminaUser = localStorage.getItem('lumina_user_email');
     if (!luminaUser) {
         inner.innerHTML = renderTgPanel(false, 0, true);
         return;
     }
     inner.innerHTML = '<p style="font-size:0.75rem;opacity:0.5;text-align:center;">Verificando…</p>';
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 8000); // 8s timeout
+    
     try {
-        const res  = await fetch(API + '?action=telegram_status&email=' + encodeURIComponent(luminaUser), { signal: controller.signal });
-        clearTimeout(timer);
-        const data = await res.json();
-        const connected = data.connected === true;
+        const fetchPromise = fetch(API + '?action=telegram_status&email=' + encodeURIComponent(luminaUser)).then(r => r.json());
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 8000));
+        
+        const data = await Promise.race([fetchPromise, timeoutPromise]);
+        
+        const connected = data && data.connected === true;
         localStorage.setItem('lumina_tg_connected', connected ? 'true' : 'false');
         document.getElementById('toggle-tg')?.classList.toggle('active', connected);
         inner.innerHTML = renderTgPanel(connected, data.streak || 0, false);
     } catch(e) {
-        clearTimeout(timer);
-        // Timeout o error de red: mostrar panel desconectado sin bloquear
+        console.warn('TG Status Error:', e);
+        // Fallback seguro en caso de error o timeout
         inner.innerHTML = renderTgPanel(false, 0, false);
     }
 }
@@ -13215,6 +13217,7 @@ function renderTgPanel(connected, streak, needsLogin) {
 }
 
 async function connectTelegram() {
+    const luminaUser = localStorage.getItem('lumina_user_email');
     if (!luminaUser) { showToast('Inicia sesión primero', 'info'); return; }
     const btn = document.getElementById('btn-tg-connect');
     if (btn) { btn.textContent = 'Generando enlace…'; btn.disabled = true; }
@@ -13234,6 +13237,7 @@ async function connectTelegram() {
 }
 
 async function disconnectTelegram() {
+    const luminaUser = localStorage.getItem('lumina_user_email');
     if (!luminaUser) return;
     try {
         await fetch(API + '?action=telegram_unsubscribe&email=' + encodeURIComponent(luminaUser));
