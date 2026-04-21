@@ -7123,8 +7123,10 @@ body[data-cat="sendas"] #header-cat {
 
         async function init() {
             console.log("Lúmina: Fase 1 - Identidad");
+            if (typeof updateHeaderDate === 'function') updateHeaderDate();
+            
             const hasUser = await checkUserSession();
-            if (!hasUser) return; // checkUserSession ya llama hideLoader() para invitados
+            if (!hasUser) return; 
 
             hideLoader();
 
@@ -8675,7 +8677,7 @@ if (id === 'content-header' || id === 'side-panel') {
             const trialBtn = document.getElementById('btn-start-trial');
             const trialUsed = localStorage.getItem('lumina_trial_used') === 'true';
 
-            updateHeroTitle(proVal === 'true', trialActive);
+            if (typeof updateHeroTitle === 'function') updateHeroTitle(proVal === 'true', trialActive);
 
             if (isPro) {
                 document.body.classList.add('pro-unlocked');
@@ -8687,23 +8689,25 @@ if (id === 'content-header' || id === 'side-panel') {
                     statusMsg.style.color = "#4ade80";
                 }
                 
+                document.querySelectorAll('.pro-only-item').forEach(el => el.style.display = 'flex');
+                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'none');
+                
                 const activationSection = document.getElementById('profile-pro-activation');
                 const infoSection = document.getElementById('profile-pro-info');
                 if (activationSection) activationSection.style.display = 'none';
                 if (infoSection) infoSection.style.display = 'block';
-
-                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'none');
             } else {
                 document.body.classList.remove('pro-unlocked');
                 if (hubPro) hubPro.style.display = 'block';
                 if (trialUsed && trialBtn) trialBtn.style.display = 'none';
                 
+                document.querySelectorAll('.pro-only-item').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'inline-block');
+
                 const activationSection = document.getElementById('profile-pro-activation');
                 const infoSection = document.getElementById('profile-pro-info');
                 if (activationSection) activationSection.style.display = 'block';
                 if (infoSection) infoSection.style.display = 'none';
-
-                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'inline-block');
             }
         }
 
@@ -13028,11 +13032,6 @@ async function confirmCalendarSchedule() {
         btn.innerText = 'RESERVAR CITA CON MI CALMA';
         btn.disabled = false;
     }
-}
-    
-    // Forzar actualización inmediata de la UI
-    isCheckingNotifs = false; 
-    checkNotifications();
 }
 
 function showExportOptions() {
