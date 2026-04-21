@@ -4657,6 +4657,13 @@ body[data-cat="sendas"] #header-cat {
                     <div style="margin-bottom: 50px; text-align: left;">
                         <h1 style="font-family:'Playfair Display', serif; font-size: 3.5rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900;">Pausa Consciente</h1>
                         <p style="opacity: 0.6; font-size: 1rem; max-width: 800px; line-height: 1.6;">Elige el ancla que necesitas en este momento para volver al presente.</p>
+                        
+                        <div id="gcal-manual-trigger" style="display: none; margin-top: 20px;">
+                            <button onclick="checkCalendarGaps(true)" class="btn-save" style="background: rgba(181, 131, 58, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 10px 20px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><path d="M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><polyline points="16 2 16 6"></polyline><polyline points="8 2 8 6"></polyline><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                SUGERIR PAUSAS DE CALMA
+                            </button>
+                        </div>
                     </div>
 
                     <div class="modal-tabs" style="margin-bottom: 40px; justify-content: flex-start;">
@@ -4857,7 +4864,14 @@ body[data-cat="sendas"] #header-cat {
                 <div id="bitacora-list" class="journal-history">
                     <!-- Dinámico -->
                 </div>
-                <button class="btn-save" onclick="toggleBitacoraView('templates')" style="width: 100%; padding: 18px; margin-top: 30px; border-radius: 50px; background: transparent; border: 1px solid rgba(128,128,128,0.1);">VOLVER A PLANTILLAS</button>
+                <button onclick="toggleBitacoraView('templates')" style="
+                    width:100%; padding:16px; margin-top:25px; border-radius:50px;
+                    background:transparent;
+                    border:1px solid rgba(181,131,58,0.4);
+                    color:var(--accent);
+                    font-size:0.7rem; font-weight:700; letter-spacing:2px;
+                    cursor:pointer; transition:0.3s; text-transform:uppercase;
+                " onmouseover="this.style.background='rgba(181,131,58,0.08)'" onmouseout="this.style.background='transparent'">← VOLVER A PLANTILLAS</button>
             </div>
         </div>
 
@@ -5468,6 +5482,38 @@ body[data-cat="sendas"] #header-cat {
         let currentExpLessons = [];
         let currentExpIdx = 0;
 
+        // --- SISTEMA DE PROGRESO UNIFICADO (Refactorización Limpia) ---
+        const ProgresoLumina = {
+            getKey: (bookName) => {
+                if (!bookName) return null;
+                // Normalización agresiva: minúsculas, sin acentos, sin caracteres especiales
+                const normalized = String(bookName).toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .replace(/[^a-z0-9]/g, "");
+                return `lumina_prog_v3_${normalized}`;
+            },
+            get: (expId, bookName) => {
+                const key = ProgresoLumina.getKey(bookName);
+                if (!key) return 0;
+                const val = localStorage.getItem(key);
+                if (val !== null) return parseInt(val);
+                
+                // Fallback de compatibilidad para no perder progreso previo
+                const legacy1 = `lumina_exp_prog_U_${bookName}`; 
+                const legacy2 = `lumina_exp_prog_${expId}_${bookName}`;
+                const legacyVal = localStorage.getItem(legacy1) || localStorage.getItem(legacy2);
+                return legacyVal !== null ? parseInt(legacyVal) : 0;
+            },
+            set: (bookName, index) => {
+                const key = ProgresoLumina.getKey(bookName);
+                if (key) {
+                    localStorage.setItem(key, index);
+                    // Si la biblioteca está en memoria, refrescamos visualmente
+                    if (allExpansions && allExpansions.length > 0) renderExpansions(allExpansions);
+                }
+            }
+        };
+
         async function loadExpansions() {
             const container = document.getElementById('exp-list-container');
             const email = localStorage.getItem('lumina_user_email') || "";
@@ -5537,15 +5583,16 @@ body[data-cat="sendas"] #header-cat {
                 const isLibro = exp.id.toLowerCase().startsWith('lib');
                 const priceLabel = isLibro ? '$1.99' : '$4.99';
                 
-                if (exp.unlocked && exp.libros) {
-                    exp.libros.forEach(book => {
-                        const savedProg = parseInt(localStorage.getItem(`lumina_exp_prog_${exp.id}_${book.trim()}`)) || 0;
+                if (exp.unlocked) {
+                    const bookNames = (exp.libros && exp.libros.length > 0) ? exp.libros : [exp.titulo];
+                    bookNames.forEach(book => {
+                        const savedProg = ProgresoLumina.get(exp.id, book);
                         completedExp += (savedProg + 1); 
                     });
                 }
                 
                 const expProgressPercent = totalExp > 0 ? Math.round((completedExp / totalExp) * 100) : 0;
-                const hasProgress = exp.unlocked && completedExp > 1; 
+                const hasProgress = exp.unlocked && (completedExp > 1 || (totalExp > 0 && completedExp > 0)); 
 
                 const internalBookName = (exp.libros && exp.libros.length > 0) ? exp.libros[0].trim() : String(exp.titulo).trim();
                 const clickAction = exp.unlocked 
@@ -5557,12 +5604,20 @@ body[data-cat="sendas"] #header-cat {
                     <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
                     
                     <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 100%;">
-                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 5px;">
                             <span style="font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; font-weight: 700; text-transform: uppercase; opacity: 0.6;">
                                 ${exp.unlocked ? 'Disponible' : `Premium · ${priceLabel}`}
                             </span>
-                            ${hasProgress ? `<span style="font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; color: var(--accent); opacity: 0.8;">${expProgressPercent}% COMPLETADO</span>` : ''}
                         </div>
+                        
+                        ${hasProgress ? `
+                        <div style="width: 100%; margin-bottom: 20px;">
+                            <div class="book-progress-wrapper" style="height: 2px; background: rgba(128,128,128,0.15);">
+                                <div class="book-progress-fill" style="width: ${expProgressPercent}%; height: 2px;"></div>
+                            </div>
+                            <div style="font-size: 0.55rem; font-weight: 700; letter-spacing: 1px; color: var(--accent); opacity: 0.7; margin-top: 6px; text-align: right;">${expProgressPercent}%</div>
+                        </div>
+                        ` : '<div style="height: 38px;"></div>'}
                         
                         ${exp.autor ? `<div style="font-size: 0.6rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; opacity: 0.7; text-align: center;">${exp.autor}</div>` : ''}
                         <h4 style="font-family: 'Playfair Display', serif; font-size: 2rem; font-style: italic; margin: 0 0 10px 0; font-weight: 900; line-height: 1.1; text-align: center;">${exp.titulo}</h4>
@@ -5580,14 +5635,9 @@ body[data-cat="sendas"] #header-cat {
                     </div>
                     
                     <div style="display: flex; flex-direction: column; width: 100%; margin-top: 30px; position: relative; z-index: 2;">
-                        <div style="font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px;">
+                        <div style="font-size: 0.75rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px;">
                             ${exp.unlocked ? `EXPLORAR ${isLibro ? 'CONTENIDO' : 'LIBROS'} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>` : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> ADQUIRIR'}
                         </div>
-                        ${hasProgress ? `
-                        <div class="book-progress-wrapper" style="height: 3px; background: rgba(128,128,128,0.1);">
-                            <div class="book-progress-fill" style="width: ${expProgressPercent}%"></div>
-                        </div>
-                        ` : ''}
                     </div>
                 </div>
             `;
@@ -5699,8 +5749,8 @@ body[data-cat="sendas"] #header-cat {
                     const meta = isArrayContent ? allContent.find(c => String(c.book || "").trim().toLowerCase() === bNameLower) : null;
                     const totalLessons = isArrayContent ? allContent.filter(c => String(c.book || "").trim().toLowerCase() === bNameLower).length : 0;
                     
-                    // Cálculo de progreso
-                    const savedProg = parseInt(localStorage.getItem(`lumina_exp_prog_${id}_${bNameTrim}`)) || 0;
+                    // Cálculo de progreso unificado y normalizado
+                    const savedProg = ProgresoLumina.get(id, bNameTrim);
                     const progressPercent = totalLessons > 0 ? Math.round(((savedProg + 1) / totalLessons) * 100) : 0;
                     const progressLabel = totalLessons > 0 ? `LECCIÓN ${savedProg + 1} DE ${totalLessons}` : 'SIN CONTENIDO';
 
@@ -5761,8 +5811,8 @@ body[data-cat="sendas"] #header-cat {
                 }
 
                 if (Array.isArray(currentExpLessons) && currentExpLessons.length > 0) {
-                    // Recuperar progreso guardado (último índice)
-                    const savedIdx = parseInt(localStorage.getItem(`lumina_exp_prog_${expId}_${bookName}`)) || 0;
+                    // Recuperar progreso guardado (Búsqueda robusta mediante Manager)
+                    const savedIdx = ProgresoLumina.get(expId, bookName);
                     currentExpIdx = savedIdx < currentExpLessons.length ? savedIdx : 0;
                     
                     renderExpansionContent();
@@ -5777,6 +5827,10 @@ body[data-cat="sendas"] #header-cat {
                     container.classList.add('active');
                     history.pushState({ modal: 'exp_read', expId: expId, book: bookName }, "", `#read_${expId}`);
                     if (navigator.vibrate) navigator.vibrate(5);
+
+                    // Libros individuales: siempre ocultar exportar (solo visible en Expansiones EXP_)
+                    const exportBtnBook = document.getElementById('btn-export-book');
+                    if (exportBtnBook) exportBtnBook.style.display = 'none';
                 } else {
                     showToast("Este libro no tiene lecciones aún.", "info");
                 }
@@ -5825,7 +5879,7 @@ body[data-cat="sendas"] #header-cat {
             
             // Guardar Progreso Automáticamente SOLO si estamos en modo Expansión
             if (history.state && history.state.modal === 'exp_read') {
-                localStorage.setItem(`lumina_exp_prog_${currentExpId}_${currentExpBook}`, currentExpIdx);
+                ProgresoLumina.set(currentExpBook, currentExpIdx);
             }
             
             // Reset de nav buttons y liberación de navegación para libros
@@ -5839,21 +5893,40 @@ body[data-cat="sendas"] #header-cat {
                 prevBtn.onclick = (e) => { e.stopPropagation(); expPrev(); };
             }
             if (nextBtn) {
-                nextBtn.style.display = 'flex';
-                nextBtn.disabled = (currentExpIdx === currentExpLessons.length - 1);
+                const isLast = (currentExpIdx === currentExpLessons.length - 1);
+                nextBtn.style.display = isLast ? 'none' : 'flex';
                 nextBtn.onclick = (e) => { e.stopPropagation(); expNext(); };
             }
-            if (completeBtn) completeBtn.style.display = 'none';
+            if (completeBtn) {
+                const isLast = (currentExpIdx === currentExpLessons.length - 1);
+                completeBtn.style.display = isLast ? 'flex' : 'none';
+                completeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    const lesson = currentExpLessons[currentExpIdx];
+                    markLessonAsReadUnified({
+                        idx: lesson.idx,
+                        expId: currentExpId,
+                        book: currentExpBook,
+                        currentExpIdx: currentExpIdx,
+                        cat: 'libros'
+                    });
+                    showToast("¡Has completado este viaje de conocimiento! ✨", "success");
+                    if (typeof playSound === 'function') playSound('success');
+                    setTimeout(() => history.back(), 1500); 
+                };
+            }
             
             updateFavoriteIcon();
             loadExpJournal();
             
-            // Control de visibilidad del botón de exportar (PRO y solo Libros/Senderos)
+            // Control de visibilidad del botón de exportar
+            // Regla: Solo PRO + Expansión estructurada (ID comienza con 'EXP_')
+            // Libros individuales y sendas personalizadas: nunca
             const isPro = localStorage.getItem('lumina_pro') === 'true';
+            const isStructuredExpansion = currentExpId && String(currentExpId).toUpperCase().startsWith('EXP_');
             const exportBtn = document.getElementById('btn-export-book');
             if (exportBtn) {
-                // En renderExpansionContent (libros/senderos), solo validamos PRO
-                exportBtn.style.display = isPro ? 'flex' : 'none';
+                exportBtn.style.display = (isPro && isStructuredExpansion) ? 'flex' : 'none';
             }
 
             document.querySelector('#exp-read-ui .modal-content').scrollTo(0, 0);
@@ -5937,6 +6010,16 @@ body[data-cat="sendas"] #header-cat {
 
         function expNext() {
             if (currentExpIdx < currentExpLessons.length - 1) {
+                // Al avanzar, marcamos la lección actual como leída de forma unificada
+                const lesson = currentExpLessons[currentExpIdx];
+                markLessonAsReadUnified({
+                    idx: lesson.idx,
+                    expId: currentExpId,
+                    book: currentExpBook,
+                    currentExpIdx: currentExpIdx,
+                    cat: 'libros'
+                });
+
                 currentExpIdx++;
                 renderExpansionContent();
                 playSound('click');
@@ -7059,15 +7142,14 @@ body[data-cat="sendas"] #header-cat {
             }
             if (typeof syncLuminaStats === 'function') syncLuminaStats();
             
-            // Incrementar registro de libros para medallas (Logro cada 7)
-            if (cat === 'libros') {
-                let librosLeidos = parseInt(localStorage.getItem('lumina_libros_leidos') || '0');
-                librosLeidos++;
-                localStorage.setItem('lumina_libros_leidos', librosLeidos.toString());
+            // --- NUEVO: Sincronización Unificada ---
+            const catData = JSON.parse(localStorage.getItem('lumina_data_' + cat) || 'null');
+            if (catData && catData.index !== undefined) {
+                markLessonAsReadUnified({
+                    lessonId: catData.index,
+                    cat: cat
+                });
             }
-
-            // Actualizar racha
-            if (typeof updateStreak === 'function') updateStreak();
 
             // Ocultar el botón
             const container = document.getElementById('leido-cta-container');
@@ -7201,9 +7283,14 @@ body[data-cat="sendas"] #header-cat {
                 const targetCat = window.location.hash.replace('#', '') || 'hub';
                 if (targetCat !== 'hub' && typeof openCategory === 'function') {
                     setTimeout(() => {
-                        const valid = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos'];
-                        if (valid.includes(targetCat.split(':')[0])) {
-                            openCategory(targetCat.split(':')[0], targetCat === 'libros', true, targetCat);
+                        const rootCat = targetCat.split(':')[0];
+                        const valid = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos', 'agenda'];
+                        
+                        if (rootCat === 'agenda') {
+                            openCategory('pausa', false, true);
+                            setTimeout(() => checkCalendarGaps(true), 1000);
+                        } else if (valid.includes(rootCat)) {
+                            openCategory(rootCat, rootCat === 'libros', true, targetCat);
                         }
                     }, 500);
                 }
@@ -8246,8 +8333,10 @@ if (id === 'content-header' || id === 'side-panel') {
             localStorage.removeItem('lumina_bitacora_draft_' + selectedBitacoraTemplate.id);
             
             showToast("Entrada guardada en tu bitácora ✨", "success");
-            pushSync(); // Asegurar sincronización en la nube
-            toggleBitacoraView('history'); // Opcional: mostrar historial después de guardar
+            pushSync();
+            toggleBitacoraView('history');
+            loadBitacoraHistory(); // Refrescar inmediatamente sin recargar
+
         }
 
         function shareJournalEntry(payload) {
@@ -8266,21 +8355,57 @@ if (id === 'content-header' || id === 'side-panel') {
                 return;
             }
             
-            list.innerHTML = data.map(e => `
-                <div class="journal-item" style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid rgba(128,128,128,0.1);">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="font-size: 0.6rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; text-transform: uppercase;">${e.categoryTitle}</span>
-                        <span style="font-size: 0.6rem; opacity: 0.4;">${new Date(e.timestamp).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+            list.innerHTML = data.map((e) => {
+                const EXCERPT_LEN = 160;
+                const isLong = e.content.length > EXCERPT_LEN;
+                const excerpt = isLong ? e.content.substring(0, EXCERPT_LEN).trimEnd() + '…' : e.content;
+                const dateStr = new Date(e.timestamp).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                return `
+                <div class="journal-item" id="bit-item-${e.id}" style="margin-bottom:0; padding:22px 0; border-bottom:1px solid rgba(128,128,128,0.08);">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                        <span style="font-size:0.58rem; letter-spacing:2px; color:var(--accent); font-weight:700; text-transform:uppercase;">${e.categoryTitle || 'Escritura Libre'}</span>
+                        <span style="font-size:0.58rem; opacity:0.45; flex-shrink:0; margin-left:10px;">${dateStr}</span>
                     </div>
-                    <div style="font-family: var(--font-heading); font-style: italic; font-size: 1.1rem; opacity: 0.6; margin-bottom: 15px; line-height: 1.4;">"${e.prompt}"</div>
-                    <div style="font-size: 1rem; line-height: 1.7; white-space: pre-line; opacity: 0.9;">${e.content}</div>
-                    <div style="text-align: right; margin-top: 15px; display: flex; justify-content: flex-end; gap: 15px; align-items: center;">
-                        <button onclick="shareJournalEntry({content:'${e.content.replace(/'/g, "\\'")}', prompt:'${e.prompt.replace(/'/g, "\\'")}', cat:'${e.categoryTitle}', date:'${e.timestamp}'})" style="background: none; border: none; color: var(--accent); font-size: 0.6rem; letter-spacing: 2px; cursor: pointer; font-weight: 700;">COMPARTIR</button>
-                        <button onclick="deleteBitacoraEntry(${e.id})" style="background: none; border: none; color: #ef4444; font-size: 0.6rem; letter-spacing: 2px; cursor: pointer; opacity: 0.5;">ELIMINAR</button>
+                    ${e.prompt ? `<div style="font-family:var(--font-heading); font-style:italic; font-size:0.9rem; opacity:0.45; margin-bottom:10px; line-height:1.4;">&ldquo;${e.prompt}&rdquo;</div>` : ''}
+                    <div id="bit-content-${e.id}" style="font-size:0.95rem; line-height:1.75; white-space:pre-line; opacity:0.85;">${excerpt}</div>
+                    ${isLong ? `<button onclick="toggleBitacoraExpand(${e.id}, this)"
+                        data-full="${e.content.replace(/"/g, '&quot;')}"
+                        data-expanded="0"
+                        style="background:none; border:none; color:var(--accent); font-size:0.58rem; font-weight:700; letter-spacing:1.5px; cursor:pointer; margin-top:8px; padding:0; text-transform:uppercase; opacity:0.7;">VER TODO ↓</button>` : ''}
+                    <div style="display:flex; justify-content:flex-end; gap:15px; align-items:center; margin-top:14px;">
+                        <button
+                            data-content="${e.content.replace(/"/g, '&quot;')}"
+                            data-prompt="${(e.prompt||'').replace(/"/g, '&quot;')}"
+                            data-cat="${(e.categoryTitle||'').replace(/"/g, '&quot;')}"
+                            data-date="${e.timestamp}"
+                            onclick="shareJournalEntry({content:this.dataset.content, prompt:this.dataset.prompt, cat:this.dataset.cat, date:this.dataset.date})"
+                            style="background:none; border:none; color:var(--accent); font-size:0.58rem; letter-spacing:2px; cursor:pointer; font-weight:700; opacity:0.7; transition:0.2s;"
+                            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">COMPARTIR</button>
+                        <button onclick="deleteBitacoraEntry(${e.id})"
+                            style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:0.58rem; letter-spacing:1.5px; cursor:pointer; font-weight:700; padding:5px 14px; border-radius:20px; transition:0.2s;"
+                            onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">ELIMINAR</button>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
+
+        function toggleBitacoraExpand(id, btn) {
+            const contentEl = document.getElementById('bit-content-' + id);
+            if (!contentEl || !btn) return;
+            const isExpanded = btn.dataset.expanded === '1';
+            const EXCERPT_LEN = 160;
+            if (isExpanded) {
+                const full = btn.dataset.full.replace(/&quot;/g, '"');
+                contentEl.textContent = full.substring(0, EXCERPT_LEN).trimEnd() + '…';
+                btn.textContent = 'VER TODO ↓';
+                btn.dataset.expanded = '0';
+            } else {
+                contentEl.textContent = btn.dataset.full.replace(/&quot;/g, '"');
+                btn.textContent = 'COLAPSAR ↑';
+                btn.dataset.expanded = '1';
+            }
+        }
+
         function deleteBitacoraEntry(id) {
             showConfirm("¿Eliminar esta entrada de tu bitácora?", () => {
                 let data = JSON.parse(localStorage.getItem('lumina_bitacora') || '[]');
@@ -8291,6 +8416,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 pushSync();
             });
         }
+
 
         let bitacoraChartInstance = null;
 
@@ -8820,6 +8946,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     </div>
                 `;
                 item.onclick = () => {
+                    dismissNotif(nId); // Descartar permanentemente al leer
                     const target = (link && link.startsWith('#')) ? link.substring(1) : cat;
                     closeModals(true); 
 
@@ -8848,7 +8975,10 @@ if (id === 'content-header' || id === 'side-panel') {
                         'restore': () => { setPortalMode('recover'); document.getElementById('identity-portal').classList.add('active'); }
                     };
 
-                    if (modals[target]) {
+                    // Prioridad absoluta a handlers de categoría (ej: agenda)
+                    if (modals[cat.toLowerCase()]) {
+                        modals[cat.toLowerCase()]();
+                    } else if (modals[target]) {
                         modals[target]();
                     } else if (target === 'hub') {
                         showHub();
@@ -10684,17 +10814,64 @@ if (id === 'content-header' || id === 'side-panel') {
 
         // init() se invoca desde DOMContentLoaded (script de arranque)
         
+        function markLessonAsReadUnified(lessonData) {
+            if (!lessonData) return;
+            const lid = lessonData.idx || lessonData.lessonId;
+            if (!lid) return;
+
+            // 1. Marcar en el registro global de "Leídos" (para progreso de barras y filtros)
+            let progress = JSON.parse(localStorage.getItem('lumina_senda_progress') || '{}');
+            progress[lid] = true;
+            localStorage.setItem('lumina_senda_progress', JSON.stringify(progress));
+
+            // 2. Si es de una expansión/libro, actualizar su progreso unificado
+            if (lessonData.book) {
+                ProgresoLumina.set(lessonData.book, lessonData.currentExpIdx || 0);
+                
+                // Si la lección que acabamos de marcar es la que tocaba (o posterior), avanzamos el marcapáginas
+                const currentSavedIdx = ProgresoLumina.get(lessonData.expId || '', lessonData.book);
+                if (lessonData.currentExpIdx !== undefined && lessonData.currentExpIdx >= currentSavedIdx) {
+                    ProgresoLumina.set(lessonData.book, lessonData.currentExpIdx + 1);
+                }
+            }
+
+            // 3. Sincronizar con Sendas activas (si la lección actual de la senda coincide con este ID)
+            const sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
+            let changed = false;
+            sendas.forEach(s => {
+                if (s.lessons && s.lessons[s.currentDay] == lid) {
+                    if (s.currentDay < s.duration) {
+                        s.currentDay++;
+                        changed = true;
+                    }
+                }
+            });
+            if (changed) {
+                localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
+                if (typeof renderMisSendas === 'function') renderMisSendas();
+            }
+
+            // 4. Incrementar racha y medallas
+            if (typeof updateStreak === 'function') updateStreak();
+            
+            if (lessonData.cat === 'libros' || lessonData.cat === 'expansiones' || lessonData.expId) {
+                let librosLeidos = parseInt(localStorage.getItem('lumina_libros_leidos') || '0');
+                librosLeidos++;
+                localStorage.setItem('lumina_libros_leidos', librosLeidos.toString());
+            }
+
+            pushSync();
+        }
+
         function markSendaLessonDone() {
             const lessonId = window._currentSendaLessonId;
             if (!lessonId) return;
             
-            let progress = JSON.parse(localStorage.getItem('lumina_senda_progress') || '{}');
-            progress[lessonId] = true;
-            localStorage.setItem('lumina_senda_progress', JSON.stringify(progress));
+            markLessonAsReadUnified({ lessonId: lessonId });
             
             showToast("¡Lección completada!", "success");
-            document.getElementById('senda-completion-zone').style.display = 'none';
-            pushSync();
+            const zone = document.getElementById('senda-completion-zone');
+            if (zone) zone.style.display = 'none';
         }
 	
 	</script>
@@ -11434,7 +11611,16 @@ if (id === 'content-header' || id === 'side-panel') {
     <div id="senda-complete-modal" class="modal" style="z-index:25000;">
         <div class="modal-content" style="text-align:center; max-width:400px; padding:50px 35px; overflow:visible; position:relative;">
             <!-- Trofeo animado -->
-            <div id="senda-complete-trophy" style="font-size:4rem; margin-bottom:20px; animation:tropheoBounce 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both; display:inline-block;">🏆</div>
+            <div id="senda-complete-trophy" style="margin-bottom:20px; animation:tropheoBounce 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both; display:inline-flex; align-items:center; justify-content:center; width:90px; height:90px; border-radius:50%; background:rgba(181,131,58,0.1); border:1px solid var(--accent); box-shadow:0 0 30px rgba(181,131,58,0.25);">
+                <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                    <path d="M4 22h16"/>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+                </svg>
+            </div>
             <div style="font-size:0.6rem; letter-spacing:4px; color:var(--accent); font-weight:700; text-transform:uppercase; margin-bottom:14px;">LOGRO DESBLOQUEADO</div>
             <h2 id="senda-complete-title" style="font-family:'Playfair Display',serif; font-size:2rem; font-style:italic; margin:0 0 10px; line-height:1.2;">Senda Completada</h2>
             <p id="senda-complete-subtitle" style="font-size:0.9rem; opacity:0.6; line-height:1.7; margin:0 0 30px;">Has recorrido cada paso de tu camino con disciplina y determinación.</p>
@@ -12326,6 +12512,14 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
     const exportBtn = document.getElementById('btn-export-book');
     if (exportBtn) exportBtn.style.display = 'none';
 
+    // BUG FIX CRÍTICO: Restaurar onclick del botón COMPLETAR al handler de sendas.
+    // renderExpansionContent (lector de libros) lo sobreescribe con markLessonAsReadUnified,
+    // por lo que si el usuario leyó un libro antes, el botón dejaba de funcionar para sendas.
+    const completeBtnFix = document.getElementById('btn-senda-complete');
+    if (completeBtnFix) {
+        completeBtnFix.onclick = () => markSendaLessonDone();
+    }
+
     // Mostrar/Ocultar zona de completado
     const completionZone = document.getElementById('senda-completion-zone');
     if (completionZone) {
@@ -12411,6 +12605,14 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
             document.getElementById('exp-read-app-prof').innerHTML = lesson.app_prof || lesson.professional_application || '---';
             document.getElementById('exp-read-app-pers').innerHTML = lesson.app_pers || lesson.personal_application || '---';
             document.getElementById('exp-read-refl').innerHTML = lesson.refl || lesson.reflection || '---';
+
+            // BUG FIX: Actualizar el indicador de progreso con paso actual de la senda
+            // (evita que quede texto residual del lector de libros)
+            const progressEl = document.getElementById('exp-read-progress');
+            if (progressEl) {
+                const totalSteps = (senda.lessonDetails || []).length || senda.duration;
+                progressEl.innerText = `PASO ${lessonIdx + 1} DE ${totalSteps}`;
+            }
         } else {
             throw new Error("No se pudo cargar la lección");
         }
@@ -12726,27 +12928,9 @@ function renderMisSendas() {
     });
 }
 
-// Hookeamos marcarComoLeido para actualizar progreso de sendas
+// Hookeamos marcarComoLeido para actualizar progreso de sendas (OBSOLETO: Ahora integrado en markLessonAsReadUnified)
+// Pero lo mantenemos para compatibilidad con llamadas directas legacy si existieran
 const _origMarcarComoLeido = marcarComoLeido;
-marcarComoLeido = function() {
-    _origMarcarComoLeido();
-    try {
-        const sendas = JSON.parse(localStorage.getItem('lumina_active_sendas') || '[]');
-        if (!sendas.length) return;
-        const catData = JSON.parse(localStorage.getItem('lumina_data_' + (window.currentCategory || currentCategory)) || 'null');
-        const currentIdx = catData && catData.index !== undefined ? catData.index : null;
-        let changed = false;
-        sendas.forEach(s => {
-            if (currentIdx !== null && s.lessons && s.lessons[s.currentDay] === currentIdx) {
-                if (s.currentDay < s.duration) { s.currentDay++; changed = true; }
-            }
-        });
-        if (changed) {
-            localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
-            renderMisSendas();
-        }
-    } catch(e) {}
-};
 
 function restoreSenda(idx) {
     const archived = JSON.parse(localStorage.getItem('lumina_archived_sendas') || '[]');
@@ -12822,12 +13006,12 @@ function showSendaCompleteModal(senda) {
         history.pushState({ modal: 'senda_complete' }, '', '#senda_complete');
     }
 
-    // Confetti
+    // Confetti — z-index superior al modal (25000) para que aparezca encima
     if (typeof confetti === 'function') {
         setTimeout(() => {
-            confetti({ particleCount: 120, spread: 80, origin: { y: 0.55 }, colors: ['#b5833a', '#d4af37', '#f5f1e8', '#ffd700', '#fff'] });
-            setTimeout(() => confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors: ['#b5833a', '#d4af37', '#fff'] }), 400);
-            setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: ['#b5833a', '#d4af37', '#fff'] }), 700);
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.55 }, colors: ['#b5833a', '#d4af37', '#f5f1e8', '#ffd700', '#fff'], zIndex: 26000 });
+            setTimeout(() => confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors: ['#b5833a', '#d4af37', '#fff'], zIndex: 26000 }), 400);
+            setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: ['#b5833a', '#d4af37', '#fff'], zIndex: 26000 }), 700);
         }, 300);
     }
 
@@ -12890,6 +13074,10 @@ function syncIntegrationsUI() {
     
     document.getElementById('toggle-gcal')?.classList.toggle('active', gcal);
     document.getElementById('toggle-gdocs')?.classList.toggle('active', gdocs);
+    
+    // UI Pausa: Mostrar/ocultar botón de sugerencias
+    const gcalBtn = document.getElementById('gcal-manual-trigger');
+    if (gcalBtn) gcalBtn.style.display = gcal ? 'block' : 'none';
 
     // Mostrar área de exportación en Bitácora si GDocs está activo
     const expMain = document.getElementById('btn-bitacora-export-main');
