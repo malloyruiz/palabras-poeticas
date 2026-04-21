@@ -8847,6 +8847,39 @@ if (id === 'content-header' || id === 'side-panel') {
             if (!badge || !list) return;
 
             const userEmail = localStorage.getItem('lumina_user_email') || "";
+            
+            // --- AUTO-LIMPIEZA DE DISMISSED CADUCADOS ---
+            // Las notificaciones de Sendas y Agenda se renuevan diariamente;
+            // si el usuario las descartó ayer, deben poder aparecer hoy de nuevo.
+            (function cleanStaleDismissed() {
+                try {
+                    let dismissed = JSON.parse(localStorage.getItem('lumina_dismissed_notifs') || '[]');
+                    const now = Date.now();
+                    const DAY_MS = 24 * 60 * 60 * 1000;
+                    const HOUR_MS = 60 * 60 * 1000;
+                    // IDs de senda incluyen "senda" en la clave; IDs de gcal incluyen "gcal_"
+                    // Los filtramos si tienen más de 24h (senda) o 1h (gcal)
+                    const stalePatterns = [
+                        { prefix: 'senda', maxAge: DAY_MS },
+                        { prefix: 'gcal_', maxAge: HOUR_MS }
+                    ];
+                    const cleaned = dismissed.filter(id => {
+                        for (const { prefix, maxAge } of stalePatterns) {
+                            if (id.startsWith(prefix)) {
+                                // Intentar extraer timestamp del ID si lo tiene (gcal_2026-04-21T17)
+                                const datePart = id.replace(prefix, '');
+                                const ts = Date.parse(datePart);
+                                if (!isNaN(ts) && (now - ts) > maxAge) return false; // caducado
+                            }
+                        }
+                        return true; // mantener
+                    });
+                    if (cleaned.length !== dismissed.length) {
+                        localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(cleaned));
+                    }
+                } catch(e) {}
+            })();
+
             const dismissed = getDismissedNotifs();
             const prop = localStorage.getItem('lumina_pro') === 'true';
             const trial = isTrialActive();
@@ -13130,11 +13163,26 @@ async function checkCalendarGaps(isManual = false) {
 }
 
 function injectIntegrationNews(tit, msg, link, gapData = null) {
-    // Recuperar notificaciones actuales de localStorage (las extras/locales)
     let localNotifs = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
-    
-    // Evitar duplicados del mismo mensaje hoy
-    const id = "gcal_" + new Date().toDateString();
+
+    // ID único por hueco detectado (incluye hora para no bloquear nuevos huecos del mismo día)
+    const hourKey = new Date().toISOString().substring(0, 13); // "2026-04-21T17"
+    const id = "gcal_" + hourKey;
+
+    // Eliminar notificaciones de agenda antiguas (del mismo día o anteriores) para no acumular
+    const todayKey = new Date().toDateString();
+    localNotifs = localNotifs.filter(n => {
+        if (n.id && n.id.startsWith('gcal_') && n.id !== id) {
+            // Limpiar también del dismissed para que el nuevo sí aparezca
+            let dismissed = JSON.parse(localStorage.getItem('lumina_dismissed_notifs') || '[]');
+            dismissed = dismissed.filter(d => d !== n.id);
+            localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(dismissed));
+            return false; // quitar de localNotifs
+        }
+        return true;
+    });
+
+    // Evitar duplicado exacto del mismo hueco (misma hora)
     if (localNotifs.some(n => n.id === id)) return;
 
     localNotifs.push({
@@ -13149,9 +13197,9 @@ function injectIntegrationNews(tit, msg, link, gapData = null) {
 
     localStorage.setItem('lumina_local_notifs', JSON.stringify(localNotifs));
 
-    // Actualizar la campanita en tiempo real para que el badge aparezca de inmediato
+    // Actualizar la campanita en tiempo real
     if (typeof checkNotifications === 'function') {
-        setTimeout(() => checkNotifications(), 100);
+        setTimeout(() => checkNotifications(), 150);
     }
 }
 
