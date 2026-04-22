@@ -327,25 +327,30 @@
         /* Estilos para la insignia Pro en el Logo */
         .logo-pro-badge {
             font-family: 'Inter', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 700;
+            font-size: 0.65rem;
+            font-weight: 800;
             letter-spacing: 2px;
             color: #fff;
-            background: linear-gradient(135deg, var(--accent), #d4af37);
-            padding: 4px 10px;
-            border-radius: 8px;
-            margin-left: 15px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            padding: 3px 10px;
+            border-radius: 50px;
             vertical-align: middle;
-            display: inline-flex;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(181, 131, 58, 0.4);
+            margin-left: 10px;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
             text-transform: uppercase;
         }
-        
+        .logo-pro-badge.founder {
+            background: linear-gradient(135deg, #FFD700, #DAA520, #FFD700);
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+            box-shadow: 0 4px 15px rgba(218, 165, 32, 0.5);
+            color: #000;
+        }
         .logo-pro-badge.lite {
             background: linear-gradient(135deg, #a0a0a0, #707070);
             box-shadow: 0 4px 15px rgba(160, 160, 160, 0.4);
         }
+        @keyframes shine { to { background-position: 200% center; } }
 
         /* Responsive Mobile */
         @media (max-width: 1024px) {
@@ -3935,9 +3940,11 @@ body[data-cat="sendas"] #header-cat {
             if (res.isPro) {
                 localStorage.setItem('lumina_pro', 'true');
                 if (res.proKey) localStorage.setItem('lumina_pro_key', res.proKey);
+                if (res.tier) localStorage.setItem('lumina_membership_tier', res.tier);
             } else {
                 localStorage.setItem('lumina_pro', 'false');
                 localStorage.removeItem('lumina_pro_key');
+                localStorage.removeItem('lumina_membership_tier');
             }
             
             if (res.birthday) localStorage.setItem('lumina_birthday', String(res.birthday).substring(0, 10));
@@ -4395,10 +4402,15 @@ body[data-cat="sendas"] #header-cat {
             <div class="hub-hero-inner" id="hero-container">
                 <!-- Header Estilo Captura (Fiel a image1.png) -->
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 8px;">
-                    <div onclick="toggleProfile()" style="width: 42px; height: 42px; background: var(--accent); border-radius: 50%; padding: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.15); border: 1.8px solid var(--accent); cursor: pointer; transition: transform 0.3s ease; position: relative; flex-shrink: 0;">
-                        <!-- Placeholder Silueta -->
-                        <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: rgba(255,255,255,0.5); opacity: 0.5; position: absolute;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        <img id="hub-avatar-img" class="user-avatar" src="" alt="User" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; opacity: 0; transition: opacity 0.5s ease;" onload="this.style.opacity='1'">
+                    <div style="position: relative; flex-shrink: 0;">
+                        <div onclick="toggleProfile()" style="width: 42px; height: 42px; background: var(--accent); border-radius: 50%; padding: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.15); border: 1.8px solid var(--accent); cursor: pointer; transition: transform 0.3s ease; position: relative;">
+                            <!-- Placeholder Silueta -->
+                            <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: rgba(255,255,255,0.5); opacity: 0.5; position: absolute;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            <img id="hub-avatar-img" class="user-avatar" src="" alt="User" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2; opacity: 0; transition: opacity 0.5s ease;" onload="this.style.opacity='1'">
+                        </div>
+                        <div id="hub-pro-badge" style="display: none; position: absolute; bottom: -2px; right: -2px; background: #10b981; color: white; border-radius: 50%; width: 15px; height: 15px; align-items: center; justify-content: center; z-index: 10; border: 2px solid var(--bg); box-shadow: 0 2px 8px rgba(0,0,0,0.3); pointer-events: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="width: 9px; height: 9px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
                     </div>
                     <div id="hub-user-greeting" style="font-size: 0.78rem; letter-spacing: 2px; color: var(--accent); opacity: 1; font-weight: 700; text-transform: uppercase;">CARGANDO...</div>
                 </div>
@@ -4423,7 +4435,7 @@ body[data-cat="sendas"] #header-cat {
                     </button>
 
                     <button class="btn-fab-item" onclick="openCategory('pausa')" title="Pausa Consciente">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="4"></circle></svg>
+                        <svg viewBox="0 0 512 512" style="width:18px; height:18px; fill: currentColor;"><path d="M482.752,435.574c-6.928-8.1-23.127-40.492-23.127-40.492s2.676-3.448,0-15.051 c-3.48-15.035-18.514-13.886-21.978-17.349c-3.479-3.472-33.549-58.424-35.863-64.792c-2.314-6.369-27.772-78.662-27.772-78.662 c-8.549-37.604-24.308-53.221-45.121-57.85c-20.64-4.581-31.817-3.471-41.075-11.571c-5.778-5.054-5.573-8.809-5.573-24.056 c0,0,6.235-5.927,10.784-14.122c5.195-9.375,7.746-22.907,7.746-22.907c5.211-2.086,5.274-4.684,7.525-12.965 c3.118-11.461,2.897-19.317-5.431-19.317C304.836,19.066,286.085,0,256,0c-30.07,0-48.821,19.066-46.853,56.441 c-8.328,0-8.564,7.856-5.432,19.317c2.251,8.281,2.314,10.879,7.51,12.965c0,0,2.55,13.532,7.762,22.907 c4.55,8.194,10.784,14.122,10.784,14.122c0,15.247,0.189,19.002-5.589,24.056c-9.242,8.1-20.435,6.99-41.059,11.571 c-20.828,4.628-36.572,20.246-45.12,57.85c0,0-25.457,72.294-27.771,78.662c-2.314,6.368-32.401,61.32-35.864,64.792 c-3.464,3.463-18.514,2.314-21.978,17.349c-2.676,11.603,0,15.051,0,15.051s-16.2,32.392-23.143,40.492 c-6.942,8.092,5.794,13.878,13.886,3.464c0.944,1.409,4.156,2.424,7.793,2.912c-28.228,31.251-12.138,71.964,31.55,69.98 C118.291,510.3,256,485.316,256,485.316S393.707,510.3,429.54,511.93c43.688,1.984,59.778-38.729,31.534-69.98 c3.652-0.488,6.864-1.503,7.808-2.912C476.974,449.452,489.695,443.666,482.752,435.574z M183.123,383.849 c0,0-59.274,17.626-96.192,34.234c7.604-14.154,16.357-33.423,16.357-33.423l37.029-53.212l29.504-64.218 c0,0,9.257,34.714,12.138,39.917C184.855,312.35,183.123,383.849,183.123,383.849z M328.891,383.849c0,0-1.732-71.498,1.149-76.702 c2.897-5.203,12.154-39.917,12.154-39.917l29.504,64.218l37.013,53.212c0,0,8.769,19.27,16.373,33.423 C388.165,401.474,328.891,383.849,328.891,383.849z"/></svg>
                         PAUSA
                     </button>
                     <button class="btn-fab-item" onclick="toggleBitacora()" title="Bitácora Personal">
@@ -7285,9 +7297,13 @@ body[data-cat="sendas"] #header-cat {
                 runSync(initAmbient, 'Ambiente');
                 runSync(renderBitacoraTemplates, 'Bitácora');
                 runSync(updateMoodSummaryUI, 'Ánimo');
+                runSync(checkScheduledReminders, 'Recordatorios');
 
                 // Módulos asíncronos (API)
                 if (typeof updateHubInfo === 'function') updateHubInfo();
+
+                // Periodicidad del checker de recordatorios (cada minuto)
+                setInterval(checkScheduledReminders, 60000);
 
                 // --- TRIGGER BIENVENIDA ---
                 if (window._showWelcomeBack) {
@@ -7455,6 +7471,8 @@ body[data-cat="sendas"] #header-cat {
                     isPro = true;
                     localStorage.setItem('lumina_pro', 'true');
                     localStorage.setItem('lumina_pro_key', key); 
+                    const tier = (data.type === 'LIFETIME' || data.type === 'FOUNDER') ? 'founder' : 'pro';
+                    localStorage.setItem('lumina_membership_tier', tier);
                     localStorage.setItem('lumina_pro_type', data.type || 'LIFETIME');
                     if (data.email) localStorage.setItem('lumina_user_email', data.email);
                     pushSync();
@@ -8717,7 +8735,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 'settings-modal', 'info-modal', 'notif-modal', 'pro-modal', 'success-modal', 
                 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 
                 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 
-                'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal',
+                'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal', 'notifications-config-modal',
                 'reentry-modal', 'export-options-box', 'senda-complete-modal'
             ];
             modals.forEach(id => {
@@ -8807,11 +8825,18 @@ if (id === 'content-header' || id === 'side-panel') {
         let isCheckingNotifs = false;
         function updateHeroTitle(isProUser, trialActive) {
             const heroTitle = document.getElementById('hero-title');
-            if (!heroTitle) return;
-            if (isProUser) {
-                heroTitle.innerHTML = 'Lúmina <span class="logo-pro-badge">PRO</span>';
+            const badge = document.getElementById('hub-pro-badge');
+            const isFounder = localStorage.getItem('lumina_membership_tier') === 'founder';
+            
+            if (isProUser || trialActive || isFounder) {
+                if (heroTitle) heroTitle.innerHTML = `Lúmina <span class="logo-pro-badge ${isFounder ? 'founder' : ''}">${isFounder ? 'FOUNDER' : 'PRO'}</span>`;
+                if (badge) {
+                    badge.style.display = 'flex';
+                    badge.style.background = isFounder ? '#FFD700' : '#10b981'; // Dorado vs Verde
+                }
             } else {
-                heroTitle.innerText = 'Lúmina';
+                if (heroTitle) heroTitle.innerText = 'Lúmina';
+                if (badge) badge.style.display = 'none';
             }
         }
 
@@ -8961,7 +8986,9 @@ if (id === 'content-header' || id === 'side-panel') {
                     afirmaciones: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>',
                     frases: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
                     libros: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>',
-                    pausa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><circle cx="12" cy="12" r="4"></circle></svg>',
+                    pausa: '<svg viewBox="0 0 512 512" fill="currentColor"><path d="M482.752,435.574c-6.928-8.1-23.127-40.492-23.127-40.492s2.676-3.448,0-15.051 c-3.48-15.035-18.514-13.886-21.978-17.349c-3.479-3.472-33.549-58.424-35.863-64.792c-2.314-6.369-27.772-78.662-27.772-78.662 c-8.549-37.604-24.308-53.221-45.121-57.85c-20.64-4.581-31.817-3.471-41.075-11.571c-5.778-5.054-5.573-8.809-5.573-24.056 c0,0,6.235-5.927,10.784-14.122c5.195-9.375,7.746-22.907,7.746-22.907c5.211-2.086,5.274-4.684,7.525-12.965 c3.118-11.461,2.897-19.317-5.431-19.317C304.836,19.066,286.085,0,256,0c-30.07,0-48.821,19.066-46.853,56.441 c-8.328,0-8.564,7.856-5.432,19.317c2.251,8.281,2.314,10.879,7.51,12.965c0,0,2.55,13.532,7.762,22.907 c4.55,8.194,10.784,14.122,10.784,14.122c0,15.247,0.189,19.002-5.589,24.056c-9.242,8.1-20.435,6.99-41.059,11.571 c-20.828,4.628-36.572,20.246-45.12,57.85c0,0-25.457,72.294-27.771,78.662c-2.314,6.368-32.401,61.32-35.864,64.792 c-3.464,3.463-18.514,2.314-21.978,17.349c-2.676,11.603,0,15.051,0,15.051s-16.2,32.392-23.143,40.492 c-6.942,8.092,5.794,13.878,13.886,3.464c0.944,1.409,4.156,2.424,7.793,2.912c-28.228,31.251-12.138,71.964,31.55,69.98 C118.291,510.3,256,485.316,256,485.316S393.707,510.3,429.54,511.93c43.688,1.984,59.778-38.729,31.534-69.98 c3.652-0.488,6.864-1.503,7.808-2.912C476.974,449.452,489.695,443.666,482.752,435.574z M183.123,383.849 c0,0-59.274,17.626-96.192,34.234c7.604-14.154,16.357-33.423,16.357-33.423l37.029-53.212l29.504-64.218 c0,0,9.257,34.714,12.138,39.917C184.855,312.35,183.123,383.849,183.123,383.849z M328.891,383.849c0,0-1.732-71.498,1.149-76.702 c2.897-5.203,12.154-39.917,12.154-39.917l29.504,64.218l37.013,53.212c0,0,8.769,19.27,16.373,33.423 C388.165,401.474,328.891,383.849,328.891,383.849z"/></svg>',
+                    agenda: '<svg viewBox="0 0 76 76" fill="currentColor"><path d="M 42.5,22C 49.4036,22 55,27.5964 55,34.5C 55,41.4036 49.4036,47 42.5,47C 40.1356,47 37.9245,46.3435 36,45.2426L 26.9749,54.2678C 25.8033,55.4393 23.9038,55.4393 22.7322,54.2678C 21.5607,53.0962 21.5607,51.1967 22.7322,50.0251L 31.7971,40.961C 30.6565,39.0755 30,36.8644 30,34.5C 30,27.5964 35.5964,22 42.5,22 Z M 42.5,26C 37.8056,26 34,29.8056 34,34.5C 34,39.1944 37.8056,43 42.5,43C 47.1944,43 51,39.1944 51,34.5C 51,29.8056 47.1944,26 42.5,26 Z "/></svg>',
+                    sleep: '<svg viewBox="0 0 32 32" fill="currentColor"><path d="M28.62,17.482c0.508-0.452,1.324-0.028,1.215,0.675C28.797,24.865,22.998,30,16,30 C8.268,30,2,23.732,2,16C2,8.985,7.16,3.175,13.891,2.158c0.688-0.104,1.096,0.698,0.651,1.195C12.963,5.119,12,7.445,12,10 c0,5.523,4.477,10,10,10C24.542,20,26.858,19.047,28.62,17.482z"/></svg>',
                     habitos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M12 10C12 10 9 6 4 6"/><path d="M12 10C12 10 15 6 20 6"/></svg>',
                     extra: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 8-10 10L2 11z"></path><path d="M11 3l-4 8 5 10 5-10-4-8"></path></svg>',
                     info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
@@ -8985,8 +9012,11 @@ if (id === 'content-header' || id === 'side-panel') {
                 const iconBg = colors[cat.toLowerCase()] ? `${colors[cat.toLowerCase()]}20` : 'rgba(181, 131, 58, 0.1)';
 
                 const isSenda = cat.toLowerCase().startsWith('senda');
+                const fillBased = ['pausa', 'agenda', 'sleep', 'anuncios'].includes(cat.toLowerCase());
+                const iconStyle = isSenda ? '' : (fillBased ? 'fill: currentColor !important; stroke: none;' : 'stroke: currentColor; fill: none; stroke-width: 2;');
+
                 const iconHtml = `<div class="notif-icon-circle" style="width: 35px; height: 35px; background: ${iconBg}; color: ${iconColor}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                    <div style="width: 18px; height: 18px; ${isSenda ? '' : 'stroke: currentColor; fill: none; stroke-width: 2;'}">${icons[cat.toLowerCase()] || icons.info}</div>
+                    <div class="notif-icon-inner" style="width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; ${iconStyle}">${icons[cat.toLowerCase()] || icons.info}</div>
                 </div>`;
 
                 item.innerHTML = `
@@ -9380,11 +9410,34 @@ if (id === 'content-header' || id === 'side-panel') {
             try {
                 // Sincronizar UI con localStorage como base (funciona sin OneSignal)
                 ['palabras', 'afirmaciones', 'frases', 'libros', 'sendas'].forEach(cat => {
-                    const btn = document.getElementById(`sub-${cat}`);
-                    if (!btn) return;
                     const isSub = localStorage.getItem(`lumina_sub_${cat}`) !== 'false';
-                    if (isSub) btn.classList.add('active');
+                    [id => `sub-${id}`, id => `sub-${id}-cfg`].forEach(idFn => {
+                        const btn = document.getElementById(idFn(cat));
+                        if (btn) isSub ? btn.classList.add('active') : btn.classList.remove('active');
+                    });
+                });
+
+                // Sincronizar Programación General
+                const notifTimeInput = document.getElementById('notif-time');
+                if (notifTimeInput) notifTimeInput.value = localStorage.getItem('lumina_notif_time') || '08:30';
+                
+                const savedDays = JSON.parse(localStorage.getItem('lumina_notif_days') || '[0,1,2,3,4,5,6]');
+                document.querySelectorAll('.day-btn').forEach(btn => {
+                    const day = parseInt(btn.getAttribute('data-day'));
+                    if (savedDays.includes(day)) btn.classList.add('active');
                     else btn.classList.remove('active');
+                });
+
+                // Sincronizar Recordatorios
+                ['sleep', 'pause'].forEach(type => {
+                    const isEnabled = localStorage.getItem(`lumina_rem_${type}`) === 'true';
+                    const toggle = document.getElementById(`rem-${type}-toggle`);
+                    const cfg = document.getElementById(`rem-${type}-cfg`);
+                    const timeInput = document.getElementById(`rem-${type}-time`);
+
+                    if (toggle) isEnabled ? toggle.classList.add('active') : toggle.classList.remove('active');
+                    if (cfg) cfg.style.display = isEnabled ? 'flex' : 'none';
+                    if (timeInput) timeInput.value = localStorage.getItem(`lumina_rem_${type}_time`) || (type === 'sleep' ? '23:00' : '15:00');
                 });
 
                 // Sincronizar Wake Lock
@@ -9398,9 +9451,11 @@ if (id === 'content-header' || id === 'side-panel') {
             } catch (e) { console.warn("Sync error:", e); }
 
             const pushBtn = document.getElementById('sub-push');
-            if (pushBtn && window.Notification) {
-                if (Notification.permission === 'granted') pushBtn.classList.add('active');
-                else pushBtn.classList.remove('active');
+            const pushBtnMain = document.getElementById('sub-push-main');
+            if (window.Notification) {
+                const isGranted = Notification.permission === 'granted';
+                if (pushBtn) isGranted ? pushBtn.classList.add('active') : pushBtn.classList.remove('active');
+                if (pushBtnMain) isGranted ? pushBtnMain.classList.add('active') : pushBtnMain.classList.remove('active');
             }
 
             const themeBtn = document.getElementById('theme-toggle');
@@ -9485,19 +9540,19 @@ if (id === 'content-header' || id === 'side-panel') {
 
         async function toggleTag(cat) {
             try {
-                const btn = document.getElementById(`sub-${cat}`);
-                const isSubscribed = btn.classList.contains('active');
+                const btn1 = document.getElementById(`sub-${cat}`);
+                const btn2 = document.getElementById(`sub-${cat}-cfg`);
+                const isSubscribed = (btn1 && btn1.classList.contains('active')) || (btn2 && btn2.classList.contains('active'));
                 
                 const nextState = isSubscribed ? 'false' : 'true';
                 
-                // 1. FEEDBACK INSTANTÁNEO (UI LOCAL) + bloquear sync de OneSignal por 3 seg
+                // 1. FEEDBACK INSTANTÁNEO (UI LOCAL)
                 _pendingSync[cat] = Date.now();
                 localStorage.setItem(`lumina_sub_${cat}`, nextState);
-                if (nextState === 'true') {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+                
+                [btn1, btn2].forEach(btn => {
+                    if (btn) nextState === 'true' ? btn.classList.add('active') : btn.classList.remove('active');
+                });
                 
                 // 2. PEDIR PERMISOS NATIVOS SI AÚN NO SE TIENEN
                 if (window.Notification && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
@@ -9509,9 +9564,140 @@ if (id === 'content-header' || id === 'side-panel') {
                 pushSync(); // Persistir preferencias de suscripción
                 
             } catch (e) {
-                console.warn("Sync OneSignal error:", e);
+                console.warn("Sync error:", e);
                 updateSubscriptionUI();
             }
+        }
+
+        // --- SISTEMA DE NOTIFICACIONES Y RECORDATORIOS ---
+        function toggleNotificationsModal() {
+            const modal = document.getElementById('notifications-config-modal');
+            if (!modal) return;
+            const isOpen = modal.classList.contains('active');
+            if (isOpen) {
+                closeModals();
+            } else {
+                closeModals();
+                modal.classList.add('active');
+                history.pushState({ modal: 'notifications' }, '', '#notifications');
+                updateSubscriptionUI();
+            }
+        }
+
+        function toggleNotifDay(day) {
+            let days = JSON.parse(localStorage.getItem('lumina_notif_days') || '[0,1,2,3,4,5,6]');
+            if (days.includes(day)) {
+                days = days.filter(d => d !== day);
+            } else {
+                days.push(day);
+            }
+            localStorage.setItem('lumina_notif_days', JSON.stringify(days));
+            updateSubscriptionUI();
+            pushSync();
+        }
+
+        function saveNotifSchedule() {
+            const time = document.getElementById('notif-time').value;
+            localStorage.setItem('lumina_notif_time', time);
+            pushSync();
+        }
+
+        function toggleRem(type) {
+            const current = localStorage.getItem(`lumina_rem_${type}`) === 'true';
+            const next = !current;
+            localStorage.setItem(`lumina_rem_${type}`, next);
+            if (next && !localStorage.getItem(`lumina_rem_${type}_time`)) {
+                localStorage.setItem(`lumina_rem_${type}_time`, type === 'sleep' ? '23:00' : '15:00');
+            }
+            updateSubscriptionUI();
+            pushSync();
+        }
+
+        function saveRemTime(type) {
+            const time = document.getElementById(`rem-${type}-time`).value;
+            localStorage.setItem(`lumina_rem_${type}_time`, time);
+            pushSync();
+        }
+
+        const SMART_MESSAGES = {
+            sleep: [
+                "Es momento de soltar el día. Mañana te espera una nueva luz. ✨",
+                "El descanso es la forja de la sabiduría. Dulces sueños. 🌙",
+                "Tu mente ha brillado hoy, ahora merece la paz del silencio. 🕊️",
+                "Cierra los ojos y deja que el universo cuide de tus pasos. 🌌",
+                "La noche es el puente hacia una mejor versión de ti mismo. Descansa. 🕯️"
+            ],
+            pause: [
+                "Tu pausa programada ha llegado. Regálate estos minutos de serenidad. ⏳",
+                "Detente un instante. Respira. Siente tu presencia. 🌿",
+                "El mundo puede esperar un minuto, tu paz interior no. ✨",
+                "Es el momento de tu encuentro con el silencio. Tu pausa comienza ahora. 🌬️",
+                "¿Estás aquí realmente? Regresa a tu centro ahora. 🧘",
+                "Una pausa consciente es un regalo para tu alma. Disfrútala. 🕊️",
+                "Escucha tu cuerpo: es hora de la pausa que planeaste para tu bienestar. 💎",
+                "Inhala claridad, exhala el ruido. Estás a salvo en el presente. 🌱",
+                "La alarma de tu alma suena suavemente. Es hora de desconectar para reconectar. 🔌✨",
+                "Tu compromiso contigo mismo te llama: es hora de tu pausa consciente. 🔔"
+            ]
+        };
+
+        function getSmartMessage(type) {
+            const msgs = SMART_MESSAGES[type] || ["Momento de luz."];
+            return msgs[Math.floor(Math.random() * msgs.length)];
+        }
+
+        function injectLocalNotif(tit, msg, link, type) {
+            try {
+                let local = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
+                const nId = `rem-${type}-${new Date().toDateString()}`;
+                
+                // Evitar duplicados por día para el mismo tipo
+                if (local.find(n => n.id === nId)) return;
+                
+                local.unshift({
+                    cat: type === 'sleep' ? 'sleep' : 'pausa',
+                    tit: tit,
+                    msg: msg,
+                    link: link,
+                    id: nId,
+                    date: new Date().toISOString()
+                });
+                
+                localStorage.setItem('lumina_local_notifs', JSON.stringify(local));
+                if (typeof checkNotifications === 'function') checkNotifications();
+            } catch(e) { console.error("Inject Local Notif Error", e); }
+        }
+
+        function checkScheduledReminders() {
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            const currentDay = now.getDay();
+            
+            // Solo si hoy es un día activo (si aplica a recordatorios)
+            const activeDays = JSON.parse(localStorage.getItem('lumina_notif_days') || '[0,1,2,3,4,5,6]');
+            if (!activeDays.includes(currentDay)) return;
+
+            // Evitar duplicados en el mismo minuto
+            const lastCheck = localStorage.getItem('lumina_last_rem_check');
+            if (lastCheck === currentTime) return;
+            localStorage.setItem('lumina_last_rem_check', currentTime);
+
+            ['sleep', 'pause'].forEach(type => {
+                const isEnabled = localStorage.getItem(`lumina_rem_${type}`) === 'true';
+                const remTime = localStorage.getItem(`lumina_rem_${type}_time`);
+                
+                if (isEnabled && remTime === currentTime) {
+                    const msg = getSmartMessage(type);
+                    const title = type === 'sleep' ? 'Hora de Descansar' : 'Pausa Consciente';
+                    const link = type === 'sleep' ? '#profile' : '#pausa';
+                    
+                    // Inyectar en Novedades localmente
+                    injectLocalNotif(title, msg, link, type);
+                    
+                    // Mostrar Toast
+                    if (typeof showToast === 'function') showToast(`✨ ${title}`, 'info');
+                }
+            });
         }
 
         // --- SISTEMA DE FEEDBACK SENSORIAL ---
@@ -9533,7 +9719,7 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         async function togglePush() {
-            const btn = document.getElementById('sub-push');
+            const btn = document.getElementById('sub-push') || document.getElementById('sub-push-main');
             if (!btn || btn.classList.contains('busy')) return;
 
             try {
@@ -9987,6 +10173,29 @@ if (id === 'content-header' || id === 'side-panel') {
                     width: 60, height: 60, colorDark: "#1a1a1a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
                 });
             }
+            
+            // Inyectar Identidad del Usuario en la captura
+            const capAvatar = document.getElementById('cap-user-avatar');
+            const capName = document.getElementById('cap-user-name');
+            const capBadge = document.getElementById('cap-pro-badge');
+            
+            if (capAvatar && capName) {
+                const name = localStorage.getItem('lumina_user_name') || 'Usuario Lúmina';
+                const email = localStorage.getItem('lumina_user_email') || name;
+                const isPro = localStorage.getItem('lumina_pro') === 'true';
+                const isFounder = localStorage.getItem('lumina_membership_tier') === 'founder';
+                const trial = isTrialActive();
+                
+                capAvatar.src = `https://api.dicebear.com/9.x/shapes/svg?seed=${encodeURIComponent(email)}&backgroundColor=b5833a,ffecd2`;
+                capName.innerText = name.toUpperCase().split(' ')[0];
+                
+                if (isPro || trial || isFounder) {
+                    capBadge.style.display = 'flex';
+                    capBadge.style.background = isFounder ? '#FFD700' : '#10b981';
+                } else {
+                    capBadge.style.display = 'none';
+                }
+            }
 
             setTimeout(async () => {
                 try {
@@ -10094,7 +10303,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 let greet = "BUENOS DÍAS";
                 if (hour >= 12 && hour < 19) greet = "BUENAS TARDES";
                 else if (hour >= 19 || hour < 5) greet = "BUENAS NOCHES";
-                greetingEl.innerHTML = `${greet}, ${name.toUpperCase()} ✨`;
+                greetingEl.innerHTML = `${greet}, ${name.toUpperCase().split(' ')[0]} ✨`;
             }
 
             const nameInput = document.getElementById('user-name-input');
@@ -10156,16 +10365,15 @@ if (id === 'content-header' || id === 'side-panel') {
 
         function resetHero() {
             const hour = new Date().getHours();
-            let greeting = "Buenos días";
-            if (hour >= 12 && hour < 19) greeting = "Buenas tardes";
-            if (hour >= 19 || hour < 5) greeting = "Buenas noches";
+            let greet = "BUENOS DÍAS";
+            if (hour >= 12 && hour < 19) greet = "BUENAS TARDES";
+            else if (hour >= 19 || hour < 5) greet = "BUENAS NOCHES";
             
-            const rawName = localStorage.getItem('lumina_user_name') || "";
-            const userName = rawName.split(' ')[0]; // Solo el primer nombre
-            const finalGreeting = userName ? `${greeting}, ${userName}` : greeting;
+            const name = localStorage.getItem('lumina_user_name') || 'USUARIO';
+            const finalGreeting = `${greet}, ${name.toUpperCase().split(' ')[0]} ✨`;
 
             const greetingEl = document.getElementById('hub-user-greeting');
-            if (greetingEl) greetingEl.innerText = finalGreeting;
+            if (greetingEl) greetingEl.innerHTML = finalGreeting;
 
             updateHero('Lúmina', 'CONOCIMIENTO, CRECIMIENTO Y TRANSFORMACIÓN PERSONAL', 50, 48);
         }
@@ -11860,33 +12068,13 @@ if (id === 'content-header' || id === 'side-panel') {
                 </div>
 
                 <!-- SECCIÓN: NOTIFICACIONES -->
-                <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">NOTIFICACIONES</div>
+                <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">AVISOS Y ALERTAS</div>
 
-                <div class="sub-option" onclick="togglePush()" style="cursor:pointer;">
-                    <span>Alertas de Sabiduría</span>
-                    <div class="toggle-sub" id="sub-push"></div>
-                </div>
-
-                <div class="sub-option" onclick="toggleTag('palabras')" style="cursor:pointer;">
-                    <span>Palabras de Hoy</span>
-                    <div class="toggle-sub" id="sub-palabras"></div>
-                </div>
-                <div class="sub-option" onclick="toggleTag('afirmaciones')" style="cursor:pointer;">
-                    <span>Afirmaciones</span>
-                    <div class="toggle-sub" id="sub-afirmaciones"></div>
-                </div>
-                <div class="sub-option" onclick="toggleTag('frases')" style="cursor:pointer;">
-                    <span>Frases Célebres</span>
-                    <div class="toggle-sub" id="sub-frases"></div>
-                </div>
-                <div class="sub-option" onclick="toggleTag('libros')" style="cursor:pointer;">
-                    <span>Lecciones del Club</span>
-                    <div class="toggle-sub" id="sub-libros"></div>
-                </div>
-                <div class="sub-option" onclick="toggleTag('sendas')" style="cursor:pointer;">
-                    <span>Notificaciones de Senda</span>
-                    <div class="toggle-sub" id="sub-sendas"></div>
-                </div>
+                <button class="btn-save" onclick="toggleNotificationsModal()" 
+                    style="background:rgba(181,131,58,0.1); color: var(--accent); border: 1px solid rgba(181,131,58,0.2); width: 100%; padding: 15px; font-size: 0.85rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    CONFIGURAR NOTIFICACIONES
+                </button>
                 
                 <!-- SECCIÓN: DISTRIBUCIÓN -->
                 <div style="text-align: left; margin-top:25px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">DISTRIBUCIÓN</div>
@@ -12002,6 +12190,123 @@ if (id === 'content-header' || id === 'side-panel') {
             <button class="btn-save" onclick="closeModals()" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;">CERRAR</button>
         </div>
     </div>
+
+    <!-- Modal Configuración Notificaciones -->
+    <div id="notifications-config-modal" class="modal" style="z-index: 2200;">
+        <div class="modal-content" style="max-width: 480px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; font-style:italic;">Notificaciones</h2>
+                <div class="toggle-sub" id="sub-push-main" onclick="togglePush()"></div>
+            </div>
+            <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 25px;">Personaliza cuándo y cómo quieres recibir tu dosis de sabiduría.</p>
+
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto; padding-right: 5px;">
+                <!-- PROGRAMACIÓN GENERAL -->
+                <div style="text-align: left; margin-bottom: 15px; font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8; text-transform: uppercase;">Programación General</div>
+                
+                <div style="background: rgba(181, 131, 58, 0.05); padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid rgba(181, 131, 58, 0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span style="font-size: 0.85rem; font-weight: 600;">Hora de Entrega</span>
+                        <input type="time" id="notif-time" onchange="saveNotifSchedule()" style="background: transparent; border: 1px solid rgba(128,128,128,0.2); border-radius: 8px; padding: 5px 10px; font-family: inherit; font-size: 0.9rem; color: var(--text);">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; gap: 5px;" id="notif-days">
+                        <button class="day-btn" onclick="toggleNotifDay(0)" data-day="0">D</button>
+                        <button class="day-btn" onclick="toggleNotifDay(1)" data-day="1">L</button>
+                        <button class="day-btn" onclick="toggleNotifDay(2)" data-day="2">M</button>
+                        <button class="day-btn" onclick="toggleNotifDay(3)" data-day="3">M</button>
+                        <button class="day-btn" onclick="toggleNotifDay(4)" data-day="4">J</button>
+                        <button class="day-btn" onclick="toggleNotifDay(5)" data-day="5">V</button>
+                        <button class="day-btn" onclick="toggleNotifDay(6)" data-day="6">S</button>
+                    </div>
+                </div>
+
+                <!-- CONTENIDOS -->
+                <div style="text-align: left; margin-bottom: 15px; font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8; text-transform: uppercase;">Temas Suscritos</div>
+                <div class="sub-option" onclick="toggleTag('palabras')" style="cursor:pointer; margin-bottom: 10px;">
+                    <span>Palabras de Hoy</span>
+                    <div class="toggle-sub" id="sub-palabras-cfg"></div>
+                </div>
+                <div class="sub-option" onclick="toggleTag('afirmaciones')" style="cursor:pointer; margin-bottom: 10px;">
+                    <span>Afirmaciones</span>
+                    <div class="toggle-sub" id="sub-afirmaciones-cfg"></div>
+                </div>
+                <div class="sub-option" onclick="toggleTag('frases')" style="cursor:pointer; margin-bottom: 10px;">
+                    <span>Frases Célebres</span>
+                    <div class="toggle-sub" id="sub-frases-cfg"></div>
+                </div>
+                <div class="sub-option" onclick="toggleTag('libros')" style="cursor:pointer; margin-bottom: 10px;">
+                    <span>Lecciones del Club</span>
+                    <div class="toggle-sub" id="sub-libros-cfg"></div>
+                </div>
+                <div class="sub-option" onclick="toggleTag('sendas')" style="cursor:pointer; margin-bottom: 25px;">
+                    <span>Notificaciones de Senda</span>
+                    <div class="toggle-sub" id="sub-sendas-cfg"></div>
+                </div>
+
+                <!-- RECORDATORIOS INTELIGENTES -->
+                <div style="text-align: left; margin-bottom: 15px; font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8; text-transform: uppercase;">Recordatorios Inteligentes</div>
+                
+                <!-- Dormir -->
+                <div style="background: rgba(181, 131, 58, 0.05); padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(181, 131, 58, 0.1);">
+                    <div class="sub-option" onclick="toggleRem('sleep')" style="cursor:pointer; border: none; padding: 0; margin-bottom: 10px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-weight: 600;">Hora de Dormir</span>
+                            <small style="font-size: 0.6rem; opacity: 0.5;">Un mensaje inteligente para cerrar el día.</small>
+                        </div>
+                        <div class="toggle-sub" id="rem-sleep-toggle"></div>
+                    </div>
+                    <div id="rem-sleep-cfg" style="display: none; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(128,128,128,0.1);">
+                        <span style="font-size: 0.75rem; opacity: 0.6;">Programar para:</span>
+                        <input type="time" id="rem-sleep-time" onchange="saveRemTime('sleep')" style="background: transparent; border: 1px solid rgba(128,128,128,0.2); border-radius: 8px; padding: 4px 8px; font-size: 0.85rem; color: var(--text);">
+                    </div>
+                </div>
+
+                <!-- Pausa Consciente -->
+                <div style="background: rgba(181, 131, 58, 0.05); padding: 15px; border-radius: 20px; margin-bottom: 25px; border: 1px solid rgba(181, 131, 58, 0.1);">
+                    <div class="sub-option" onclick="toggleRem('pause')" style="cursor:pointer; border: none; padding: 0; margin-bottom: 10px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-weight: 600;">Pausa Consciente</span>
+                            <small style="font-size: 0.6rem; opacity: 0.5;">Recuerda reconectar con tu presente.</small>
+                        </div>
+                        <div class="toggle-sub" id="rem-pause-toggle"></div>
+                    </div>
+                    <div id="rem-pause-cfg" style="display: none; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(128,128,128,0.1);">
+                        <span style="font-size: 0.75rem; opacity: 0.6;">Programar para:</span>
+                        <input type="time" id="rem-pause-time" onchange="saveRemTime('pause')" style="background: transparent; border: 1px solid rgba(128,128,128,0.2); border-radius: 8px; padding: 4px 8px; font-size: 0.85rem; color: var(--text);">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="closeModals(); if(typeof pushSync==='function') pushSync();" style="background:var(--accent); border: none; color: #fff; width: 100%; margin-top: 15px; font-weight: 700; letter-spacing: 1px;">GUARDAR Y CERRAR</button>
+        </div>
+    </div>
+    <style>
+        .day-btn {
+            flex: 1;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 1px solid rgba(128,128,128,0.2);
+            background: transparent;
+            color: var(--text);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .day-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 4px 10px rgba(181, 131, 58, 0.3);
+        }
+        [data-theme="dark"] .day-btn.active {
+            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3);
+        }
+    </style>
     <!-- Modal Integraciones -->
     <div id="integrations-modal" class="modal" style="z-index: 2100;">
         <div class="modal-content" style="max-width: 480px;">
@@ -12164,7 +12469,7 @@ if (id === 'content-header' || id === 'side-panel') {
 
     <!-- ÁREAS DE CAPTURA (OCULTAS PERO PRESENTES PARA RENDER) -->
     <div class="hidden-capture">
-        <div id="capture-area-standard" class="capture-area">
+        <div id="capture-area-standard" class="capture-area" style="padding-bottom: 20px;">
             <div class="cap-title-smart" id="cap-header-smart">LÚMINA</div>
             <h4 id="cap-main-title">---</h4>
             <div id="cap-main-content">
@@ -12172,13 +12477,24 @@ if (id === 'content-header' || id === 'side-panel') {
                 <div id="cap-extra-list" style="margin-top: 20px;"></div>
             </div>
             
-            <div class="cap-qr-wrapper">
+            <!-- Branding del Usuario en Captura -->
+            <div id="cap-user-identity" style="margin-top: 30px; display: flex; align-items: center; gap: 10px; border-top: 1px solid rgba(181,131,58,0.1); padding-top: 15px; justify-content: center;">
+                <img id="cap-user-avatar" src="" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--accent); object-fit: cover;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span id="cap-user-name" style="font-size: 0.7rem; font-weight: 700; color: #1a1a1a; letter-spacing: 1.5px; text-transform: uppercase;"></span>
+                    <div id="cap-pro-badge" style="background: #10b981; color: white; border-radius: 50%; width: 14px; height: 14px; display: none; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="width: 8px; height: 8px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cap-qr-wrapper" style="margin-top: 20px;">
                 <div class="cap-qr-box" id="standard-qr-box"></div>
                 <div class="cap-qr-link">LUMINAPP.TODAY</div>
             </div>
             
-            <div style="margin-top: 30px; font-size: 0.65rem; opacity: 0.3; letter-spacing: 2px;">
-                <span id="cap-footer-date">---</span> — Lúminapp
+            <div style="margin-top: 20px; font-size: 0.6rem; opacity: 0.4; letter-spacing: 2px; text-align: center;">
+                <span id="cap-footer-date">---</span> — LÚMINA
             </div>
         </div>
     </div>
