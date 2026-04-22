@@ -3940,11 +3940,16 @@ body[data-cat="sendas"] #header-cat {
             if (res.isPro) {
                 localStorage.setItem('lumina_pro', 'true');
                 if (res.proKey) localStorage.setItem('lumina_pro_key', res.proKey);
-                if (res.tier) localStorage.setItem('lumina_membership_tier', res.tier);
+                if (res.tier) {
+                    localStorage.setItem('lumina_membership_tier', res.tier);
+                    if (res.tier === 'founder') localStorage.setItem('lumina_pro_type', 'LIFETIME');
+                    else localStorage.setItem('lumina_pro_type', 'PRO');
+                }
             } else {
                 localStorage.setItem('lumina_pro', 'false');
                 localStorage.removeItem('lumina_pro_key');
                 localStorage.removeItem('lumina_membership_tier');
+                localStorage.setItem('lumina_pro_type', 'FREE');
             }
             
             if (res.birthday) localStorage.setItem('lumina_birthday', String(res.birthday).substring(0, 10));
@@ -8835,7 +8840,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     badge.style.background = isFounder ? '#FFD700' : '#10b981'; // Dorado vs Verde
                 }
             } else {
-                if (heroTitle) heroTitle.innerText = 'Lúmina';
+                if (heroTitle) heroTitle.innerHTML = 'Lúmina <span class="logo-pro-badge lite">LITE</span>';
                 if (badge) badge.style.display = 'none';
             }
         }
@@ -8843,7 +8848,8 @@ if (id === 'content-header' || id === 'side-panel') {
         async function loadProState() {
             const proVal = localStorage.getItem('lumina_pro');
             const trialActive = (typeof isTrialActive === 'function') ? isTrialActive() : false;
-            isPro = (proVal === 'true' || trialActive);
+            const tier = localStorage.getItem('lumina_membership_tier');
+            isPro = (proVal === 'true' || trialActive || tier === 'founder');
             
             const hubPro = document.getElementById('hub-pro-banner');
             const trialBtn = document.getElementById('btn-start-trial');
