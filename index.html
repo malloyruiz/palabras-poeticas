@@ -3418,13 +3418,17 @@ body[data-cat="sendas"] #header-cat {
             loader.classList.remove('fade-out');
             loader.style.opacity = '1';
             loader.style.pointerEvents = 'auto';
+            loader.style.display = 'flex'; // Asegurar que no sea none
+            loader.style.visibility = 'visible';
             
             // Si el portal está abierto, asegurar que el loader esté por encima
             const portal = document.getElementById('portal-identidad-lumina');
-            if (portal && portal.classList.contains('active')) {
+            const profileModal = document.getElementById('profile-modal');
+            
+            if ((portal && portal.classList.contains('active')) || (profileModal && profileModal.classList.contains('active'))) {
                 loader.style.zIndex = '1000000';
             } else {
-                loader.style.zIndex = '99999';
+                loader.style.zIndex = '200000'; // Por encima de confirm-toast (100000)
             }
         }
 
@@ -3978,6 +3982,7 @@ body[data-cat="sendas"] #header-cat {
             }
             
             if (res.birthday) localStorage.setItem('lumina_birthday', String(res.birthday).substring(0, 10));
+            if (res.devices) localStorage.setItem('lumina_devices_cache', JSON.stringify(res.devices));
             if (res.data) pullSync(res.data);
             location.reload();
         }
@@ -4171,7 +4176,13 @@ body[data-cat="sendas"] #header-cat {
                     formData.append('device_name', getFriendlyDeviceName());
                     const response = await fetch(API, { method: 'POST', body: formData });
                     const resSync = await response.json();
-                    if (resSync.success) console.log("Sincronización: Éxito.");
+                    if (resSync.success) {
+                        console.log("Sincronización: Éxito.");
+                        if (resSync.devices) {
+                            localStorage.setItem('lumina_devices_cache', JSON.stringify(resSync.devices));
+                            renderDeviceList(resSync.devices);
+                        }
+                    }
                 } catch (e) { console.warn("Sync error", e); }
             };
             if (force) return performSync();
@@ -6252,6 +6263,7 @@ body[data-cat="sendas"] #header-cat {
                 modal.classList.add('active');
                 history.pushState({ modal: 'profile' }, "", "#profile");
                 updateProfileUI();
+                if (typeof pushSync === 'function') pushSync();
                 if (typeof syncLuminaStats === 'function') syncLuminaStats();
                 playSound('click');
                 if (navigator.vibrate) navigator.vibrate(10);
