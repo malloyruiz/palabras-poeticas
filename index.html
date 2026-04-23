@@ -3409,6 +3409,25 @@ body[data-cat="sendas"] #header-cat {
             }
         }
 
+        function showLoader(text = "Cargando...") {
+            const loader = document.getElementById('loader');
+            if (!loader) return;
+            const loaderText = document.getElementById('loader-text') || loader.querySelector('p');
+            if (loaderText) loaderText.innerText = text;
+            loader.classList.remove('hidden');
+            loader.classList.remove('fade-out');
+            loader.style.opacity = '1';
+            loader.style.pointerEvents = 'auto';
+            
+            // Si el portal está abierto, asegurar que el loader esté por encima
+            const portal = document.getElementById('portal-identidad-lumina');
+            if (portal && portal.classList.contains('active')) {
+                loader.style.zIndex = '1000000';
+            } else {
+                loader.style.zIndex = '99999';
+            }
+        }
+
         // --- CORE: IDENTIDAD Y SISTEMA ---
         function hideLoader() {
             const loader = document.getElementById('loader');
@@ -3822,7 +3841,7 @@ body[data-cat="sendas"] #header-cat {
             try {
                 if (portalMode === 'login') {
                     const pass = document.getElementById('reg-pass').value;
-                    const resp = await fetch(`${API}?action=user_login&mode=login&email=${encodeURIComponent(emailValue)}&password=${encodeURIComponent(pass)}`);
+                    const resp = await fetch(`${API}?action=user_login&mode=login&email=${encodeURIComponent(emailValue)}&password=${encodeURIComponent(pass)}&device_id=${getDeviceId()}&device_name=${encodeURIComponent(getFriendlyDeviceName())}`);
                     const res = await resp.json();
                     if (res.success) finalizeAccess(res, emailValue);
                     else showPortalError(res.error || "Credenciales inválidas.");
@@ -3837,7 +3856,7 @@ body[data-cat="sendas"] #header-cat {
                         btn.disabled = false; btn.innerText = "REGISTRAR"; return;
                     }
 
-                    const resp = await fetch(`${API}?action=user_login&mode=signup&email=${encodeURIComponent(emailValue)}&name=${encodeURIComponent(name)}&password=${encodeURIComponent(pass)}&question=${encodeURIComponent(question)}&answer=${encodeURIComponent(answer)}`);
+                    const resp = await fetch(`${API}?action=user_login&mode=signup&email=${encodeURIComponent(emailValue)}&name=${encodeURIComponent(name)}&password=${encodeURIComponent(pass)}&question=${encodeURIComponent(question)}&answer=${encodeURIComponent(answer)}&device_id=${getDeviceId()}&device_name=${encodeURIComponent(getFriendlyDeviceName())}`);
                     const res = await resp.json();
                     if (res.success) {
                         localStorage.setItem('lumina_user_email', emailValue);
@@ -3918,6 +3937,8 @@ body[data-cat="sendas"] #header-cat {
             formData.append('method', 'google');
             formData.append('email', email);
             formData.append('googleToken', token);
+            formData.append('device_id', getDeviceId());
+            formData.append('device_name', getFriendlyDeviceName());
             
             showLoader("Finalizando entrada segura...");
             fetch(API, { method: 'POST', body: formData })
@@ -4103,12 +4124,7 @@ body[data-cat="sendas"] #header-cat {
 
         async function logoutUser() {
             showConfirm("¿Cerrar sesión? Se sincronizarán tus cambios.", async () => {
-                const loader = document.getElementById('loader');
-                if (loader) {
-                    const loaderText = loader.querySelector('p');
-                    if (loaderText) loaderText.innerText = "Sincronizando tus avances en la nube...";
-                    loader.classList.remove('hidden');
-                }
+                showLoader("Sincronizando tus avances en la nube...");
                 
                 try {
                     await pushSync(true);
@@ -4151,6 +4167,8 @@ body[data-cat="sendas"] #header-cat {
                     formData.append('action', 'user_sync');
                     formData.append('email', email);
                     formData.append('data', JSON.stringify(data));
+                    formData.append('device_id', getDeviceId());
+                    formData.append('device_name', getFriendlyDeviceName());
                     const response = await fetch(API, { method: 'POST', body: formData });
                     const resSync = await response.json();
                     if (resSync.success) console.log("Sincronización: Éxito.");
