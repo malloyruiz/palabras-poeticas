@@ -351,6 +351,10 @@
             box-shadow: 0 4px 15px rgba(160, 160, 160, 0.4);
         }
         @keyframes shine { to { background-position: 200% center; } }
+        @keyframes popIn { 
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
         /* Responsive Mobile */
         @media (max-width: 1024px) {
@@ -7330,21 +7334,43 @@ body[data-cat="sendas"] #header-cat {
                     navigator.serviceWorker.register('sw.js?v=16').catch(() => {});
                 }
 
-                // Ruta inicial desde URL hash
-                const targetCat = window.location.hash.replace('#', '') || 'hub';
-                if (targetCat !== 'hub' && typeof openCategory === 'function') {
+                // --- SISTEMA DE DEEP LINKING (Navegación por Hash) ---
+                const handleDeepLink = () => {
+                    const h = window.location.hash.replace('#', '') || 'hub';
+                    if (h === 'hub' || h === '') return;
+
+                    let target = h.toLowerCase();
+                    // Normalización de sinónimos
+                    if (target === 'expansions') target = 'expansiones';
+                    if (target.startsWith('exp')) target = 'expansiones';
+                    
+                    const rootCat = target.split(':')[0];
+                    const validCats = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos', 'agenda', 'expansiones', 'bitacora', 'sendas'];
+                    const validModals = ['settings', 'info', 'notifications', 'pro', 'profile', 'habitos', 'mood', 'integrations'];
+
                     setTimeout(() => {
-                        const rootCat = targetCat.split(':')[0];
-                        const valid = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos', 'agenda'];
-                        
-                        if (rootCat === 'agenda') {
-                            openCategory('pausa', false, true);
-                            setTimeout(() => checkCalendarGaps(true), 1000);
-                        } else if (valid.includes(rootCat)) {
-                            openCategory(rootCat, rootCat === 'libros', true, targetCat);
+                        if (validCats.includes(rootCat)) {
+                            closeModals(true);
+                            if (rootCat === 'agenda') {
+                                openCategory('pausa', false, true);
+                                setTimeout(() => checkCalendarGaps(true), 1000);
+                            } else if (rootCat === 'habitos') {
+                                // Los hábitos a veces son modal o sección, manejamos ambos
+                                if (typeof openCategory === 'function') openCategory('habitos');
+                            } else {
+                                if (typeof openCategory === 'function') openCategory(rootCat, rootCat === 'libros', true, target);
+                            }
+                        } else if (validModals.includes(rootCat)) {
+                            if (rootCat === 'notifications' && typeof checkNotifications === 'function') checkNotifications();
+                            if (rootCat === 'profile' && typeof setPortalMode === 'function') {
+                                setPortalMode('profile');
+                                document.getElementById('portal-modal').classList.add('active');
+                            }
                         }
-                    }, 500);
-                }
+                    }, 600);
+                };
+                handleDeepLink();
+                window.addEventListener('hashchange', handleDeepLink);
 
                 setInterval(checkMidnightRefresh, 1000 * 60 * 10);
             } catch (e) {
@@ -7824,12 +7850,113 @@ if (id === 'content-header' || id === 'side-panel') {
         };
 
         // Soporte Tecla Escape
+        // --- SISTEMA DE ATAJOS DE TECLADO (G-Style Navigation) ---
+        let shortcutSequencePrefix = false;
+        let shortcutSequenceTimer = null;
+
         window.addEventListener('keydown', (e) => {
+            // Solo disponible en pantallas grandes (Desktop)
+            if (window.innerWidth <= 1024) return;
+
+            // Ignorar si el usuario está escribiendo en un campo de texto
+            if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable) {
+                if (e.key === 'Escape') document.activeElement.blur();
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+
+            // 1. Iniciador de Secuencia (G)
+            if (key === 'g' && !shortcutSequencePrefix) {
+                shortcutSequencePrefix = true;
+                showShortcutIndicator();
+                
+                if (shortcutSequenceTimer) clearTimeout(shortcutSequenceTimer);
+                shortcutSequenceTimer = setTimeout(() => {
+                    shortcutSequencePrefix = false;
+                    hideShortcutIndicator();
+                }, 3000); // 3 segundos para completar la secuencia
+                return;
+            }
+
+            // 2. Ejecutor de Secuencia
+            if (shortcutSequencePrefix) {
+                const sequenceMap = {
+                    'p': () => openCategory('palabras'),
+                    'a': () => openCategory('afirmaciones'),
+                    'f': () => openCategory('frases'),
+                    'l': () => openCategory('libros'),
+                    's': () => openCategory('sendas'),
+                    'b': () => openCategory('bitacora'),
+                    'm': () => openCategory('pausa'),
+                    'h': () => { closeModals(true); window.location.hash = 'hub'; },
+                    'q': () => showShortcutsHelp()
+                };
+
+                if (sequenceMap[key]) {
+                    e.preventDefault();
+                    sequenceMap[key]();
+                    shortcutSequencePrefix = false;
+                    hideShortcutIndicator();
+                    if (navigator.vibrate) navigator.vibrate(10);
+                    return;
+                }
+            }
+
+            // 2. Atajos Globales de una sola tecla (Solo Escape se mantiene fuera de G)
             if (e.key === 'Escape') {
                 const activeModal = document.querySelector('.modal.active');
-                if (activeModal) history.back();
+                if (activeModal) {
+                    if (typeof closeModals === 'function') closeModals(true);
+                    else history.back();
+                }
             }
         });
+
+        function showShortcutIndicator() {
+            let el = document.getElementById('shortcut-indicator');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'shortcut-indicator';
+                el.style.cssText = `
+                    position: fixed; bottom: 30px; right: 30px;
+                    background: var(--accent); color: #fff;
+                    padding: 8px 15px; border-radius: 50px;
+                    font-size: 0.75rem; font-weight: 800;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                    z-index: 10000; pointer-events: none;
+                    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                `;
+                document.body.appendChild(el);
+            }
+            el.innerText = 'IR A... (P, A, F, L, S, B, M, H, Q)';
+            el.style.display = 'block';
+        }
+
+        function hideShortcutIndicator() {
+            const el = document.getElementById('shortcut-indicator');
+            if (el) el.style.display = 'none';
+        }
+
+        function showShortcutsHelp() {
+            const modal = document.getElementById('shortcuts-help-modal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                history.pushState({ modal: 'shortcuts' }, "", "#shortcuts");
+            }
+        }
+
+        function closeShortcutsHelp() {
+            const modal = document.getElementById('shortcuts-help-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                if (history.state && history.state.modal === 'shortcuts') {
+                    history.back();
+                }
+            }
+        }
 
         let currentIdx = -1; // Índice actual del contenido (para Extras PRO)
 
@@ -8750,7 +8877,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 
                 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 
                 'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal', 'notifications-config-modal',
-                'reentry-modal', 'export-options-box', 'senda-complete-modal'
+                'reentry-modal', 'export-options-box', 'senda-complete-modal', 'shortcuts-help-modal'
             ];
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -9664,9 +9791,20 @@ if (id === 'content-header' || id === 'side-panel') {
         function injectLocalNotif(tit, msg, link, type) {
             try {
                 let local = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
-                const nId = `rem-${type}-${new Date().toDateString()}`;
+                const hourKey = new Date().toISOString().substring(0, 13);
+                const nId = `rem-${type}-${hourKey}`;
                 
-                // Evitar duplicados por día para el mismo tipo
+                // Eliminar notificaciones antiguas del mismo tipo para no acumular
+                local = local.filter(n => {
+                    if (n.id && n.id.startsWith(`rem-${type}-`) && n.id !== nId) {
+                        let dismissed = JSON.parse(localStorage.getItem('lumina_dismissed_notifs') || '[]');
+                        dismissed = dismissed.filter(d => d !== n.id);
+                        localStorage.setItem('lumina_dismissed_notifs', JSON.stringify(dismissed));
+                        return false;
+                    }
+                    return true;
+                });
+                
                 if (local.find(n => n.id === nId)) return;
                 
                 local.unshift({
@@ -10436,15 +10574,7 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         // --- SISTEMA DE URL Y BOTÓN ATRÁS (HARDWARE) ---
-        window.addEventListener('hashchange', () => {
-            const h = window.location.hash;
-            // Solo cerramos modales cuando el usuario navega HACIA una sección de contenido base (não modal)
-            const isNavTransition = h.startsWith('#pausa') || h.startsWith('#exp') || h.startsWith('#sendas') || h === '#hub' || h === '';
-            const isModalHash = h.match(/#(settings|info|notifications|pro|success|profile|end-trial|habitos|mood|integrations)/);
-            if (!isNavTransition && !isModalHash) {
-                closeModals(true);
-            }
-        });
+        // --- ELIMINADO POR CONSOLIDACIÓN EN HANDLEDEEPLINK ---
 
 
         // --- LÓGICA DE PAUSA CONSCIENTE ---
@@ -11179,6 +11309,42 @@ if (id === 'content-header' || id === 'side-panel') {
         <div id="scanner-status" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; text-transform: uppercase; margin-top: 20px;">Iniciando cámara...</div>
         
         <button class="btn-close-scanner" onclick="stopScanner()">CANCELAR ESCANEO</button>
+    </div>
+
+
+    <!-- Modal de Ayuda de Atajos -->
+    <div id="shortcuts-help-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px; padding: 40px; border-radius: 32px; background: var(--bg); border: 1px solid var(--card-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; font-style:italic; margin: 0;">Atajos de Teclado</h2>
+                <button class="btn-icon" onclick="closeShortcutsHelp()" style="padding: 0; opacity: 0.5;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <p style="margin-bottom: 25px; opacity: 0.6; font-size: 0.9rem; line-height: 1.6;">Navega por Lúmina como un profesional. Estos atajos solo están disponibles en computadoras.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                <div class="shortcut-group">
+                    <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;">NAVEGACIÓN</h4>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + P</b> Palabras</p>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + A</b> Afirmaciones</p>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + F</b> Frases</p>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + L</b> Libros</p>
+                </div>
+                <div class="shortcut-group">
+                    <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;">ACCIONES</h4>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + S</b> Senderos</p>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + B</b> Bitácora</p>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + M</b> Pausa</p>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + H</b> Inicio</p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 35px; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.1); text-align: center;">
+                <p style="font-size: 0.8rem; opacity: 0.5;">Presiona <b>Esc</b> para cerrar cualquier ventana.</p>
+            </div>
+        </div>
     </div>
 
 
