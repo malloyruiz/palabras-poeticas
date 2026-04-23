@@ -2053,6 +2053,28 @@
         }
         .exp-card .e-icon { width: 35px; height: 35px; stroke: var(--accent); opacity: 0.8; margin-left: 20px; }
 
+        .pin-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(181, 131, 58, 0.05);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: 0.3s;
+            opacity: 0.4;
+        }
+        .pin-btn:hover { background: rgba(181, 131, 58, 0.1); opacity: 1; transform: scale(1.1); }
+        .pin-btn.active { opacity: 1; background: var(--accent); color: white; transform: rotate(45deg); }
+        .pin-btn svg { width: 14px; height: 14px; }
+
         .book-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
         .book-item {
             padding: 20px 25px; border-radius: 18px; background: rgba(181,131,58,0.03);
@@ -5757,8 +5779,14 @@ body[data-cat="sendas"] #header-cat {
                 return;
             }
 
-            // Ordenamiento: Desbloqueados primero, el resto aleatorio
+            // Ordenamiento: Anclados primero, luego Desbloqueados primero, el resto aleatorio
+            const pinnedIds = JSON.parse(localStorage.getItem('lumina_pinned_exps') || '[]');
             filteredList.sort((a, b) => {
+                const aPinned = pinnedIds.includes(a.id);
+                const bPinned = pinnedIds.includes(b.id);
+                if (aPinned && !bPinned) return -1;
+                if (!aPinned && bPinned) return 1;
+
                 if (a.unlocked && !b.unlocked) return -1;
                 if (!a.unlocked && b.unlocked) return 1;
                 // Si ambos tienen el mismo estado, ordenar pseudo-aleatoriamente basado en sus IDs para mantener el azar consistente tras canjear
@@ -5789,6 +5817,11 @@ body[data-cat="sendas"] #header-cat {
 
                 return `
                 <div class="exp-card ${exp.unlocked ? '' : 'locked'}" onclick="${clickAction}">
+                    ${exp.unlocked && (isPro || localStorage.getItem('lumina_membership_tier') === 'lifetime') ? `
+                    <button class="pin-btn ${pinnedIds.includes(exp.id) ? 'active' : ''}" onclick="event.stopPropagation(); togglePinExp('${exp.id}')" title="Anclar al inicio">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 20 2 2 4-4-2-2Z"></path><path d="m11.4 12.6 1.2-1.2"></path><path d="m6.9 17.1 1.2-1.2"></path><path d="m13.8 10.2 1.2-1.2"></path><path d="m9.3 14.7 1.2-1.2"></path><path d="M18 4a2 2 0 0 1 2 2v2"></path><path d="m2 2 20 20"></path></svg>
+                    </button>
+                    ` : ''}
                     <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
                     
                     <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; width: 100%;">
@@ -5831,6 +5864,20 @@ body[data-cat="sendas"] #header-cat {
             `;
             }).join('');
         }
+        
+        function togglePinExp(id) {
+            let pinned = JSON.parse(localStorage.getItem('lumina_pinned_exps') || '[]');
+            if (pinned.includes(id)) {
+                pinned = pinned.filter(p => p !== id);
+                showToast('Desanclado', 'info');
+            } else {
+                pinned.push(id);
+                showToast('Anclado al inicio', 'success');
+            }
+            localStorage.setItem('lumina_pinned_exps', JSON.stringify(pinned));
+            renderExpansions(allExpansions);
+        }
+
 
         function renderPackBadges(librosIncluded) {
             if (!librosIncluded) return '';
@@ -6031,6 +6078,9 @@ body[data-cat="sendas"] #header-cat {
             const lesson = currentExpLessons[currentExpIdx];
             if (!lesson) return;
             window.currentLessonData = { ...lesson, cat: 'expansiones', book: currentExpBook };
+            window._luminaShareBlob = null; // Limpiar caché de captura para nueva lección
+            window._lastShareType = "";
+            setTimeout(() => prepareShareBlob('exp'), 600); // Pre-captura en segundo plano
             
             // Fecha Actual en formato Lúmina
             const now = new Date();
@@ -8168,6 +8218,8 @@ if (id === 'content-header' || id === 'side-panel') {
             const extraUI = document.getElementById('extra-ui');
             const lessonUI = document.getElementById('lesson-ui');
             const mainUI = document.getElementById('main-ui');
+            window._luminaShareBlob = null; // Limpiar caché de captura para nuevo contenido
+            window._lastShareType = "";
             
             // 1. Limpieza y preparación inicial de contenedores
             if (extraUI) extraUI.style.display = (currentCategory === 'extra') ? 'block' : 'none';
@@ -10465,28 +10517,9 @@ if (id === 'content-header' || id === 'side-panel') {
                 });
             }
             
-            // Inyectar Identidad del Usuario en la captura
-            const capAvatar = document.getElementById('cap-user-avatar');
-            const capName = document.getElementById('cap-user-name');
-            const capBadge = document.getElementById('cap-pro-badge');
-            
-            if (capAvatar && capName) {
-                const name = localStorage.getItem('lumina_user_name') || 'Usuario Lúmina';
-                const email = localStorage.getItem('lumina_user_email') || name;
-                const isPro = localStorage.getItem('lumina_pro') === 'true';
-                const isFounder = localStorage.getItem('lumina_membership_tier') === 'founder';
-                const trial = isTrialActive();
-                
-                capAvatar.src = `https://api.dicebear.com/9.x/shapes/svg?seed=${encodeURIComponent(email)}&backgroundColor=b5833a,ffecd2`;
-                capName.innerText = name.toUpperCase().split(' ')[0];
-                
-                if (isPro || trial || isFounder) {
-                    capBadge.style.display = 'flex';
-                    capBadge.style.background = isFounder ? '#FFD700' : '#10b981';
-                } else {
-                    capBadge.style.display = 'none';
-                }
-            }
+            // Eliminada la inyección de Identidad del Usuario en la captura (Avatar, Nombre, Badge) por solicitud de diseño
+            const capIdentity = document.getElementById('cap-user-identity');
+            if (capIdentity) capIdentity.style.display = 'none';
 
             setTimeout(async () => {
                 try {
@@ -12831,16 +12864,8 @@ if (id === 'content-header' || id === 'side-panel') {
                 <div id="cap-extra-list" style="margin-top: 20px;"></div>
             </div>
             
-            <!-- Branding del Usuario en Captura -->
-            <div id="cap-user-identity" style="margin-top: 30px; display: flex; align-items: center; gap: 10px; border-top: 1px solid rgba(181,131,58,0.1); padding-top: 15px; justify-content: center;">
-                <img id="cap-user-avatar" src="" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--accent); object-fit: cover;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span id="cap-user-name" style="font-size: 0.7rem; font-weight: 700; color: #1a1a1a; letter-spacing: 1.5px; text-transform: uppercase;"></span>
-                    <div id="cap-pro-badge" style="background: #10b981; color: white; border-radius: 50%; width: 14px; height: 14px; display: none; align-items: center; justify-content: center;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="width: 8px; height: 8px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                </div>
-            </div>
+            <!-- Branding del Usuario en Captura Eliminado -->
+            <div id="cap-user-identity" style="display: none;"></div>
 
             <div class="cap-qr-wrapper" style="margin-top: 20px;">
                 <div class="cap-qr-box" id="standard-qr-box"></div>
@@ -13309,7 +13334,10 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
             const finalTitle = lesson.titulo || lesson.title || meta.title;
             document.getElementById('exp-read-title').innerText = finalTitle;
             window.currentLessonData = { ...lesson, cat: 'sendas', sendaTitle: senda.title };
+            window._luminaShareBlob = null; // Limpiar caché de captura para nueva lección de senda
+            window._lastShareType = "";
             updateFavoriteIcon();
+            setTimeout(() => prepareShareBlob('exp'), 600); // Pre-captura en segundo plano (usa UI de expansiones)
 
             // Enriquecer metadata con Paso, Senda, Categoría, Libro y Autor
             const metaTop = document.getElementById('exp-read-meta-top');
