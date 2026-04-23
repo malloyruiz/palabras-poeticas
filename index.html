@@ -1049,6 +1049,43 @@
         .auth-input { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.15); background: rgba(255,255,255,0.03); color: var(--text); font-family: var(--font-body); outline: none; box-sizing: border-box; font-size: 1rem; transition: var(--transition); }
         .auth-input:focus { border-color: var(--accent); background: rgba(181, 131, 58, 0.05); }
         
+        .auth-field { position: relative; }
+        .pass-toggle {
+            position: absolute;
+            right: 15px;
+            bottom: 12px;
+            background: none;
+            border: none;
+            color: var(--accent);
+            opacity: 0.3;
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.3s;
+            z-index: 5;
+        }
+        .pass-toggle:hover { opacity: 0.8; }
+        .pass-toggle svg { width: 18px; height: 18px; }
+
+        .recover-method-btn {
+            width: 100%;
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(181, 131, 58, 0.1);
+            background: rgba(181, 131, 58, 0.03);
+            color: var(--text);
+            text-align: left;
+            margin-bottom: 15px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            font-family: var(--font-body);
+        }
+        .recover-method-btn:hover { background: rgba(181, 131, 58, 0.08); border-color: var(--accent); transform: translateY(-2px); }
+        .recover-method-btn svg { width: 20px; height: 20px; color: var(--accent); }
+        
         /* --- BOTÓN EXTRA PRO (MAESTRÍA DIARIA) --- */
         .btn-extra-wisdom {
             background: rgba(181, 131, 58, 0.05);
@@ -2073,7 +2110,7 @@
         }
         .pin-btn:hover { background: rgba(181, 131, 58, 0.1); opacity: 1; transform: scale(1.1); }
         .pin-btn.active { opacity: 1; background: var(--accent); color: white; transform: rotate(45deg); }
-        .pin-btn svg { width: 14px; height: 14px; }
+        .pin-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
         .book-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
         .book-item {
@@ -3332,6 +3369,9 @@ body[data-cat="sendas"] #header-cat {
                 <div id="field-pass" class="auth-field">
                     <label class="auth-label">Contraseña</label>
                     <input type="password" id="reg-pass" class="auth-input" placeholder="••••••••">
+                    <button class="pass-toggle" onclick="togglePassVisibility('reg-pass', this)" title="Ver contraseña">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
                 </div>
                 <div id="fields-signup" style="display: none;">
                     <div class="auth-field">
@@ -3355,12 +3395,61 @@ body[data-cat="sendas"] #header-cat {
                     </div>
                 </div>
                 <div id="fields-recover" style="display: none;">
-                    <!-- Recuperación básica -->
-                    <div class="auth-field">
-                        <label class="auth-label">Pregunta Secreta</label>
-                        <p id="recover-question-text" style="font-style:italic; margin-bottom:10px; color:var(--accent);"></p>
-                        <input type="text" id="recover-answer" class="auth-input" placeholder="Tu respuesta...">
+                    <!-- Paso 2: Selector de Método -->
+                    <div id="recover-method-selector" style="display: none;">
+                        <button class="recover-method-btn" onclick="selectRecoverMethod('question')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                            <div style="display:flex; flex-direction:column;">
+                                <span style="font-weight:700;">Pregunta de Seguridad</span>
+                                <span style="font-size:0.7rem; opacity:0.5;">Verifica con tu respuesta secreta</span>
+                            </div>
+                        </button>
+                        <button class="recover-method-btn" onclick="selectRecoverMethod('code')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <div style="display:flex; flex-direction:column;">
+                                <span style="font-weight:700;">Código de Recuperación</span>
+                                <span style="font-size:0.7rem; opacity:0.5;">Usa una de tus llaves de respaldo</span>
+                            </div>
+                        </button>
                     </div>
+
+                    <!-- Paso 3a: Pregunta -->
+                    <div id="recover-step-question" style="display: none;">
+                        <div class="auth-field">
+                            <label class="auth-label">Tu Respuesta</label>
+                            <p id="recover-question-text" style="font-style:italic; margin-bottom:12px; color:var(--accent); font-size:0.9rem;"></p>
+                            <input type="text" id="recover-answer" class="auth-input" placeholder="Escribe tu respuesta...">
+                        </div>
+                    </div>
+
+                    <!-- Paso 3b: Código -->
+                    <div id="recover-step-code" style="display: none;">
+                        <div class="auth-field">
+                            <label class="auth-label">Código de Respaldo</label>
+                            <input type="text" id="recover-code" class="auth-input" placeholder="Ej: 7MPW8Z9I" style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">
+                            <p style="font-size: 0.65rem; opacity: 0.4; margin-top: 8px;">Ingresa uno de tus 5 códigos de 8 caracteres.</p>
+                        </div>
+                    </div>
+
+                    <!-- Paso 4: Restablecer Pass -->
+                    <div id="recover-step-final" style="display: none;">
+                        <div class="auth-field">
+                            <label class="auth-label">Nueva Contraseña</label>
+                            <input type="password" id="recover-new-pass" class="auth-input" placeholder="Mínimo 4 caracteres">
+                            <button class="pass-toggle" onclick="togglePassVisibility('recover-new-pass', this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-codes" style="display: none;">
+                <p style="font-size: 0.85rem; opacity: 0.6; margin-bottom: 25px; line-height: 1.6; text-align: center;">
+                    Guarda estos códigos en un lugar seguro. Son tu única forma de recuperar tu cuenta si pierdes el acceso y olvidas tu pregunta.
+                </p>
+                <div id="codes-list" style="margin-bottom: 30px;">
+                    <!-- Los códigos se inyectan aquí vía JS -->
                 </div>
             </div>
 
@@ -3393,6 +3482,27 @@ body[data-cat="sendas"] #header-cat {
         let voices = [];
         let isPro = false;
         let trialDay = 0;
+
+        function togglePassVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const isPass = input.type === 'password';
+            input.type = isPass ? 'text' : 'password';
+            btn.innerHTML = isPass 
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        }
+
+        // Habilitar Enter en el portal
+        document.addEventListener('keydown', (e) => {
+            const portal = document.getElementById('portal-identidad-lumina');
+            if (e.key === 'Enter' && portal && portal.classList.contains('active')) {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.classList.contains('auth-input')) {
+                    handlePortalAction();
+                }
+            }
+        });
 
         // Función Crítica: Abrir Portal (Debe estar disponible inmediatamente para los botones de la landing)
         function openAuth(mode) {
@@ -5819,7 +5929,7 @@ body[data-cat="sendas"] #header-cat {
                 <div class="exp-card ${exp.unlocked ? '' : 'locked'}" onclick="${clickAction}">
                     ${exp.unlocked && (isPro || localStorage.getItem('lumina_membership_tier') === 'lifetime') ? `
                     <button class="pin-btn ${pinnedIds.includes(exp.id) ? 'active' : ''}" onclick="event.stopPropagation(); togglePinExp('${exp.id}')" title="Anclar al inicio">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 20 2 2 4-4-2-2Z"></path><path d="m11.4 12.6 1.2-1.2"></path><path d="m6.9 17.1 1.2-1.2"></path><path d="m13.8 10.2 1.2-1.2"></path><path d="m9.3 14.7 1.2-1.2"></path><path d="M18 4a2 2 0 0 1 2 2v2"></path><path d="m2 2 20 20"></path></svg>
+                        <svg viewBox="0 0 448 448"><path d="m 26.122772,1023.1298 c -0.763949,0.8194 -1.845113,1.0275 -2.875705,0.5757 -1.172866,1.1728 -2.27798,2.2818 -3.450846,3.4546 0.796409,1.4944 0.650551,2.8355 -0.575142,4.0303 l -2.875705,-2.303 -6.326551,4.6061 4.601128,-6.3334 -2.300564,-2.8788 c 1.194787,-1.2256 2.531653,-1.3722 4.025987,-0.5758 1.172866,-1.1729 2.277981,-2.2817 3.450847,-3.4546 -0.451862,-1.0306 -0.24408,-2.1148 0.575141,-2.8788 1.879129,1.883 3.879031,3.8718 5.75141,5.7577 z" transform="matrix(27.819263,0,0,27.789276,-278.71626,-28272.035)"></path></svg>
                     </button>
                     ` : ''}
                     <div class="hero-bg-blur" style="width: 150px; height: 150px; left: -20px; top: -20px; opacity: 0.05;"></div>
@@ -8074,6 +8184,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     'a': () => openCategory('afirmaciones'),
                     'f': () => openCategory('frases'),
                     'l': () => openCategory('libros'),
+                    'e': () => openCategory('expansiones'),
                     's': () => openCategory('sendas'),
                     'b': () => openCategory('bitacora'),
                     'm': () => openCategory('pausa'),
@@ -11502,6 +11613,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + A</b> Afirmaciones</p>
                     <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + F</b> Frases</p>
                     <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + L</b> Libros</p>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + E</b> Expansiones</p>
                 </div>
                 <div class="shortcut-group">
                     <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;">ACCIONES</h4>
