@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FDFCF9;
+            --text: #1A1A1A;
+            --accent: #B5833A;
+            --card-bg: #FFFFFF;
+            --card-border: rgba(181, 131, 58, 0.12);
+            --shadow: 0 10px 30px rgba(0,0,0,0.05);
+            --glass: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            width: 380px;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .container {
+            padding: 25px;
+        }
+
+        /* --- HEADER --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-left h1 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.6rem;
+            margin: 0;
+            color: var(--text);
+        }
+
+        .streak-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(181, 131, 58, 0.1);
+            padding: 6px 12px;
+            border-radius: 50px;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        /* --- MAIN CARD --- */
+        .wisdom-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 0;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(0,0,0,0.02);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            opacity: 1;
+            color: var(--accent);
+            background: #fff;
+        }
+
+        .wisdom-content {
+            padding: 25px;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .wisdom-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .wisdom-desc {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            opacity: 0.7;
+            font-weight: 400;
+        }
+
+        .card-footer {
+            padding: 15px 25px;
+            background: rgba(181, 131, 58, 0.03);
+            border-top: 1px dotted var(--card-border);
+            text-align: right;
+        }
+
+        .btn-complete {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-complete:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(181, 131, 58, 0.3);
+        }
+
+        .btn-complete.done {
+            background: #10b981;
+        }
+
+        /* --- QUICK ACTIONS --- */
+        .section-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            opacity: 0.6;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .action-item {
+            background: #fff;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .action-item:hover {
+            border-color: var(--accent);
+            background: rgba(181, 131, 58, 0.02);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(181, 131, 58, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+        
+        .action-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .action-info div:first-child {
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .action-info div:last-child {
+            font-size: 0.6rem;
+            opacity: 0.5;
+        }
+
+        /* --- NOTIFS --- */
+        #notif-section {
+            background: rgba(0,0,0,0.02);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .notif-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .notif-item:last-child { border-bottom: none; }
+        
+        .notif-item-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .notif-footer {
+            padding: 12px;
+            text-align: center;
+            background: rgba(181, 131, 58, 0.05);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-top: 1px solid rgba(181, 131, 58, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .notif-footer:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* --- AUTH --- */
+        #auth-section { display: none; }
+        .auth-field { margin-bottom: 15px; }
+        .auth-input {
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border);
+            background: #fff; outline: none; box-sizing: border-box;
+        }
+        .btn-primary {
+            width: 100%; padding: 14px; background: #000; color: #fff; border: none;
+            border-radius: 50px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+
+        /* --- LOADER --- */
+        .loader { text-align: center; padding: 50px; display: none; }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
+                <h1 id="greeting">Hola, Explorador</h1>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="streak-badge" id="streak-container" style="display: none;">
+                    <span id="streak-icon">🔥</span>
+                    <span id="streak-val">0</span>
+                </div>
+                <div id="btn-notif" style="cursor:pointer; position:relative; opacity:0.6;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <div id="notif-badge" style="display:none; position:absolute; top:-5px; right:-5px; background:var(--accent); color:white; font-size:0.5rem; width:12px; height:12px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; border:2px solid #fff;">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loader" class="loader">
+            <div style="opacity: 0.5; font-size: 0.8rem;">Sincronizando...</div>
+        </div>
+
+        <!-- SECCIÓN NOTIFICACIONES (OCULTA POR DEFECTO) -->
+        <div id="notif-section" style="display: none; animation: slideIn 0.3s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div class="section-label" style="margin:0;">Novedades</div>
+                <div id="btn-close-notif" style="cursor:pointer; font-size:0.6rem; opacity:0.5; font-weight:700;">CERRAR</div>
+            </div>
+            <div id="notif-list" style="max-height: 250px; overflow-y: auto;">
+                <div style="text-align:center; padding:20px; opacity:0.3; font-size:0.7rem;">Cargando novedades...</div>
+            </div>
+            <div class="notif-footer" id="btn-view-all-notifs">
+                VER TODO EN LÚMINA
+            </div>
+        </div>
+
+        <!-- AUTH -->
+        <div id="auth-section">
+            <div class="auth-field">
+                <input type="email" id="login-email" class="auth-input" placeholder="tu@email.com">
+            </div>
+            <div class="auth-field">
+                <input type="password" id="login-pass" class="auth-input" placeholder="••••••••">
+            </div>
+            <button id="btn-login" class="btn-primary">ENTRAR</button>
+            <div id="error-msg" style="color:red; font-size:0.7rem; text-align:center; margin-top:10px; display:none;"></div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dash-section" style="display: none;">
+            <div class="wisdom-card">
+                <div class="tabs">
+                    <div class="tab active" data-cat="palabras">Palabra</div>
+                    <div class="tab" data-cat="afirmaciones">Afirmación</div>
+                    <div class="tab" data-cat="frases">Frase</div>
+                </div>
+                <div class="wisdom-content" id="wisdom-container">
+                    <div id="wisdom-title" class="wisdom-title">...</div>
+                    <div id="wisdom-desc" class="wisdom-desc">...</div>
+                </div>
+                <div class="card-footer">
+                    <button id="btn-go-to-pwa" class="btn-complete">PROFUNDIZAR EN LÚMINA</button>
+                </div>
+            </div>
+
+            <div class="section-label">Tu Viaje</div>
+            <div class="action-grid">
+                <div class="action-item" id="nav-libros">
+                    <div class="action-icon" id="icon-libros"></div>
+                    <div class="action-info">
+                        <div>Libros</div>
+                        <div>Lecciones diarias</div>
+                    </div>
+                </div>
+                <div class="action-item" id="nav-sendas">
+                    <div class="action-icon" id="icon-sendas"></div>
+                    <div class="action-info">
+                        <div>Senderos</div>
+                        <div>Tu camino actual</div>
+                    </div>
+                </div>
+                <div class="action-item" id="nav-pausa">
+                    <div class="action-icon" id="icon-pausa"></div>
+                    <div class="action-info">
+                        <div>Pausa</div>
+                        <div>Momento de paz</div>
+                    </div>
+                </div>
+                <div class="action-item" id="nav-extra">
+                    <div class="action-icon" id="icon-extra"></div>
+                    <div class="action-info">
+                        <div>Expansiones</div>
+                        <div>Maestría PRO</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 35px; text-align: center;">
+                <button id="btn-logout" style="background:none; border:none; opacity:0.3; font-size:0.6rem; cursor:pointer; letter-spacing:1px; text-transform: uppercase;">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
