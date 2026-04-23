@@ -3993,6 +3993,114 @@ body[data-cat="sendas"] #header-cat {
             error.innerText = msg; error.style.display = 'block';
         }
 
+        let currentSecurityAction = '';
+
+        function openSecurityModal(action) {
+            currentSecurityAction = action;
+            const title = document.getElementById('sec-title');
+            const desc = document.getElementById('sec-desc');
+            const container = document.getElementById('sec-inputs-container');
+            const btn = document.getElementById('sec-btn-submit');
+            const icon = document.getElementById('sec-header-icon');
+            
+            container.innerHTML = '';
+            
+            if (action === 'password') {
+                icon.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
+                icon.style.color = 'var(--accent)';
+                icon.style.background = 'rgba(181, 131, 58, 0.1)';
+                title.innerText = 'Cambiar Contraseña';
+                title.style.color = 'var(--text)';
+                desc.innerText = 'Actualiza tu contraseña para mantener tu cuenta segura.';
+                btn.style.background = 'var(--accent)';
+                btn.style.color = '#fff';
+                btn.innerText = 'ACTUALIZAR';
+                
+                container.innerHTML = `
+                    <input type="password" id="sec-current-pass" placeholder="Contraseña Actual" style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 0.9rem;">
+                    <input type="password" id="sec-new-pass" placeholder="Nueva Contraseña" style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.05); color: var(--text); outline: none; font-size: 0.9rem;">
+                `;
+            } else if (action === 'delete') {
+                icon.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
+                icon.style.color = '#ef4444';
+                icon.style.background = 'rgba(239, 68, 68, 0.1)';
+                title.innerText = 'Eliminar Cuenta';
+                title.style.color = '#ef4444';
+                desc.innerHTML = 'Esta acción borrará <b>permanentemente</b> tu cuenta y todo tu historial de progreso. No se puede deshacer.';
+                btn.style.background = '#ef4444';
+                btn.style.color = '#fff';
+                btn.innerText = 'ELIMINAR DEFINITIVAMENTE';
+                
+                container.innerHTML = `
+                    <input type="password" id="sec-current-pass" placeholder="Contraseña Actual (o escribe ELIMINAR si usas Google)" style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); color: var(--text); outline: none; font-size: 0.9rem;">
+                    <div style="font-size: 0.65rem; opacity: 0.6; margin-top: -5px; line-height: 1.4;">Si creaste tu cuenta con Google, escribe la palabra "ELIMINAR" para confirmar.</div>
+                `;
+            }
+            
+            closeModals();
+            document.getElementById('security-modal').classList.add('active');
+        }
+
+        async function submitSecurityAction() {
+            const currentPass = document.getElementById('sec-current-pass').value;
+            const btn = document.getElementById('sec-btn-submit');
+            const email = localStorage.getItem('lumina_user_email');
+            
+            if (!currentPass) {
+                showToast("Por favor, ingresa los datos solicitados.", "error");
+                return;
+            }
+            
+            const reqData = {
+                action: currentSecurityAction === 'password' ? 'change_password' : 'delete_account',
+                email: email,
+                current_pass: currentPass
+            };
+            
+            if (currentSecurityAction === 'password') {
+                const newPass = document.getElementById('sec-new-pass').value;
+                if (!newPass || newPass.length < 6) {
+                    showToast("La nueva contraseña debe tener al menos 6 caracteres.", "error");
+                    return;
+                }
+                reqData.new_pass = newPass;
+            }
+            
+            btn.innerText = "PROCESANDO...";
+            btn.style.opacity = "0.5";
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(reqData)
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    showToast(result.message, "success");
+                    closeModals();
+                    if (currentSecurityAction === 'delete') {
+                        setTimeout(() => {
+                            localStorage.clear();
+                            location.reload();
+                        }, 2000);
+                    }
+                } else {
+                    showToast(result.error, "error");
+                    btn.innerText = currentSecurityAction === 'password' ? 'ACTUALIZAR' : 'ELIMINAR DEFINITIVAMENTE';
+                    btn.style.opacity = "1";
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                showToast("Error de conexión.", "error");
+                btn.innerText = currentSecurityAction === 'password' ? 'ACTUALIZAR' : 'ELIMINAR DEFINITIVAMENTE';
+                btn.style.opacity = "1";
+                btn.disabled = false;
+            }
+        }
+
         async function logoutUser() {
             showConfirm("¿Cerrar sesión? Se sincronizarán tus cambios.", async () => {
                 const loader = document.getElementById('loader');
@@ -8877,7 +8985,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 
                 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 
                 'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal', 'notifications-config-modal',
-                'reentry-modal', 'export-options-box', 'senda-complete-modal', 'shortcuts-help-modal'
+                'reentry-modal', 'export-options-box', 'senda-complete-modal', 'shortcuts-help-modal', 'security-modal'
             ];
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -11682,6 +11790,22 @@ if (id === 'content-header' || id === 'side-panel') {
                 </div>
 
 
+                <!-- ZONA DE PELIGRO -->
+                <div style="margin-top: 25px; padding: 22px; background: rgba(239, 68, 68, 0.03); border-radius: 20px; border: 1px dashed rgba(239, 68, 68, 0.2); text-align: left;">
+                    <div style="font-size: 0.60rem; letter-spacing: 2px; color: #ef4444; font-weight: 700; margin-bottom: 15px; text-transform: uppercase;">Zona de Peligro</div>
+                    <p style="font-size: 0.65rem; opacity: 0.6; line-height: 1.5; margin-bottom: 15px;">Ajustes de seguridad avanzados. Estas acciones pueden ser irreversibles.</p>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button onclick="openSecurityModal('password')" class="btn-save" style="width: 100%; margin: 0; padding: 12px; font-size: 0.65rem; background: transparent; border: 1px solid rgba(128,128,128,0.2); color: var(--text); display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; cursor: pointer; transition: 0.3s;">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            CAMBIAR CONTRASEÑA
+                        </button>
+                        <button onclick="openSecurityModal('delete')" class="btn-save" style="width: 100%; margin: 0; padding: 12px; font-size: 0.65rem; background: rgba(239, 68, 68, 0.08); border: 1px solid #ef4444; color: #ef4444; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; cursor: pointer; transition: 0.3s;">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            ELIMINAR MI CUENTA
+                        </button>
+                    </div>
+                </div>
+
                 <div style="margin-top: 20px; padding-top: 10px;">
                     <button onclick="logoutUser()" style="width: 100%; padding: 15px; background: rgba(128,128,128,0.05); color: var(--text); border: 1px solid rgba(128,128,128,0.1); border-radius: 50px; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: 0.3s; opacity: 0.6;">CERRAR SESIÓN</button>
                 </div>
@@ -12096,6 +12220,25 @@ if (id === 'content-header' || id === 'side-panel') {
             " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
                 CONTINUAR
             </button>
+        </div>
+    </div>
+
+    <!-- Modal Seguridad Avanzada -->
+    <div id="security-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: left; padding: 40px 30px;">
+            <div id="sec-header-icon" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(181, 131, 58, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            
+            <h3 id="sec-title" style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--text); margin-bottom: 10px; font-style: italic;">Seguridad</h3>
+            <p id="sec-desc" style="font-size: 0.85rem; opacity: 0.7; line-height: 1.6; margin-bottom: 25px;"></p>
+            
+            <div id="sec-inputs-container" style="display: flex; flex-direction: column; gap: 15px;">
+                <!-- Se inyecta según la acción -->
+            </div>
+
+            <button id="sec-btn-submit" onclick="submitSecurityAction()" class="btn-save" style="width: 100%; margin-top: 25px; padding: 15px; font-size: 0.75rem; letter-spacing: 1px; border-radius: 16px;">CONFIRMAR</button>
+            <button onclick="closeModals()" style="width: 100%; margin-top: 10px; padding: 15px; background: transparent; border: none; color: var(--text); opacity: 0.5; font-size: 0.7rem; letter-spacing: 1px; cursor: pointer;">CANCELAR</button>
         </div>
     </div>
 
