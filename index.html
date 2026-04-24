@@ -6761,8 +6761,14 @@ body[data-cat="sendas"] #header-cat {
             const savedVoice = localStorage.getItem('lumina_voice');
             if (savedVoice) {
                 select.value = savedVoice;
+                // Verificar que la voz guardada realmente existe en las opciones disponibles
+                if (select.value !== savedVoice && esVoices.length > 0) {
+                    // La voz guardada no existe en este dispositivo, mantener en storage pero seleccionar la mejor disponible
+                    select.value = esVoices[0].name;
+                }
             } else if (useCloud) {
                 select.value = "CLOUD_VOICE";
+                localStorage.setItem('lumina_voice', 'CLOUD_VOICE');
             } else if (esVoices.length > 0) {
                 // Auto-seleccionar la mejor voz disponible si es la primera vez
                 select.value = esVoices[0].name;
@@ -10225,8 +10231,22 @@ if (id === 'content-header' || id === 'side-panel') {
             const isCloud = localStorage.getItem('lumina_cloud_voice') === 'true';
             const newVal = isCloud ? 'false' : 'true';
             localStorage.setItem('lumina_cloud_voice', newVal);
-            if (newVal === 'true') localStorage.setItem('lumina_voice', 'CLOUD_VOICE');
-            else localStorage.removeItem('lumina_voice');
+            if (newVal === 'true') {
+                // Guardar la voz local actual antes de cambiar a cloud, para restaurarla después
+                const currentLocal = localStorage.getItem('lumina_voice');
+                if (currentLocal && currentLocal !== 'CLOUD_VOICE') {
+                    localStorage.setItem('lumina_voice_local_backup', currentLocal);
+                }
+                localStorage.setItem('lumina_voice', 'CLOUD_VOICE');
+            } else {
+                // Restaurar la voz local guardada previamente en vez de borrar la preferencia
+                const backupVoice = localStorage.getItem('lumina_voice_local_backup');
+                if (backupVoice) {
+                    localStorage.setItem('lumina_voice', backupVoice);
+                } else {
+                    localStorage.removeItem('lumina_voice');
+                }
+            }
             populateVoices();
             updateSubscriptionUI();
             pushSync();
@@ -12892,11 +12912,11 @@ if (id === 'content-header' || id === 'side-panel') {
     </div>
 
     <!-- Modal Programación Calendario -->
-    <div id="schedule-modal" class="modal" style="z-index: 2200;">
-        <div class="modal-content" style="max-width: 420px;">
-            <div style="text-align: center; margin-bottom: 25px;">
-                <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style:italic; margin-bottom: 5px;">Tu Espacio de Pausa</h2>
-                <p style="font-size: 0.85rem; opacity: 0.6;">Sincroniza un momento de calma con tu agenda.</p>
+    <div id="schedule-modal" class="modal" style="z-index: 2200;" onclick="if(event.target===this){closeModals();history.back();}">
+        <div class="modal-content" style="max-width: 420px; overflow-y: auto;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="font-family:'Playfair Display', serif; font-size: 1.6rem; font-style:italic; margin-bottom: 5px;">Tu Espacio de Pausa</h2>
+                <p style="font-size: 0.8rem; opacity: 0.6;">Sincroniza un momento de calma con tu agenda.</p>
             </div>
 
             <div class="gap-info-card">
@@ -12916,11 +12936,11 @@ if (id === 'content-header' || id === 'side-panel') {
             </div>
 
             <button class="btn-save" id="btn-confirm-schedule" onclick="confirmCalendarSchedule()" 
-                style="background:var(--accent); color: white; width: 100%; padding: 18px; font-size: 0.9rem; border-radius: 15px; font-weight: 700; letter-spacing: 1px;">
+                style="background:var(--accent); color: white; width: 100%; padding: 16px; font-size: 0.85rem; border-radius: 15px; font-weight: 700; letter-spacing: 1px;">
                 RESERVAR CITA CON MI CALMA
             </button>
             
-            <button class="btn-save" onclick="closeModals()" style="background:none; border: none; color: var(--text); width: 100%; margin-top: 15px; opacity: 0.5; font-size: 0.8rem;">CANCELAR</button>
+            <button class="btn-save" onclick="closeModals()" style="background:none; border: none; color: var(--text); width: 100%; margin-top: 12px; opacity: 0.5; font-size: 0.8rem; cursor:pointer;">CANCELAR</button>
         </div>
     </div>
 
@@ -14082,6 +14102,22 @@ async function checkCalendarGaps(isManual = false) {
                 const msg = `Tienes un hueco de ${gap.duration} min a las ${start}. ¿Dedicamos un tiempo a la calma?`;
                 injectIntegrationNews("Agenda Lúmina", msg, "#pausa", gap);
                 if (isManual) showToast('¡Hueco encontrado! Revisa Novedades.', 'success');
+                
+                // Relay a Telegram y push a la extensión (una vez por hueco)
+                const tgSentKey = 'tg_gap_' + new Date().toDateString() + '_' + start;
+                if (!sessionStorage.getItem(tgSentKey)) {
+                    sessionStorage.setItem(tgSentKey, 'true');
+                    const email = localStorage.getItem('lumina_user_email');
+                    if (email) {
+                        const gapMsg = encodeURIComponent('Hueco de ' + gap.duration + ' min a las ' + start + '. Un buen momento para reconectar contigo.');
+                        const gapTitle = encodeURIComponent('Espacio de Pausa');
+                        const ts = new Date(gap.start).getTime();
+                        // 1. Push para que la extensión lo recoja vía notifs
+                        fetch(`${API}?action=push_notif&email=${encodeURIComponent(email)}&cat=agenda&titulo=${gapTitle}&mensaje=${gapMsg}&timestamp=${ts}`).catch(() => {});
+                        // 2. Relay directo a Telegram
+                        fetch(`${API}?action=forward_to_telegram&email=${encodeURIComponent(email)}&cat=agenda&titulo=${gapTitle}&mensaje=${gapMsg}`).catch(() => {});
+                    }
+                }
             } else if (isManual) {
                 showToast('No encontré más huecos libres para hoy.', 'info');
             }
@@ -14159,6 +14195,7 @@ function openScheduleModal(gapData) {
     
     closeModals();
     document.getElementById('schedule-modal').classList.add('active');
+    history.pushState({ modal: 'schedule' }, "", "#schedule");
 }
 
 async function confirmCalendarSchedule() {
