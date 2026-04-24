@@ -9184,7 +9184,8 @@ if (id === 'content-header' || id === 'side-panel') {
                 'profile-modal', 'end-trial-modal', 'habitos-modal', 'exp-modal', 'exp-detail-ui', 
                 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 
                 'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal', 'notifications-config-modal',
-                'reentry-modal', 'export-options-box', 'senda-complete-modal', 'shortcuts-help-modal', 'security-modal'
+                'reentry-modal', 'export-options-box', 'senda-complete-modal', 'shortcuts-help-modal', 'security-modal',
+                'schedule-modal'
             ];
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -12911,9 +12912,12 @@ if (id === 'content-header' || id === 'side-panel') {
         </div>
     </div>
 
-    <!-- Modal Programación Calendario -->
     <div id="schedule-modal" class="modal" style="z-index: 2200;" onclick="if(event.target===this){closeModals();history.back();}">
-        <div class="modal-content" style="max-width: 420px; overflow-y: auto;">
+        <div class="modal-content" style="max-width: 420px; max-height: 85vh; overflow-y: auto; display: block;">
+            <div style="position: sticky; top: -40px; right: -28px; display: flex; justify-content: flex-end; z-index: 10;">
+                <div onclick="closeModals(); history.back();" style="cursor:pointer; padding: 10px; opacity: 0.5; font-size: 1.5rem;">×</div>
+            </div>
+            
             <div style="text-align: center; margin-bottom: 20px;">
                 <h2 style="font-family:'Playfair Display', serif; font-size: 1.6rem; font-style:italic; margin-bottom: 5px;">Tu Espacio de Pausa</h2>
                 <p style="font-size: 0.8rem; opacity: 0.6;">Sincroniza un momento de calma con tu agenda.</p>
@@ -12940,7 +12944,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 RESERVAR CITA CON MI CALMA
             </button>
             
-            <button class="btn-save" onclick="closeModals()" style="background:none; border: none; color: var(--text); width: 100%; margin-top: 12px; opacity: 0.5; font-size: 0.8rem; cursor:pointer;">CANCELAR</button>
+            <button class="btn-save" onclick="closeModals(); history.back();" style="background:none; border: none; color: var(--text); width: 100%; margin-top: 12px; opacity: 0.5; font-size: 0.8rem; cursor:pointer;">CANCELAR</button>
         </div>
     </div>
 
@@ -14232,6 +14236,7 @@ async function confirmCalendarSchedule() {
             // Eliminar la notificación
             dismissNotif('gcal_' + new Date().toDateString());
             closeModals();
+            history.back();
         } else {
             showToast("Error: " + result.message, "error");
         }
