@@ -7638,9 +7638,11 @@ body[data-cat="sendas"] #header-cat {
                     navigator.serviceWorker.register('sw.js?v=16').catch(() => {});
                 }
 
-                // --- SISTEMA DE DEEP LINKING (Navegación por Hash) ---
+                // --- SISTEMA DE DEEP LINKING PROFESIONAL (Navegación por Hash y Params) ---
                 const handleDeepLink = () => {
-                    const h = window.location.hash.replace('#', '') || 'hub';
+                    const params = new URLSearchParams(window.location.search);
+                    let h = params.get('l') || window.location.hash.replace('#', '') || 'hub';
+                    
                     if (h === 'hub' || h === '') return;
 
                     let target = h.toLowerCase();
@@ -7648,7 +7650,10 @@ body[data-cat="sendas"] #header-cat {
                     if (target === 'expansions') target = 'expansiones';
                     if (target.startsWith('exp')) target = 'expansiones';
                     
-                    const rootCat = target.split(':')[0];
+                    const parts = target.split(':');
+                    const rootCat = parts[0];
+                    const subId = parts[1];
+
                     const validCats = ['palabras', 'afirmaciones', 'frases', 'libros', 'pausa', 'extra', 'habitos', 'agenda', 'expansiones', 'bitacora', 'sendas'];
                     const validModals = ['settings', 'info', 'notifications', 'pro', 'profile', 'habitos', 'mood', 'integrations'];
 
@@ -7658,11 +7663,11 @@ body[data-cat="sendas"] #header-cat {
                             if (rootCat === 'agenda') {
                                 openCategory('pausa', false, true);
                                 setTimeout(() => checkCalendarGaps(true), 1000);
-                            } else if (rootCat === 'habitos') {
-                                // Los hábitos a veces son modal o sección, manejamos ambos
-                                if (typeof openCategory === 'function') openCategory('habitos');
+                            } else if (rootCat === 'pausa') {
+                                openCategory('pausa', false, true, target);
+                                if (subId) setTimeout(() => openPausaDetail(subId), 100);
                             } else {
-                                if (typeof openCategory === 'function') openCategory(rootCat, rootCat === 'libros', true, target);
+                                openCategory(rootCat, rootCat === 'libros', true, target);
                             }
                         } else if (validModals.includes(rootCat)) {
                             if (rootCat === 'notifications' && typeof checkNotifications === 'function') checkNotifications();
@@ -8117,15 +8122,17 @@ if (id === 'content-header' || id === 'side-panel') {
 
             // 2. Navegación normal entre categorías
             if (state && state.cat && state.cat !== 'hub') {
-                openCategory(state.cat, state.cat === 'libros', false);
+                const targetHash = state.sub ? `${state.cat}:${state.sub}` : state.cat;
+                openCategory(state.cat, state.cat === 'libros', false, targetHash);
             } else if (hash.startsWith('#pausa')) {
                 const sub = hash.split(':')[1];
-                openCategory('pausa', false, false);
-                if (sub) {
-                    setTimeout(() => openPausaDetail(sub), 100);
-                }
-            } else if (hash.startsWith('#extra:')) {
-                openCategory('extra', false, false);
+                openCategory('pausa', false, false, hash.replace('#',''));
+                if (sub) setTimeout(() => openPausaDetail(sub), 100);
+            } else if (hash.includes(':')) {
+                // Manejo genérico de Deep Links con ID
+                const h = hash.replace('#','');
+                const cat = h.split(':')[0];
+                openCategory(cat, cat === 'libros', false, h);
             } else {
                 // Estamos en el Hub o no hay estado definido
                 showHub(false);
@@ -8291,6 +8298,12 @@ if (id === 'content-header' || id === 'side-panel') {
             if (loaderEl) { loaderEl.classList.remove('hidden'); loaderEl.style.opacity = '1'; }
             
             try {
+                // Extraer índice del hash si no se provee y estamos en una categoría que lo soporta
+                if (index === null && ['palabras', 'afirmaciones', 'frases', 'libros'].includes(currentCategory)) {
+                    const hashMatch = window.location.hash.match(/:(\d+)$/);
+                    if (hashMatch) index = hashMatch[1];
+                }
+
                 let url = `${API}?cat=${currentCategory}&_cb=${Date.now()}`;
                 if (index !== null) url += `&index=${index}`;
 
@@ -8405,6 +8418,14 @@ if (id === 'content-header' || id === 'side-panel') {
 
             updateProExtraUI();
             updateFavoriteIcon();
+
+            // Sincronizar Hash con el ID del contenido (Navegación Persistente)
+            if (data.index !== undefined && !['pausa', 'extra'].includes(currentCategory)) {
+                const newHash = `${currentCategory}:${data.index}`;
+                if (window.location.hash !== '#' + newHash) {
+                    history.replaceState({ cat: currentCategory, sub: data.index }, "", "#" + newHash);
+                }
+            }
 
             // PRE-CAPTURA EN SEGUNDO PLANO (Para que el compartir sea instantáneo)
             setTimeout(() => {
