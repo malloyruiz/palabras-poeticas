@@ -12900,6 +12900,80 @@ if (id === 'content-header' || id === 'side-panel') {
                         </div>
                     </div>
 
+                    <!-- Email Diario -->
+                    <div class="integration-card" id="card-email" style="flex-wrap:wrap; cursor:default;">
+                        <div class="integration-icon-box" style="background:var(--accent); flex-shrink:0;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        </div>
+                        <div class="integration-info" style="flex:1;">
+                            <h4>Email Diario</h4>
+                            <p id="email-card-desc">Tu sabiduría diaria en tu bandeja de entrada.</p>
+                        </div>
+                        <div id="toggle-email" class="integration-toggle" onclick="toggleEmailPanel()"></div>
+
+                        <!-- Panel expandible -->
+                        <div id="email-config-panel" style="display:none; width:100%; margin-top:14px; padding-top:14px; border-top:1px solid rgba(128,128,128,0.12);">
+                            <div id="email-panel-inner">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                    <span style="font-size:0.8rem; font-weight:600;">Hora de envío</span>
+                                    <select id="email-schedule-hour" style="padding:6px 12px; border-radius:10px; border:1px solid rgba(128,128,128,0.2); background:rgba(255,255,255,0.05); color:var(--text); font-size:0.8rem; outline:none;">
+                                        <option value="0">00:00 (Medianoche)</option>
+                                        <option value="1">01:00 AM</option>
+                                        <option value="2">02:00 AM</option>
+                                        <option value="3">03:00 AM</option>
+                                        <option value="4">04:00 AM</option>
+                                        <option value="5">05:00 AM</option>
+                                        <option value="6">06:00 AM</option>
+                                        <option value="7" selected>07:00 AM</option>
+                                        <option value="8">08:00 AM</option>
+                                        <option value="9">09:00 AM</option>
+                                        <option value="10">10:00 AM</option>
+                                        <option value="11">11:00 AM</option>
+                                        <option value="12">12:00 PM (Mediodía)</option>
+                                        <option value="13">01:00 PM</option>
+                                        <option value="14">02:00 PM</option>
+                                        <option value="15">03:00 PM</option>
+                                        <option value="16">04:00 PM</option>
+                                        <option value="17">05:00 PM</option>
+                                        <option value="18">06:00 PM</option>
+                                        <option value="19">07:00 PM</option>
+                                        <option value="20">08:00 PM</option>
+                                        <option value="21">09:00 PM</option>
+                                        <option value="22">10:00 PM</option>
+                                        <option value="23">11:00 PM</option>
+                                    </select>
+                                </div>
+                                <div style="margin-bottom:18px;">
+                                    <span style="font-size:0.65rem; letter-spacing:1.5px; opacity:0.4; text-transform:uppercase; display:block; margin-bottom:10px; font-weight:700;">Temas incluidos</span>
+                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                                        <label style="display:flex; align-items:center; gap:10px; font-size:0.8rem; cursor:pointer; font-weight:500;">
+                                            <input type="checkbox" class="email-topic" value="palabra" checked style="accent-color:var(--accent); width:16px; height:16px;"> Palabra
+                                        </label>
+                                        <label style="display:flex; align-items:center; gap:10px; font-size:0.8rem; cursor:pointer; font-weight:500;">
+                                            <input type="checkbox" class="email-topic" value="frase" checked style="accent-color:var(--accent); width:16px; height:16px;"> Frase
+                                        </label>
+                                        <label style="display:flex; align-items:center; gap:10px; font-size:0.8rem; cursor:pointer; font-weight:500;">
+                                            <input type="checkbox" class="email-topic" value="afirmacion" checked style="accent-color:var(--accent); width:16px; height:16px;"> Afirmación
+                                        </label>
+                                        <label style="display:flex; align-items:center; gap:10px; font-size:0.8rem; cursor:pointer; font-weight:500;">
+                                            <input type="checkbox" class="email-topic" value="libro" checked style="accent-color:var(--accent); width:16px; height:16px;"> Libro
+                                        </label>
+                                        <label style="display:flex; align-items:center; gap:10px; font-size:0.8rem; cursor:pointer; font-weight:500;">
+                                            <input type="checkbox" class="email-topic" value="senda" checked style="accent-color:var(--accent); width:16px; height:16px;"> Senda
+                                        </label>
+                                    </div>
+                                </div>
+                                <button onclick="saveEmailSubscription()" id="btn-email-save" style="width:100%; padding:14px; border-radius:40px; background:var(--accent); color:#fff; border:none; font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; font-weight:700; cursor:pointer; box-shadow:0 4px 15px rgba(181, 131, 58, 0.25); transition:0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                                    GUARDAR CONFIGURACIÓN
+                                </button>
+                                <button onclick="sendEmailTestNow()" id="btn-email-test" style="width:100%; padding:10px; border-radius:40px; background:transparent; border:1px solid rgba(128,128,128,0.2); color:var(--text); font-size:0.6rem; letter-spacing:1.5px; text-transform:uppercase; font-weight:700; cursor:pointer; margin-top:10px; opacity:0.8;">
+                                    ENVIAR PRUEBA AHORA
+                                </button>
+                                <p id="email-status-msg" style="font-size:0.6rem; opacity:0.5; text-align:center; margin-top:10px; display:none;"></p>
+                            </div>
+                        </div>
+                    </div>
+
 
 
                     <!-- Separador Coming Soon -->
@@ -13946,6 +14020,132 @@ function shareSendaComplete() {
     if (navigator.vibrate) navigator.vibrate(15);
 }
 
+function toggleEmailPanel() {
+    const panel = document.getElementById('email-config-panel');
+    const toggle = document.getElementById('toggle-email');
+    if (!panel || !toggle) return;
+    const isVisible = panel.style.display === 'block';
+    
+    panel.style.display = isVisible ? 'none' : 'block';
+    toggle.classList.toggle('active', !isVisible);
+    
+    if (!isVisible) loadEmailStatus();
+}
+
+async function loadEmailStatus() {
+    const luminaUser = localStorage.getItem('lumina_user_email');
+    if (!luminaUser) return;
+    
+    try {
+        const resp = await fetch(`${API}?action=email_status&email=${encodeURIComponent(luminaUser)}`);
+        const data = await resp.json();
+        
+        if (data.success && data.subscription) {
+            const sub = data.subscription;
+            document.getElementById('email-schedule-hour').value = sub.hour || "7";
+            
+            const connected = sub.active === true || String(sub.active).toUpperCase() === 'TRUE';
+            localStorage.setItem('lumina_email_connected', connected ? 'true' : 'false');
+            document.getElementById('toggle-email')?.classList.toggle('active', connected);
+            
+            // Cargar temas
+            let topics = {};
+            try {
+                topics = typeof sub.preferences === 'string' ? JSON.parse(sub.preferences) : sub.preferences;
+            } catch(e) { topics = {}; }
+            
+            const checkboxes = document.querySelectorAll('.email-topic');
+            checkboxes.forEach(cb => {
+                cb.checked = topics[cb.value] !== false; // Default true if not in object
+            });
+            
+            const msg = document.getElementById('email-status-msg');
+            if (msg) {
+                msg.innerText = connected ? "Suscripción activa ✅" : "Suscripción pausada";
+                msg.style.display = 'block';
+            }
+        }
+    } catch(e) { console.warn("Error loading email status:", e); }
+}
+
+async function saveEmailSubscription() {
+    const luminaUser = localStorage.getItem('lumina_user_email');
+    const name = localStorage.getItem('lumina_user_name') || 'Viajero';
+    if (!luminaUser) { showToast('Inicia sesión primero', 'info'); return; }
+    
+    const btn = document.getElementById('btn-email-save');
+    const hour = document.getElementById('email-schedule-hour').value;
+    const checkboxes = document.querySelectorAll('.email-topic');
+    const preferences = {};
+    checkboxes.forEach(cb => { preferences[cb.value] = cb.checked; });
+    
+    btn.innerText = 'GUARDANDO...';
+    btn.disabled = true;
+    
+    try {
+        const fd = new URLSearchParams();
+        fd.append('action', 'email_subscribe');
+        fd.append('email', luminaUser);
+        fd.append('name', name);
+        fd.append('hour', hour);
+        fd.append('preferences', JSON.stringify(preferences));
+        
+        const resp = await fetch(API, { method: 'POST', body: fd });
+        const data = await resp.json();
+        
+        if (data.success) {
+            showToast('Configuración de email guardada ✨', 'success');
+            localStorage.setItem('lumina_email_connected', 'true');
+            const statusMsg = document.getElementById('email-status-msg');
+            if (statusMsg) {
+                statusMsg.innerText = "Suscripción actualizada ✅";
+                statusMsg.style.display = 'block';
+            }
+            document.getElementById('toggle-email').classList.add('active');
+        } else {
+            showToast(data.error || 'Error al guardar', 'error');
+        }
+    } catch(e) { showToast('Error de conexión', 'error'); }
+    
+    btn.innerText = 'GUARDAR CONFIGURACIÓN';
+    btn.disabled = false;
+}
+
+async function sendEmailTestNow() {
+    const luminaUser = localStorage.getItem('lumina_user_email');
+    const name = localStorage.getItem('lumina_user_name') || 'Viajero';
+    if (!luminaUser) { showToast('Inicia sesión primero', 'info'); return; }
+    
+    const btn = document.getElementById('btn-email-test');
+    const checkboxes = document.querySelectorAll('.email-topic');
+    const preferences = {};
+    checkboxes.forEach(cb => { preferences[cb.value] = cb.checked; });
+    
+    const originalText = btn.innerText;
+    btn.innerText = 'ENVIANDO...';
+    btn.disabled = true;
+    
+    try {
+        const fd = new URLSearchParams();
+        fd.append('action', 'email_test');
+        fd.append('email', luminaUser);
+        fd.append('name', name);
+        fd.append('preferences', JSON.stringify(preferences));
+        
+        const resp = await fetch(API, { method: 'POST', body: fd });
+        const data = await resp.json();
+        
+        if (data.success) {
+            showToast('Email de prueba enviado ✅ Revisa tu bandeja', 'success');
+        } else {
+            showToast(data.error || 'Error al enviar prueba', 'error');
+        }
+    } catch(e) { showToast('Error de conexión', 'error'); }
+    
+    btn.innerText = originalText;
+    btn.disabled = false;
+}
+
 // ===== INTEGRACIONES GOOGLE (CALENDAR & DOCS) =====
 
 function toggleIntegrationsModal() {
@@ -13986,6 +14186,11 @@ function syncIntegrationsUI() {
     // Sincronizar estado visual Telegram
     const tgActive = localStorage.getItem('lumina_tg_connected') === 'true';
     document.getElementById('toggle-tg')?.classList.toggle('active', tgActive);
+    
+    // Sincronizar estado visual Email
+    const emailActive = localStorage.getItem('lumina_email_connected') === 'true';
+    document.getElementById('toggle-email')?.classList.toggle('active', emailActive);
+    if (typeof loadEmailStatus === 'function') loadEmailStatus();
 }
 
 // ===== TELEGRAM =====
