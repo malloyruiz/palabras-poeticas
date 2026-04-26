@@ -3474,6 +3474,13 @@ body[data-cat="sendas"] #header-cat {
 
     <script>
         // --- CORE: ESTADO GLOBAL Y FUNCIONES DE ACCESO INMEDIATO ---
+        const API = "https://script.google.com/macros/s/AKfycbyAIZ5rUHznpscJuPjEdhqoV1glBVHzSXnbZr-lPE8NBms7yJCk1XQTjWbzPK9Jgpw1/exec";
+        let portalMode = 'login';
+        let recoveryStep = 1;
+        let recoveryMethod = '';
+        let currentCategory = 'palabras';
+        let voices = [];
+        let isPro = false;
         let trialDay = 0;
 
         function getTodayKey() {
@@ -4279,7 +4286,7 @@ body[data-cat="sendas"] #header-cat {
                 }
 
                 // Preserve local achievement/gamification data across logins
-                const visits = localStorage.getItem('lumina_visited_' + new Date().toDateString());
+                const visits = localStorage.getItem('lumina_visited_' + getTodayKey());
                 const dailyC = localStorage.getItem('lumina_daily_counts');
                 const pMins = localStorage.getItem('lumina_pausa_mins');
                 const libresL = localStorage.getItem('lumina_libros_leidos');
@@ -4287,7 +4294,7 @@ body[data-cat="sendas"] #header-cat {
                 localStorage.clear();
 
                 // Restore
-                if(visits) localStorage.setItem('lumina_visited_' + new Date().toDateString(), visits);
+                if(visits) localStorage.setItem('lumina_visited_' + getTodayKey(), visits);
                 if(dailyC) localStorage.setItem('lumina_daily_counts', dailyC);
                 if(pMins) localStorage.setItem('lumina_pausa_mins', pMins);
                 if(libresL) localStorage.setItem('lumina_libros_leidos', libresL);
@@ -6326,7 +6333,7 @@ body[data-cat="sendas"] #header-cat {
                 const text = document.getElementById('exp-journal').value;
                 const title = document.getElementById('exp-read-title').innerText;
                 const now = new Date();
-                const dateKey = now.toDateString();
+                const dateKey = getTodayKey();
                 const dateDisplay = getSpanishDate(now, true);
                 const key = `lumina_journal_${currentExpId}_${currentExpBook}_${currentExpIdx}`;
                 
@@ -6736,7 +6743,7 @@ body[data-cat="sendas"] #header-cat {
 
         function setCache(cat, data) {
             localStorage.setItem('lumina_data_' + cat, JSON.stringify(data));
-            localStorage.setItem('lumina_cache_date_' + cat, new Date().toDateString());
+            localStorage.setItem('lumina_cache_date_' + cat, getTodayKey());
         }
 
         function checkOnline() {
@@ -7178,7 +7185,7 @@ body[data-cat="sendas"] #header-cat {
             }
             
             if (diffDays !== 0) {
-                const todayStr = new Date().toDateString();
+                const todayStr = getTodayKey();
                 const visitLog = JSON.parse(localStorage.getItem('lumina_visit_log') || '[]');
                 if (!visitLog.includes(todayStr)) {
                     visitLog.push(todayStr);
@@ -7260,7 +7267,7 @@ body[data-cat="sendas"] #header-cat {
             try {
                 const history = JSON.parse(localStorage.getItem('lumina_senda_history') || '[]');
                 history.push({ 
-                    date: new Date().toDateString(), 
+                    date: getTodayKey(), 
                     timestamp: new Date().getTime(),
                     title: title || 'Lección de Senda'
                 });
@@ -7290,7 +7297,7 @@ body[data-cat="sendas"] #header-cat {
                 const d = new Date();
                 d.setHours(0,0,0,0);
                 d.setDate(d.getDate() - i);
-                const dStr = d.toDateString();
+                const dStr = d.toDateString(); // Considerar usar función de serialización de fecha estandarizada aquí si se requiere consistencia total
                 
                 // Labels resumidos (Lun, Mar...)
                 days.push(d.toLocaleDateString('es-ES', { weekday: 'short' }));
@@ -7450,6 +7457,7 @@ body[data-cat="sendas"] #header-cat {
             };
 
             setTimeout(() => {
+                const today = getTodayKey();
                 appendMoodDataset(habitsChartInstance);
                 appendMoodDataset(profileChartInstance);
             }, 100);
@@ -7517,7 +7525,7 @@ body[data-cat="sendas"] #header-cat {
 
         function triggerQuizNotification() {
             if (localStorage.getItem('lumina_pro') !== 'true') return;
-            const todayStr = new Date().toDateString();
+            const todayStr = getTodayKey();
             const lastQuizNotif = localStorage.getItem('lumina_last_quiz_notif');
             if (lastQuizNotif === todayStr) return; // Ya se notificó hoy
 
@@ -7557,7 +7565,7 @@ body[data-cat="sendas"] #header-cat {
             trackCategoryVisit(cat);
 
             // Registrar en log semanal (calendario de hábitos)
-            const todayStr = new Date().toDateString();
+            const todayStr = getTodayKey();
             const visitLog = JSON.parse(localStorage.getItem('lumina_visit_log') || '[]');
             if (!visitLog.includes(todayStr)) {
                 visitLog.push(todayStr);
@@ -7585,7 +7593,7 @@ body[data-cat="sendas"] #header-cat {
         }
 
         function updateLogroDelDia() {
-            const todayKey = 'lumina_visited_' + new Date().toDateString();
+            const todayKey = 'lumina_visited_' + getTodayKey();
             const visited = JSON.parse(localStorage.getItem(todayKey) || '[]');
             const allCats = ['palabras', 'afirmaciones', 'frases', 'libros'];
             const count = allCats.filter(c => visited.includes(c)).length;
@@ -7616,7 +7624,7 @@ body[data-cat="sendas"] #header-cat {
         }
 
         function checkMidnightRefresh() {
-            const today = new Date().toDateString();
+            const today = getTodayKey();
             const lastDay = localStorage.getItem('lumina_last_day_active');
             if (lastDay && lastDay !== today) {
                 const autoCats = ['palabras', 'afirmaciones', 'frases', 'libros'];
@@ -8064,7 +8072,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 if (shareBtn) shareBtn.style.display = ['palabras', 'afirmaciones', 'frases', 'libros', 'extra'].includes(cat) ? 'block' : 'none';
 
                 // Botón Marcar como leída (al final del contenido)
-                const todayKey = 'lumina_visited_' + new Date().toDateString();
+                const todayKey = 'lumina_visited_' + getTodayKey();
                 const visited = JSON.parse(localStorage.getItem(todayKey) || '[]');
                 const leidoContainer = document.getElementById('leido-cta-container');
                 if (leidoContainer) {
@@ -8366,7 +8374,7 @@ if (id === 'content-header' || id === 'side-panel') {
 
             const cached = getCache(cacheKey);
             const cacheDate = localStorage.getItem('lumina_cache_date_' + cacheKey);
-            const today = new Date().toDateString();
+            const today = getTodayKey();
 
             // 1. Mostrar caché inmediatamente (Si es de hoy y no pedimos uno específico)
             if (index === null && cached && (cacheDate === today || cacheKey.includes('_'))) {
@@ -8475,8 +8483,10 @@ if (id === 'content-header' || id === 'side-panel') {
                         contentDate = new Date(data.date);
                     }
                     
-                    const todayStr = new Date().toDateString();
-                    if (contentDate.toDateString() !== todayStr) {
+                    const todayStr = getTodayKey();
+                    const cDate = new Date(contentDate);
+                    const cDateKey = `${cDate.getFullYear()}-${String(cDate.getMonth() + 1).padStart(2, '0')}-${String(cDate.getDate()).padStart(2, '0')}`;
+                    if (cDateKey !== todayStr) {
                         const formatted = getSpanishDate(contentDate, false).toUpperCase();
                         const headerDateEl = document.getElementById('header-date');
                         if (headerDateEl) headerDateEl.innerText = formatted;
@@ -9266,7 +9276,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 modal.classList.add('active');
                 history.pushState({ modal: 'notif' }, "", "#notifications");
                 document.getElementById('notif-badge').style.display = 'none';
-                localStorage.setItem('lumina_last_notif_read', new Date().toDateString());
+                localStorage.setItem('lumina_last_notif_read', getTodayKey());
                 localStorage.setItem('lumina_last_notif_count', document.getElementById('notif-badge').innerText || 0);
                 if ('clearAppBadge' in navigator) navigator.clearAppBadge();
                 playSound('click');

@@ -71,7 +71,7 @@ self.addEventListener('periodicsync', (event) => {
 
 async function fetchDailyWisdom() {
   const cache = await caches.open(CACHE_NAME);
-  const API = "https://script.google.com/macros/s/AKfycbxH7lP92TiRom-3bTiYnwfE6Z-sfDR5wcfaO4gTN0TD6EwuBYMtdCs4b06RFbqqnyw/exec";
+  const API = "https://script.google.com/macros/s/AKfycbyAIZ5rUHznpscJuPjEdhqoV1glBVHzSXnbZr-lPE8NBms7yJCk1XQTjWbzPK9Jgpw1/exec";
   try {
      const response = await fetch(`${API}?action=notifs&userType=Free`); // Simplificado para fondo
      if (response.ok) {
