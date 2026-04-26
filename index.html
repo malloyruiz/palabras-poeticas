@@ -7573,6 +7573,10 @@ body[data-cat="sendas"] #header-cat {
                 { label: 'Sabiduría Completa', desc: '¡Visitaste las 4 secciones hoy! Tu mente está en pleno movimiento.' }
             ];
 
+            if (count === 4 && typeof triggerQuizNotification === 'function') {
+                triggerQuizNotification();
+            }
+
             ['logro-hoy', 'profile-logro-hoy'].forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
