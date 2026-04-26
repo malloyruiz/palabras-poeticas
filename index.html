@@ -3483,6 +3483,17 @@ body[data-cat="sendas"] #header-cat {
         let isPro = false;
         let trialDay = 0;
 
+        // --- INTERCEPTOR LWW (Last-Write-Wins) ---
+        let isPullingSync = false;
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            originalSetItem.apply(this, arguments);
+            // Solo actualizamos el timestamp si el usuario está mutando datos reales, no durante descargas de la nube
+            if (!isPullingSync && key.startsWith('lumina_') && key !== 'lumina_last_update' && key !== 'lumina_devices_cache' && key !== 'lumina_recently_updated' && key !== 'lumina_pushed_notifs') {
+                originalSetItem.call(this, 'lumina_last_update', Date.now().toString());
+            }
+        };
+
         function togglePassVisibility(inputId, btn) {
             const input = document.getElementById(inputId);
             if (!input) return;
@@ -4310,6 +4321,13 @@ body[data-cat="sendas"] #header-cat {
                     const resSync = await response.json();
                     if (resSync.success) {
                         console.log("Sincronización: Éxito.");
+                        
+                        // LÓGICA DE ABSORCIÓN SILENCIOSA (LWW)
+                        if (resSync.action === "pulled" && resSync.data) {
+                            console.log("Lúmina: Datos de la nube son más recientes. Absorbiendo progreso...");
+                            pullSync(resSync.data);
+                        }
+
                         if (resSync.devices) {
                             localStorage.setItem('lumina_devices_cache', JSON.stringify(resSync.devices));
                             renderDeviceList(resSync.devices);
@@ -4324,9 +4342,18 @@ body[data-cat="sendas"] #header-cat {
 
         function pullSync(jsonString) {
             try {
+                isPullingSync = true;
                 const data = JSON.parse(jsonString);
                 Object.keys(data).forEach(k => { if (data[k] !== null) localStorage.setItem(k, data[k]); });
-            } catch (e) { console.error("Pull Sync Error", e); }
+                isPullingSync = false;
+                
+                // Forzar re-render de UI para mostrar progreso absorbido
+                if (typeof updateGamification === 'function') updateGamification();
+                if (typeof updateLogroDelDia === 'function') updateLogroDelDia();
+            } catch (e) { 
+                isPullingSync = false;
+                console.error("Pull Sync Error", e); 
+            }
         }
 
         // --- INICIALIZACIÓN FINAL ---
@@ -8414,12 +8441,18 @@ if (id === 'content-header' || id === 'side-panel') {
             const todayIdx = todayIndices[currentCategory];
             const maxBack = 3;
 
-            // Solo permitir retroceder hasta 3 días desde el índice de "hoy"
-            if (todayIdx !== undefined && currentIdx > (todayIdx - maxBack) && currentIdx > 0) {
-                if (navigator.vibrate) navigator.vibrate(5);
+            if (todayIdx === undefined) {
+                if (currentIdx > 0) fetchContent(currentIdx - 1);
+                return;
+            }
+
+            if (navigator.vibrate) navigator.vibrate(5);
+
+            if (currentIdx > (todayIdx - maxBack) && currentIdx > 0) {
                 fetchContent(currentIdx - 1);
             } else {
-                showToast("Límite de historial alcanzado (máx. 3 días).", "info");
+                showToast("Regresando a hoy.", "info");
+                fetchContent(todayIdx);
             }
         }
 
@@ -9701,10 +9734,12 @@ if (id === 'content-header' || id === 'side-panel') {
 
                 const [extras, palabraData, afirmData, fraseData, libroData] = await Promise.all(endpoints);
                 
-                if (palabraData) setCache('palabras', palabraData);
-                if (afirmData) setCache('afirmaciones', afirmData);
-                if (fraseData) setCache('frases', fraseData);
-                if (libroData) setCache('libros', libroData);
+                const visited = JSON.parse(localStorage.getItem('lumina_visited_' + new Date().toDateString()) || '[]');
+
+                if (palabraData && (palabraData.palabra || palabraData.word)) setCache('palabras', palabraData);
+                if (afirmData && (afirmData.afirmacion || afirmData.word)) setCache('afirmaciones', afirmData);
+                if (fraseData && (fraseData.frase || fraseData.word)) setCache('frases', fraseData);
+                if (libroData && libroData.titulo) setCache('libros', libroData);
                 
                 if (Array.isArray(extras)) {
                     extras.forEach(n => {
@@ -9715,16 +9750,16 @@ if (id === 'content-header' || id === 'side-panel') {
                 }
 
                 if (hasAnySub) {
-                    if (isSub('palabras') && palabraData && (palabraData.palabra || palabraData.word)) {
+                    if (isSub('palabras') && palabraData && (palabraData.palabra || palabraData.word) && !visited.includes('palabras')) {
                         addNotif('palabras', 'Palabra de Hoy', `La palabra de hoy es "${palabraData.palabra || palabraData.word}". Descúbrela.`);
                     }
-                    if (isSub('afirmaciones') && afirmData && (afirmData.afirmacion || afirmData.word)) {
+                    if (isSub('afirmaciones') && afirmData && (afirmData.afirmacion || afirmData.word) && !visited.includes('afirmaciones')) {
                         addNotif('afirmaciones', 'Afirmación de Hoy', `La afirmación de hoy es "${afirmData.afirmacion || afirmData.word}".`);
                     }
-                    if (isSub('frases') && fraseData && (fraseData.frase || fraseData.word)) {
+                    if (isSub('frases') && fraseData && (fraseData.frase || fraseData.word) && !visited.includes('frases')) {
                         addNotif('frases', 'Frase de Hoy', `La frase de hoy es "${fraseData.frase || fraseData.word}".`);
                     }
-                    if (isSub('libros') && libroData && libroData.titulo) {
+                    if (isSub('libros') && libroData && libroData.titulo && !visited.includes('libros')) {
                         const libParts = [libroData.titulo, libroData.libro, libroData.autor].filter(p => p && p !== 'Lúmina' && p !== 'Libros');
                         const libMeta = [...libParts, `Lección ${libroData.dia} de ${libroData.total}`].join(' — ');
                         addNotif('libros', 'Lección del Día', `Hoy estudiamos: ${libMeta}. Accede ahora.`);
@@ -9759,14 +9794,16 @@ if (id === 'content-header' || id === 'side-panel') {
                 const afirmData = getCache('afirmaciones');
                 const fraseData = getCache('frases');
                 const libroData = getCache('libros');
+                
+                const visited = JSON.parse(localStorage.getItem('lumina_visited_' + new Date().toDateString()) || '[]');
 
                 list.innerHTML = '';
                 count = 0;
                 
-                if (isSub('palabras') && palabraData) addNotif('palabras', 'Palabra de Hoy', `La palabra de hoy es "${palabraData.palabra || palabraData.word}". Descúbrela.`);
-                if (isSub('afirmaciones') && afirmData) addNotif('afirmaciones', 'Afirmación de Hoy', `La afirmación de hoy es "${afirmData.afirmacion || afirmData.word}".`);
-                if (isSub('frases') && fraseData) addNotif('frases', 'Frase de Hoy', `La frase de hoy es "${fraseData.frase || fraseData.word}".`);
-                if (isSub('libros') && libroData) {
+                if (isSub('palabras') && palabraData && palabraData.palabra && !visited.includes('palabras')) addNotif('palabras', 'Palabra de Hoy', `La palabra de hoy es "${palabraData.palabra || palabraData.word}". Descúbrela.`);
+                if (isSub('afirmaciones') && afirmData && afirmData.afirmacion && !visited.includes('afirmaciones')) addNotif('afirmaciones', 'Afirmación de Hoy', `La afirmación de hoy es "${afirmData.afirmacion || afirmData.word}".`);
+                if (isSub('frases') && fraseData && fraseData.frase && !visited.includes('frases')) addNotif('frases', 'Frase de Hoy', `La frase de hoy es "${fraseData.frase || fraseData.word}".`);
+                if (isSub('libros') && libroData && libroData.titulo && !visited.includes('libros')) {
                     const libParts = [libroData.libro, libroData.autor].filter(p => p && p !== 'Lúmina' && p !== 'Libros');
                     const libMeta = [...libParts, `Lección ${libroData.dia} de ${libroData.total}`].join(' — ');
                     addNotif('libros', 'Lección del Día (Offline)', `Hoy estudiamos: ${libMeta}.`);
@@ -12324,6 +12361,12 @@ if (id === 'content-header' || id === 'side-panel') {
                     <svg class="gam-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
                     <span class="logro-label">Logro del Día — Sabiduría Completa</span>
                 </div>
+
+                <!-- BOTÓN DE RETO DE MAESTRÍA PERMANENTE -->
+                <button onclick="if(localStorage.getItem('lumina_pro')==='true'){openQuizModal();}else{toggleProModal();}" class="btn-save" style="width: 100%; margin-top: 15px; background: rgba(139, 92, 246, 0.1); border: 1px solid #8b5cf6; color: #8b5cf6; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; letter-spacing: 1px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    Reto de Maestría
+                </button>
 
                 <!-- RETO DEL DÍA (HÁBITOS) -->
                 <div id="habitos-reto-del-dia" class="reto-del-dia" style="margin-top: 25px; padding: 20px; border-radius: 20px; border: 1px dashed var(--accent); background: rgba(181, 131, 58, 0.05); display: none;">
