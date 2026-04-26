@@ -7481,12 +7481,48 @@ body[data-cat="sendas"] #header-cat {
                 } else {
                     showToast("¡Logro Completado! Sabiduría total alcanzada ✨", "success");
                     playSound('success');
+                    triggerQuizNotification();
                 }
                 
                 // Forzamos sincronización inmediata para evitar reinicios por recarga/SW
                 pushSync(true); 
             }
             updateLogroDelDia();
+        }
+
+        function triggerQuizNotification() {
+            if (localStorage.getItem('lumina_pro') !== 'true') return;
+            const todayStr = new Date().toDateString();
+            const lastQuizNotif = localStorage.getItem('lumina_last_quiz_notif');
+            if (lastQuizNotif === todayStr) return; // Ya se notificó hoy
+
+            // Textos variados para la campanita
+            const mensajes = [
+                "¡Tu mente está afilada! Pon a prueba lo que aprendiste hoy.",
+                "Reto desbloqueado: Mide tu retención de hoy en 60 segundos.",
+                "Completaste tus lecturas. ¿Te atreves con el test de maestría?",
+                "Demuestra tu enfoque con 4 preguntas rápidas sobre la sabiduría de hoy."
+            ];
+            const msg = mensajes[Math.floor(Math.random() * mensajes.length)];
+
+            const notif = {
+                cat: 'quiz',
+                tit: 'Reto de Sabiduría Diario',
+                msg: msg,
+                link: '#quiz',
+                id: 'quiz_' + Date.now()
+            };
+
+            const localNotifs = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
+            localNotifs.push(notif);
+            localStorage.setItem('lumina_local_notifs', JSON.stringify(localNotifs));
+            localStorage.setItem('lumina_last_quiz_notif', todayStr);
+
+            // Actualizar UI
+            if (typeof checkNotifications === 'function') {
+                isCheckingNotifs = false;
+                checkNotifications();
+            }
         }
 
         function marcarComoLeido() {
@@ -9534,6 +9570,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     pro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg>',
                     trial: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg>',
                     success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+                    quiz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
                     anuncios: '<svg viewBox="0 0 28 28" fill="currentColor" stroke="none"><path d="M21.6185 10.2153C22.6769 9.15692 22.6769 7.44086 21.6185 6.38243C20.5601 5.32399 18.844 5.32399 17.7856 6.38243C16.7271 7.44086 16.7271 9.15692 17.7856 10.2153C18.844 11.2738 20.5601 11.2738 21.6185 10.2153ZM20.4897 7.51122C20.9247 7.94623 20.9247 8.65154 20.4897 9.08656C20.0547 9.52158 19.3494 9.52158 18.9144 9.08656C18.4793 8.65154 18.4793 7.94623 18.9144 7.51122C19.3494 7.0762 20.0547 7.0762 20.4897 7.51122Z" fill="currentColor" fill-rule="evenodd"/><path d="M1.58445 13.9772C0.805182 14.7564 0.805185 16.0199 1.58445 16.7991L11.2009 26.4155C11.9801 27.1948 13.2436 27.1948 14.0228 26.4155L26.4156 14.0228C26.7898 13.6486 27 13.1411 27 12.6119V2.99543C27 1.89339 26.1066 1 25.0046 1H15.3881C14.8589 1 14.3514 1.21023 13.9772 1.58445L1.58445 13.9772ZM13.319 24.2975C12.9284 24.688 12.2953 24.688 11.9047 24.2975L3.70254 16.0952C3.31202 15.7047 3.31202 15.0716 3.70254 14.681L15.0952 3.28833C15.2828 3.10079 15.5371 2.99543 15.8024 2.99543H24.0046C24.5568 2.99543 25.0046 3.44315 25.0046 3.99543V12.1976C25.0046 12.4629 24.8992 12.7172 24.7117 12.9047L13.319 24.2975Z" fill="currentColor" fill-rule="evenodd"/></svg>',
                     senda7: '<svg viewBox="0 0 100 100" fill="currentColor"><path d="M21 32C9.459 32 0 41.43 0 52.94c0 4.46 1.424 8.605 3.835 12.012l14.603 25.244c2.045 2.672 3.405 2.165 5.106-.14l16.106-27.41c.325-.59.58-1.216.803-1.856A20.668 20.668 0 0 0 42 52.94C42 41.43 32.544 32 21 32zm0 9.812c6.216 0 11.16 4.931 11.16 11.129c0 6.198-4.944 11.127-11.16 11.127c-6.215 0-11.16-4.93-11.16-11.127c0-6.198 4.945-11.129 11.16-11.129z"></path><path d="M87.75 0C81.018 0 75.5 5.501 75.5 12.216c0 2.601.83 5.019 2.237 7.006l8.519 14.726c1.193 1.558 1.986 1.262 2.978-.082l9.395-15.99c.19-.343.339-.708.468-1.082a12.05 12.05 0 0 0 .903-4.578C100 5.5 94.484 0 87.75 0zm0 5.724c3.626 0 6.51 2.876 6.51 6.492c0 3.615-2.884 6.49-6.51 6.49c-3.625 0-6.51-2.875-6.51-6.49c0-3.616 2.885-6.492 6.51-6.492z"></path><path d="M88.209 37.412c-2.247.05-4.5.145-6.757.312l.348 5.532a126.32 126.32 0 0 1 6.513-.303zm-11.975.82c-3.47.431-6.97 1.045-10.43 2.032l1.303 5.361c3.144-.896 6.402-1.475 9.711-1.886zM60.623 42.12a24.52 24.52 0 0 0-3.004 1.583l-.004.005l-.006.002c-1.375.866-2.824 1.965-4.007 3.562c-.857 1.157-1.558 2.62-1.722 4.35l5.095.565c.038-.406.246-.942.62-1.446h.002v-.002c.603-.816 1.507-1.557 2.582-2.235l.004-.002a19.64 19.64 0 0 1 2.388-1.256zM58 54.655l-3.303 4.235c.783.716 1.604 1.266 2.397 1.726l.01.005l.01.006c2.632 1.497 5.346 2.342 7.862 3.144l1.446-5.318c-2.515-.802-4.886-1.576-6.918-2.73c-.582-.338-1.092-.691-1.504-1.068zm13.335 5.294l-1.412 5.327l.668.208l.82.262c2.714.883 5.314 1.826 7.638 3.131l2.358-4.92c-2.81-1.579-5.727-2.611-8.538-3.525l-.008-.002l-.842-.269zm14.867 7.7l-3.623 3.92c.856.927 1.497 2.042 1.809 3.194l.002.006l.002.009c.372 1.345.373 2.927.082 4.525l5.024 1.072c.41-2.256.476-4.733-.198-7.178c-.587-2.162-1.707-4.04-3.098-5.548zM82.72 82.643a11.84 11.84 0 0 1-1.826 1.572h-.002c-1.8 1.266-3.888 2.22-6.106 3.04l1.654 5.244c2.426-.897 4.917-1.997 7.245-3.635l.006-.005l.003-.002a16.95 16.95 0 0 0 2.639-2.287zm-12.64 6.089c-3.213.864-6.497 1.522-9.821 2.08l.784 5.479c3.421-.575 6.856-1.262 10.27-2.18zm-14.822 2.836c-3.346.457-6.71.83-10.084 1.148l.442 5.522c3.426-.322 6.858-.701 10.285-1.17zm-15.155 1.583c-3.381.268-6.77.486-10.162.67l.256 5.536c3.425-.185 6.853-.406 10.28-.678zm-15.259.92c-2.033.095-4.071.173-6.114.245l.168 5.541a560.1 560.1 0 0 0 6.166-.246z" fill-rule="evenodd"></path></svg>',
                     senda21: '<svg viewBox="0 0 100 100" fill="currentColor"><path d="M21 32C9.459 32 0 41.43 0 52.94c0 4.46 1.424 8.605 3.835 12.012l14.603 25.244c2.045 2.672 3.405 2.165 5.106-.14l16.106-27.41c.325-.59.58-1.216.803-1.856A20.668 20.668 0 0 0 42 52.94C42 41.43 32.544 32 21 32zm0 9.812c6.216 0 11.16 4.931 11.16 11.129c0 6.198-4.944 11.127-11.16 11.127c-6.215 0-11.16-4.93-11.16-11.127c0-6.198 4.945-11.129 11.16-11.129z"></path><path d="M87.75 0C81.018 0 75.5 5.501 75.5 12.216c0 2.601.83 5.019 2.237 7.006l8.519 14.726c1.193 1.558 1.986 1.262 2.978-.082l9.395-15.99c.19-.343.339-.708.468-1.082a12.05 12.05 0 0 0 .903-4.578C100 5.5 94.484 0 87.75 0zm0 5.724c3.626 0 6.51 2.876 6.51 6.492c0 3.615-2.884 6.49-6.51 6.49c-3.625 0-6.51-2.875-6.51-6.49c0-3.616 2.885-6.492 6.51-6.492z"></path><path d="M88.209 37.412c-2.247.05-4.5.145-6.757.312l.348 5.532a126.32 126.32 0 0 1 6.513-.303zm-11.975.82c-3.47.431-6.97 1.045-10.43 2.032l1.303 5.361c3.144-.896 6.402-1.475 9.711-1.886zM60.623 42.12a24.52 24.52 0 0 0-3.004 1.583l-.004.005l-.006.002c-1.375.866-2.824 1.965-4.007 3.562c-.857 1.157-1.558 2.62-1.722 4.35l5.095.565c.038-.406.246-.942.62-1.446h.002v-.002c.603-.816 1.507-1.557 2.582-2.235l.004-.002a19.64 19.64 0 0 1 2.388-1.256zM58 54.655l-3.303 4.235c.783.716 1.604 1.266 2.397 1.726l.01.005l.01.006c2.632 1.497 5.346 2.342 7.862 3.144l1.446-5.318c-2.515-.802-4.886-1.576-6.918-2.73c-.582-.338-1.092-.691-1.504-1.068zm13.335 5.294l-1.412 5.327l.668.208l.82.262c2.714.883 5.314 1.826 7.638 3.131l2.358-4.92c-2.81-1.579-5.727-2.611-8.538-3.525l-.008-.002l-.842-.269zm14.867 7.7l-3.623 3.92c.856.927 1.497 2.042 1.809 3.194l.002.006l.002.009c.372 1.345.373 2.927.082 4.525l5.024 1.072c.41-2.256.476-4.733-.198-7.178c-.587-2.162-1.707-4.04-3.098-5.548zM82.72 82.643a11.84 11.84 0 0 1-1.826 1.572h-.002c-1.8 1.266-3.888 2.22-6.106 3.04l1.654 5.244c2.426-.897 4.917-1.997 7.245-3.635l.006-.005l.003-.002a16.95 16.95 0 0 0 2.639-2.287zm-12.64 6.089c-3.213.864-6.497 1.522-9.821 2.08l.784 5.479c3.421-.575 6.856-1.262 10.27-2.18zm-14.822 2.836c-3.346.457-6.71.83-10.084 1.148l.442 5.522c3.426-.322 6.858-.701 10.285-1.17zm-15.155 1.583c-3.381.268-6.77.486-10.162.67l.256 5.536c3.425-.185 6.853-.406 10.28-.678zm-15.259.92c-2.033.095-4.071.173-6.114.245l.168 5.541a560.1 560.1 0 0 0 6.166-.246z" fill-rule="evenodd"></path></svg>',
@@ -9543,7 +9580,8 @@ if (id === 'content-header' || id === 'side-panel') {
                 const colors = {
                     senda7: '#38bdf8',
                     senda21: '#10b981',
-                    senda30: '#f59e0b'
+                    senda30: '#f59e0b',
+                    quiz: '#8b5cf6'
                 };
                 const iconColor = colors[cat.toLowerCase()] || 'var(--accent)';
                 const iconBg = colors[cat.toLowerCase()] ? `${colors[cat.toLowerCase()]}20` : 'rgba(181, 131, 58, 0.1)';
@@ -9592,6 +9630,7 @@ if (id === 'content-header' || id === 'side-panel') {
                         'pro': toggleProModal,
                         'trial': toggleProModal,
                         'success': showSuccessModal,
+                        'quiz': openQuizModal,
                         'agenda': () => openScheduleModal(extraData),
                         'restore': () => { setPortalMode('recover'); document.getElementById('identity-portal').classList.add('active'); }
                     };
@@ -11740,6 +11779,51 @@ if (id === 'content-header' || id === 'side-panel') {
 
 
     <!-- Modal Go Pro / Trial (Diseño Refinado) -->
+    <!-- Modal Quiz Diario -->
+    <div id="quiz-modal" class="modal" style="z-index: 2300;">
+        <div class="modal-content" style="max-width: 480px; padding: 30px; text-align: center; border-radius: 24px;">
+            <div id="quiz-loader" style="padding: 40px 0;">
+                <div class="spinner" style="margin: 0 auto;"></div>
+                <p style="margin-top:20px; font-size: 0.9rem; opacity: 0.7;">Generando tu Reto de Maestría...</p>
+            </div>
+            
+            <div id="quiz-content" style="display: none;">
+                <!-- Cabecera -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <span style="font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 600; text-transform: uppercase;">Reto <span id="quiz-current-step">1</span>/4</span>
+                    <div style="display: flex; gap: 5px;" id="quiz-progress-dots">
+                        <!-- Dots generados por JS -->
+                    </div>
+                </div>
+
+                <!-- Pregunta -->
+                <h3 id="quiz-question-text" style="font-family:'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 25px; line-height: 1.4;"></h3>
+
+                <!-- Opciones -->
+                <div id="quiz-options-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                    <!-- Botones generados por JS -->
+                </div>
+
+                <!-- Refuerzo (Micro-learning) -->
+                <div id="quiz-reinforcement" style="display: none; background: rgba(181, 131, 58, 0.05); border: 1px solid rgba(181, 131, 58, 0.2); padding: 15px; border-radius: 12px; font-size: 0.85rem; margin-bottom: 20px; text-align: left; line-height: 1.4;">
+                </div>
+
+                <!-- Acción -->
+                <button id="btn-quiz-next" class="btn-save" style="width: 100%; display: none; margin-bottom: 10px;" onclick="nextQuizStep()">Siguiente Pregunta</button>
+            </div>
+
+            <!-- Pantalla Final -->
+            <div id="quiz-result" style="display: none; padding: 20px 0;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">🏆</div>
+                <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 10px;">¡Maestría Demostrada!</h2>
+                <p id="quiz-score-text" style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 25px;">Has completado el reto de hoy.</p>
+                <button class="btn-save" style="width: 100%; margin-bottom: 10px;" onclick="closeQuizModal(true)">Volver al Inicio</button>
+            </div>
+
+            <button class="btn-save" onclick="closeQuizModal()" id="btn-quiz-close" style="background:none; border: 1px solid rgba(128,128,128,0.2); color: var(--text); width: 100%;">CERRAR</button>
+        </div>
+    </div>
+
     <div id="pro-modal" class="modal">
         <div class="modal-content" style="text-align: center; padding: 45px 35px; background: var(--card-bg); border-radius: 32px; border: 1px solid var(--card-border); max-width: 420px; box-shadow: 0 15px 45px rgba(0,0,0,0.06);">
             
@@ -14737,6 +14821,170 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
     // renderMisSendas se llama al abrir la sección via openCategory('sendas')
 });
+// --- LÓGICA DEL QUIZ DE MAESTRÍA ---
+let currentQuizData = [];
+let currentQuizStep = 0;
+let quizScore = 0;
+
+function openQuizModal() {
+    closeModals(true);
+    document.getElementById('quiz-modal').classList.add('active');
+    history.pushState({ modal: 'quiz' }, "", "#quiz");
+    
+    document.getElementById('quiz-loader').style.display = 'block';
+    document.getElementById('quiz-content').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'none';
+    document.getElementById('btn-quiz-close').style.display = 'block';
+    
+    fetchQuiz();
+}
+
+async function fetchQuiz() {
+    try {
+        const uEmail = localStorage.getItem('lumina_user_email') || "";
+        const uType = (localStorage.getItem('lumina_pro') === 'true') ? 'PRO' : 'FREE';
+        const fd = new URLSearchParams();
+        fd.append('action', 'quiz');
+        fd.append('email', uEmail);
+        fd.append('userType', uType);
+        
+        const res = await fetch(API, { method: 'POST', body: fd });
+        const data = await res.json();
+        
+        if (data.success && data.quiz) {
+            currentQuizData = data.quiz;
+            currentQuizStep = 0;
+            quizScore = 0;
+            document.getElementById('quiz-loader').style.display = 'none';
+            document.getElementById('quiz-content').style.display = 'block';
+            renderQuizStep();
+        } else {
+            throw new Error(data.error || 'Error al cargar el quiz');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast("No pudimos generar el reto en este momento.", "error");
+        closeQuizModal();
+    }
+}
+
+function renderQuizStep() {
+    if (currentQuizStep >= currentQuizData.length) {
+        showQuizResult();
+        return;
+    }
+    
+    const qData = currentQuizData[currentQuizStep];
+    
+    // Update header
+    document.getElementById('quiz-current-step').innerText = currentQuizStep + 1;
+    let dotsHtml = '';
+    for (let i = 0; i < 4; i++) {
+        const color = i < currentQuizStep ? 'var(--accent)' : (i === currentQuizStep ? 'var(--accent)' : 'rgba(128,128,128,0.2)');
+        const opacity = i === currentQuizStep ? '1' : (i < currentQuizStep ? '0.5' : '1');
+        dotsHtml += `<div style="width: 8px; height: 8px; border-radius: 50%; background: ${color}; opacity: ${opacity};"></div>`;
+    }
+    document.getElementById('quiz-progress-dots').innerHTML = dotsHtml;
+    
+    // Question
+    document.getElementById('quiz-question-text').innerText = qData.question;
+    
+    // Options
+    const optsContainer = document.getElementById('quiz-options-container');
+    optsContainer.innerHTML = '';
+    
+    let allOpts = [qData.correct, ...(qData.distractors || [])];
+    allOpts = allOpts.sort(() => Math.random() - 0.5); // Shuffle
+    
+    allOpts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-save';
+        btn.style.cssText = 'background: rgba(128,128,128,0.05); color: var(--text); border: 1px solid rgba(128,128,128,0.1); width: 100%; text-align: left; padding: 15px; font-weight: normal; font-size: 0.9rem; line-height: 1.4; border-radius: 12px; transition: all 0.2s ease;';
+        btn.innerText = opt;
+        btn.onclick = () => checkQuizAnswer(btn, opt === qData.correct);
+        optsContainer.appendChild(btn);
+    });
+    
+    // Reset Reinforcement
+    document.getElementById('quiz-reinforcement').style.display = 'none';
+    document.getElementById('btn-quiz-next').style.display = 'none';
+}
+
+function checkQuizAnswer(selectedBtn, isCorrect) {
+    const container = document.getElementById('quiz-options-container');
+    const btns = container.querySelectorAll('button');
+    btns.forEach(b => {
+        b.onclick = null; // Disable clicks
+        b.style.opacity = '0.5';
+        if (b.innerText === currentQuizData[currentQuizStep].correct) {
+            b.style.opacity = '1';
+            b.style.border = '1px solid var(--accent)';
+        }
+    });
+    
+    selectedBtn.style.opacity = '1';
+    if (isCorrect) {
+        selectedBtn.style.background = 'rgba(16, 185, 129, 0.1)';
+        selectedBtn.style.border = '1px solid #10b981';
+        playSound('success');
+        quizScore++;
+    } else {
+        selectedBtn.style.background = 'rgba(239, 68, 68, 0.1)';
+        selectedBtn.style.border = '1px solid #ef4444';
+        selectedBtn.style.animation = 'shake 0.4s';
+        if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+    }
+    
+    // Show reinforcement
+    const reinf = document.getElementById('quiz-reinforcement');
+    const qData = currentQuizData[currentQuizStep];
+    reinf.innerHTML = `<strong>💡 ${isCorrect ? '¡Exacto!' : 'Recuerda:'}</strong><br/>${qData.reinforcement}`;
+    reinf.style.display = 'block';
+    
+    document.getElementById('btn-quiz-next').style.display = 'block';
+}
+
+function nextQuizStep() {
+    currentQuizStep++;
+    renderQuizStep();
+}
+
+function showQuizResult() {
+    document.getElementById('quiz-content').style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('btn-quiz-close').style.display = 'none';
+    
+    document.getElementById('quiz-score-text').innerText = `Has respondido correctamente ${quizScore} de 4 preguntas hoy.`;
+    
+    if (typeof confetti === 'function') {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#b5833a', '#ffffff', '#ffecd2']
+        });
+    }
+    playSound('success');
+    
+    // Add points to Gamification? (Optional: bump streak or something)
+    try {
+        let currentLevel = parseInt(localStorage.getItem('lumina_level') || '1');
+        currentLevel++;
+        localStorage.setItem('lumina_level', currentLevel);
+        if (typeof syncLuminaStats === 'function') syncLuminaStats();
+    } catch(e){}
+}
+
+function closeQuizModal(fromFinish = false) {
+    document.getElementById('quiz-modal').classList.remove('active');
+    if (fromFinish) {
+        // Go back to hub
+        showHub();
+    } else {
+        history.back();
+    }
+}
+
 </script>
     <!-- Diálogo Opciones Exportación (Global para evitar conflictos de posicionamiento) -->
     <div id="export-options-box" style="display: none; background: var(--bg); border: 1px solid var(--accent); padding: 30px; border-radius: 20px; position: fixed; z-index: 200000; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 350px; box-shadow: 0 10px 50px rgba(0,0,0,0.5); animation: modalFadeIn 0.3s ease; backdrop-filter: blur(10px);">
