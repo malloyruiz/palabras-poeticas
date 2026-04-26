@@ -4864,6 +4864,10 @@ body[data-cat="sendas"] #header-cat {
                     <button class="btn-fav btn-share-main" id="main-share-btn" onclick="shareAsImage()" title="Compartir sabiduría" style="display: none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                     </button>
+                    <!-- BOTÓN AYER (PRO) -->
+                    <button class="btn-fav btn-yesterday-trigger" id="btn-yesterday-main" onclick="fetchYesterdayContent()" title="Ver sabiduría de ayer" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V12L15 15"/><circle cx="12" cy="12" r="9"/></svg>
+                    </button>
                     <!-- BOTÓN EXTRA PRO (MAESTRÍA DIARIA) - INTEGRADO EN ACCIONES -->
                     <button class="btn-fav btn-pro-wisdom" id="btn-refresh-word" onclick="loadNextExtra()" title="Generar otra sabiduría" style="display: none;">
                         <div class="pro-icon-view">
@@ -4939,6 +4943,10 @@ body[data-cat="sendas"] #header-cat {
                         </button>
                         <button class="btn-fav btn-share-main" onclick="shareAsImage()" title="Compartir sabiduría">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        </button>
+                        <!-- BOTÓN AYER (PRO) -->
+                        <button class="btn-fav btn-yesterday-trigger" id="btn-yesterday-lesson" onclick="fetchYesterdayContent()" title="Ver lección de ayer" style="display: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V12L15 15"/><circle cx="12" cy="12" r="9"/></svg>
                         </button>
                     </div>
                 </div>
@@ -7921,11 +7929,15 @@ body[data-cat="sendas"] #header-cat {
                     el.style.setProperty('display', shouldShow ? displayVal : 'none', shouldShow ? 'important' : '');
                 });
 
-                // Botón de Maestría Diaria (Pro)
+                // Botón de Maestría Diaria y Botón de Ayer (Pro)
                 const refreshBtn = document.getElementById('btn-refresh-word');
+                const yesterdayMainBtn = document.getElementById('btn-yesterday-main');
+                const yesterdayLessonBtn = document.getElementById('btn-yesterday-lesson');
                 const trialBtn = document.getElementById('btn-start-trial');
+
+                const isProVisible = ['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat) && isPro;
+
                 if (refreshBtn) {
-                    const isProVisible = ['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat) && isPro;
                     refreshBtn.style.display = isProVisible ? 'flex' : 'none';
                     if (isProVisible) {
                         const currentCount = getProExtraCount(cat);
@@ -7933,6 +7945,9 @@ body[data-cat="sendas"] #header-cat {
                         if (countEl) countEl.innerText = `${currentCount}/5`;
                     }
                 }
+                if (yesterdayMainBtn) yesterdayMainBtn.style.display = (isProVisible && cat !== 'libros') ? 'flex' : 'none';
+                if (yesterdayLessonBtn) yesterdayLessonBtn.style.display = (isProVisible && cat === 'libros') ? 'flex' : 'none';
+
                 if (trialBtn) {
                     trialBtn.style.display = (['palabras', 'afirmaciones', 'frases', 'libros'].includes(cat) && !isPro) ? 'flex' : 'none';
                 }
@@ -8271,6 +8286,8 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         let currentIdx = -1; // Índice actual del contenido (para Extras PRO)
+        let todayIndices = {}; // Guardar el índice de "hoy" para limitar el retroceso (PRO)
+
 
 
         async function fetchContent(index = null) {
@@ -8325,7 +8342,12 @@ if (id === 'content-header' || id === 'side-panel') {
                     return;
                 }
 
-                if (index === null) setCache(cacheKey, data);
+                if (index === null) {
+                    setCache(cacheKey, data);
+                    // Guardar el índice de "hoy" para limitar el retroceso a 3 días
+                    if (data.index !== undefined) todayIndices[currentCategory] = data.index;
+                }
+                
                 renderContent(data);
                 loadUserJournal();
                 checkOnline();
@@ -8343,6 +8365,24 @@ if (id === 'content-header' || id === 'side-panel') {
             }
         }
 
+        function fetchYesterdayContent() {
+            if (!isPro) {
+                document.getElementById('pro-modal').classList.add('active');
+                return;
+            }
+            
+            const todayIdx = todayIndices[currentCategory];
+            const maxBack = 3;
+
+            // Solo permitir retroceder hasta 3 días desde el índice de "hoy"
+            if (todayIdx !== undefined && currentIdx > (todayIdx - maxBack) && currentIdx > 0) {
+                if (navigator.vibrate) navigator.vibrate(5);
+                fetchContent(currentIdx - 1);
+            } else {
+                showToast("Límite de historial alcanzado (máx. 3 días).", "info");
+            }
+        }
+
 
         function renderContent(data) {
             const extraUI = document.getElementById('extra-ui');
@@ -8351,6 +8391,31 @@ if (id === 'content-header' || id === 'side-panel') {
             window._luminaShareBlob = null; // Limpiar caché de captura para nuevo contenido
             window._lastShareType = "";
             
+            // Actualizar fecha del header si el contenido tiene una específica (PRO: Ayer)
+            if (data.date) {
+                try {
+                    // Normalizar fecha (YYYY-MM-DD)
+                    const dParts = String(data.date).split('-');
+                    let contentDate;
+                    if (dParts.length === 3) {
+                        contentDate = new Date(parseInt(dParts[0]), parseInt(dParts[1]) - 1, parseInt(dParts[2]), 12, 0, 0);
+                    } else {
+                        contentDate = new Date(data.date);
+                    }
+                    
+                    const todayStr = new Date().toDateString();
+                    if (contentDate.toDateString() !== todayStr) {
+                        const formatted = getSpanishDate(contentDate, false).toUpperCase();
+                        const headerDateEl = document.getElementById('header-date');
+                        if (headerDateEl) headerDateEl.innerText = formatted;
+                    } else {
+                        updateHeaderDate(); 
+                    }
+                } catch(e) { console.error("Date error:", e); updateHeaderDate(); }
+            } else {
+                updateHeaderDate();
+            }
+
             // 1. Limpieza y preparación inicial de contenedores
             if (extraUI) extraUI.style.display = (currentCategory === 'extra') ? 'block' : 'none';
             if (lessonUI) lessonUI.style.display = (currentCategory === 'libros') ? 'block' : 'none';
@@ -9272,6 +9337,7 @@ if (id === 'content-header' || id === 'side-panel') {
             }
 
             if (navigator.vibrate) navigator.vibrate(12);
+            pushSync();
         }
 
         function clearAllNotifs() {
@@ -9601,7 +9667,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     extras.forEach(n => {
                         const lowCat = (n.cat || 'extra').toLowerCase();
                         if (lowCat.startsWith('senda') && localStorage.getItem('lumina_sub_sendas') === 'false') return;
-                        addNotif(lowCat, n.titulo || 'Aviso', n.mensaje || '', n.link, true, n.imagen || '');
+                        addNotif(lowCat, n.titulo || 'Aviso', n.mensaje || '', n.link, true, n.imagen || '', n.id);
                     });
                 }
 
@@ -12713,6 +12779,25 @@ if (id === 'content-header' || id === 'side-panel') {
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                     <span>Descargar AAB</span>
                     <small>Paquete Bundle</small>
+                </div>
+            </div>
+
+            <div style="text-align: left; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4; margin-top:20px; margin-bottom: 10px;">DESCARGA DIRECTA (WINDOWS)</div>
+            <div class="install-grid">
+                <div class="install-card" onclick="window.open('https://drive.google.com/uc?export=download&id=1le0D4b19ETcR2VOBlbY3FltaHqF87YFs', '_blank')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    <span>Instalador (.exe)</span>
+                    <small>Recomendado</small>
+                </div>
+                <div class="install-card" onclick="window.open('https://drive.google.com/uc?export=download&id=1P-82ndq-XSrmKcdyBNJbPlak5PevpgL5', '_blank')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    <span>Portable (.exe)</span>
+                    <small>Sin instalación</small>
+                </div>
+                <div class="install-card" style="grid-column: span 2;" onclick="window.open('https://drive.google.com/uc?export=download&id=16PiMwG3XUXJ40deFg0kVWyt8yyQxDGON', '_blank')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    <span>Versión ZIP</span>
+                    <small>Paquete completo</small>
                 </div>
             </div>
 
