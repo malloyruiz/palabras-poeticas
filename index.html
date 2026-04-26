@@ -8372,6 +8372,7 @@ if (id === 'content-header' || id === 'side-panel') {
 
             // 1. Mostrar caché inmediatamente (Si es de hoy y no pedimos uno específico)
             if (index === null && cached && (cacheDate === today || cacheKey.includes('_'))) {
+                if (cached.index !== undefined) todayIndices[currentCategory] = cached.index;
                 renderContent(cached);
                 hideLoader();
                 return;
@@ -11822,7 +11823,7 @@ if (id === 'content-header' || id === 'side-panel') {
     <!-- Modal Go Pro / Trial (Diseño Refinado) -->
     <!-- Modal Quiz Diario -->
     <div id="quiz-modal" class="modal" style="z-index: 2300;">
-        <div class="modal-content" style="max-width: 480px; padding: 30px; text-align: center; border-radius: 24px;">
+        <div class="modal-content" style="max-width: 480px; padding: 30px; text-align: center; border-radius: 24px; max-height: 90vh; overflow-y: auto;">
             <div id="quiz-loader" style="padding: 40px 0;">
                 <div class="spinner" style="margin: 0 auto;"></div>
                 <p style="margin-top:20px; font-size: 0.9rem; opacity: 0.7;">Generando tu Reto de Maestría...</p>
