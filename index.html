@@ -3474,14 +3474,12 @@ body[data-cat="sendas"] #header-cat {
 
     <script>
         // --- CORE: ESTADO GLOBAL Y FUNCIONES DE ACCESO INMEDIATO ---
-        const API = "https://script.google.com/macros/s/AKfycbyAIZ5rUHznpscJuPjEdhqoV1glBVHzSXnbZr-lPE8NBms7yJCk1XQTjWbzPK9Jgpw1/exec";
-        let portalMode = 'login';
-        let recoveryStep = 1;
-        let recoveryMethod = '';
-        let currentCategory = 'palabras';
-        let voices = [];
-        let isPro = false;
         let trialDay = 0;
+
+        function getTodayKey() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
 
         // --- INTERCEPTOR LWW (Last-Write-Wins) ---
         let isPullingSync = false;
@@ -7495,7 +7493,7 @@ body[data-cat="sendas"] #header-cat {
         }
 
         function trackCategoryVisit(cat) {
-            const todayKey = 'lumina_visited_' + new Date().toDateString();
+            const todayKey = 'lumina_visited_' + getTodayKey();
             const visited = JSON.parse(localStorage.getItem(todayKey) || '[]');
             if (!visited.includes(cat)) {
                 visited.push(cat);
@@ -9735,7 +9733,7 @@ if (id === 'content-header' || id === 'side-panel') {
 
                 const [extras, palabraData, afirmData, fraseData, libroData] = await Promise.all(endpoints);
                 
-                const visited = JSON.parse(localStorage.getItem('lumina_visited_' + new Date().toDateString()) || '[]');
+                const visited = JSON.parse(localStorage.getItem('lumina_visited_' + getTodayKey()) || '[]');
 
                 if (palabraData && (palabraData.palabra || palabraData.word)) setCache('palabras', palabraData);
                 if (afirmData && (afirmData.afirmacion || afirmData.word)) setCache('afirmaciones', afirmData);
@@ -9796,7 +9794,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 const fraseData = getCache('frases');
                 const libroData = getCache('libros');
                 
-                const visited = JSON.parse(localStorage.getItem('lumina_visited_' + new Date().toDateString()) || '[]');
+                const visited = JSON.parse(localStorage.getItem('lumina_visited_' + getTodayKey()) || '[]');
 
                 list.innerHTML = '';
                 count = 0;
@@ -9835,7 +9833,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 const text = document.getElementById('journal-input').value;
                 const title = document.getElementById(currentCategory === 'libros' ? 'lesson-title' : 'word-title').innerText;
                 const now = new Date();
-                const dateKey = now.toDateString(); 
+                const dateKey = getTodayKey(); 
                 const dateDisplay = getSpanishDate(now, true); 
                 const key = `lumina_note_${currentCategory}_${dateKey}`;
                 
@@ -9857,7 +9855,7 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         function loadUserJournal() {
-            const date = new Date().toDateString();
+            const date = getTodayKey();
             const key = `lumina_note_${currentCategory}_${date}`;
             const saved = localStorage.getItem(key);
             const input = document.getElementById('journal-input');
@@ -11341,7 +11339,7 @@ if (id === 'content-header' || id === 'side-panel') {
             // REGISTRO DE HISTORIAL para gráfico (Minutos de Paz)
             const minutes = Math.floor((60 - remainingSeconds) / 60) || 1; // Mínimo 1 min
             const history = JSON.parse(localStorage.getItem('lumina_pausas_history') || '[]');
-            const todayStr = new Date().toDateString();
+            const todayStr = getTodayKey();
             
             // Sumar minutos si ya existe entrada hoy
             const todayIdx = history.findIndex(h => h.date === todayStr);
@@ -13721,7 +13719,7 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
     const completionZone = document.getElementById('senda-completion-zone');
     if (completionZone) {
         const isEmergency = (senda.mode === 'EMERGENCY');
-        const todayStr = new Date().toDateString();
+        const todayStr = getTodayKey();
         const alreadyDoneToday = !isEmergency && (senda.lastCompletedDate === todayStr);
         const isCurrentLesson = (lessonIdx === senda.currentDay);
         
@@ -13854,7 +13852,7 @@ async function openSendaLesson(sendaIdx, lessonIdx) {
 
         const isEmergency = (senda.mode === 'EMERGENCY');
         const isLast = (lessonIdx >= senda.duration - 1);
-        const todayStr = new Date().toDateString();
+        const todayStr = getTodayKey();
         const alreadyDoneToday = !isEmergency && (senda.lastCompletedDate === todayStr);
         
         if (isLast) {
@@ -13891,7 +13889,7 @@ function markSendaLessonDone() {
     if (!s) return;
     
     const isEmergency = s.mode === 'EMERGENCY';
-    const todayStr = new Date().toDateString();
+    const todayStr = getTodayKey();
     const lastDone = s.lastCompletedDate || '';
     const alreadyDoneToday = (lastDone === todayStr);
     
@@ -14551,7 +14549,7 @@ async function checkCalendarGaps(isManual = false) {
                 if (isManual) showToast('¡Hueco encontrado! Revisa Novedades.', 'success');
                 
                 // Relay a Telegram y push a la extensión (una vez por hueco)
-                const tgSentKey = 'tg_gap_' + new Date().toDateString() + '_' + start;
+                const tgSentKey = 'tg_gap_' + getTodayKey() + '_' + start;
                 if (!sessionStorage.getItem(tgSentKey)) {
                     sessionStorage.setItem(tgSentKey, 'true');
                     const email = localStorage.getItem('lumina_user_email');
@@ -14585,7 +14583,7 @@ function injectIntegrationNews(tit, msg, link, gapData = null) {
     const id = "gcal_" + hourKey;
 
     // Eliminar notificaciones de agenda antiguas (del mismo día o anteriores) para no acumular
-    const todayKey = new Date().toDateString();
+    const todayKey = getTodayKey();
     localNotifs = localNotifs.filter(n => {
         if (n.id && n.id.startsWith('gcal_') && n.id !== id) {
             // Limpiar también del dismissed para que el nuevo sí aparezca
@@ -14677,7 +14675,7 @@ async function confirmCalendarSchedule() {
         if (result.success) {
             showToast(`¡Pausa agendada: ${result.title}!`, 'success');
             // Eliminar la notificación
-            dismissNotif('gcal_' + new Date().toDateString());
+            dismissNotif('gcal_' + getTodayKey());
             closeModals();
             history.back();
         } else {
