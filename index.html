@@ -9742,8 +9742,10 @@ if (id === 'content-header' || id === 'side-panel') {
                 ];
 
                 const [extras, palabraData, afirmData, fraseData, libroData] = await Promise.all(endpoints);
+                console.log("Lúmina Notifs Debug:", { extras, palabraData, afirmData, fraseData, libroData });
                 
                 const visited = JSON.parse(localStorage.getItem('lumina_visited_' + getTodayKey()) || '[]');
+                console.log("Lúmina Visited:", visited);
 
                 if (palabraData && (palabraData.palabra || palabraData.word)) setCache('palabras', palabraData);
                 if (afirmData && (afirmData.afirmacion || afirmData.word)) setCache('afirmaciones', afirmData);
@@ -9757,6 +9759,14 @@ if (id === 'content-header' || id === 'side-panel') {
                         addNotif(lowCat, n.titulo || 'Aviso', n.mensaje || '', n.link, true, n.imagen || '', n.id);
                     });
                 }
+
+                const subs = {
+                    palabras: isSub('palabras'),
+                    afirmaciones: isSub('afirmaciones'),
+                    frases: isSub('frases'),
+                    libros: isSub('libros')
+                };
+                console.log("Lúmina Subscriptions:", subs);
 
                 if (hasAnySub) {
                     if (isSub('palabras') && palabraData && (palabraData.palabra || palabraData.word) && !visited.includes('palabras')) {
