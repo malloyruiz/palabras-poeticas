@@ -9717,7 +9717,23 @@ if (id === 'content-header' || id === 'side-panel') {
             };
 
             // --- INYECCIÓN DE NOTIFICACIONES LOCALES (Integraciones) ---
-            localNotifs.forEach(n => {
+            // Limpieza: Eliminar notificaciones locales que no sean de hoy para evitar "zombies"
+            const todayKey = getTodayKey();
+            let filteredLocal = localNotifs.filter(n => {
+                if (!n.id) return false;
+                // Si tiene fecha y no es hoy, descartar (excepto si es algo persistente especial)
+                if (n.date && !n.date.startsWith(todayKey)) return false;
+                // Si el ID tiene fecha (como rem-sleep-YYYY-MM-DD) y no es hoy, descartar
+                if (n.id.includes('202') && !n.id.includes(todayKey)) return false;
+                return true;
+            });
+            
+            // Si hubo cambios, guardar la lista limpia
+            if (filteredLocal.length !== localNotifs.length) {
+                localStorage.setItem('lumina_local_notifs', JSON.stringify(filteredLocal));
+            }
+
+            filteredLocal.forEach(n => {
                 addNotif(n.cat || 'profile', n.tit, n.msg, n.link, true, "", n.id, n.gapData);
             });
 
