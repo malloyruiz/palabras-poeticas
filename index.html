@@ -9562,8 +9562,12 @@ if (id === 'content-header' || id === 'side-panel') {
             const localNotifs = JSON.parse(localStorage.getItem('lumina_local_notifs') || '[]');
 
             const addNotif = (cat, tit, msg, link, isExtra = false, imagen = "", customId = "", extraData = null) => {
-                const nId = customId || ((cat || 'extra') + ":" + btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 32));
-                if (dismissed.includes(nId)) return;
+                const nId = customId || ((cat || 'extra') + ":" + getTodayKey() + ":" + btoa(unescape(encodeURIComponent(tit + msg))).substring(0, 16));
+                if (dismissed.includes(nId)) {
+                    console.warn("Notificación bloqueada (Descartada):", nId);
+                    return;
+                }
+                console.log("Notificación aceptada:", nId);
 
 
                 // Enviar notificación flotante native si no se ha enviado antes

@@ -96,13 +96,6 @@
       "description": "Lecciones de maestría.",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
-     {
-      "name": "Mis sendas",
-      "short_name": "Sendas",
-      "url": "./index.html#sendas",
-      "description": "Rutas personalizadas",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    }
   ],
   "gcm_sender_id": "482941778795"
 }
