@@ -9706,19 +9706,19 @@ if (id === 'content-header' || id === 'side-panel') {
                 toggleProfile();
                 setTimeout(() => { if (typeof switchProfileTab === 'function') switchProfileTab('favoritos'); }, 400);
             } else if (action === 'openStats') {
-                if (typeof openBitacoraStats === 'function') openBitacoraStats();
+                if (typeof showBitacoraStats === 'function') showBitacoraStats();
             } else if (action === 'openSecurity') {
-                if (typeof openSecurityModal === 'function') openSecurityModal();
+                if (typeof openSecurityModal === 'function') openSecurityModal(null);
             } else if (action === 'openShortcuts') {
-                if (typeof toggleShortcutsHelp === 'function') toggleShortcutsHelp();
+                if (typeof showShortcutsHelp === 'function') showShortcutsHelp();
             } else if (action === 'openHabits') {
-                if (typeof toggleHabitsModal === 'function') toggleHabitsModal();
+                if (typeof toggleHabitos === 'function') toggleHabitos();
             } else if (action === 'openMood') {
                 if (typeof toggleMoodModal === 'function') toggleMoodModal();
             } else if (action === 'openProModal') {
                 document.getElementById('pro-modal').classList.add('active');
             } else if (action === 'openQuiz') {
-                if (typeof openQuiz === 'function') openQuiz();
+                if (typeof openQuizModal === 'function') openQuizModal();
             } else if (action === 'hide') {
                 const b = document.getElementById('hub-pro-banner');
                 if (b) b.style.display = 'none';
