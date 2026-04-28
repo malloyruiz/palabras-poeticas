@@ -427,7 +427,7 @@
 
         #loader.fade-out {
             opacity: 0;
-            pointer-events: none;
+            pointer-events: none !important;
         }
 
         #loader.hidden {
@@ -518,7 +518,7 @@
         }
         
         .btn-back-glass { 
-            position: fixed; top: 30px; left: 30px; z-index: 1550; 
+            position: fixed; top: 30px; left: 30px; z-index: 100000; 
             width: 50px; height: 50px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: rgba(255, 255, 255, 0.1); /* Sutil transparencia blanca */
@@ -3591,9 +3591,10 @@ body[data-cat="sendas"] #header-cat {
                 }
                 
                 // Efecto de desvanecimiento suave y liberación de clics
+                // Liberar clics INMEDIATAMENTE
+                loader.style.pointerEvents = 'none';
                 loader.classList.add('fade-out');
                 loader.style.opacity = '0';
-                loader.style.pointerEvents = 'none';
                 
                 setTimeout(() => {
                     loader.classList.add('hidden');
@@ -3605,7 +3606,7 @@ body[data-cat="sendas"] #header-cat {
                     
                     // Carga de contenido secundario (Diario) si está disponible
                     if (typeof loadUserJournal === 'function') loadUserJournal();
-                }, 320);
+                }, 250);
             }
         }
 
@@ -8746,9 +8747,10 @@ if (id === 'content-header' || id === 'side-panel') {
                 btn.disabled = false;
                 btn.style.opacity = "1";
                 btn.classList.remove('rotating');
-            }, 1200);
+            }, 400);
 
             // REGENERAR EL CONTENIDO (usa la fetchContent original que gestiona todas las vistas)
+            if (navigator.vibrate) navigator.vibrate(15);
             fetchContent(nextIdx);
 
             if (navigator.vibrate) navigator.vibrate(20);
@@ -11242,6 +11244,7 @@ if (id === 'content-header' || id === 'side-panel') {
             
             const startBreathCycle = () => {
                 // FASE 1: INHALAR
+                if (navigator.vibrate) navigator.vibrate(5);
                 wrapper.className = 'breath-ring-wrapper inhaling';
                 circle.style.transitionDuration = inhale + 's';
                 circle.style.strokeDashoffset = '0';
@@ -11252,6 +11255,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 // FASE 2: SOSTENER LLENO
                 setTimeout(() => {
                     if (hold > 0) {
+                        if (navigator.vibrate) navigator.vibrate(2);
                         wrapper.className = 'breath-ring-wrapper holding';
                         circle.style.transitionDuration = hold + 's';
                         text.innerText = 'Sostén...';
@@ -11261,6 +11265,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     
                     // FASE 3: EXHALAR
                     setTimeout(() => {
+                        if (navigator.vibrate) navigator.vibrate(8);
                         wrapper.className = 'breath-ring-wrapper exhaling';
                         circle.style.transitionDuration = exhale + 's';
                         circle.style.strokeDashoffset = circumference;
@@ -11271,6 +11276,7 @@ if (id === 'content-header' || id === 'side-panel') {
                         // FASE 4: SOSTENER VACÍO
                         if (empty > 0) {
                             setTimeout(() => {
+                                if (navigator.vibrate) navigator.vibrate(2);
                                 wrapper.className = 'breath-ring-wrapper holding-empty';
                                 circle.style.transitionDuration = empty + 's';
                                 text.innerText = 'Sostén...';
@@ -13931,8 +13937,10 @@ function markSendaLessonDone() {
             s.currentDay++;
             if (!isEmergency) s.lastCompletedDate = todayStr; // Guardar la fecha de la lección completada
             localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
+            if (navigator.vibrate) navigator.vibrate([20, 30, 20]); // Feedback háptico premium
             
             if (s.currentDay >= s.duration) {
+                if (navigator.vibrate) navigator.vibrate([50, 100, 50, 100]); // Celebración final
                 // Marcar como completada con timestamp
                 s.completedAt = new Date().toISOString();
                 localStorage.setItem('lumina_active_sendas', JSON.stringify(sendas));
@@ -14581,8 +14589,8 @@ async function checkCalendarGaps(isManual = false) {
                     sessionStorage.setItem(tgSentKey, 'true');
                     const email = localStorage.getItem('lumina_user_email');
                     if (email) {
-                        const gapMsg = encodeURIComponent('Hueco de ' + gap.duration + ' min a las ' + start + '. Un buen momento para reconectar contigo.');
-                        const gapTitle = encodeURIComponent('Espacio de Pausa');
+                        const gapMsg = encodeURIComponent(msg); // Usar el mismo mensaje que la PWA
+                        const gapTitle = encodeURIComponent("Agenda Lúmina");
                         const ts = new Date(gap.start).getTime();
                         // 1. Push para que la extensión lo recoja vía notifs
                         fetch(`${API}?action=push_notif&email=${encodeURIComponent(email)}&cat=agenda&titulo=${gapTitle}&mensaje=${gapMsg}&timestamp=${ts}`).catch(() => {});
@@ -14999,6 +15007,7 @@ function checkQuizAnswer(selectedBtn, isCorrect) {
     if (isCorrect) {
         selectedBtn.style.background = 'rgba(16, 185, 129, 0.1)';
         selectedBtn.style.border = '1px solid #10b981';
+        if (navigator.vibrate) navigator.vibrate(10); // Pulso sutil para acierto
         playSound('success');
         quizScore++;
     } else {
@@ -15037,6 +15046,7 @@ function showQuizResult() {
             colors: ['#b5833a', '#ffffff', '#ffecd2']
         });
     }
+    if (navigator.vibrate) navigator.vibrate([80, 40, 80, 40, 150]); // Patrón de maestría completada
     playSound('success');
     
     // Add points to Gamification? (Optional: bump streak or something)
