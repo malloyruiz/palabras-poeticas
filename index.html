@@ -9691,8 +9691,40 @@ if (id === 'content-header' || id === 'side-panel') {
                 toggleProfile();
             } else if (action === 'openPlans') {
                 openPlansModal();
+            } else if (action === 'openInstall') {
+                if (typeof toggleInstallModal === 'function') toggleInstallModal();
+            } else if (action === 'openIntegrations') {
+                if (typeof toggleIntegrationsModal === 'function') toggleIntegrationsModal();
+            } else if (action === 'openNotifications') {
+                if (typeof toggleNotificationsModal === 'function') toggleNotificationsModal();
+            } else if (action === 'openSettings') {
+                if (typeof toggleSettings === 'function') toggleSettings();
+            } else if (action === 'openReflections') {
+                toggleProfile();
+                setTimeout(() => { if (typeof switchProfileTab === 'function') switchProfileTab('bitacora'); }, 400);
+            } else if (action === 'openFavorites') {
+                toggleProfile();
+                setTimeout(() => { if (typeof switchProfileTab === 'function') switchProfileTab('favoritos'); }, 400);
+            } else if (action === 'openStats') {
+                if (typeof openBitacoraStats === 'function') openBitacoraStats();
+            } else if (action === 'openSecurity') {
+                if (typeof openSecurityModal === 'function') openSecurityModal();
+            } else if (action === 'openShortcuts') {
+                if (typeof toggleShortcutsHelp === 'function') toggleShortcutsHelp();
+            } else if (action === 'openHabits') {
+                if (typeof toggleHabitsModal === 'function') toggleHabitsModal();
+            } else if (action === 'openMood') {
+                if (typeof toggleMoodModal === 'function') toggleMoodModal();
             } else if (action === 'openProModal') {
                 document.getElementById('pro-modal').classList.add('active');
+            } else if (action === 'openQuiz') {
+                if (typeof openQuiz === 'function') openQuiz();
+            } else if (action === 'hide') {
+                const b = document.getElementById('hub-pro-banner');
+                if (b) b.style.display = 'none';
+            } else if (action.startsWith('openCategory:')) {
+                const cat = action.split(':')[1];
+                if (typeof openCategory === 'function') openCategory(cat);
             } else if (action.startsWith('URL:')) {
                 window.open(action.substring(4), '_blank');
             } else {
