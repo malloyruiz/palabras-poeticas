@@ -9788,26 +9788,8 @@ if (id === 'content-header' || id === 'side-panel') {
                 };
                 console.log("Lúmina Subscriptions:", subs);
 
-                if (hasAnySub) {
-                    if (isSub('palabras') && palabraData && (palabraData.palabra || palabraData.word) && !visited.includes('palabras')) {
-                        console.log("Inyectando notificación: Palabras");
-                        addNotif('palabras', 'Palabra de Hoy', `La palabra de hoy es "${palabraData.palabra || palabraData.word}". Descúbrela.`);
-                    }
-                    if (isSub('afirmaciones') && afirmData && (afirmData.afirmacion || afirmData.word) && !visited.includes('afirmaciones')) {
-                        console.log("Inyectando notificación: Afirmaciones");
-                        addNotif('afirmaciones', 'Afirmación de Hoy', `La afirmación de hoy es "${afirmData.afirmacion || afirmData.word}".`);
-                    }
-                    if (isSub('frases') && fraseData && (fraseData.frase || fraseData.word) && !visited.includes('frases')) {
-                        console.log("Inyectando notificación: Frases");
-                        addNotif('frases', 'Frase de Hoy', `La frase de hoy es "${fraseData.frase || fraseData.word}".`);
-                    }
-                    if (isSub('libros') && libroData && libroData.titulo && !visited.includes('libros')) {
-                        console.log("Inyectando notificación: Libros");
-                        const libParts = [libroData.titulo, libroData.libro, libroData.autor].filter(p => p && p !== 'Lúmina' && p !== 'Libros');
-                        const libMeta = [...libParts, `Lección ${libroData.dia} de ${libroData.total}`].join(' — ');
-                        addNotif('libros', 'Lección del Día', `Hoy estudiamos: ${libMeta}. Accede ahora.`);
-                    }
-                }
+                // La sabiduría diaria ahora viene centralizada del servidor (extras) para evitar duplicados.
+                // Se mantiene el bloque del catch inferior para soporte offline.
                 console.log("Notificaciones inyectadas. Total count:", count);
 
                 if (count === 0) {
