@@ -9412,7 +9412,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 'exp-read-ui', 'install-modal', 'bitacora-stats-modal', 'mood-modal', 'qr-scanner-modal', 
                 'portal-identidad-lumina', 'lightbox-portal', 'integrations-modal', 'notifications-config-modal',
                 'reentry-modal', 'export-options-box', 'senda-complete-modal', 'shortcuts-help-modal', 'security-modal',
-                'schedule-modal'
+                'schedule-modal', 'plans-modal'
             ];
             modals.forEach(id => {
                 const m = document.getElementById(id);
@@ -9581,37 +9581,124 @@ if (id === 'content-header' || id === 'side-panel') {
 
             if (typeof updateHeroTitle === 'function') updateHeroTitle(proVal === 'true', trialActive);
 
+            // Gestionar visibilidad de elementos según estado Pro
             if (isPro) {
                 document.body.classList.add('pro-unlocked');
-                if (hubPro) hubPro.style.display = 'none';
-                
                 const statusMsg = document.getElementById('premium-status-msg');
                 if (statusMsg) {
                     statusMsg.innerText = trialActive ? "✨ Periodo de Prueba Activo" : "✨ ¡Eres Miembro Pro!";
                     statusMsg.style.color = "#4ade80";
                 }
-                
                 document.querySelectorAll('.pro-only-item').forEach(el => el.style.display = 'flex');
                 document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'none');
-                
-                const activationSection = document.getElementById('profile-pro-activation');
-                const infoSection = document.getElementById('profile-pro-info');
+            } else {
+                document.body.classList.remove('pro-unlocked');
+                document.querySelectorAll('.pro-only-item').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'inline-block');
+            }
+
+            // Cargar Banner Dinámico (Administrable desde GS)
+            updateHubBanner();
+
+            // Gestionar secciones del perfil
+            const activationSection = document.getElementById('profile-pro-activation');
+            const infoSection = document.getElementById('profile-pro-info');
+            if (isPro) {
                 if (activationSection) activationSection.style.display = 'none';
                 if (infoSection) infoSection.style.display = 'block';
             } else {
-                document.body.classList.remove('pro-unlocked');
-                if (hubPro) hubPro.style.display = 'block';
-                if (trialUsed && trialBtn) trialBtn.style.display = 'none';
-                
-                document.querySelectorAll('.pro-only-item').forEach(el => el.style.display = 'none');
-                document.querySelectorAll('.pro-locked').forEach(el => el.style.display = 'inline-block');
-
-                const activationSection = document.getElementById('profile-pro-activation');
-                const infoSection = document.getElementById('profile-pro-info');
                 if (activationSection) activationSection.style.display = 'block';
                 if (infoSection) infoSection.style.display = 'none';
             }
         }
+
+        async function updateHubBanner() {
+            const hubPro = document.getElementById('hub-pro-banner');
+            if (!hubPro) return;
+
+            const proVal = localStorage.getItem('lumina_pro') === 'true';
+            const trialActive = (typeof isTrialActive === 'function') ? isTrialActive() : false;
+            let userType = proVal ? "PRO" : (trialActive ? "TRIAL" : "FREE");
+
+            try {
+                const resp = await fetch(API + "?action=banner");
+                const banners = await resp.json();
+                
+                // Si no hay configuración en el servidor, usamos el comportamiento por defecto (ocultar si es Pro)
+                if (!banners || !banners.length) {
+                    hubPro.style.display = isPro ? 'none' : 'block';
+                    return;
+                }
+
+                // Filtrar por audiencia (FREE, TRIAL, PRO o ALL)
+                const banner = banners.find(b => b.audiencia === "ALL" || b.audiencia === userType);
+                
+                if (!banner) {
+                    hubPro.style.display = 'none';
+                    return;
+                }
+
+                // Renderizar banner dinámico
+                hubPro.innerHTML = `
+                    <div style="font-size: 0.6rem; letter-spacing: 4px; color: var(--accent); font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">${banner.titulo}</div>
+                    <p style="font-size: 0.85rem; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; font-weight: 300;">
+                        ${banner.mensaje}
+                    </p>
+                    <div class="banner-actions" style="display:flex; flex-direction:column; gap:10px;">
+                        ${banner.btn1Texto ? `<button class="btn-save" onclick="handleBannerAction('${banner.btn1Accion}')" 
+                            style="width: 100%; border-radius: 50px; padding: 18px; font-size: 0.8rem; letter-spacing: 1.5px; font-weight: 600; background: var(--accent); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(181, 131, 58, 0.15);">
+                            ${banner.btn1Texto}
+                        </button>` : ''}
+                        ${banner.btn2Texto ? `<button class="btn-save" onclick="handleBannerAction('${banner.btn2Accion}')" 
+                            style="background:transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--accent); padding: 16px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 1.5px; width: 100%; cursor: pointer; font-weight: 500;">
+                            ${banner.btn2Texto}
+                        </button>` : ''}
+                    </div>
+                `;
+                hubPro.style.display = 'block';
+            } catch (e) {
+                console.warn("Lúmina: Usando banner estático (fallback)", e);
+                hubPro.style.display = isPro ? 'none' : 'block';
+            }
+        }
+
+        function openPlansModal() {
+            const modal = document.getElementById('plans-modal');
+            if (modal) {
+                // Renderizar los planes dinámicos en el contenedor del modal
+                if (typeof renderPlanes === 'function') {
+                    renderPlanes('plans-modal-dynamic-content', false);
+                }
+                modal.classList.add('active');
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
+        }
+
+        function closePlansModal() {
+            const modal = document.getElementById('plans-modal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        function handleBannerAction(action) {
+            if (!action) return;
+            if (navigator.vibrate) navigator.vibrate(15);
+
+            if (action === 'startTrial') {
+                if (typeof startTrial === 'function') startTrial();
+            } else if (action === 'openPortal' || action === 'openProfile') {
+                toggleProfile();
+            } else if (action === 'openPlans') {
+                openPlansModal();
+            } else if (action === 'openProModal') {
+                document.getElementById('pro-modal').classList.add('active');
+            } else if (action.startsWith('URL:')) {
+                window.open(action.substring(4), '_blank');
+            } else {
+                // Si la acción es una función global de la PWA, intentamos ejecutarla
+                if (typeof window[action] === 'function') window[action]();
+            }
+        }
+
 
         async function checkNotifications() {
             if (isCheckingNotifs) return;
@@ -15181,6 +15268,39 @@ function closeQuizModal(fromFinish = false) {
 }
 
 </script>
+    <!-- MODAL: PLANES (STANDALONE) -->
+    <div id="plans-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px; padding: 40px; text-align: center; position: relative;">
+            <button class="btn-dismiss-notif" onclick="closePlansModal()" style="top: 25px; right: 25px; opacity: 0.4;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+
+            <h2 style="font-family:'Playfair Display', serif; font-size: 2.2rem; margin: 10px 0 6px; font-style: italic;">Planes</h2>
+            <p style="font-size: 0.9rem; opacity: 0.6; margin-bottom: 35px; line-height: 1.6;">Invierte en tu mente. Sin contratos forzados.</p>
+
+            <div id="plans-modal-dynamic-content" style="text-align: left; max-height: 50vh; overflow-y: auto; padding-right: 5px; margin-bottom: 25px;">
+                <div style="padding: 20px; text-align: center; opacity: 0.5;">Cargando beneficios...</div>
+            </div>
+
+            <!-- À La Carte -->
+            <div style="margin: 20px 0 15px; font-size:0.6rem; letter-spacing:3px; opacity:0.4; text-transform:uppercase; text-align:center;">Complementos À La Carte</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 35px;">
+                <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 20px; padding: 18px; text-align: left;">
+                    <div style="font-size: 1.1rem; font-weight:700; margin-bottom:4px;">$4.99</div>
+                    <div style="font-size: 0.8rem; font-weight:600; margin-bottom:6px;">Expansión</div>
+                    <p style="font-size: 0.75rem; opacity: 0.55; margin:0; line-height:1.4;">Pack de 5 libros temáticos.</p>
+                </div>
+                <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 20px; padding: 18px; text-align: left;">
+                    <div style="font-size: 1.1rem; font-weight:700; margin-bottom:4px;">$1.99</div>
+                    <div style="font-size: 0.8rem; font-weight:600; margin-bottom:6px;">Libro Individual</div>
+                    <p style="font-size: 0.75rem; opacity: 0.55; margin:0; line-height:1.4;">Lección profunda puntual.</p>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="closePlansModal()" style="width: 100%; padding: 18px; letter-spacing: 2px;">ENTENDIDO</button>
+        </div>
+    </div>
+
     <!-- Diálogo Opciones Exportación (Global para evitar conflictos de posicionamiento) -->
     <div id="export-options-box" style="display: none; background: var(--bg); border: 1px solid var(--accent); padding: 30px; border-radius: 20px; position: fixed; z-index: 200000; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 350px; box-shadow: 0 10px 50px rgba(0,0,0,0.5); animation: modalFadeIn 0.3s ease; backdrop-filter: blur(10px);">
         <h4 style="margin: 0 0 10px 0; font-family:'Playfair Display', serif; font-size: 1.5rem; font-style:italic;">Libro de Viaje</h4>
@@ -15193,3 +15313,4 @@ function closeQuizModal(fromFinish = false) {
     </div>
 </body>
 </html>
+
