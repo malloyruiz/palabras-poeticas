@@ -4915,20 +4915,12 @@ body[data-cat="sendas"] #header-cat {
                 </svg>
             </div>
             
-            <!-- Banner Pro Hub -->
-            <div id="hub-pro-banner" style="background: var(--card-bg); border: 1px solid var(--card-border); margin: 25px; padding: 45px 35px; border-radius: 32px; text-align: center; margin-top: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
-                <div style="font-size: 0.6rem; letter-spacing: 4px; color: var(--accent); font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">LIBERA TU POTENCIAL</div>
-                <p style="font-size: 0.85rem; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; font-weight: 300;">
-                    Únete al Club de Libros y accede a lecciones de sabiduría profunda con tu periodo de prueba de 14 días.
-                </p>
-                <button id="btn-start-trial" onclick="startTrial()" 
-                    style="width: 100%; border-radius: 50px; padding: 18px; font-size: 0.8rem; letter-spacing: 1.5px; font-weight: 600; background: var(--accent); color: #fff; border: none; margin-bottom: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(181, 131, 58, 0.15);">
-                    COMENZAR PRUEBA GRATUITA
-                </button>
-                <button onclick="document.getElementById('pro-modal').classList.add('active')" 
-                    style="background:transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--accent); padding: 16px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 1.5px; width: 100%; cursor: pointer; font-weight: 500;">
-                    ADQUIRIR LÚMINA PRO
-                </button>
+            <!-- Banner Pro Hub (Ahora dinámico con Skeleton) -->
+            <div id="hub-pro-banner" style="background: var(--card-bg); border: 1px solid var(--card-border); margin: 25px; padding: 45px 35px; border-radius: 32px; text-align: center; margin-top: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); display: none;">
+                <div class="skeleton-text" style="width: 60%; height: 12px; margin: 0 auto 20px; border-radius: 10px;"></div>
+                <div class="skeleton-text" style="width: 85%; height: 40px; margin: 0 auto 30px; border-radius: 10px;"></div>
+                <div class="skeleton-text" style="width: 100%; height: 55px; border-radius: 50px; margin-bottom: 12px;"></div>
+                <div class="skeleton-text" style="width: 100%; height: 50px; border-radius: 50px; opacity: 0.3;"></div>
             </div>
         </div>
     </div>
@@ -9616,22 +9608,25 @@ if (id === 'content-header' || id === 'side-panel') {
             const hubPro = document.getElementById('hub-pro-banner');
             if (!hubPro) return;
 
+            // Mostrar el contenedor (con el skeleton inicial)
+            hubPro.style.display = 'block';
+
             const proVal = localStorage.getItem('lumina_pro') === 'true';
             const trialActive = (typeof isTrialActive === 'function') ? isTrialActive() : false;
             let userType = proVal ? "PRO" : (trialActive ? "TRIAL" : "FREE");
 
             try {
-                const resp = await fetch(API + "?action=banner");
+                const resp = await fetch(API + "?action=banner&userType=" + userType);
                 const banners = await resp.json();
                 
-                // Si no hay configuración en el servidor, usamos el comportamiento por defecto (ocultar si es Pro)
+                // Si no hay configuración en el servidor, lo ocultamos (salvo que sea Free, donde podríamos mostrar el default)
                 if (!banners || !banners.length) {
-                    hubPro.style.display = isPro ? 'none' : 'block';
+                    hubPro.style.display = 'none';
                     return;
                 }
 
-                // Filtrar por audiencia (FREE, TRIAL, PRO o ALL)
-                const banner = banners.find(b => b.audiencia === "ALL" || b.audiencia === userType);
+                // El servidor ya filtró por audiencia y eligió uno al azar ponderado
+                const banner = banners[0];
                 
                 if (!banner) {
                     hubPro.style.display = 'none';
@@ -13297,6 +13292,17 @@ if (id === 'content-header' || id === 'side-panel') {
         }
         [data-theme="dark"] .day-btn.active {
             box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3);
+        }
+
+        /* Skeleton Loading Effect */
+        .skeleton-text {
+            background: linear-gradient(90deg, rgba(128,128,128,0.05) 25%, rgba(128,128,128,0.12) 50%, rgba(128,128,128,0.05) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite ease-in-out;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
     </style>
     <!-- Modal Integraciones -->
