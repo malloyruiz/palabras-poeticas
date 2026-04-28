@@ -9662,10 +9662,14 @@ if (id === 'content-header' || id === 'side-panel') {
             }
         }
 
-        function openPlansModal() {
+        async function openPlansModal() {
             const modal = document.getElementById('plans-modal');
             if (modal) {
-                // Renderizar los planes dinámicos en el contenedor del modal
+                // Si luminaPlanes no está cargado, intentamos forzar la carga
+                if (!window.luminaPlanes || window.luminaPlanes.length === 0) {
+                    if (typeof loadLandingPlanes === 'function') await loadLandingPlanes();
+                }
+
                 if (typeof renderPlanes === 'function') {
                     renderPlanes('plans-modal-dynamic-content', false);
                 }
@@ -15278,22 +15282,24 @@ function closeQuizModal(fromFinish = false) {
             <h2 style="font-family:'Playfair Display', serif; font-size: 2.2rem; margin: 10px 0 6px; font-style: italic;">Planes</h2>
             <p style="font-size: 0.9rem; opacity: 0.6; margin-bottom: 35px; line-height: 1.6;">Invierte en tu mente. Sin contratos forzados.</p>
 
-            <div id="plans-modal-dynamic-content" style="text-align: left; max-height: 50vh; overflow-y: auto; padding-right: 5px; margin-bottom: 25px;">
-                <div style="padding: 20px; text-align: center; opacity: 0.5;">Cargando beneficios...</div>
-            </div>
-
-            <!-- À La Carte -->
-            <div style="margin: 20px 0 15px; font-size:0.6rem; letter-spacing:3px; opacity:0.4; text-transform:uppercase; text-align:center;">Complementos À La Carte</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 35px;">
-                <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 20px; padding: 18px; text-align: left;">
-                    <div style="font-size: 1.1rem; font-weight:700; margin-bottom:4px;">$4.99</div>
-                    <div style="font-size: 0.8rem; font-weight:600; margin-bottom:6px;">Expansión</div>
-                    <p style="font-size: 0.75rem; opacity: 0.55; margin:0; line-height:1.4;">Pack de 5 libros temáticos.</p>
+            <div id="plans-modal-scroll-area" style="text-align: left; max-height: 60vh; overflow-y: auto; padding: 0 10px 10px; margin-bottom: 20px; -webkit-overflow-scrolling: touch;">
+                <div id="plans-modal-dynamic-content">
+                    <div style="padding: 20px; text-align: center; opacity: 0.5;">Cargando beneficios...</div>
                 </div>
-                <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 20px; padding: 18px; text-align: left;">
-                    <div style="font-size: 1.1rem; font-weight:700; margin-bottom:4px;">$1.99</div>
-                    <div style="font-size: 0.8rem; font-weight:600; margin-bottom:6px;">Libro Individual</div>
-                    <p style="font-size: 0.75rem; opacity: 0.55; margin:0; line-height:1.4;">Lección profunda puntual.</p>
+
+                <!-- À La Carte (Dentro del scroll) -->
+                <div style="margin: 30px 0 15px; font-size:0.6rem; letter-spacing:3px; opacity:0.4; text-transform:uppercase; text-align:center;">Complementos À La Carte</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                    <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 20px; padding: 18px; text-align: left;">
+                        <div style="font-size: 1.1rem; font-weight:700; margin-bottom:4px;">$4.99</div>
+                        <div style="font-size: 0.8rem; font-weight:600; margin-bottom:6px;">Expansión</div>
+                        <p style="font-size: 0.75rem; opacity: 0.55; margin:0; line-height:1.4;">Pack de 5 libros temáticos.</p>
+                    </div>
+                    <div style="background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.12); border-radius: 20px; padding: 18px; text-align: left;">
+                        <div style="font-size: 1.1rem; font-weight:700; margin-bottom:4px;">$1.99</div>
+                        <div style="font-size: 0.8rem; font-weight:600; margin-bottom:6px;">Libro Individual</div>
+                        <p style="font-size: 0.75rem; opacity: 0.55; margin:0; line-height:1.4;">Lección profunda puntual.</p>
+                    </div>
                 </div>
             </div>
 
