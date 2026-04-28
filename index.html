@@ -9633,24 +9633,32 @@ if (id === 'content-header' || id === 'side-panel') {
                     return;
                 }
 
-                // Renderizar banner dinámico
+                // Renderizar banner dinámico (Rediseño Premium)
                 hubPro.innerHTML = `
-                    <div style="font-size: 0.6rem; letter-spacing: 4px; color: var(--accent); font-weight: 700; margin-bottom: 20px; text-transform: uppercase;">${banner.titulo}</div>
-                    <p style="font-size: 0.85rem; opacity: 0.7; line-height: 1.7; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; font-weight: 300;">
+                    <div style="margin-bottom: 25px;">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="var(--accent)" style="opacity: 0.8; margin-bottom: 10px;">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"></path>
+                        </svg>
+                    </div>
+                    <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style: italic; margin-bottom: 15px; line-height: 1.2; color: var(--text);">
+                        ${banner.titulo}
+                    </h2>
+                    <p style="font-size: 0.95rem; opacity: 0.6; line-height: 1.6; margin-bottom: 35px; max-width: 340px; margin-left: auto; margin-right: auto; font-weight: 300;">
                         ${banner.mensaje}
                     </p>
-                    <div class="banner-actions" style="display:flex; flex-direction:column; gap:10px;">
+                    <div class="banner-actions" style="display:flex; flex-direction:column; gap:12px; max-width: 320px; margin: 0 auto;">
                         ${banner.btn1Texto ? `<button class="btn-save" onclick="handleBannerAction('${banner.btn1Accion}')" 
-                            style="width: 100%; border-radius: 50px; padding: 18px; font-size: 0.8rem; letter-spacing: 1.5px; font-weight: 600; background: var(--accent); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(181, 131, 58, 0.15);">
+                            style="width: 100%; border-radius: 50px; padding: 18px; font-size: 0.8rem; letter-spacing: 2px; font-weight: 700; background: var(--accent); color: #fff; border: none; cursor: pointer; box-shadow: 0 8px 25px rgba(181, 131, 58, 0.25); text-transform: uppercase;">
                             ${banner.btn1Texto}
                         </button>` : ''}
                         ${banner.btn2Texto ? `<button class="btn-save" onclick="handleBannerAction('${banner.btn2Accion}')" 
-                            style="background:transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--accent); padding: 16px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 1.5px; width: 100%; cursor: pointer; font-weight: 500;">
+                            style="background:transparent; border: 1px solid rgba(181, 131, 58, 0.3); color: var(--accent); padding: 16px; border-radius: 50px; font-size: 0.75rem; letter-spacing: 1.5px; width: 100%; cursor: pointer; font-weight: 600; text-transform: uppercase;">
                             ${banner.btn2Texto}
                         </button>` : ''}
                     </div>
                 `;
                 hubPro.style.display = 'block';
+                hubPro.style.animation = 'modalFadeIn 0.5s ease-out';
             } catch (e) {
                 console.warn("Lúmina: Usando banner estático (fallback)", e);
                 hubPro.style.display = isPro ? 'none' : 'block';
