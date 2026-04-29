@@ -38,6 +38,7 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
     
     <!-- PWABuilder Components -->
@@ -76,6 +77,19 @@
         [data-theme="dark"] option {
             background: #0b1120;
             color: #fff;
+        }
+
+        .spoken-highlight {
+            background-color: rgba(181, 131, 58, 0.3);
+            color: inherit;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            padding: 2px 0;
+            border-bottom: 2px solid var(--accent);
+        }
+        [data-theme="dark"] .spoken-highlight {
+            background-color: rgba(56, 189, 248, 0.3);
+            border-bottom: 2px solid var(--accent);
         }
 
         /* OCULTAR BARRAS DE SCROLL (DISEÑO PREMIUM) */
@@ -6883,8 +6897,71 @@ body[data-cat="sendas"] #header-cat {
 
         let currentAudio = null;
         let isSpeaking = false;
+        let globalTextMarker = null;
+
+        function highlightSpokenChunk(chunkText) {
+            if (!globalTextMarker) {
+                globalTextMarker = new Mark([
+                    document.getElementById('lesson-title'),
+                    document.getElementById('lesson-text'),
+                    document.getElementById('lesson-app-prof'),
+                    document.getElementById('lesson-app-pers'),
+                    document.getElementById('lesson-refl'),
+                    document.getElementById('exp-read-title'),
+                    document.getElementById('exp-read-text'),
+                    document.getElementById('exp-read-app-prof'),
+                    document.getElementById('exp-read-app-pers'),
+                    document.getElementById('exp-read-refl'),
+                    document.getElementById('word-title'),
+                    document.getElementById('word-def'),
+                    document.getElementById('example-list'),
+                    document.getElementById('reto-text'),
+                    document.getElementById('reflexion-text')
+                ].filter(e => e));
+            }
+            
+            globalTextMarker.unmark();
+            
+            if(!chunkText || chunkText.trim() === '') return;
+            
+            let cleanChunk = chunkText.trim();
+            // Eliminar prefijos artificiales que TTS lee pero que no están literalmente en los bloques de texto
+            cleanChunk = cleanChunk.replace(/^Aplicación profesional:\s*/i, '');
+            cleanChunk = cleanChunk.replace(/^Aplicación personal:\s*/i, '');
+            cleanChunk = cleanChunk.replace(/^Reflexión del día:\s*/i, '');
+            cleanChunk = cleanChunk.replace(/^El reto del día es el siguiente:\s*/i, '');
+            cleanChunk = cleanChunk.replace(/^Pregunta de reflexión:\s*/i, '');
+            cleanChunk = cleanChunk.replace(/^Ejemplos de uso\.?\s*/i, '');
+            cleanChunk = cleanChunk.replace(/^Pensamiento\.?\s*/i, '');
+            cleanChunk = cleanChunk.replace(/^Frase relacionada\.?\s*/i, '');
+            cleanChunk = cleanChunk.replace(/^Para terminar, el reto de hoy\.?\s*/i, '');
+            
+            if(cleanChunk.trim() === '') return;
+            if(cleanChunk.includes("Contenido original")) return;
+
+            globalTextMarker.mark(cleanChunk.trim(), {
+                className: 'spoken-highlight',
+                separateWordSearch: false,
+                acrossElements: true,
+                accuracy: "partially",
+                ignorePunctuation: [".", ",", "!", "?", ";", ":", "¿", "¡", "-", "—", "(", ")", '"', "'"],
+                done: function(count) {
+                    if (count > 0) {
+                        const firstMark = document.querySelector('.spoken-highlight');
+                        if (firstMark && typeof firstMark.scrollIntoView === 'function') {
+                            firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }
+            });
+        }
+
+        function clearHighlights() {
+            if (globalTextMarker) globalTextMarker.unmark();
+        }
 
         function stopAudio() {
+            clearHighlights();
             window.speechSynthesis.cancel();
             if (currentAudio) {
                 currentAudio.pause();
@@ -6939,9 +7016,12 @@ body[data-cat="sendas"] #header-cat {
                 if (!isSpeaking) return;
                 
                 if (current >= chunks.length) {
+                    clearHighlights();
                     stopAudio();
                     return;
                 }
+                
+                highlightSpokenChunk(chunks[current]);
                 
                 try {
                     const response = await fetch(`${API}?action=tts&q=${encodeURIComponent(chunks[current])}`);
@@ -6982,9 +7062,12 @@ body[data-cat="sendas"] #header-cat {
 
             const playNextChunk = () => {
                 if (!isSpeaking || current >= chunks.length) {
+                    clearHighlights();
                     stopAudio();
                     return;
                 }
+
+                highlightSpokenChunk(chunks[current]);
 
                 const utterance = new SpeechSynthesisUtterance(chunks[current].trim());
                 const savedVoiceName = localStorage.getItem('lumina_voice');
