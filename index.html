@@ -6013,7 +6013,7 @@ body[data-cat="sendas"] #header-cat {
                 const internalBookName = (exp.libros && exp.libros.length > 0) ? exp.libros[0].trim() : String(exp.titulo).trim();
                 const clickAction = exp.unlocked 
                     ? (isLibro ? `openBook('${exp.id}', \`${internalBookName}\`)` : `openExpansion('${exp.id}', \`${exp.titulo}\`, \`${exp.descripcion}\`)`)
-                    : `showToast('Esta pieza está bloqueada. Adquiérela y canjéala en tu perfil.', 'info')`;
+                    : (exp.link ? `window.open('${exp.link}', '_blank')` : `showToast('Esta pieza está bloqueada. Adquiérela para desbloquearla.', 'info')`);
 
                 return `
                 <div class="exp-card ${exp.unlocked ? '' : 'locked'}" onclick="${clickAction}">
