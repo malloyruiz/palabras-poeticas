@@ -11396,14 +11396,6 @@ if (id === 'content-header' || id === 'side-panel') {
                     hideQuoteButton();
                 }
             });
-
-            // Ocultar al hacer clic fuera
-            document.addEventListener('mousedown', (e) => {
-                if (quoteBtn && !quoteBtn.contains(e.target)) {
-                    // Pequeño delay para permitir que el clic en el botón funcione
-                    setTimeout(hideQuoteButton, 200);
-                }
-            });
         }
 
         function showQuoteButton(x, y, text) {
@@ -11432,6 +11424,7 @@ if (id === 'content-header' || id === 'side-panel') {
             const area = document.getElementById('capture-area-quote');
             const txtEl = document.getElementById('cap-quote-text');
             const srcEl = document.getElementById('cap-quote-source');
+            if (!area || !txtEl || !srcEl) { showToast("Error interno de postal.", "error"); return; }
             
             txtEl.textContent = `“${text}”`;
             
@@ -11446,32 +11439,62 @@ if (id === 'content-header' || id === 'side-panel') {
             }
             srcEl.textContent = source;
 
-            // Generar imagen
+            // Copy inteligente estilo Lúmina
+            const domain = "https://luminapp.today";
+            const cat = currentCategory || 'palabras';
+            const shortText = text.length > 80 ? text.substring(0, 77) + "..." : text;
+            let smartCopy = "";
+
+            if (cat === 'afirmaciones') {
+                smartCopy = `Mi decreto de hoy: “${shortText}” 🌱
+Reprograma tu mente con Lúmina → ${domain}`;
+            } else if (cat === 'frases') {
+                const authorLine = source && source !== 'LÚMINA' ? `— ${source}` : '';
+                smartCopy = `“${shortText}” ${authorLine}
+
+Sabiduría atemporal en Lúmina 🏛️ → ${domain}`;
+            } else if (cat === 'libros' || cat === 'exp') {
+                const bookName = lesson?.libro || lesson?.book || "este libro";
+                smartCopy = `Leyendo 📚 ${bookName} en Lúmina y encontré esto:
+“${shortText}”
+→ ${domain}`;
+            } else if (cat === 'palabras') {
+                const word = document.getElementById('word-title')?.innerText || "";
+                smartCopy = `La palabra de hoy en Lúmina es '${word}' ✨
+“${shortText}”
+→ ${domain}`;
+            } else {
+                smartCopy = `“${shortText}”
+
+Descubierto en Lúmina 🌟 → ${domain}`;
+            }
+
             try {
                 const canvas = await html2canvas(area, {
-                    backgroundColor: '#fff8f0',
+                    backgroundColor: '#fdf6e3',
                     scale: 2,
                     logging: false,
                     useCORS: true
                 });
-                
                 canvas.toBlob(async (blob) => {
-                    const file = new File([blob], `lumina-quote-${Date.now()}.png`, { type: 'image/png' });
+                    const file = new File([blob], `lumina-postal-${Date.now()}.png`, { type: 'image/png' });
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         await navigator.share({
                             files: [file],
-                            title: 'Postal de Sabiduría',
-                            text: `Compartido desde Lúmina: ${source}`
+                            title: 'Postal de Sabiduría · Lúmina',
+                            text: smartCopy
                         });
                     } else {
                         const link = document.createElement('a');
-                        link.download = `lumina-postal.png`;
+                        link.download = 'lumina-postal.png';
                         link.href = URL.createObjectURL(blob);
                         link.click();
-                        showToast("Postal guardada ✨");
+                        navigator.clipboard?.writeText(smartCopy).catch(() => {});
+                        showToast("Postal guardada · Texto copiado ✨");
                     }
                 }, 'image/png');
             } catch (e) {
+                console.error("shareQuote error:", e);
                 showToast("Error al crear postal", "error");
             }
         }
@@ -13950,13 +13973,22 @@ if (id === 'content-header' || id === 'side-panel') {
             </div>
         </div>
 
-        <!-- ÁREA CAPTURA: QUOTE CARD (Postal de frase seleccionada) -->
-        <div id="capture-area-quote" style="width: 380px; min-height: 280px; background: #fff8f0; padding: 40px 35px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px; position: relative; font-family: 'Playfair Display', serif;">
-            <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #b5833a, #f0c060);"></div>
-            <p id="cap-quote-text" class="quote-text" style="font-size: 1.25rem; font-style: italic; line-height: 1.6; text-align: center; color: #2a1a00; margin: 0 0 24px; font-family: 'Playfair Display', serif;">"---"</p>
-            <p id="cap-quote-source" class="quote-source" style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.5; color: #2a1a00; margin: 0 0 20px; font-family: 'Inter', sans-serif;">LÚMINA</p>
-            <div class="quote-logo" style="font-size: 0.5rem; letter-spacing: 3px; opacity: 0.3; color: #2a1a00; font-family: 'Inter', sans-serif; text-transform: uppercase;">LUMINAPP.TODAY</div>
-            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #b5833a, #f0c060);"></div>
+        <!-- ÁREA CAPTURA: QUOTE CARD (Postal vertical 9:16 para redes sociales) -->
+        <div id="capture-area-quote" style="width: 480px; min-height: 854px; background: linear-gradient(160deg, #fdf6e3 0%, #f9edd1 40%, #f5e4c0 100%); padding: 60px 50px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 28px; position: relative; font-family: 'Playfair Display', serif; overflow: hidden; box-sizing: border-box;">
+            <div style="position: absolute; top: -80px; right: -80px; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle, rgba(181,131,58,0.12) 0%, transparent 70%);"></div>
+            <div style="position: absolute; bottom: -60px; left: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(181,131,58,0.10) 0%, transparent 70%);"></div>
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, transparent, #b5833a, #f0c060, #b5833a, transparent);"></div>
+            <div style="font-size: 20rem; line-height: 1; opacity: 0.04; color: #b5833a; font-family: 'Playfair Display', serif; position: absolute; top: 60px; left: 30px; user-select: none;">&ldquo;</div>
+            <div style="text-align: center; z-index: 1; width: 100%;">
+                <div style="font-size: 0.55rem; letter-spacing: 4px; text-transform: uppercase; color: #b5833a; opacity: 0.7; margin-bottom: 40px; font-family: 'Inter', sans-serif; font-weight: 700;">Sabidur&#237;a del D&#237;a</div>
+                <p id="cap-quote-text" style="font-size: 1.5rem; font-style: italic; line-height: 1.7; text-align: center; color: #2a1a00; margin: 0 0 30px; font-family: 'Playfair Display', serif; font-weight: 400;">---</p>
+                <div style="width: 40px; height: 1px; background: linear-gradient(90deg, transparent, #b5833a, transparent); margin: 0 auto 20px;"></div>
+                <p id="cap-quote-source" style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #b5833a; margin: 0; font-family: 'Inter', sans-serif; font-weight: 600; opacity: 0.8;">L&#218;MINA</p>
+            </div>
+            <div style="position: absolute; bottom: 35px; left: 0; right: 0; text-align: center; z-index: 1;">
+                <div style="font-size: 0.5rem; letter-spacing: 3px; opacity: 0.4; color: #2a1a00; font-family: 'Inter', sans-serif; text-transform: uppercase;">LUMINAPP.TODAY</div>
+            </div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, transparent, #b5833a, #f0c060, #b5833a, transparent);"></div>
         </div>
     </div>
 
