@@ -11441,33 +11441,9 @@ if (id === 'content-header' || id === 'side-panel') {
 
             // Copy inteligente estilo Lúmina
             const domain = "https://luminapp.today";
-            const cat = currentCategory || 'palabras';
-            const shortText = text.length > 80 ? text.substring(0, 77) + "..." : text;
-            let smartCopy = "";
-
-            if (cat === 'afirmaciones') {
-                smartCopy = `Mi decreto de hoy: “${shortText}” 🌱
-Reprograma tu mente con Lúmina → ${domain}`;
-            } else if (cat === 'frases') {
-                const authorLine = source && source !== 'LÚMINA' ? `— ${source}` : '';
-                smartCopy = `“${shortText}” ${authorLine}
-
-Sabiduría atemporal en Lúmina 🏛️ → ${domain}`;
-            } else if (cat === 'libros' || cat === 'exp') {
-                const bookName = lesson?.libro || lesson?.book || "este libro";
-                smartCopy = `Leyendo 📚 ${bookName} en Lúmina y encontré esto:
-“${shortText}”
-→ ${domain}`;
-            } else if (cat === 'palabras') {
-                const word = document.getElementById('word-title')?.innerText || "";
-                smartCopy = `La palabra de hoy en Lúmina es '${word}' ✨
-“${shortText}”
-→ ${domain}`;
-            } else {
-                smartCopy = `“${shortText}”
-
-Descubierto en Lúmina 🌟 → ${domain}`;
-            }
+            const shortText = text.length > 100 ? text.substring(0, 97) + '...' : text;
+            const sourceLabel = source !== 'L\u00daMINA' ? source : 'L\u00famina';
+            const smartCopy = '\u201c' + shortText + '\u201d\n\u2014 ' + sourceLabel + '\n\nDescubierto en L\u00famina \u2728\nhttps://luminapp.today';
 
             try {
                 const canvas = await html2canvas(area, {
