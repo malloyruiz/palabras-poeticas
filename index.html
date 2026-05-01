@@ -4941,7 +4941,7 @@ body[data-cat="sendas"] #header-cat {
             </div>
 
             <!-- 05 Mis Sendas -->
-            <div class="hub-item pro-only-item" id="hub-item-sendas" onmouseenter="updateHero('Mis Sendas', 'Tu analista de contexto personal. Forja una ruta a tu medida.', 80, 20)" onclick="openCategory('sendas')">
+            <div class="hub-item" id="hub-item-sendas" onmouseenter="updateHero('Mis Sendas', 'Tu analista de contexto personal. Forja una ruta a tu medida.', 80, 20)" onclick="openCategory('sendas', true)">
                 <span class="item-num">05</span>
                 <div class="item-content">
                     <h3>Mis Sendas <small class="pro-locked" style="position: relative; top: auto; right: auto; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; margin-left: 12px; vertical-align: middle; border: 1px solid rgba(181, 131, 58, 0.3); border-radius: 20px; padding: 2px 10px; color: var(--accent); font-weight: 400; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px;">Pro <svg viewBox="0 0 24 24" style="width: 10px; height: 10px; stroke: var(--accent); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></small></h3>
@@ -8571,6 +8571,10 @@ if (id === 'content-header' || id === 'side-panel') {
             if (el) el.style.display = 'none';
         }
 
+        let currentIdx = -1; // Índice actual del contenido (para Extras PRO)
+        let currentDateOffset = 0; // Cuántos días atrás estamos (0=hoy, 1=ayer, 2=anteayer, máx 3)
+        let todayIndices = {}; // Guardar el índice de "hoy" para limitar el retroceso (PRO)
+
         function showShortcutsHelp() {
             const modal = document.getElementById('shortcuts-help-modal');
             if (modal) {
@@ -8590,9 +8594,6 @@ if (id === 'content-header' || id === 'side-panel') {
                 }
             }
         }
-
-        let currentIdx = -1; // Índice actual del contenido (para Extras PRO)
-        let todayIndices = {}; // Guardar el índice de "hoy" para limitar el retroceso (PRO)
 
         // Mapa de etiquetas para el botón de retorno al origen
         const _sourceLabels = {
@@ -8667,9 +8668,7 @@ if (id === 'content-header' || id === 'side-panel') {
             if (btn) btn.style.display = 'none';
         }
 
-
-
-        async function fetchContent(index = null) {
+        async function fetchContent(index = null, dateOverride = null) {
             let cacheKey = currentCategory;
             
             // Individualizar caché para contenido Extra específico
@@ -8682,8 +8681,13 @@ if (id === 'content-header' || id === 'side-panel') {
             const cacheDate = localStorage.getItem('lumina_cache_date_' + cacheKey);
             const today = getTodayKey();
 
-            // 1. Mostrar caché inmediatamente (Si es de hoy y no pedimos uno específico)
-            if (index === null && cached && (cacheDate === today || cacheKey.includes('_'))) {
+            // Resetear offset al cargar el contenido de hoy sin parámetros
+            if (index === null && dateOverride === null) {
+                currentDateOffset = 0;
+            }
+
+            // 1. Mostrar caché inmediatamente (Solo si pedimos el de hoy sin override)
+            if (index === null && dateOverride === null && cached && (cacheDate === today || cacheKey.includes('_'))) {
                 if (cached.index !== undefined) todayIndices[currentCategory] = cached.index;
                 renderContent(cached);
                 hideLoader();
@@ -8695,14 +8699,15 @@ if (id === 'content-header' || id === 'side-panel') {
             if (loaderEl) { loaderEl.classList.remove('hidden'); loaderEl.style.opacity = '1'; }
             
             try {
-                // Extraer índice del hash si no se provee y estamos en una categoría que lo soporta
-                if (index === null && ['palabras', 'afirmaciones', 'frases', 'libros'].includes(currentCategory)) {
-                    const hashMatch = window.location.hash.match(/:(\d+)$/);
-                    if (hashMatch) index = hashMatch[1];
+                // Extraer índice del hash solo si estamos cargando hoy sin parámetros
+                if (index === null && dateOverride === null && ['palabras', 'afirmaciones', 'frases', 'libros'].includes(currentCategory)) {
+                    const hashMatch = window.location.hash.match(/(:\d+)$/);
+                    if (hashMatch) index = hashMatch[1].replace(':', '');
                 }
 
                 let url = `${API}?cat=${currentCategory}&_cb=${Date.now()}`;
                 if (index !== null) url += `&index=${index}`;
+                if (dateOverride !== null) url += `&date=${dateOverride}`;
 
                 if (currentCategory === 'extra') {
                     const hash = window.location.hash;
@@ -8751,22 +8756,24 @@ if (id === 'content-header' || id === 'side-panel') {
                 return;
             }
             
-            const todayIdx = todayIndices[currentCategory];
             const maxBack = 3;
 
-            if (todayIdx === undefined) {
-                if (currentIdx > 0) fetchContent(currentIdx - 1);
+            if (currentDateOffset >= maxBack) {
+                showToast("Regresando a hoy.", "info");
+                currentDateOffset = 0;
+                fetchContent();
                 return;
             }
 
-            if (navigator.vibrate) navigator.vibrate(5);
+            currentDateOffset++;
 
-            if (currentIdx > (todayIdx - maxBack) && currentIdx > 0) {
-                fetchContent(currentIdx - 1);
-            } else {
-                showToast("Regresando a hoy.", "info");
-                fetchContent(todayIdx);
-            }
+            // Calcular la fecha real del dia solicitado
+            const d = new Date();
+            d.setDate(d.getDate() - currentDateOffset);
+            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+            if (navigator.vibrate) navigator.vibrate(5);
+            fetchContent(null, dateStr);
         }
 
 
