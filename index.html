@@ -8727,7 +8727,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     return;
                 }
 
-                if (index === null) {
+                if (index === null && dateOverride === null) {
                     setCache(cacheKey, data);
                     // Guardar el índice de "hoy" para limitar el retroceso a 3 días
                     if (data.index !== undefined) todayIndices[currentCategory] = data.index;
