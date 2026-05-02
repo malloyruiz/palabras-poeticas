@@ -861,9 +861,9 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(10,10,10,0.8);
-            color: var(--text);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--modal-bg-solid);
+            color: var(--accent);
+            border: 1px solid var(--card-border);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -875,8 +875,12 @@
             justify-content: center;
             opacity: 0;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+        [data-theme="dark"] .atm-nav-arrow {
+            background: rgba(30, 41, 59, 0.8);
+            color: var(--accent);
         }
         .atm-grid-wrapper:hover .atm-nav-arrow {
             opacity: 1;
@@ -885,7 +889,6 @@
             background: var(--accent);
             color: #fff;
             transform: translateY(-50%) scale(1.1);
-            border-color: var(--accent);
         }
         .atm-nav-arrow.left { left: 5px; }
         .atm-nav-arrow.right { right: 0; }
@@ -948,7 +951,43 @@
             color: white;
             border: 1px solid rgba(255,255,255,0.05);
             box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        .atm-visual-card.visual-full {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #000;
+            padding: 0;
+            height: 100vh;
+            border-radius: 0;
+            border: none;
+        }
+
+        .atm-card-actions {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            display: flex;
+            gap: 18px;
+            z-index: 100;
+            align-items: center;
+        }
+        .atm-card-actions svg {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.3s;
+        }
+        .atm-card-actions svg:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .atm-visual-card.visual-full .atm-close-visual {
+            display: flex !important;
+        }
+
         .atm-aurora-bg {
             position: absolute;
             inset: 0;
@@ -1025,13 +1064,19 @@
 
         .atm-player-bar {
             grid-area: player;
-            background: black;
-            color: white;
+            background: var(--modal-bg-solid);
+            color: var(--text);
             border-radius: 12px;
             display: grid;
             grid-template-columns: 250px 1fr 250px;
             align-items: center;
             padding: 0 20px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+        }
+        [data-theme="dark"] .atm-player-bar {
+            background: #0f172a;
+            border-color: rgba(255,255,255,0.05);
         }
 
         .atm-player-info { display: flex; align-items: center; gap: 15px; }
@@ -1046,9 +1091,20 @@
             gap: 10px;
         }
         .atm-ctrl-btns { display: flex; align-items: center; gap: 20px; }
-        .atm-ctrl-btns svg { cursor: pointer; opacity: 0.7; transition: 0.3s; }
-        .atm-ctrl-btns svg:hover { opacity: 1; }
-        .atm-play-btn { width: 35px; height: 35px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; }
+        .atm-ctrl-btns svg { cursor: pointer; opacity: 0.7; transition: 0.3s; color: var(--text); }
+        .atm-ctrl-btns svg:hover { opacity: 1; color: var(--accent); }
+        .atm-play-btn { 
+            width: 35px; height: 35px; 
+            background: var(--accent); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white;
+            box-shadow: 0 4px 15px rgba(181, 131, 58, 0.3);
+            transition: 0.3s;
+        }
+        .atm-play-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(181, 131, 58, 0.5); }
 
         .atm-progress-container {
             width: 100%;
@@ -1057,10 +1113,10 @@
             align-items: center;
             gap: 10px;
             font-size: 0.65rem;
-            opacity: 0.6;
+            opacity: 0.8;
         }
-        .atm-progress-bar { flex: 1; height: 4px; background: #444; border-radius: 2px; position: relative; }
-        .atm-progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: white; width: 40%; }
+        .atm-progress-bar { flex: 1; height: 4px; background: rgba(128,128,128,0.2); border-radius: 2px; position: relative; }
+        .atm-progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent); width: 0%; border-radius: 2px; }
 
         .atm-extra-controls {
             display: flex;
@@ -1077,6 +1133,35 @@
         .btn-player.btn-play-pause svg { width: 32px; height: 32px; fill: currentColor; }
         .btn-player svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
 
+        /* Estados Activos para Aleatorio y Repetir */
+        .atm-ctrl-btns svg.active {
+            color: var(--accent) !important;
+            opacity: 1 !important;
+            filter: drop-shadow(0 0 8px var(--accent));
+        }
+
+        /* Nueva Barra de Herramientas Centrada */
+        .atm-toolbar-center {
+            display: none; /* Solo visible en móvil */
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            width: 100%;
+        }
+        .atm-toolbar-center svg {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.3s;
+            color: white;
+        }
+        .atm-toolbar-center svg:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+
         /* === RESPONSIVE ATMOSFERA (NUEVO Y UNIFICADO) === */
         @media (max-width: 768px) {
 
@@ -1088,6 +1173,28 @@
                 -webkit-overflow-scrolling: touch !important;
             }
 
+            .timer-opt {
+                background: rgba(181, 131, 58, 0.1);
+                border: 1px solid rgba(181, 131, 58, 0.2);
+                color: var(--accent);
+                padding: 15px 5px;
+                border-radius: 15px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+            .timer-opt:hover {
+                background: var(--accent);
+                color: white;
+            }
+            
+            .timer-active #atm-timer-btn {
+                color: var(--accent);
+                opacity: 1 !important;
+                filter: drop-shadow(0 0 5px var(--accent));
+            }
+            
             /* Modo Cine: bloquear scroll del fondo */
             #atmosfera-ui.cinema-open {
                 overflow: hidden !important;
@@ -1127,7 +1234,7 @@
                 order: 2;
             }
 
-            .atm-sidebar-right.mobile-visual-open {
+            .atm-sidebar-right.visual-full {
                 display: block !important;
                 position: fixed;
                 inset: 0;
@@ -1135,8 +1242,7 @@
                 background: #000;
                 padding: 0;
             }
-
-            .atm-sidebar-right.mobile-visual-open .atm-visual-card {
+            .atm-sidebar-right.visual-full .atm-visual-card {
                 height: 100vh;
                 border-radius: 0;
                 border: none;
@@ -1207,17 +1313,21 @@
             .atm-player-info img { width: 40px; height: 40px; }
             .atm-player-controls { width: 100%; }
             
-            /* Mostrar botón visual en móvil pero ocultar el resto de extras */
-            .atm-extra-controls { display: flex !important; justify-content: center; margin-top: 5px; opacity: 1; }
-            .atm-extra-controls svg:not(.atm-mobile-visual-btn) { display: none; }
-            .atm-extra-controls div { display: none; } /* Ocultar barra de volumen en móvil */
+            /* Mostrar barra de herramientas centrada en móvil */
+            .atm-toolbar-center {
+                display: flex !important;
+            }
+
+            /* Ocultar barra de extras original en móvil */
+            .atm-extra-controls {
+                display: none !important;
+            }
             
             .atm-mobile-visual-btn { 
                 display: block !important; 
                 width: 24px !important; 
                 height: 24px !important; 
-                color: var(--accent);
-                margin: 0 auto;
+                color: white;
             }
             
             .atm-banner {
@@ -4071,6 +4181,100 @@ body[data-cat="sendas"] #header-cat {
             height: 20px;
         }
 
+        /* ZEN BUBBLE: MINI PLAYER */
+        .mini-player-bubble {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--modal-bg-solid);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--card-border);
+            border-radius: 50%;
+            z-index: 999999;
+            cursor: move;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s;
+            opacity: 0;
+            touch-action: none;
+        }
+        [data-theme="dark"] .mini-player-bubble {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+        .mini-player-bubble:hover {
+            transform: scale(1.08);
+            border-color: var(--accent);
+        }
+        .mini-player-bubble.playing {
+            border-color: var(--accent);
+            box-shadow: 0 0 25px rgba(181, 131, 58, 0.4);
+        }
+        .mini-player-waves {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            pointer-events: none;
+        }
+        .mini-player-waves span {
+            width: 3px;
+            height: 8px;
+            background: var(--text-dim);
+            border-radius: 2px;
+            animation: mini-wave-bounce 0.8s ease-in-out infinite alternate;
+            animation-play-state: paused;
+        }
+        .mini-player-bubble.playing .mini-player-waves span {
+            animation-play-state: running;
+            background: var(--accent);
+        }
+        .mini-player-waves span:nth-child(2) { animation-delay: 0.2s; height: 16px; }
+        .mini-player-waves span:nth-child(3) { animation-delay: 0.4s; height: 12px; }
+        @keyframes mini-wave-bounce {
+            from { transform: scaleY(0.6); }
+            to { transform: scaleY(1.4); }
+        }
+        .mini-player-expand, .mini-player-close {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: 0.3s;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .mini-player-expand { top: -6px; left: -6px; }
+        .mini-player-close { top: -6px; right: -6px; background: #ff4444; }
+        
+        .mini-player-bubble:hover .mini-player-expand,
+        .mini-player-bubble:hover .mini-player-close {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .mini-player-close:hover { background: #cc0000; transform: scale(1.1) !important; }
+
+        @media (max-width: 768px) {
+            .mini-player-bubble {
+                bottom: 100px;
+                right: 20px;
+                width: 55px;
+                height: 55px;
+            }
+        }
+
     </style>
 </head>
 <body class="is-guest">
@@ -5883,7 +6087,6 @@ body[data-cat="sendas"] #header-cat {
                             <!-- Inyectado por JS -->
                         </div>
                     </div>
-
                     <!-- Centro Top: Banner -->
                     <div class="atm-banner">BANNER</div>
 
@@ -5895,9 +6098,16 @@ body[data-cat="sendas"] #header-cat {
                     <!-- Sidebar Derecha: Visuales -->
                     <div class="atm-sidebar-right">
                         <div class="atm-visual-card" id="atm-visual-card">
+                            <div class="atm-card-actions">
+                                <svg id="atm-fav-btn" onclick="toggleFavoriteAtmosfera()" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: 0.3s;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                <svg onclick="shareAsImage('atmosferas')" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                <svg onclick="toggleAtmosferaVisual()" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
+                            </div>
+
                             <div class="atm-close-visual" onclick="toggleAtmosferaVisual()" style="display: none;">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
                             </div>
+                            
                             <!-- Sistema de Auroras Líquidas -->
                             <div class="atm-aurora-bg">
                                 <div class="atm-blob atm-blob-1" id="blob-1"></div>
@@ -5912,10 +6122,6 @@ body[data-cat="sendas"] #header-cat {
                             <canvas id="atm-visual-canvas"></canvas>
 
                             <div class="atm-visual-content">
-                                <div style="position: absolute; top: -380px; right: -15px; display: flex; gap: 10px; opacity: 0.8; pointer-events: auto;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                                </div>
                                 <h3 id="atm-detail-title">Lúmina</h3>
                                 <p id="atm-detail-author">Bienvenido a Atmósferas</p>
                             </div>
@@ -5933,20 +6139,18 @@ body[data-cat="sendas"] #header-cat {
                                 <h5 id="atm-bar-title">Atmósferas</h5>
                                 <p id="atm-bar-author">Lúmina</p>
                             </div>
-                            <svg id="atm-fav-btn" onclick="toggleFavoriteAtmosfera()" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 15px; opacity: 0.5; cursor: pointer; transition: 0.3s;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                            <svg onclick="shareAsImage('atmosferas')" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 12px; opacity: 0.5; cursor: pointer; transition: 0.3s;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         </div>
 
                         <div class="atm-player-controls">
                             <div class="atm-ctrl-btns">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
-                                <svg onclick="prevAtmosfera()" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                                <svg id="atm-shuffle-btn" onclick="toggleAtmosferaShuffle()" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor: pointer; opacity: 0.6;"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                                <svg onclick="prevAtmosfera()" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="cursor: pointer; opacity: 0.8;"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
                                 <div class="atm-play-btn" onclick="toggleAtmosferaPlay()">
                                     <svg id="atm-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                                     <svg id="atm-pause-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
                                 </div>
-                                <svg onclick="nextAtmosfera()" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                                <svg onclick="nextAtmosfera()" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="cursor: pointer; opacity: 0.8;"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                                <svg id="atm-repeat-btn" onclick="toggleAtmosferaRepeat()" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor: pointer; opacity: 0.6;"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
                             </div>
                             <div class="atm-progress-container">
                                 <span>2:08</span>
@@ -5958,12 +6162,14 @@ body[data-cat="sendas"] #header-cat {
                         </div>
 
                         <div class="atm-extra-controls">
-                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.5 1.5"></path></svg>
-                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="10" height="10" rx="1" ry="1"></rect></svg>
+                             <svg onclick="openAtmSleepTimerModal()" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor: pointer; opacity: 0.6; margin-right: 15px;" id="atm-timer-btn"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                              <div style="width: 80px; height: 4px; background: #444; border-radius: 2px;"><div style="width: 60%; height: 100%; background: white;"></div></div>
-                             <svg onclick="toggleAtmosferaVisual()" class="atm-mobile-visual-btn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:pointer; opacity:1;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                             <svg onclick="toggleAtmosferaVisual()" class="atm-mobile-visual-btn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:pointer; opacity:1; margin-left: 15px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                        </div>
+                        <div class="atm-toolbar-center">
+                             <svg onclick="openAtmSleepTimerModal()" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                             <svg onclick="toggleAtmosferaVisual()" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
                         </div>
                     </div>
                 </div>
@@ -8878,8 +9084,7 @@ body[data-cat="sendas"] #header-cat {
 
         async function openCategory(cat, isLocked = false, isUserAction = true, fullHash = null) {
             if (isLocked && !isPro) {
-                document.getElementById('pro-modal').classList.add('active');
-                history.pushState({ modal: 'pro' }, "", "#pro");
+                openPlansModal();
                 return;
             }
             
@@ -8931,6 +9136,7 @@ body[data-cat="sendas"] #header-cat {
                         const displayVal = (id === 'bitacora-ui' || id === 'sendas-ui') ? 'flex' : 'block';
                         el.style.setProperty('display', shouldShow ? displayVal : 'none', shouldShow ? 'important' : '');
                     });
+                    updateMiniPlayerVisibility();
                 } catch (err) {
                     console.error("Lúmina: Error en cambio de vista", err);
                 }
@@ -9058,6 +9264,7 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         function showHub(isUserAction = true) {
+            currentCategory = 'hub';
             if (isUserAction) {
                 history.pushState({ cat: 'hub' }, "", "#hub");
             }
@@ -9075,48 +9282,55 @@ if (id === 'content-header' || id === 'side-panel') {
             const mainUI = document.getElementById('main-ui');
 
             const applyShowHub = () => {
-                window.scrollTo(0, 0);
-                
-                mainUI.classList.remove('activa');
-                mainUI.classList.add('hidden');
-                
-                hub.classList.remove('hidden');
-                hub.classList.add('activa');
+                try {
+                    window.scrollTo(0, 0);
+                    
+                    if (mainUI) {
+                        mainUI.classList.remove('activa', 'loaded', 'has-examples');
+                        mainUI.classList.add('hidden');
+                        const subviews = ['pausa-ui', 'atmosfera-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'sendas-ui', 'pausa-view-session', 'pausa-view-end', 'pro-extra-container'];
+                        subviews.forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.style.setProperty('display', 'none', 'important');
+                        });
+                    }
+                    
+                    if (hub) {
+                        hub.classList.remove('hidden');
+                        hub.classList.add('activa');
+                    }
 
-                const btn = document.getElementById('btn-back-hub');
-                if (btn) btn.style.setProperty('display', 'none', 'important');
-                
-                const shareBtn = document.getElementById('main-share-btn');
-                if (shareBtn) shareBtn.style.display = 'none';
-                
-                if (mainUI) {
-                    mainUI.classList.remove('loaded', 'activa', 'has-examples');
-                    mainUI.classList.add('hidden');
-                    const subviews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'sendas-ui', 'pausa-view-session', 'pausa-view-end', 'pro-extra-container'];
-                    subviews.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) el.style.setProperty('display', 'none', 'important');
+                    updateMiniPlayerVisibility();
+
+                    const btn = document.getElementById('btn-back-hub');
+                    if (btn) btn.style.setProperty('display', 'none', 'important');
+                    
+                    const shareBtn = document.getElementById('main-share-btn');
+                    if (shareBtn) shareBtn.style.display = 'none';
+                    
+                    // Reset de clases del body
+                    document.body.className = isPro ? 'pro-unlocked' : '';
+                    if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
+
+                    // Limpiar Expansiones
+                    const expModals = ['exp-modal', 'exp-detail-ui', 'exp-read-ui'];
+                    expModals.forEach(id => {
+                        const m = document.getElementById(id);
+                        if (m) m.classList.remove('active');
                     });
+
+                    if (typeof checkNotifications === 'function') checkNotifications();
+                    resetHero();
+                    
+                    const retBtn = document.getElementById('btn-return-source');
+                    if (retBtn) retBtn.style.display = 'none';
+                    const retBtnBooks = document.getElementById('btn-return-source-books');
+                    if (retBtnBooks) retBtnBooks.style.display = 'none';
+                } catch (err) {
+                    console.error("Critical error in applyShowHub:", err);
+                    // Recuperación forzada si falla algo arriba
+                    if (hub) hub.classList.remove('hidden');
                 }
-                
-                // Reset de clases del body para que las reglas de visibilidad no se queden "pegadas"
-                document.body.className = isPro ? 'pro-unlocked' : '';
-                if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
-
-                // Limpiar Expansiones si estaban abiertas
-                const expModals = ['exp-modal', 'exp-detail-ui', 'exp-read-ui'];
-                expModals.forEach(id => {
-                    const m = document.getElementById(id);
-                    if (m) m.classList.remove('active');
-                });
-
-                if (typeof checkNotifications === 'function') checkNotifications();
-                resetHero();
-                // Ocultar botones de retorno al origen cuando volvemos al Hub
-                const retBtn = document.getElementById('btn-return-source');
-                if (retBtn) retBtn.style.display = 'none';
-                const retBtnBooks = document.getElementById('btn-return-source-books');
-                if (retBtnBooks) retBtnBooks.style.display = 'none';
             };
             if (navigator.vibrate) navigator.vibrate(8);
 
@@ -9230,6 +9444,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     's': () => openCategory('sendas'),
                     'b': () => openCategory('bitacora'),
                     'm': () => openCategory('pausa'),
+                    't': () => openCategory('atmosfera'),
                     'h': () => { closeModals(true); window.location.hash = 'hub'; },
                     'q': () => showShortcutsHelp()
                 };
@@ -9460,7 +9675,7 @@ if (id === 'content-header' || id === 'side-panel') {
 
         function fetchYesterdayContent() {
             if (!isPro) {
-                document.getElementById('pro-modal').classList.add('active');
+                openPlansModal();
                 return;
             }
             
@@ -9721,7 +9936,7 @@ if (id === 'content-header' || id === 'side-panel') {
 
         async function loadNextExtra() {
             if (!isPro) {
-                document.getElementById('pro-modal').classList.add('active');
+                openPlansModal();
                 return;
             }
             const cat = currentCategory;
@@ -10687,7 +10902,7 @@ if (id === 'content-header' || id === 'side-panel') {
             } else if (action === 'openMood') {
                 if (typeof toggleMoodModal === 'function') toggleMoodModal();
             } else if (action === 'openProModal') {
-                document.getElementById('pro-modal').classList.add('active');
+                openPlansModal();
             } else if (action === 'openQuiz') {
                 if (typeof openQuizModal === 'function') openQuizModal();
             } else if (action === 'hide') {
@@ -11326,12 +11541,22 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         function toggleAtmosferaVisual() {
+            const card = document.getElementById('atm-visual-card');
             const sidebar = document.querySelector('.atm-sidebar-right');
             const atmUI = document.getElementById('atmosfera-ui');
-            if (!sidebar) return;
-            sidebar.classList.toggle('mobile-visual-open');
-            const isOpen = sidebar.classList.contains('mobile-visual-open');
+            if (!card) return;
+            
+            card.classList.toggle('visual-full');
+            if (sidebar) sidebar.classList.toggle('visual-full');
+            
+            const isOpen = card.classList.contains('visual-full');
             if (atmUI) atmUI.classList.toggle('cinema-open', isOpen);
+            
+            // Forzar resize del canvas para el nuevo tamaño
+            if (_currentAtmosferaIdx !== -1) {
+                const item = _atmosferaPlaylist[_currentAtmosferaIdx];
+                setTimeout(() => iniciarVisual(item.categoria, item.nombre), 50);
+            }
         }
 
         function iniciarVisual(categoria, nombre) {
@@ -11439,6 +11664,68 @@ if (id === 'content-header' || id === 'side-panel') {
                 grid.scrollBy({ left: offset, behavior: 'smooth' });
             }
         }
+        // --- SISTEMA DE RANKING INTELIGENTE PARA ATMÓSFERAS (Spotify-Style) ---
+        const ATM_TIME_CONFIG = {
+            'ENFOQUE': { morning: 1.5, afternoon: 1.2 },
+            'PRODUCTIVIDAD': { morning: 1.5, afternoon: 1.2 },
+            'ESTUDIO': { morning: 1.5, afternoon: 1.2 },
+            'NATURALEZA': { morning: 1.1, afternoon: 1.5 },
+            'AMBIENTE': { afternoon: 1.5 },
+            'RELAX': { evening: 1.8, night: 1.5 },
+            'MEDITACIÓN': { evening: 1.8, night: 1.5 },
+            'ZEN': { evening: 1.5, night: 1.8 },
+            'SUEÑO': { night: 2.0 },
+            'RUIDO BLANCO': { night: 2.0 }
+        };
+
+        function getCurrentTimeSlot() {
+            const hour = new Date().getHours();
+            if (hour >= 6 && hour < 12) return 'morning';
+            if (hour >= 12 && hour < 18) return 'afternoon';
+            if (hour >= 18 && hour < 24) return 'evening';
+            return 'night';
+        }
+
+        function trackAtmosferaUsage(catName) {
+            if (!catName || catName === 'novedades') return;
+            try {
+                let stats = {};
+                const statsStr = localStorage.getItem('lumina_atm_stats');
+                if (statsStr) {
+                    try { stats = JSON.parse(statsStr); } catch(e) { stats = {}; }
+                }
+                const key = catName.toUpperCase();
+                stats[key] = (stats[key] || 0) + 1;
+                localStorage.setItem('lumina_atm_stats', JSON.stringify(stats));
+            } catch (e) { console.error("Track Usage Error:", e); }
+        }
+
+        function calculateAtmosferaScore(catName) {
+            try {
+                const key = catName.toUpperCase();
+                let score = 0;
+                let stats = {};
+                const statsStr = localStorage.getItem('lumina_atm_stats');
+                if (statsStr) {
+                    try { stats = JSON.parse(statsStr); } catch(e) { stats = {}; }
+                }
+
+                // 1. Bonus por Hora
+                const slot = getCurrentTimeSlot();
+                if (ATM_TIME_CONFIG[key] && ATM_TIME_CONFIG[key][slot]) {
+                    score += (ATM_TIME_CONFIG[key][slot] * 50);
+                }
+
+                // 2. Bonus por Uso (Personalización)
+                const usage = stats[key] || 0;
+                score += (usage * 8);
+
+                return score;
+            } catch (e) {
+                console.error("Score Calc Error:", e);
+                return 0;
+            }
+        }
 
         async function renderAtmosferaList() {
             const container = document.getElementById('atmosfera-main-content');
@@ -11470,8 +11757,16 @@ if (id === 'content-header' || id === 'side-panel') {
                         </div>
                     `;
                 }
+                
+                // Ordenar categorías por score
+                const categories = data.categorias || {};
+                const sortedCats = Object.keys(categories).sort((a, b) => {
+                    if (a.toUpperCase() === "ANUNCIOS") return 1;
+                    if (b.toUpperCase() === "ANUNCIOS") return -1;
+                    return calculateAtmosferaScore(b) - calculateAtmosferaScore(a);
+                });
 
-                for (const catName in data.categorias) {
+                for (const catName of sortedCats) {
                     if (catName.toUpperCase() === "ANUNCIOS") continue;
                     html += `
                         <div class="atm-category-row">
@@ -11625,11 +11920,16 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         let _atmosferaPlaylist = [];
+        let isAtmosferaShuffle = false;
+        let isAtmosferaRepeat = false;
         let _currentAtmosferaIdx = -1;
 
         function playAtmosferaDetail(nombre, playlistSource = null) {
             if (!_atmosferaCache) return;
             
+            // Track usage for ranking
+            if (playlistSource) trackAtmosferaUsage(playlistSource);
+
             if (playlistSource === 'novedades') {
                 _atmosferaPlaylist = _atmosferaCache.novedades;
             } else if (playlistSource && _atmosferaCache.categorias[playlistSource]) {
@@ -11684,6 +11984,45 @@ if (id === 'content-header' || id === 'side-panel') {
             iniciarVisual(item.categoria, item.nombre);
         }
 
+        let _atmSleepTimer = null;
+        
+        function openAtmSleepTimerModal() {
+            document.getElementById('atm-timer-modal').classList.add('active');
+        }
+        
+        function closeAtmSleepTimerModal() {
+            document.getElementById('atm-timer-modal').classList.remove('active');
+        }
+        
+        function startAtmSleepTimer(min) {
+            if (_atmSleepTimer) {
+                clearTimeout(_atmSleepTimer);
+                _atmSleepTimer = null;
+                document.body.classList.remove('timer-active');
+            }
+            
+            if (min > 0) {
+                const ms = min * 60 * 1000;
+                _atmSleepTimer = setTimeout(() => {
+                    const player = document.getElementById('ambient-player');
+                    if (player) {
+                        player.pause();
+                        isAtmosferaPlaying = false;
+                        updateAtmosferaPlayUI();
+                        showToast("Temporizador: Reproducción detenida");
+                    }
+                    _atmSleepTimer = null;
+                    document.body.classList.remove('timer-active');
+                }, ms);
+                
+                document.body.classList.add('timer-active');
+                showToast(`Apagado automático en ${min} minutos`);
+            } else {
+                showToast("Temporizador desactivado");
+            }
+            closeAtmSleepTimerModal();
+        }
+
         function toggleAtmosferaPlay() {
             const player = document.getElementById('ambient-player');
             if (!player) return;
@@ -11704,12 +12043,46 @@ if (id === 'content-header' || id === 'side-panel') {
             const pauseIcon = document.getElementById('atm-pause-icon');
             if (playIcon) playIcon.style.display = isAtmosferaPlaying ? 'none' : 'block';
             if (pauseIcon) pauseIcon.style.display = isAtmosferaPlaying ? 'block' : 'none';
+            updateAtmosferaControlsUI();
+            updateMiniPlayerVisibility();
+        }
+
+        function toggleAtmosferaShuffle() {
+            isAtmosferaShuffle = !isAtmosferaShuffle;
+            updateAtmosferaControlsUI();
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function toggleAtmosferaRepeat() {
+            isAtmosferaRepeat = !isAtmosferaRepeat;
+            updateAtmosferaControlsUI();
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function updateAtmosferaControlsUI() {
+            const shuffleBtn = document.getElementById('atm-shuffle-btn');
+            const repeatBtn = document.getElementById('atm-repeat-btn');
+            if (shuffleBtn) {
+                isAtmosferaShuffle ? shuffleBtn.classList.add('active') : shuffleBtn.classList.remove('active');
+            }
+            if (repeatBtn) {
+                isAtmosferaRepeat ? repeatBtn.classList.add('active') : repeatBtn.classList.remove('active');
+            }
         }
 
         function nextAtmosfera() {
             if (_atmosferaPlaylist.length === 0 || _currentAtmosferaIdx === -1) return;
-            let nextIdx = _currentAtmosferaIdx + 1;
-            if (nextIdx >= _atmosferaPlaylist.length) nextIdx = 0;
+            
+            let nextIdx;
+            if (isAtmosferaShuffle && _atmosferaPlaylist.length > 1) {
+                do {
+                    nextIdx = Math.floor(Math.random() * _atmosferaPlaylist.length);
+                } while (nextIdx === _currentAtmosferaIdx);
+            } else {
+                nextIdx = _currentAtmosferaIdx + 1;
+                if (nextIdx >= _atmosferaPlaylist.length) nextIdx = 0;
+            }
+            
             playAtmosferaDetail(_atmosferaPlaylist[nextIdx].nombre);
         }
 
@@ -11810,7 +12183,12 @@ if (id === 'content-header' || id === 'side-panel') {
             });
 
             player.addEventListener('ended', () => {
-                nextAtmosfera();
+                if (isAtmosferaRepeat) {
+                    player.currentTime = 0;
+                    player.play();
+                } else {
+                    nextAtmosfera();
+                }
             });
 
             // Seeking
@@ -12395,12 +12773,18 @@ if (id === 'content-header' || id === 'side-panel') {
         let isCapturing = false;
 
         async function prepareShareBlob(cat) {
-            if (isCapturing) return; // Evitar saturación de procesos
-            
-            // Limpiar blob anterior para evitar compartir datos obsoletos
+            if (isCapturing) return;
             window._luminaShareBlob = null;
+
+            let targetAreaId = 'capture-area-standard';
+            let captureBg = "#f5f1e8";
             
-            const area = document.getElementById('capture-area-standard');
+            if (cat === 'atmosferas') {
+                targetAreaId = 'capture-area-atmosferas';
+                captureBg = "#050505";
+            }
+
+            const area = document.getElementById(targetAreaId);
             if (!area) return;
             
             isCapturing = true;
@@ -12513,25 +12897,17 @@ if (id === 'content-header' || id === 'side-panel') {
                 }
                 footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'atmosferas') {
-                if (_currentAtmosferaIdx === -1) {
-                    titleEl.textContent = "Paisajes Sonoros";
-                    bodyEl.innerHTML = `<div style="font-size:0.9rem; opacity:0.8; line-height:1.6; margin-top:10px;">Descubre una colección de sonidos inmersivos diseñados para tu paz mental.</div>`;
-                } else {
-                    const item = _atmosferaPlaylist[_currentAtmosferaIdx];
-                    titleEl.textContent = item.nombre;
-                    bodyEl.innerHTML = `<div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.4rem; line-height:1.5; color:#b5833a; margin-bottom:20px;">
-                        "${item.desc || 'Una atmósfera para conectar con el presente.'}"
-                    </div>`;
-                    
-                    const extraList = document.getElementById('cap-extra-list');
-                    if (extraList) {
-                        extraList.innerHTML = `<div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px; border:1px solid rgba(181,131,58,0.1); text-align:center;">
-                            <small style="letter-spacing:2px; font-weight:700; color:#b5833a; display:block; margin-bottom:5px; font-size:0.5rem; text-transform:uppercase;">AUTORÍA</small>
-                            <div style="font-size:0.9rem; opacity:0.8; color:#1a1a1a;">${item.autor} &mdash; ${item.categoria}</div>
-                        </div>`;
-                    }
+                const item = _currentAtmosferaIdx > -1 ? _atmosferaPlaylist[_currentAtmosferaIdx] : { nombre: "Lúmina", autor: "Sonidos para el alma" };
+                const atmTitle = document.getElementById('cap-atm-title');
+                const atmAuthor = document.getElementById('cap-atm-author');
+                const atmBg = document.getElementById('cap-atm-bg');
+                
+                if (atmTitle) atmTitle.innerText = item.nombre;
+                if (atmAuthor) atmAuthor.innerText = `Autor: ${item.autor}`;
+                if (atmBg) {
+                    const cover = getAtmosferaCover(item);
+                    atmBg.style.backgroundImage = `url(${cover})`;
                 }
-                footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'bitacora') {
                 titleEl.textContent = "Evolución Consciente";
                 const total = document.getElementById('stats-total-entries')?.textContent || "0";
@@ -12660,18 +13036,19 @@ if (id === 'content-header' || id === 'side-panel') {
                 footerEl.innerText = toMixedCase(rawDate.replace('PALABRAS', '').replace('AFIRMACIONES', '').replace('FRASES', '').trim());
             }
 
-            const qrBox = document.getElementById('standard-qr-box');
+            const qrBoxId = cat === 'atmosferas' ? 'atm-qr-box' : 'standard-qr-box';
+            const qrBox = document.getElementById(qrBoxId);
             if (qrBox) {
                 qrBox.innerHTML = '';
                 new QRCode(qrBox, {
                     text: `https://luminapp.today/#${cat}`,
-                    width: 60, height: 60, colorDark: "#1a1a1a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
+                    width: 70, height: 70, colorDark: "#1a1a1a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
                 });
             }
             
             setTimeout(async () => {
                 try {
-                    const canvas = await html2canvas(area, { backgroundColor: "#f5f1e8", scale: 2, useCORS: true, allowTaint: true });
+                    const canvas = await html2canvas(area, { backgroundColor: captureBg, scale: 2, useCORS: true, allowTaint: true });
                     canvas.toBlob((blob) => {
                         window._luminaShareBlob = blob;
                         window._lastShareType = cat;
@@ -13749,6 +14126,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + F</b> Frases</p>
                     <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + L</b> Libros</p>
                     <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + E</b> Expansiones</p>
+                    <p style="margin: 8px 0; font-size: 0.95rem;"><b>G + T</b> Atmósferas</p>
                 </div>
                 <div class="shortcut-group">
                     <h4 style="color: var(--accent); margin-bottom: 12px; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;">ACCIONES</h4>
@@ -15302,6 +15680,46 @@ if (id === 'content-header' || id === 'side-panel') {
             </div>
             <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, transparent, #b5833a, #f0c060, #b5833a, transparent);"></div>
         </div>
+        <!-- ÁREA CAPTURA: ATMOSFERAS (Vertical 9:16 estilo Spotify/Story) -->
+        <div id="capture-area-atmosferas" style="width: 480px; height: 854px; background: #050505; display: flex; flex-direction: column; justify-content: flex-end; padding: 50px; border-radius: 28px; position: relative; font-family: 'Inter', sans-serif; overflow: hidden; box-sizing: border-box; color: white;">
+            <div id="cap-atm-bg" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-size: cover; background-position: center; opacity: 0.7; filter: brightness(0.8);"></div>
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 40%, transparent 100%);"></div>
+            
+            <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: 1; opacity: 0.1;">
+                <img src="https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/icon-640px-w.png" style="width: 220px; height: 220px;">
+            </div>
+
+            <div style="z-index: 2; display: flex; align-items: flex-end; justify-content: space-between; width: 100%;">
+                <div style="flex: 1;">
+                    <h2 id="cap-atm-title" style="font-family: 'Playfair Display', serif; font-size: 2.8rem; margin: 0; font-weight: 700; line-height: 1.1; letter-spacing: -1px;">Ruido azul</h2>
+                    <p id="cap-atm-author" style="font-size: 1rem; opacity: 0.8; margin: 12px 0 0; letter-spacing: 1px; font-weight: 400;">Autor: Lúmina Sounds</p>
+                </div>
+                <div style="text-align: right; margin-left: 30px;">
+                    <div id="atm-qr-box" style="width: 75px; height: 75px; background: white; padding: 6px; border-radius: 12px; margin-bottom: 10px; display: inline-block; box-shadow: 0 10px 20px rgba(0,0,0,0.3);"></div>
+                    <div style="font-size: 0.55rem; letter-spacing: 3px; opacity: 0.5; font-weight: 700;">LUMINAPP.TODAY</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Temporizador Atmósferas -->
+    <div id="atm-timer-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2 style="font-family:'Playfair Display', serif; font-size: 1.8rem; font-style:italic; margin-bottom: 10px;">Temporizador</h2>
+            <p style="opacity: 0.6; font-size: 0.85rem; margin-bottom: 30px;">La música se detendrá automáticamente después del tiempo seleccionado.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px;">
+                <button class="timer-opt" onclick="startAtmSleepTimer(5)">5 min</button>
+                <button class="timer-opt" onclick="startAtmSleepTimer(10)">10 min</button>
+                <button class="timer-opt" onclick="startAtmSleepTimer(15)">15 min</button>
+                <button class="timer-opt" onclick="startAtmSleepTimer(30)">30 min</button>
+                <button class="timer-opt" onclick="startAtmSleepTimer(45)">45 min</button>
+                <button class="timer-opt" onclick="startAtmSleepTimer(60)">1h</button>
+            </div>
+            
+            <button onclick="startAtmSleepTimer(0)" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; font-size: 0.8rem; letter-spacing: 1px; color: var(--text); cursor: pointer;">DESACTIVAR</button>
+            <button onclick="closeAtmSleepTimerModal()" style="margin-top: 15px; opacity: 0.5; font-size: 0.7rem; letter-spacing: 2px; background: none; border: none; cursor: pointer; color: var(--text);">CERRAR</button>
+        </div>
     </div>
 
     <!-- Modal Estadísticas Bitácora -->
@@ -15356,7 +15774,109 @@ if (id === 'content-header' || id === 'side-panel') {
                 window.location.reload();
             });
         }
-    </script>
+        // --- SISTEMA DE MINI-PLAYER FLOTANTE (ZEN BUBBLE) ---
+        let isDraggingMini = false;
+        let miniStartX, miniStartY, miniStartRight, miniStartBottom;
+
+        function initMiniPlayerDrag() {
+            const mini = document.getElementById('atm-mini-player');
+            if (!mini) return;
+
+            const savedPos = JSON.parse(localStorage.getItem('lumina_mini_pos'));
+            if (savedPos) {
+                mini.style.right = savedPos.right;
+                mini.style.bottom = savedPos.bottom;
+                mini.style.left = 'auto';
+                mini.style.top = 'auto';
+            }
+
+            const startDrag = (e) => {
+                if (e.target.closest('.mini-player-expand')) return;
+                isDraggingMini = true;
+                const touch = e.type === 'touchstart' ? e.touches[0] : e;
+                miniStartX = touch.clientX;
+                miniStartY = touch.clientY;
+                const rect = mini.getBoundingClientRect();
+                miniStartRight = window.innerWidth - rect.right;
+                miniStartBottom = window.innerHeight - rect.bottom;
+                mini.style.transition = 'none';
+            };
+
+            const doDrag = (e) => {
+                if (!isDraggingMini) return;
+                const touch = e.type === 'touchmove' ? e.touches[0] : e;
+                const dx = touch.clientX - miniStartX;
+                const dy = touch.clientY - miniStartY;
+                
+                let newRight = miniStartRight - dx;
+                let newBottom = miniStartBottom - dy;
+                
+                newRight = Math.max(10, Math.min(window.innerWidth - 70, newRight));
+                newBottom = Math.max(10, Math.min(window.innerHeight - 70, newBottom));
+
+                mini.style.right = newRight + 'px';
+                mini.style.bottom = newBottom + 'px';
+            };
+
+            const stopDrag = () => {
+                if (!isDraggingMini) return;
+                isDraggingMini = false;
+                mini.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s';
+                localStorage.setItem('lumina_mini_pos', JSON.stringify({
+                    right: mini.style.right,
+                    bottom: mini.style.bottom
+                }));
+            };
+
+            mini.addEventListener('mousedown', startDrag);
+            mini.addEventListener('touchstart', startDrag, { passive: true });
+            window.addEventListener('mousemove', doDrag);
+            window.addEventListener('touchmove', doDrag, { passive: false });
+            window.addEventListener('mouseup', stopDrag);
+            window.addEventListener('touchend', stopDrag);
+        }
+
+        function updateMiniPlayerVisibility() {
+            const mini = document.getElementById('atm-mini-player');
+            if (!mini) return;
+            
+            const isPlayingOrSelected = isAtmosferaPlaying || (_currentAtmosferaIdx !== -1);
+            const isOutsideAtmosfera = currentCategory !== 'atmosfera';
+            
+            if (isPlayingOrSelected && isOutsideAtmosfera) {
+                mini.style.display = 'flex';
+                setTimeout(() => mini.style.opacity = '1', 10);
+                mini.classList.toggle('playing', isAtmosferaPlaying);
+                
+                // Mostrar botón de cerrar solo si está en pausa
+                const closeBtn = mini.querySelector('.mini-player-close');
+                if (closeBtn) closeBtn.style.display = !isAtmosferaPlaying ? 'flex' : 'none';
+            } else {
+                mini.style.opacity = '0';
+                setTimeout(() => {
+                    if (currentCategory === 'atmosfera' || (!isAtmosferaPlaying && _currentAtmosferaIdx === -1)) {
+                        mini.style.display = 'none';
+                    }
+                }, 400);
+            }
+        }
+
+        function openAtmosferaFromMini(e) {
+            if (e) e.stopPropagation();
+            openCategory('atmosfera');
+        }
+
+        function closeAtmosferaMini(e) {
+            if (e) e.stopPropagation();
+            if (isAtmosferaPlaying) toggleAtmosferaPlay(); // Detener si está sonando
+            _currentAtmosferaIdx = -1;
+            updateMiniPlayerVisibility();
+            showToast("Atmósfera cerrada.", "info");
+        }
+
+        // Inicializar al cargar
+        setTimeout(initMiniPlayerDrag, 1000);
+        </script>
 <!-- CHECKIN UI: now lives inside #sendas-view-checkin -->
 
 <script>
@@ -15454,8 +15974,7 @@ function showSendasView(view) {
 
 function openCheckIn(fromInternal) {
     if (!isPro) {
-        document.getElementById('pro-modal').classList.add('active');
-        history.pushState({ modal: 'pro' }, '', '#pro');
+        openPlansModal();
         return;
     }
     
@@ -17063,6 +17582,17 @@ function closeQuizModal(fromFinish = false) {
             <button class="btn-save" onclick="exportBitacoraDoc('continuo')" style="font-size: 0.75rem; background: var(--accent); color: #fff; padding: 15px; border-radius: 12px; margin: 0; font-weight: 700;">DIARIO CONTINUO</button>
             <button class="btn-save" onclick="exportBitacoraDoc('resumen')" style="font-size: 0.75rem; background: rgba(181,131,58,0.1); color: var(--text); padding: 15px; border-radius: 12px; margin: 0; border: 1px solid rgba(181,131,58,0.2);">RESUMEN MENSUAL</button>
             <button class="btn-save" onclick="document.getElementById('export-options-box').style.display='none'" style="font-size: 0.7rem; background: transparent; color: var(--text); opacity: 0.5; border: none; margin-top: 5px;">Cancelar</button>
+        </div>
+    </div>
+    <div id="atm-mini-player" class="mini-player-bubble" onclick="toggleAtmosferaPlay()">
+        <div class="mini-player-waves">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="mini-player-expand" onclick="openAtmosferaFromMini(event)" title="Abrir Reproductor">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
+        </div>
+        <div class="mini-player-close" onclick="closeAtmosferaMini(event)" title="Cerrar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </div>
     </div>
 </body>
