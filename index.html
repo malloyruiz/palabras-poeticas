@@ -670,12 +670,609 @@
         }
 
         /* --- SISTEMA DE GRILLA PARA PAUSAS (MALLA FLUIDA) --- */
-        .pausa-grid {
+        .pausa-grid, .atmosfera-grid {
             display: grid !important;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
             gap: 35px !important;
             padding-bottom: 100px;
             width: 100% !important;
+        }
+
+        /* --- ATMOSFERA SPOTIFY LAYOUT (FORCE FULL SCREEN) --- */
+        body.view-atmosfera #hub,
+        body.view-atmosfera .hub-hero,
+        body.view-atmosfera .content-header,
+        body.view-atmosfera .side-panel,
+        body.view-atmosfera #header-cat,
+        body.view-atmosfera #header-date,
+        body.view-atmosfera #word-title {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        body.view-atmosfera #main-ui { 
+            display: block !important;
+            grid-template-columns: 1fr !important; 
+            max-width: 100vw !important; 
+            padding: 0 !important; 
+            margin: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 9999 !important;
+            overflow: hidden !important;
+        }
+        body.view-atmosfera #btn-back-hub { top: 20px; left: 20px; z-index: 10000 !important; }
+
+        #atmosfera-ui {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: none;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        .atm-layout {
+            display: grid;
+            grid-template-areas: 
+                "sidebar banner visual"
+                "sidebar content visual"
+                "player player player";
+            grid-template-columns: 100px 1fr 320px;
+            grid-template-rows: auto 1fr 90px;
+            height: 100%;
+            width: 100%;
+            gap: 15px;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        /* Sidebar Izquierda (Favoritos) */
+        .atm-sidebar-left {
+            grid-area: sidebar;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .atm-heart-box {
+            height: 100px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid var(--card-border);
+        }
+
+        .atm-fav-list {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 12px;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .atm-fav-item {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: #ccc;
+            border: none;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+        .atm-fav-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .atm-fav-item:hover { transform: scale(1.05); }
+
+        .atm-arrow-down {
+            color: var(--accent);
+            opacity: 0.5;
+            margin: 5px 0;
+        }
+
+        .atm-banner {
+            grid-area: banner;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 200px;
+            height: auto;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+            padding: 30px 24px;
+            box-sizing: border-box;
+        }
+
+        .atm-banner-actions {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .atm-banner-actions button {
+            flex: 1;
+            min-width: 160px;
+            max-width: 250px;
+        }
+
+        .atm-content {
+            grid-area: content;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .atm-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .atm-section-header h2 {
+            font-family: var(--font-heading);
+            font-style: italic;
+            margin: 0;
+        }
+        .atm-section-header span {
+            font-size: 0.7rem;
+            opacity: 0.5;
+            letter-spacing: 1px;
+        }
+
+        .atm-category-row { margin-bottom: 20px; }
+
+        .atm-grid-wrapper {
+            position: relative;
+        }
+        .atm-nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(10,10,10,0.8);
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        .atm-grid-wrapper:hover .atm-nav-arrow {
+            opacity: 1;
+        }
+        .atm-nav-arrow:hover {
+            background: var(--accent);
+            color: #fff;
+            transform: translateY(-50%) scale(1.1);
+            border-color: var(--accent);
+        }
+        .atm-nav-arrow.left { left: 5px; }
+        .atm-nav-arrow.right { right: 0; }
+
+        @media (max-width: 768px) {
+            .atm-nav-arrow { display: none !important; }
+        }
+
+        .atm-grid {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .atm-grid::-webkit-scrollbar { display: none; }
+
+        .atm-card {
+            flex: 0 0 160px;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            transition: 0.3s;
+            scroll-snap-align: start;
+        }
+        .atm-card:hover { transform: translateY(-5px); }
+        .atm-card img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .atm-card h4 { margin: 0 0 5px 0; font-size: 0.9rem; }
+        .atm-card p { margin: 0; font-size: 0.7rem; opacity: 0.6; }
+
+        .atm-sidebar-right {
+            grid-area: visual;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .atm-visual-card {
+            height: 520px;
+            background: #050505;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 30px;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+        }
+        .atm-aurora-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .atm-blob {
+            position: absolute;
+            width: 300px; /* Tamaño base garantizado */
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            mix-blend-mode: screen;
+            transition: background 2s ease;
+            display: block !important; /* Asegurar visibilidad */
+        }
+        .atm-blob-1 { top: -100px; left: -100px; animation: blob-move 25s infinite alternate ease-in-out; }
+        .atm-blob-2 { bottom: -150px; right: -100px; animation: blob-move 30s infinite alternate-reverse ease-in-out; }
+        .atm-blob-3 { top: 40%; left: 30%; animation: blob-move 35s infinite alternate ease-in-out; }
+
+        @keyframes blob-move {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(100px, 50px) scale(1.2); }
+            100% { transform: translate(-50px, 100px) scale(0.9); }
+        }
+
+        .atm-glass-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            backdrop-filter: blur(50px) saturate(150%);
+            background: rgba(0,0,0,0.25);
+        }
+
+        #atm-visual-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .atm-visual-content {
+            position: relative;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .atm-visual-display {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .atm-visual-card h3 { margin: 0; font-family: var(--font-heading); font-size: 1.5rem; }
+        .atm-visual-card p { margin: 5px 0 0 0; opacity: 0.8; font-size: 0.8rem; }
+
+        .atm-desc-box {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            height: 200px;
+            overflow-y: auto;
+        }
+        [data-theme="dark"] .atm-desc-box { background: #222; color: #ccc; }
+
+        .atm-player-bar {
+            grid-area: player;
+            background: black;
+            color: white;
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: 250px 1fr 250px;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .atm-player-info { display: flex; align-items: center; gap: 15px; }
+        .atm-player-info img { width: 50px; height: 50px; border-radius: 4px; }
+        .atm-player-info div h5 { margin: 0; font-size: 0.9rem; }
+        .atm-player-info div p { margin: 0; font-size: 0.7rem; opacity: 0.6; }
+
+        .atm-player-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .atm-ctrl-btns { display: flex; align-items: center; gap: 20px; }
+        .atm-ctrl-btns svg { cursor: pointer; opacity: 0.7; transition: 0.3s; }
+        .atm-ctrl-btns svg:hover { opacity: 1; }
+        .atm-play-btn { width: 35px; height: 35px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; }
+
+        .atm-progress-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.65rem;
+            opacity: 0.6;
+        }
+        .atm-progress-bar { flex: 1; height: 4px; background: #444; border-radius: 2px; position: relative; }
+        .atm-progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: white; width: 40%; }
+
+        .atm-extra-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+            opacity: 0.7;
+        }
+        .atm-play-btn:hover {
+            border-radius: 50%;
+            opacity: 1;
+            box-shadow: 0 10px 20px rgba(181, 131, 58, 0.3);
+        }
+        .btn-player.btn-play-pause svg { width: 32px; height: 32px; fill: currentColor; }
+        .btn-player svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+        /* === RESPONSIVE ATMOSFERA (NUEVO Y UNIFICADO) === */
+        @media (max-width: 768px) {
+
+            /* #atmosfera-ui: contenedor de scroll real */
+            #atmosfera-ui {
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+                height: 100vh !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+
+            /* Modo Cine: bloquear scroll del fondo */
+            #atmosfera-ui.cinema-open {
+                overflow: hidden !important;
+            }
+
+            /* .atm-layout: columna vertical, sin overflow propio */
+            .atm-layout {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                height: auto !important;
+                gap: 0 !important;
+                padding: 0 !important;
+                min-height: 100vh !important;
+            }
+
+            .atm-sidebar-left {
+                flex-direction: row;
+                padding: 10px 15px;
+                justify-content: space-around;
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+                height: 60px;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: #000;
+                order: 0;
+            }
+
+            .atm-sidebar-left .atm-logo { margin-bottom: 0; }
+            .atm-nav-icons { flex-direction: row; gap: 20px; }
+
+            .atm-sidebar-right {
+                display: none !important; /* Oculto por defecto en móvil */
+                padding: 15px;
+                order: 2;
+            }
+
+            .atm-sidebar-right.mobile-visual-open {
+                display: block !important;
+                position: fixed;
+                inset: 0;
+                z-index: 5000;
+                background: #000;
+                padding: 0;
+            }
+
+            .atm-sidebar-right.mobile-visual-open .atm-visual-card {
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+
+            .atm-close-visual {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                z-index: 100;
+                background: rgba(255,255,255,0.1);
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+            }
+
+            .atm-visual-card {
+                height: 320px;
+                padding: 20px;
+            }
+
+            .atm-visual-content h3 { font-size: 1.1rem; }
+            .atm-visual-content p { font-size: 0.7rem; }
+            
+            /* Ajuste de iconos detalle en móvil */
+            .atm-visual-content div { top: -240px !important; }
+
+            .atm-content {
+                padding: 15px;
+                order: 3;
+            }
+
+            .atm-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 12px;
+                padding-bottom: 20px;
+            }
+
+            .atm-card img { height: 130px; }
+            .atm-card h4 { font-size: 0.85rem; }
+
+            .atm-player-bar {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                z-index: 10000 !important;
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                height: auto;
+                padding: 10px 15px;
+                background: rgba(10,10,10,0.98);
+                backdrop-filter: blur(20px);
+                border-top: 1px solid rgba(255,255,255,0.1);
+            }
+
+            /* Espacio para que el contenido no quede tapado por el player fijo */
+            .atm-layout {
+                padding-bottom: 130px !important;
+            }
+
+            .atm-player-info { margin-bottom: 5px; }
+            .atm-player-info img { width: 40px; height: 40px; }
+            .atm-player-controls { width: 100%; }
+            
+            /* Mostrar botón visual en móvil pero ocultar el resto de extras */
+            .atm-extra-controls { display: flex !important; justify-content: center; margin-top: 5px; opacity: 1; }
+            .atm-extra-controls svg:not(.atm-mobile-visual-btn) { display: none; }
+            .atm-extra-controls div { display: none; } /* Ocultar barra de volumen en móvil */
+            
+            .atm-mobile-visual-btn { 
+                display: block !important; 
+                width: 24px !important; 
+                height: 24px !important; 
+                color: var(--accent);
+                margin: 0 auto;
+            }
+            
+            .atm-banner {
+                padding: 25px 15px;
+                height: auto;
+                min-height: 160px;
+                border-radius: 16px;
+            }
+
+            .atm-banner-actions {
+                flex-direction: column !important;
+                max-width: 350px !important;
+            }
+            .atm-banner-actions button {
+                max-width: 100% !important;
+            }
+        }
+
+        .atmosfera-progress-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .atmosfera-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(128,128,128,0.1);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .atmosfera-progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .atmosfera-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            opacity: 0.4;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .atmosfera-volume-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0.6;
+        }
+        .atmosfera-volume-container svg { width: 18px; height: 18px; }
+        .atmosfera-volume-slider {
+            flex: 1;
+            height: 4px;
+            accent-color: var(--accent);
+            cursor: pointer;
         }
 
         /* --- SISTEMA DE GRILLA PARA EXPANSIONES (2 COLUMNAS PARA LECTURA) --- */
@@ -4881,6 +5478,11 @@ body[data-cat="sendas"] #header-cat {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path></svg>
                         ÁNIMO
                     </button>
+                    
+                    <button class="btn-fab-item" onclick="openCategory('atmosfera')" title="Atmosfera Audio">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+                        ATMOSFERA
+                    </button>
 
                     <button class="btn-fab-item" onclick="openCategory('pausa')" title="Pausa Consciente">
                         <svg viewBox="0 0 512 512" style="width:18px; height:18px; fill: currentColor;"><path d="M482.752,435.574c-6.928-8.1-23.127-40.492-23.127-40.492s2.676-3.448,0-15.051 c-3.48-15.035-18.514-13.886-21.978-17.349c-3.479-3.472-33.549-58.424-35.863-64.792c-2.314-6.369-27.772-78.662-27.772-78.662 c-8.549-37.604-24.308-53.221-45.121-57.85c-20.64-4.581-31.817-3.471-41.075-11.571c-5.778-5.054-5.573-8.809-5.573-24.056 c0,0,6.235-5.927,10.784-14.122c5.195-9.375,7.746-22.907,7.746-22.907c5.211-2.086,5.274-4.684,7.525-12.965 c3.118-11.461,2.897-19.317-5.431-19.317C304.836,19.066,286.085,0,256,0c-30.07,0-48.821,19.066-46.853,56.441 c-8.328,0-8.564,7.856-5.432,19.317c2.251,8.281,2.314,10.879,7.51,12.965c0,0,2.55,13.532,7.762,22.907 c4.55,8.194,10.784,14.122,10.784,14.122c0,15.247,0.189,19.002-5.589,24.056c-9.242,8.1-20.435,6.99-41.059,11.571 c-20.828,4.628-36.572,20.246-45.12,57.85c0,0-25.457,72.294-27.771,78.662c-2.314,6.368-32.401,61.32-35.864,64.792 c-3.464,3.463-18.514,2.314-21.978,17.349c-2.676,11.603,0,15.051,0,15.051s-16.2,32.392-23.143,40.492 c-6.942,8.092,5.794,13.878,13.886,3.464c0.944,1.409,4.156,2.424,7.793,2.912c-28.228,31.251-12.138,71.964,31.55,69.98 C118.291,510.3,256,485.316,256,485.316S393.707,510.3,429.54,511.93c43.688,1.984,59.778-38.729,31.534-69.98 c3.652-0.488,6.864-1.503,7.808-2.912C476.974,449.452,489.695,443.666,482.752,435.574z M183.123,383.849 c0,0-59.274,17.626-96.192,34.234c7.604-14.154,16.357-33.423,16.357-33.423l37.029-53.212l29.504-64.218 c0,0,9.257,34.714,12.138,39.917C184.855,312.35,183.123,383.849,183.123,383.849z M328.891,383.849c0,0-1.732-71.498,1.149-76.702 c2.897-5.203,12.154-39.917,12.154-39.917l29.504,64.218l37.013,53.212c0,0,8.769,19.27,16.373,33.423 C388.165,401.474,328.891,383.849,328.891,383.849z"/></svg>
@@ -5260,6 +5862,106 @@ body[data-cat="sendas"] #header-cat {
                     </div>
                 </div>
 
+            </div>
+
+            <div id="atmosfera-ui">
+                <div class="atm-layout">
+                    <!-- Sidebar Izquierda: Favoritos -->
+                    <div class="atm-sidebar-left">
+                        <div class="atm-heart-box">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </div>
+                        <div class="atm-fav-list">
+                            <div class="atm-fav-item"><img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=100"></div>
+                            <div class="atm-fav-item"><img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=100"></div>
+                            <div class="atm-fav-item"><img src="https://images.unsplash.com/photo-1439405326854-01517489c73e?auto=format&fit=crop&w=100"></div>
+                            <div class="atm-arrow-down">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                            </div>
+                            <div class="atm-fav-item"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=100"></div>
+                        </div>
+                    </div>
+
+                    <!-- Centro Top: Banner -->
+                    <div class="atm-banner">BANNER</div>
+
+                    <!-- Centro Main: Content -->
+                    <div class="atm-content" id="atmosfera-main-content">
+                        <!-- Inyectado por JS: Categoría -> Grid Horizontal -->
+                    </div>
+
+                    <!-- Sidebar Derecha: Visuales -->
+                    <div class="atm-sidebar-right">
+                        <div class="atm-visual-card" id="atm-visual-card">
+                            <div class="atm-close-visual" onclick="toggleAtmosferaVisual()" style="display: none;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                            </div>
+                            <!-- Sistema de Auroras Líquidas -->
+                            <div class="atm-aurora-bg">
+                                <div class="atm-blob atm-blob-1" id="blob-1"></div>
+                                <div class="atm-blob atm-blob-2" id="blob-2"></div>
+                                <div class="atm-blob atm-blob-3" id="blob-3"></div>
+                            </div>
+                            <div class="atm-glass-overlay"></div>
+                            
+                            <canvas id="atm-visual-canvas"></canvas>
+
+                            <div class="atm-visual-content">
+                                <div style="position: absolute; top: -380px; right: -15px; display: flex; gap: 10px; opacity: 0.8; pointer-events: auto;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                </div>
+                                <h3 id="atm-detail-title">Título sonido</h3>
+                                <p id="atm-detail-author">Autor: Lúmina</p>
+                            </div>
+                        </div>
+                        <div class="atm-desc-box" id="atm-detail-desc">
+                            Selecciona una atmósfera para descubrir su historia y beneficios.
+                        </div>
+                    </div>
+
+                    <!-- Barra de Reproducción (Full Width Bottom) -->
+                    <div class="atm-player-bar">
+                        <div class="atm-player-info">
+                            <img id="atm-bar-cover" src="https://images.unsplash.com/photo-1514525253361-bee8718a300a?auto=format&fit=crop&q=80&w=200" alt="Cover">
+                            <div>
+                                <h5 id="atm-bar-title">Feeling Good</h5>
+                                <p id="atm-bar-author">Nina Simone</p>
+                            </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 10px; opacity: 0.5;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.5;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                        </div>
+
+                        <div class="atm-player-controls">
+                            <div class="atm-ctrl-btns">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                                <svg onclick="prevAtmosfera()" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                                <div class="atm-play-btn" onclick="toggleAtmosferaPlay()">
+                                    <svg id="atm-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                    <svg id="atm-pause-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                                </div>
+                                <svg onclick="nextAtmosfera()" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                            </div>
+                            <div class="atm-progress-container">
+                                <span>2:08</span>
+                                <div class="atm-progress-bar">
+                                    <div class="atm-progress-fill"></div>
+                                </div>
+                                <span>2:54</span>
+                            </div>
+                        </div>
+
+                        <div class="atm-extra-controls">
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.5 1.5"></path></svg>
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="10" height="10" rx="1" ry="1"></rect></svg>
+                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                             <div style="width: 80px; height: 4px; background: #444; border-radius: 2px;"><div style="width: 60%; height: 100%; background: white;"></div></div>
+                             <svg onclick="toggleAtmosferaVisual()" class="atm-mobile-visual-btn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:pointer; opacity:1;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- VISTA DE EXPANSIONES (SIN MODALES) -->
@@ -7926,6 +8628,7 @@ body[data-cat="sendas"] #header-cat {
                 runSync(updateHeaderDate, 'Reloj');
                 runSync(createMotes, 'Motes');
                 runSync(initAmbient, 'Ambiente');
+                runSync(initAtmosferaPlayer, 'Atmosfera Player');
                 runSync(renderBitacoraTemplates, 'Bitácora');
                 runSync(updateMoodSummaryUI, 'Ánimo');
                 runSync(checkScheduledReminders, 'Recordatorios');
@@ -8213,22 +8916,27 @@ body[data-cat="sendas"] #header-cat {
                 mainUI.classList.add('activa');
                 
                 // Mostrar solo la sub-vista requerida (SISTEMA V1.1)
-                const subViews = ['pausa-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'sendas-ui'];
-                subViews.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (!el) return;
-                    
-                    let shouldShow = false;
-                    if (cat === 'bitacora' && id === 'bitacora-ui') shouldShow = true;
-                    else if (cat === 'pausa' && id === 'pausa-ui') shouldShow = true;
-                    else if (cat === 'expansiones' && id === 'expansions-ui') shouldShow = true;
-                    else if (['palabras','afirmaciones','frases','libros'].includes(cat) && id === 'lesson-ui') shouldShow = true;
-                    else if (cat === 'extra' && id === 'extra-ui') shouldShow = true;
-                    else if (cat === 'sendas' && id === 'sendas-ui') shouldShow = true;
+                const subViews = ['pausa-ui', 'atmosfera-ui', 'lesson-ui', 'expansions-ui', 'extra-ui', 'bitacora-ui', 'sendas-ui'];
+                try {
+                    subViews.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        
+                        let shouldShow = false;
+                        if (cat === 'bitacora' && id === 'bitacora-ui') shouldShow = true;
+                        else if (cat === 'pausa' && id === 'pausa-ui') shouldShow = true;
+                        else if (cat === 'atmosfera' && id === 'atmosfera-ui') shouldShow = true;
+                        else if (cat === 'expansiones' && id === 'expansions-ui') shouldShow = true;
+                        else if (['palabras','afirmaciones','frases','libros'].includes(cat) && id === 'lesson-ui') shouldShow = true;
+                        else if (cat === 'extra' && id === 'extra-ui') shouldShow = true;
+                        else if (cat === 'sendas' && id === 'sendas-ui') shouldShow = true;
 
-                    const displayVal = (id === 'bitacora-ui' || id === 'sendas-ui') ? 'flex' : 'block';
-                    el.style.setProperty('display', shouldShow ? displayVal : 'none', shouldShow ? 'important' : '');
-                });
+                        const displayVal = (id === 'bitacora-ui' || id === 'sendas-ui') ? 'flex' : 'block';
+                        el.style.setProperty('display', shouldShow ? displayVal : 'none', shouldShow ? 'important' : '');
+                    });
+                } catch (err) {
+                    console.error("Lúmina: Error en cambio de vista", err);
+                }
 
                 // Botón de Maestría Diaria y Botón de Ayer (Pro)
                 const refreshBtn = document.getElementById('btn-refresh-word');
@@ -8288,10 +8996,13 @@ if (id === 'content-header' || id === 'side-panel') {
                 } else if (cat === 'sendas') {
                     renderMisSendas();
                     showSendasView('list');
+                } else if (cat === 'atmosfera') {
+                    mainUI.classList.remove('has-examples');
+                    renderAtmosferaList();
                 }
 
                 // Header Label dinámico
-                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'EDICIÓN ESPECIAL', 'pausa': 'PAUSA CONSCIENTE', 'expansiones': 'EXPANSIONES', 'bitacora': 'BITÁCORA' };
+                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'EDICIÓN ESPECIAL', 'pausa': 'PAUSA CONSCIENTE', 'atmosfera': 'ATMOSFERA', 'expansiones': 'EXPANSIONES', 'bitacora': 'BITÁCORA' };
                 const headerCat = document.getElementById('header-cat');
                 if (headerCat) headerCat.innerText = labels[cat] || 'LÚMINA';
 
@@ -10527,22 +11238,536 @@ if (id === 'content-header' || id === 'side-panel') {
             document.querySelectorAll(`[data-amb="${activeType}"]`).forEach(item => {
                 item.classList.add('active');
             });
-            // Mantener soporte backward-compatible con los IDs originales
             const activeItem = document.getElementById(`amb-${activeType}`);
             if (activeItem) activeItem.classList.add('active');
+        }
+        let _atmosferaCache = null;
+        let isAtmosferaPlaying = false;
+        let _visualAnimationId = null;
+
+        // MOTOR VISUAL LÚMINA (DETERMINISTA Y SEGURO)
+        const hashCode = (str) => {
+            let hash = 0;
+            const s = String(str || "Lumina");
+            for (let i = 0; i < s.length; i++) {
+                hash = ((hash << 5) - hash) + s.charCodeAt(i);
+                hash |= 0;
+            }
+            return hash;
+        };
+        const seededRandom = (seed) => {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        };
+
+        function getAtmosferaStyles(categoria, seed) {
+            const cat = String(categoria || "").toUpperCase();
+            const h = Math.abs(seed % 360);
+            let type = 'nebula', s = 40, l = 60, bh = h, bs = 20, bl = 6;
+
+            if (cat.includes("NATURALEZA") || cat.includes("AGUA") || cat.includes("LLUVIA")) {
+                type = 'bio'; s = 80; l = 70; bs = 40; bl = 5;
+            } else if (cat.includes("MEDITACI") || cat.includes("ZEN") || cat.includes("PAUSA")) {
+                type = 'aurora'; s = 60; l = 60; bs = 30; bl = 7;
+            } else if (cat.includes("ENFOQUE") || cat.includes("TRABAJO") || cat.includes("BETA")) {
+                type = 'warp'; s = 90; l = 50; bs = 50; bl = 4;
+            }
+
+            return { 
+                type, 
+                color: `hsl(${h}, ${s}%, ${l}%)`, 
+                bg: `hsl(${bh}, ${bs}%, ${bl}%)`,
+                bgAlpha: (a) => `hsla(${bh}, ${bs}%, ${bl}%, ${a})`
+            };
+        }
+
+        function renderPortada(canvas, categoria, nombre) {
+            const ctx = canvas.getContext('2d');
+            const seed = hashCode(nombre);
+            const w = canvas.width, h = canvas.height;
+
+            // Fondo profundo
+            ctx.fillStyle = "#050505"; ctx.fillRect(0, 0, w, h);
+            
+            // Simulación de blobs (Auroras)
+            ctx.save();
+            if (ctx.filter) ctx.filter = 'blur(60px)';
+            for (let i = 0; i < 3; i++) {
+                const bh = (Math.abs(seed % 360) + i * 50 + seededRandom(seed+i)*60) % 360;
+                ctx.fillStyle = `hsl(${bh}, 60%, 25%)`;
+                ctx.globalAlpha = 0.4;
+                const bx = seededRandom(seed + i) * w;
+                const by = seededRandom(seed + i + 1) * h;
+                ctx.beginPath(); ctx.arc(bx, by, 150, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.restore();
+
+            // Filtro de cristal (vignette sutil)
+            const g = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
+            g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.5)');
+            ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+
+            // Partículas estáticas tipo polvo
+            ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.2;
+            for (let i = 0; i < 30; i++) {
+                const px = seededRandom(seed + i) * w, py = seededRandom(seed + i + 10) * h;
+                ctx.beginPath(); ctx.arc(px, py, 1, 0, Math.PI*2); ctx.fill();
+            }
+
+            ctx.globalAlpha = 0.1; ctx.fillStyle = "white"; ctx.font = '900 130px serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(String(nombre || "L").charAt(0).toUpperCase(), w/2, h/2);
+        }
+
+        function toggleAtmosferaVisual() {
+            const sidebar = document.querySelector('.atm-sidebar-right');
+            const atmUI = document.getElementById('atmosfera-ui');
+            if (!sidebar) return;
+            sidebar.classList.toggle('mobile-visual-open');
+            const isOpen = sidebar.classList.contains('mobile-visual-open');
+            if (atmUI) atmUI.classList.toggle('cinema-open', isOpen);
+        }
+
+        function iniciarVisual(categoria, nombre) {
+            console.log("Lúmina: Iniciando motor visual para", nombre);
+            const canvas = document.getElementById('atm-visual-canvas');
+            const card = document.getElementById('atm-visual-card');
+            if (!canvas || !card) {
+                console.warn("Lúmina: No se encontró el canvas de Atmosfera");
+                return;
+            }
+            
+            const ctx = canvas.getContext('2d'), seed = hashCode(nombre);
+            const cat = String(categoria || "").toUpperCase();
+
+            // 1. Configuración Dinámica
+            const speedFactor = cat.includes("ENFOQUE") ? 2.5 : (cat.includes("MEDITACI") ? 0.4 : 1);
+            const particleType = cat.includes("ENFOQUE") ? 'line' : (cat.includes("LLUVIA") || cat.includes("NATURALEZA") ? 'rain' : 'dust');
+            const h = Math.abs(seed % 360);
+            
+            // Actualizar Blobs con seguridad
+            for (let i = 1; i <= 3; i++) {
+                const b = document.getElementById(`blob-${i}`);
+                if (b) {
+                    const bh = (h + i * 45 + seededRandom(seed + i) * 80) % 360;
+                    b.style.background = `hsl(${bh}, ${60 + seededRandom(seed)*20}%, ${25 + seededRandom(seed+1)*15}%)`;
+                    b.style.animationDuration = `${(18 + seededRandom(seed + i) * 22) / speedFactor}s`;
+                    b.style.opacity = 0.2 + seededRandom(seed + i) * 0.3;
+                }
+            }
+
+            // 2. Motor de Partículas (Ajuste de tamaño móvil con salvaguarda)
+            const dpr = window.devicePixelRatio || 1;
+            const w = card.offsetWidth || window.innerWidth;
+            const canvasH = card.offsetHeight || 300;
+            
+            canvas.width = w * dpr;
+            canvas.height = canvasH * dpr;
+            ctx.scale(dpr, dpr);
+            
+            let t = 0;
+            if (_visualAnimationId) cancelAnimationFrame(_visualAnimationId);
+
+            const animar = () => {
+                if (!document.getElementById('atm-visual-canvas')) return; // Seguridad si se cierra
+                t += 0.006 * speedFactor;
+                ctx.clearRect(0, 0, canvas.width/dpr, canvas.height/dpr);
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighter';
+                
+                const partCount = 30 + (seed % 20);
+                for (let i = 0; i < partCount; i++) {
+                    const s = seededRandom(seed + i);
+                    const speed = 0.1 + s * 0.4;
+                    const x = (seededRandom(seed + i) * (canvas.width/dpr) + Math.sin(t + i) * 15) % (canvas.width/dpr);
+                    let y;
+                    
+                    if (particleType === 'rain') {
+                        y = (seededRandom(seed + i + 200) * (canvas.height/dpr) + t * 120 * speed) % (canvas.height/dpr);
+                    } else {
+                        y = (seededRandom(seed + i + 200) * (canvas.height/dpr) - t * 60 * speed + (canvas.height/dpr)) % (canvas.height/dpr);
+                    }
+
+                    ctx.globalAlpha = Math.abs(Math.sin(t + i)) * 0.5;
+                    ctx.fillStyle = "#fff";
+                    
+                    if (particleType === 'line') {
+                        ctx.fillRect(x, y, 1, 8 * speed);
+                    } else {
+                        ctx.beginPath(); ctx.arc(x, y, s * 1.5, 0, Math.PI*2); ctx.fill();
+                    }
+                }
+                
+                ctx.restore();
+                _visualAnimationId = requestAnimationFrame(animar);
+            };
+            animar();
+        }
+
+        function getAtmosferaCover(atm) {
+            if (atm.cover && atm.cover.trim() !== '') return atm.cover;
+            const temp = document.createElement('canvas'); temp.width = 400; temp.height = 400;
+            renderPortada(temp, atm.categoria, atm.nombre);
+            return temp.toDataURL();
+        }
+
+        function scrollAtmGrid(btn, offset) {
+            const grid = btn.parentElement.querySelector('.atm-grid');
+            if (grid) {
+                grid.scrollBy({ left: offset, behavior: 'smooth' });
+            }
+        }
+
+        async function renderAtmosferaList() {
+            const container = document.getElementById('atmosfera-main-content');
+            if (!container) return;
+
+            // Función interna para construir el HTML rápido
+            const buildHTML = (data) => {
+                let html = '';
+                if (data.novedades && data.novedades.length > 0) {
+                    html += `
+                        <div class="atm-category-row">
+                            <div class="atm-section-header">
+                                <h2>Lo Nuevo</h2>
+                                <span>Sonidos recientes</span>
+                            </div>
+                            <div class="atm-grid-wrapper">
+                                <button class="atm-nav-arrow left" onclick="scrollAtmGrid(this, -400)">&#10094;</button>
+                                <div class="atm-grid">
+                                    ${data.novedades.map(atm => `
+                                        <div class="atm-card" onclick="playAtmosferaDetail('${atm.nombre.replace(/'/g, "\\'")}', 'novedades')">
+                                            <img src="${getAtmosferaCover(atm)}" alt="${atm.nombre}" loading="lazy">
+                                            <h4>${atm.nombre}</h4>
+                                            <p>${atm.autor || 'Lúmina'}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <button class="atm-nav-arrow right" onclick="scrollAtmGrid(this, 400)">&#10095;</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                for (const catName in data.categorias) {
+                    if (catName.toUpperCase() === "ANUNCIOS") continue;
+                    html += `
+                        <div class="atm-category-row">
+                            <div class="atm-section-header">
+                                <h2>${catName}</h2>
+                                <span>Explora ${catName}</span>
+                            </div>
+                            <div class="atm-grid-wrapper">
+                                <button class="atm-nav-arrow left" onclick="scrollAtmGrid(this, -400)">&#10094;</button>
+                                <div class="atm-grid">
+                                    ${data.categorias[catName].map(atm => `
+                                        <div class="atm-card" onclick="playAtmosferaDetail('${atm.nombre.replace(/'/g, "\\'")}', '${catName.replace(/'/g, "\\'")}')">
+                                            <img src="${getAtmosferaCover(atm)}" alt="${atm.nombre}" loading="lazy">
+                                            <h4>${atm.nombre}</h4>
+                                            <p>${atm.autor || 'Lúmina'}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <button class="atm-nav-arrow right" onclick="scrollAtmGrid(this, 400)">&#10095;</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                return html;
+            };
+
+            // 1. Intentar renderizar desde caché local (Carga instantánea)
+            const cachedDataStr = localStorage.getItem('lumina_atmosferas_cache');
+            if (cachedDataStr) {
+                try {
+                    const cachedData = JSON.parse(cachedDataStr);
+                    _atmosferaCache = cachedData;
+                    container.innerHTML = buildHTML(cachedData) || '<p style="opacity:0.4; font-size:0.8rem; padding:20px;">Próximamente más sonidos.</p>';
+                    fetchAtmosferaBanner();
+                } catch (e) {
+                    console.warn("Caché de atmósferas inválida", e);
+                }
+            } else {
+                container.innerHTML = '<div class="skeleton-text" style="width:100%; height:200px; border-radius:12px; margin-bottom:20px;"></div><div class="skeleton-text" style="width:100%; height:200px; border-radius:12px;"></div>';
+            }
+
+            // 2. Fetch en background para actualizar si hay cambios
+            try {
+                const response = await fetch(`${API}?action=atmosferas&userType=${localStorage.getItem('lumina_membership_tier') || 'FREE'}&_cb=${Date.now()}`);
+                const dataStr = await response.text();
+                
+                // Si la data cambió respecto al caché, re-renderizar
+                if (dataStr !== cachedDataStr) {
+                    const data = JSON.parse(dataStr);
+                    if (data.error) throw new Error(data.error);
+                    
+                    localStorage.setItem('lumina_atmosferas_cache', dataStr);
+                    _atmosferaCache = data;
+                    
+                    container.innerHTML = buildHTML(data) || '<p style="opacity:0.4; font-size:0.8rem; padding:20px;">Próximamente más sonidos.</p>';
+                    fetchAtmosferaBanner();
+                }
+                
+                updateAtmosferaPlayUI();
+            } catch (e) {
+                console.error("Atmosfera Fetch Error:", e);
+                if (!cachedDataStr) {
+                    container.innerHTML = '<p style="opacity:0.5; font-size:0.8rem; padding:20px;">Error al cargar atmósferas.</p>';
+                }
+            }
+        }
+
+        function closeAtmosferaBanner() {
+            sessionStorage.setItem('atm_banner_closed', 'true');
+            const bannerEl = document.querySelector('.atm-banner');
+            if (bannerEl) bannerEl.style.display = 'none';
+        }
+
+        async function fetchAtmosferaBanner() {
+            const bannerEl = document.querySelector('.atm-banner');
+            if (!bannerEl) return;
+
+            if (sessionStorage.getItem('atm_banner_closed') === 'true') {
+                bannerEl.style.display = 'none';
+                return;
+            }
+
+            const proVal = localStorage.getItem('lumina_pro') === 'true';
+            const trialActive = (typeof isTrialActive === 'function') ? isTrialActive() : false;
+            const userType = proVal ? "PRO" : (trialActive ? "TRIAL" : "FREE");
+            const isPro = userType === "PRO";
+
+            try {
+                const resp = await fetch(`${API}?action=banner&userType=${userType}&_cb=${Date.now()}`);
+                const banners = await resp.json();
+
+                if (!banners || !banners.length) {
+                    bannerEl.style.display = 'none';
+                    return;
+                }
+
+                const b = banners[0];
+                if (!b) { bannerEl.style.display = 'none'; return; }
+
+                // Sin imagen de fondo — hereda var(--card-bg) del CSS para respetar el tema
+                bannerEl.style.background = '';
+
+                const closeAction = isPro ? "closeAtmosferaBanner(); " : "";
+                const closeBtnHtml = isPro ? `
+                    <div onclick="closeAtmosferaBanner()" style="position:absolute; top:15px; right:15px; cursor:pointer; color:var(--text); opacity:0.5; padding:5px; z-index:10; transition:0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </div>
+                ` : "";
+
+                // HTML idéntico al hub: var(--text), var(--accent), mismas proporciones
+                bannerEl.innerHTML = `
+                    ${closeBtnHtml}
+                    <h2 style="font-family:'Playfair Display', serif; font-size: 2rem; font-style: italic; margin-bottom: 15px; line-height: 1.2; color: var(--text); padding-top: ${isPro ? '10px' : '0'};">
+                        ${b.titulo}
+                    </h2>
+                    <p style="font-size: 0.9rem; opacity: 0.6; line-height: 1.6; margin-bottom: 25px; width: 100%; max-width: 380px; margin-left: auto; margin-right: auto; font-weight: 300; color: var(--text);">
+                        ${b.mensaje}
+                    </p>
+                    <div class="atm-banner-actions">
+                        ${b.btn1Texto ? `<button onclick="${closeAction}handleBannerAction('${b.btn1Accion}')"
+                            style="border-radius:50px; padding:16px; font-size:0.8rem; letter-spacing:2px; font-weight:700; background:var(--accent); color:#fff; border:none; cursor:pointer; box-shadow:0 8px 25px rgba(181,131,58,0.25); text-transform:uppercase;">
+                            ${b.btn1Texto}
+                        </button>` : ''}
+                        ${b.btn2Texto ? `<button onclick="${closeAction}handleBannerAction('${b.btn2Accion}')"
+                            style="background:transparent; border:1px solid rgba(181,131,58,0.3); color:var(--accent); padding:16px; border-radius:50px; font-size:0.75rem; letter-spacing:1.5px; cursor:pointer; font-weight:600; text-transform:uppercase;">
+                            ${b.btn2Texto}
+                        </button>` : ''}
+                    </div>
+                `;
+                bannerEl.style.display = '';
+                bannerEl.style.animation = 'modalFadeIn 0.5s ease-out';
+
+            } catch (e) {
+                console.warn("Lúmina Atmosfera: Banner sin conexión", e);
+                bannerEl.style.display = 'none';
+            }
+        }
+
+        function getDirectStreamLink(url) {
+            if (!url) return "";
+            // Google Drive
+            if (url.includes('drive.google.com')) {
+                const idMatch = url.match(/[-\w]{25,}/);
+                if (idMatch) return `https://docs.google.com/uc?export=download&id=${idMatch[0]}`;
+            }
+            // Dropbox
+            if (url.includes('dropbox.com')) {
+                return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '');
+            }
+            return url;
+        }
+
+        let _atmosferaPlaylist = [];
+        let _currentAtmosferaIdx = -1;
+
+        function playAtmosferaDetail(nombre, playlistSource = null) {
+            if (!_atmosferaCache) return;
+            
+            if (playlistSource === 'novedades') {
+                _atmosferaPlaylist = _atmosferaCache.novedades;
+            } else if (playlistSource && _atmosferaCache.categorias[playlistSource]) {
+                _atmosferaPlaylist = _atmosferaCache.categorias[playlistSource];
+            } else {
+                _atmosferaPlaylist = [..._atmosferaCache.novedades];
+                for (const cat in _atmosferaCache.categorias) {
+                    _atmosferaPlaylist = _atmosferaPlaylist.concat(_atmosferaCache.categorias[cat]);
+                }
+            }
+
+            const idx = _atmosferaPlaylist.findIndex(a => a.nombre === nombre);
+            if (idx === -1) return;
+            _currentAtmosferaIdx = idx;
+            const item = _atmosferaPlaylist[idx];
+
+            // Actualizar UI
+            document.getElementById('atm-detail-title').innerText = item.nombre;
+            document.getElementById('atm-detail-author').innerText = `Autor: ${item.autor}`;
+            
+            const coverUrl = getAtmosferaCover(item);
+            document.getElementById('atm-visual-card').style.background = `url(${coverUrl}) center/cover`;
+            
+            document.getElementById('atm-bar-title').innerText = item.nombre;
+            document.getElementById('atm-bar-author').innerText = item.autor;
+            document.getElementById('atm-bar-cover').src = coverUrl;
+
+            const player = document.getElementById('ambient-player');
+            if (player) {
+                // Reset crítico
+                player.pause();
+                player.currentTime = 0;
+                player.src = "";
+                player.load();
+
+                isAtmosferaPlaying = false;
+                updateAtmosferaPlayUI();
+                
+                const streamUrl = getDirectStreamLink(item.link);
+                player.src = streamUrl;
+                player.load();
+                
+                // Iniciar Visual con pequeño retraso para asegurar el DOM
+                setTimeout(() => iniciarVisual(item.categoria, item.nombre), 100);
+
+                player.play().then(() => {
+                    isAtmosferaPlaying = true;
+                    updateAtmosferaPlayUI();
+                }).catch(e => {
+                    console.error("Playback failed:", e);
+                    let errorMsg = "Error de reproducción";
+                    if (e.name === 'NotAllowedError') errorMsg = "Reproducción bloqueada por el navegador";
+                    else if (e.name === 'NotSupportedError') errorMsg = "Formato de audio no soportado";
+                    showToast(`${errorMsg}: ${e.message.substring(0, 30)}`, "error");
+                });
+            }
+            if (navigator.vibrate) navigator.vibrate(15);
+        }
+
+        function toggleAtmosferaPlay() {
+            const player = document.getElementById('ambient-player');
+            if (!player || !player.src) return;
+            if (isAtmosferaPlaying) { player.pause(); isAtmosferaPlaying = false; }
+            else { player.play(); isAtmosferaPlaying = true; }
+            updateAtmosferaPlayUI();
+        }
+
+        function updateAtmosferaPlayUI() {
+            const playIcon = document.getElementById('atm-play-icon');
+            const pauseIcon = document.getElementById('atm-pause-icon');
+            if (playIcon) playIcon.style.display = isAtmosferaPlaying ? 'none' : 'block';
+            if (pauseIcon) pauseIcon.style.display = isAtmosferaPlaying ? 'block' : 'none';
+        }
+
+        function nextAtmosfera() {
+            if (_atmosferaPlaylist.length === 0 || _currentAtmosferaIdx === -1) return;
+            let nextIdx = _currentAtmosferaIdx + 1;
+            if (nextIdx >= _atmosferaPlaylist.length) nextIdx = 0;
+            playAtmosferaDetail(_atmosferaPlaylist[nextIdx].nombre);
+        }
+
+        function prevAtmosfera() {
+            if (_atmosferaPlaylist.length === 0 || _currentAtmosferaIdx === -1) return;
+            let prevIdx = _currentAtmosferaIdx - 1;
+            if (prevIdx < 0) prevIdx = _atmosferaPlaylist.length - 1;
+            playAtmosferaDetail(_atmosferaPlaylist[prevIdx].nombre);
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function initAtmosferaPlayer() {
+            const player = document.getElementById('ambient-player');
+            if (!player) return;
+
+            const fill = document.querySelector('.atm-progress-fill');
+            const currentTimeEl = document.querySelector('.atm-progress-container span:first-child');
+            const durationEl = document.querySelector('.atm-progress-container span:last-child');
+            const progressBar = document.querySelector('.atm-progress-bar');
+
+            player.addEventListener('timeupdate', () => {
+                if (player.duration) {
+                    const pct = (player.currentTime / player.duration * 100);
+                    if (fill) fill.style.width = pct + '%';
+                    if (currentTimeEl) currentTimeEl.innerText = formatTime(player.currentTime);
+                    if (durationEl) durationEl.innerText = formatTime(player.duration);
+                }
+            });
+
+            player.addEventListener('loadedmetadata', () => {
+                if (durationEl) durationEl.innerText = formatTime(player.duration);
+            });
+
+            player.addEventListener('ended', () => {
+                nextAtmosfera();
+            });
+
+            // Seeking
+            if (progressBar) {
+                progressBar.style.cursor = 'pointer';
+                progressBar.onclick = (e) => {
+                    const rect = progressBar.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const pct = x / rect.width;
+                    player.currentTime = pct * player.duration;
+                };
+            }
+
+            // Volume (Extra controls slider)
+            const volSliderContainer = document.querySelector('.atm-extra-controls div');
+            if (volSliderContainer) {
+                volSliderContainer.style.cursor = 'pointer';
+                volSliderContainer.onclick = (e) => {
+                    const rect = volSliderContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const vol = Math.max(0, Math.min(1, x / rect.width));
+                    player.volume = vol;
+                    volSliderContainer.firstElementChild.style.width = (vol * 100) + '%';
+                };
+            }
         }
 
         function initAmbient() {
             const player = document.getElementById('ambient-player');
             const saved = localStorage.getItem('lumina_ambient') || 'none';
             const vol = localStorage.getItem('lumina_ambient_vol') || '0.5';
-            
             const volInput = document.getElementById('ambient-vol');
             if (volInput) volInput.value = vol;
-            
             setAmbientVolume(vol);
-            updateAmbientUI(saved);
+            if (saved !== 'none' && AMBIENT_SOURCES[saved]) {
+                player.src = AMBIENT_SOURCES[saved];
+                player.load();
+            }
+            initAtmosferaPlayer();
         }
+
 
         // Guarda para evitar que OneSignal sobreescriba cambios locales recientes
         const _pendingSync = {};
