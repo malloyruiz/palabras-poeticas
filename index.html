@@ -723,7 +723,7 @@
                 "sidebar banner visual"
                 "sidebar content visual"
                 "player player player";
-            grid-template-columns: 100px 1fr 320px;
+            grid-template-columns: 75px 1fr 320px;
             grid-template-rows: auto 1fr 90px;
             height: 100%;
             width: 100%;
@@ -741,8 +741,8 @@
         }
 
         .atm-heart-box {
-            height: 100px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05));
+            height: 75px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.1));
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -766,13 +766,19 @@
         }
 
         .atm-fav-item {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            background: #ccc;
-            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
             overflow: hidden;
             cursor: pointer;
+            transition: 0.3s;
+        }
+        .atm-fav-item:hover { transform: scale(1.05); border-color: var(--accent); }
+        .atm-fav-item img { width: 100%; height: 100%; object-fit: cover; }
+        
+        #atm-fav-btn.is-favorite { color: #ff4b4b !important; fill: #ff4b4b !important; opacity: 1 !important; }
             transition: 0.3s;
             position: relative;
         }
@@ -5057,6 +5063,7 @@ body[data-cat="sendas"] #header-cat {
                         if (resSync.action === "pulled" && resSync.data) {
                             console.log("Lúmina: Datos de la nube son más recientes. Absorbiendo progreso...");
                             pullSync(resSync.data);
+                            renderAtmosferaFavorites(); // <-- Nueva línea
                         }
 
                         if (resSync.devices) {
@@ -5081,6 +5088,7 @@ body[data-cat="sendas"] #header-cat {
                 // Forzar re-render de UI para mostrar progreso absorbido
                 if (typeof updateGamification === 'function') updateGamification();
                 if (typeof updateLogroDelDia === 'function') updateLogroDelDia();
+                if (typeof renderExpansions === 'function' && typeof allExpansions !== 'undefined' && allExpansions.length > 0) renderExpansions(allExpansions);
             } catch (e) { 
                 isPullingSync = false;
                 console.error("Pull Sync Error", e); 
@@ -5479,9 +5487,9 @@ body[data-cat="sendas"] #header-cat {
                         ÁNIMO
                     </button>
                     
-                    <button class="btn-fab-item" onclick="openCategory('atmosfera')" title="Atmosfera Audio">
+                    <button class="btn-fab-item" onclick="openCategory('atmosfera')" title="Atmósferas Audio">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
-                        ATMOSFERA
+                        ATMÓSFERAS
                     </button>
 
                     <button class="btn-fab-item" onclick="openCategory('pausa')" title="Pausa Consciente">
@@ -5869,16 +5877,10 @@ body[data-cat="sendas"] #header-cat {
                     <!-- Sidebar Izquierda: Favoritos -->
                     <div class="atm-sidebar-left">
                         <div class="atm-heart-box">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            <img src="https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/icon-640px-w.png" style="width: 35px; height: 35px; opacity: 0.8;">
                         </div>
-                        <div class="atm-fav-list">
-                            <div class="atm-fav-item"><img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=100"></div>
-                            <div class="atm-fav-item"><img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=100"></div>
-                            <div class="atm-fav-item"><img src="https://images.unsplash.com/photo-1439405326854-01517489c73e?auto=format&fit=crop&w=100"></div>
-                            <div class="atm-arrow-down">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
-                            </div>
-                            <div class="atm-fav-item"><img src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=100"></div>
+                        <div class="atm-fav-list" id="atm-fav-list">
+                            <!-- Inyectado por JS -->
                         </div>
                     </div>
 
@@ -5904,6 +5906,9 @@ body[data-cat="sendas"] #header-cat {
                             </div>
                             <div class="atm-glass-overlay"></div>
                             
+                            <div id="atm-default-logo" style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: 5; opacity: 0.15; transition: 0.5s; pointer-events: none;">
+                                <img src="https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/icon-640px-w.png" style="width: 140px; height: 140px;">
+                            </div>
                             <canvas id="atm-visual-canvas"></canvas>
 
                             <div class="atm-visual-content">
@@ -5911,25 +5916,25 @@ body[data-cat="sendas"] #header-cat {
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                                 </div>
-                                <h3 id="atm-detail-title">Título sonido</h3>
-                                <p id="atm-detail-author">Autor: Lúmina</p>
+                                <h3 id="atm-detail-title">Lúmina</h3>
+                                <p id="atm-detail-author">Bienvenido a Atmósferas</p>
                             </div>
                         </div>
                         <div class="atm-desc-box" id="atm-detail-desc">
-                            Selecciona una atmósfera para descubrir su historia y beneficios.
+                            Selecciona una atmósfera para comenzar tu viaje sonoro.
                         </div>
                     </div>
 
                     <!-- Barra de Reproducción (Full Width Bottom) -->
                     <div class="atm-player-bar">
                         <div class="atm-player-info">
-                            <img id="atm-bar-cover" src="https://images.unsplash.com/photo-1514525253361-bee8718a300a?auto=format&fit=crop&q=80&w=200" alt="Cover">
+                            <img id="atm-bar-cover" src="https://github.com/malloyruiz/palabras-poeticas/blob/main/icon-640px-w.png?raw=true" alt="Cover">
                             <div>
-                                <h5 id="atm-bar-title">Feeling Good</h5>
-                                <p id="atm-bar-author">Nina Simone</p>
+                                <h5 id="atm-bar-title">Atmósferas</h5>
+                                <p id="atm-bar-author">Lúmina</p>
                             </div>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 10px; opacity: 0.5;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.5;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                            <svg id="atm-fav-btn" onclick="toggleFavoriteAtmosfera()" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 15px; opacity: 0.5; cursor: pointer; transition: 0.3s;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            <svg onclick="shareAsImage('atmosferas')" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 12px; opacity: 0.5; cursor: pointer; transition: 0.3s;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         </div>
 
                         <div class="atm-player-controls">
@@ -6851,6 +6856,7 @@ body[data-cat="sendas"] #header-cat {
             }
             localStorage.setItem('lumina_pinned_exps', JSON.stringify(pinned));
             renderExpansions(allExpansions);
+            if (typeof pushSync === 'function') pushSync(true);
         }
 
 
@@ -8223,20 +8229,26 @@ body[data-cat="sendas"] #header-cat {
             const accent = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b5833a';
             const isDark = document.body.getAttribute('data-theme') === 'dark';
 
+            const moodHistory = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
+            const moodMap = { 'Calma': 6, 'Claridad': 5, 'Enfoque': 4, 'Cansancio': 3, 'Frustración': 2, 'Ansiedad': 1 };
+            const moodData = [];
+
             for (let i = 6; i >= 0; i--) {
                 const d = new Date();
                 d.setHours(0,0,0,0);
                 d.setDate(d.getDate() - i);
-                const dStr = d.toDateString(); // Considerar usar función de serialización de fecha estandarizada aquí si se requiere consistencia total
+                
+                const dStr = d.toDateString(); // Formato nativo JS (para Bitácora)
+                const dKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; // Formato ISO corto (YYYY-MM-DD)
                 
                 // Labels resumidos (Lun, Mar...)
                 days.push(d.toLocaleDateString('es-ES', { weekday: 'short' }));
                 
                 // Dato 1: Consistencia
-                consistencyData.push(visitLog.includes(dStr) ? 1 : 0);
+                consistencyData.push(visitLog.includes(dKey) ? 1 : 0);
                 
                 // Dato 2: Minutos de Paz
-                const pauseEntry = pauseLog.find(p => p.date === dStr);
+                const pauseEntry = pauseLog.find(p => p.date === dKey);
                 peaceData.push(pauseEntry ? pauseEntry.min : 0);
                 
                 // Dato 3: Reflexiones (Bitácora)
@@ -8244,11 +8256,20 @@ body[data-cat="sendas"] #header-cat {
                 bitacoraData.push(reflCount);
                 
                 // Dato 4: Lecciones (Sendas)
-                const sendaCount = sendaLog.filter(e => e.date === dStr).length;
+                const sendaCount = sendaLog.filter(e => e.date === dKey).length;
                 sendaData.push(sendaCount);
+
+                // Dato 5: Ánimo
+                const dayMoods = moodHistory.filter(m => new Date(m.date).toDateString() === dStr);
+                if (dayMoods.length > 0) {
+                    const lastMood = dayMoods[dayMoods.length - 1].state;
+                    moodData.push(moodMap[lastMood] || 0);
+                } else {
+                    moodData.push(null);
+                }
             }
 
-            const chartConfig = (data, pData) => ({
+            const chartConfig = (data, pData, mData) => ({
                 type: 'line',
                 data: {
                     labels: days,
@@ -8297,6 +8318,17 @@ body[data-cat="sendas"] #header-cat {
                             tension: 0.4,
                             pointRadius: 0,
                             yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Ánimo',
+                            data: mData,
+                            borderColor: 'rgba(128,128,128,0.3)',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            tension: 0.4,
+                            spanGaps: true,
+                            yAxisID: 'y'
                         }
                     ]
                 },
@@ -8320,6 +8352,10 @@ body[data-cat="sendas"] #header-cat {
                                     if (ctx.dataset.label === 'Reflexiones') return `${val} reflexiones`;
                                     if (ctx.dataset.label === 'Lecciones') return `${val} lecciones senda`;
                                     if (ctx.dataset.label === 'Consistencia') return (val ? 'Visitado' : 'Sin visita');
+                                    if (ctx.dataset.label === 'Ánimo') {
+                                        const reverseMap = { 6:'Calma', 5:'Claridad', 4:'Enfoque', 3:'Cansancio', 2:'Frustración', 1:'Ansiedad' };
+                                        return `Ánimo: ${reverseMap[val] || '?'}`;
+                                    }
                                     return `${val}`;
                                 }
                             }
@@ -8343,54 +8379,15 @@ body[data-cat="sendas"] #header-cat {
             const ctx = document.getElementById('habits-chart');
             if (ctx) {
                 if (habitsChartInstance) habitsChartInstance.destroy();
-                habitsChartInstance = new Chart(ctx, chartConfig(consistencyData, peaceData));
+                habitsChartInstance = new Chart(ctx, chartConfig(consistencyData, peaceData, moodData));
             }
 
             // Renderizar Gráfico Perfil
             const ctxProfile = document.getElementById('profile-habits-chart');
             if (ctxProfile) {
                 if (profileChartInstance) profileChartInstance.destroy();
-                profileChartInstance = new Chart(ctxProfile, chartConfig(consistencyData, peaceData));
+                profileChartInstance = new Chart(ctxProfile, chartConfig(consistencyData, peaceData, moodData));
             }
-
-            // --- INTEGRACIÓN DE ÁNIMO EN GRÁFICOS (Dataset adicional) ---
-            const moodHistory = JSON.parse(localStorage.getItem('lumina_moods') || '[]');
-            const moodData = [];
-            const moodMap = { 'Calma': 6, 'Claridad': 5, 'Enfoque': 4, 'Cansancio': 3, 'Frustración': 2, 'Ansiedad': 1 };
-
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
-                const dStr = d.toDateString();
-                const dayMoods = moodHistory.filter(m => new Date(m.date).toDateString() === dStr);
-                if (dayMoods.length > 0) {
-                    const lastMood = dayMoods[dayMoods.length - 1].state;
-                    moodData.push(moodMap[lastMood] || 0);
-                } else {
-                    moodData.push(null); // O 0 si prefieres que la línea baje
-                }
-            }
-
-            const appendMoodDataset = (chart) => {
-                if (!chart) return;
-                chart.data.datasets.push({
-                    label: 'Ánimo',
-                    data: moodData,
-                    borderColor: 'rgba(128,128,128,0.3)',
-                    backgroundColor: 'transparent',
-                    borderWidth: 2,
-                    pointRadius: 3,
-                    tension: 0.4,
-                    spanGaps: true,
-                    yAxisID: 'y'
-                });
-                chart.update();
-            };
-
-            setTimeout(() => {
-                const today = getTodayKey();
-                appendMoodDataset(habitsChartInstance);
-                appendMoodDataset(profileChartInstance);
-            }, 100);
         }
         function renderRachaVisual() {
             const container = document.getElementById('racha-visual');
@@ -9002,7 +8999,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 }
 
                 // Header Label dinámico
-                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'EDICIÓN ESPECIAL', 'pausa': 'PAUSA CONSCIENTE', 'atmosfera': 'ATMOSFERA', 'expansiones': 'EXPANSIONES', 'bitacora': 'BITÁCORA' };
+                const labels = { 'palabras': 'PALABRA DE HOY', 'afirmaciones': 'AFIRMACIÓN DE HOY', 'frases': 'SABIDURÍA DE HOY', 'extra': 'EDICIÓN ESPECIAL', 'pausa': 'PAUSA CONSCIENTE', 'atmosfera': 'ATMÓSFERAS', 'expansiones': 'EXPANSIONES', 'bitacora': 'BITÁCORA' };
                 const headerCat = document.getElementById('header-cat');
                 if (headerCat) headerCat.innerText = labels[cat] || 'LÚMINA';
 
@@ -11244,6 +11241,9 @@ if (id === 'content-header' || id === 'side-panel') {
         let _atmosferaCache = null;
         let isAtmosferaPlaying = false;
         let _visualAnimationId = null;
+        const _luminaLogoWhite = new Image();
+        _luminaLogoWhite.crossOrigin = "anonymous";
+        _luminaLogoWhite.src = "https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/icon-640px-w.png";
 
         // MOTOR VISUAL LÚMINA (DETERMINISTA Y SEGURO)
         const hashCode = (str) => {
@@ -11317,6 +11317,12 @@ if (id === 'content-header' || id === 'side-panel') {
             ctx.globalAlpha = 0.1; ctx.fillStyle = "white"; ctx.font = '900 130px serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText(String(nombre || "L").charAt(0).toUpperCase(), w/2, h/2);
+
+            // Logo en la esquina (Watermark)
+            if (_luminaLogoWhite.complete) {
+                ctx.globalAlpha = 0.6;
+                ctx.drawImage(_luminaLogoWhite, w - 100, 20, 80, 80);
+            }
         }
 
         function toggleAtmosferaVisual() {
@@ -11404,11 +11410,27 @@ if (id === 'content-header' || id === 'side-panel') {
             animar();
         }
 
+        const _atmCoverCache = {};
         function getAtmosferaCover(atm) {
-            if (atm.cover && atm.cover.trim() !== '') return atm.cover;
-            const temp = document.createElement('canvas'); temp.width = 400; temp.height = 400;
-            renderPortada(temp, atm.categoria, atm.nombre);
-            return temp.toDataURL();
+            const key = `${atm.categoria}_${atm.nombre}`;
+            if (_atmCoverCache[key]) return _atmCoverCache[key];
+            
+            try {
+                if (atm.cover && atm.cover.trim() !== '') {
+                    _atmCoverCache[key] = atm.cover;
+                    return atm.cover;
+                }
+                const temp = document.createElement('canvas'); 
+                temp.width = 400; temp.height = 400;
+                renderPortada(temp, atm.categoria, atm.nombre);
+                // Usar JPEG con calidad 0.7 para ahorrar memoria
+                const dataUrl = temp.toDataURL('image/jpeg', 0.7);
+                _atmCoverCache[key] = dataUrl;
+                return dataUrl;
+            } catch (e) {
+                console.error("Error generating Atmosphere cover:", e);
+                return "https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/icon-640px-w.png";
+            }
         }
 
         function scrollAtmGrid(btn, offset) {
@@ -11627,52 +11649,54 @@ if (id === 'content-header' || id === 'side-panel') {
             // Actualizar UI
             document.getElementById('atm-detail-title').innerText = item.nombre;
             document.getElementById('atm-detail-author').innerText = `Autor: ${item.autor}`;
+            if (item.desc) {
+                document.getElementById('atm-detail-desc').innerText = item.desc;
+            } else {
+                document.getElementById('atm-detail-desc').innerText = "Esta atmósfera no tiene descripción disponible.";
+            }
+
+            // Ocultar logo por defecto si existe
+            const defaultLogo = document.getElementById('atm-default-logo');
+            if (defaultLogo) defaultLogo.style.opacity = '0.05';
             
             const coverUrl = getAtmosferaCover(item);
             document.getElementById('atm-visual-card').style.background = `url(${coverUrl}) center/cover`;
             
+            // Barra de reproducción
             document.getElementById('atm-bar-title').innerText = item.nombre;
             document.getElementById('atm-bar-author').innerText = item.autor;
             document.getElementById('atm-bar-cover').src = coverUrl;
 
+            // Audio
             const player = document.getElementById('ambient-player');
-            if (player) {
-                // Reset crítico
-                player.pause();
-                player.currentTime = 0;
-                player.src = "";
-                player.load();
-
+            player.src = getDirectStreamLink(item.link || item.url);
+            player.play().catch(e => {
+                console.error("Autoplay bloqueado o error en URL", e);
                 isAtmosferaPlaying = false;
                 updateAtmosferaPlayUI();
-                
-                const streamUrl = getDirectStreamLink(item.link);
-                player.src = streamUrl;
-                player.load();
-                
-                // Iniciar Visual con pequeño retraso para asegurar el DOM
-                setTimeout(() => iniciarVisual(item.categoria, item.nombre), 100);
-
-                player.play().then(() => {
-                    isAtmosferaPlaying = true;
-                    updateAtmosferaPlayUI();
-                }).catch(e => {
-                    console.error("Playback failed:", e);
-                    let errorMsg = "Error de reproducción";
-                    if (e.name === 'NotAllowedError') errorMsg = "Reproducción bloqueada por el navegador";
-                    else if (e.name === 'NotSupportedError') errorMsg = "Formato de audio no soportado";
-                    showToast(`${errorMsg}: ${e.message.substring(0, 30)}`, "error");
-                });
-            }
-            if (navigator.vibrate) navigator.vibrate(15);
+            });
+            
+            isAtmosferaPlaying = true;
+            updateAtmosferaPlayUI();
+            updateFavoriteUI(); // <-- Nueva línea
+            
+            // Iniciar Visual
+            iniciarVisual(item.categoria, item.nombre);
         }
 
         function toggleAtmosferaPlay() {
             const player = document.getElementById('ambient-player');
-            if (!player || !player.src) return;
-            if (isAtmosferaPlaying) { player.pause(); isAtmosferaPlaying = false; }
-            else { player.play(); isAtmosferaPlaying = true; }
+            if (!player) return;
+            
+            if (isAtmosferaPlaying) {
+                player.pause();
+                isAtmosferaPlaying = false;
+            } else {
+                player.play();
+                isAtmosferaPlaying = true;
+            }
             updateAtmosferaPlayUI();
+            if (navigator.vibrate) navigator.vibrate(15);
         }
 
         function updateAtmosferaPlayUI() {
@@ -11703,7 +11727,67 @@ if (id === 'content-header' || id === 'side-panel') {
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
+        // LÓGICA DE FAVORITOS (ATMÓSFERAS)
+        function toggleFavoriteAtmosfera() {
+            if (_currentAtmosferaIdx === -1 || !_atmosferaPlaylist[_currentAtmosferaIdx]) return;
+            const item = _atmosferaPlaylist[_currentAtmosferaIdx];
+            let favs = JSON.parse(localStorage.getItem('lumina_fav_atmosferas') || '[]');
+            
+            const existingIdx = favs.findIndex(f => f.nombre === item.nombre);
+            if (existingIdx > -1) {
+                favs.splice(existingIdx, 1);
+            } else {
+                favs.push({
+                    nombre: item.nombre,
+                    autor: item.autor,
+                    categoria: item.categoria,
+                    link: item.link,
+                    cover: item.cover || null
+                });
+            }
+            
+            localStorage.setItem('lumina_fav_atmosferas', JSON.stringify(favs));
+            renderAtmosferaFavorites();
+            updateFavoriteUI();
+            pushSync();
+        }
+
+        function renderAtmosferaFavorites() {
+            const container = document.getElementById('atm-fav-list');
+            if (!container) return;
+            
+            const favs = JSON.parse(localStorage.getItem('lumina_fav_atmosferas') || '[]');
+            container.innerHTML = '';
+            
+            favs.forEach(fav => {
+                const div = document.createElement('div');
+                div.className = 'atm-fav-item';
+                div.title = fav.nombre;
+                const cover = getAtmosferaCover(fav);
+                div.innerHTML = `<img src="${cover}" alt="${fav.nombre}" loading="lazy">`;
+                div.onclick = () => {
+                    if (_atmosferaPlaylist.length === 0) _atmosferaPlaylist = [fav];
+                    playAtmosferaDetail(fav.nombre);
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function updateFavoriteUI() {
+            if (_currentAtmosferaIdx === -1 || !_atmosferaPlaylist[_currentAtmosferaIdx]) return;
+            const item = _atmosferaPlaylist[_currentAtmosferaIdx];
+            const favs = JSON.parse(localStorage.getItem('lumina_fav_atmosferas') || '[]');
+            const isFav = favs.some(f => f.nombre === item.nombre);
+            
+            const btn = document.getElementById('atm-fav-btn');
+            if (btn) {
+                if (isFav) btn.classList.add('is-favorite');
+                else btn.classList.remove('is-favorite');
+            }
+        }
+
         function initAtmosferaPlayer() {
+            renderAtmosferaFavorites();
             const player = document.getElementById('ambient-player');
             if (!player) return;
 
@@ -12213,7 +12297,8 @@ if (id === 'content-header' || id === 'side-panel') {
                 'bitacora': ['Evolución Escrita', 'Huellas de Sabiduría', 'Memoria Consciente'],
                 'pausa': ['Refugio Temporal', 'Momento de Paz', 'Calma Profunda'],
                 'senda': ['Mi Senda de Crecimiento', 'Ruta de Maestría', 'Camino Forjado'],
-                'senda-complete': ['Senda Completada', 'Maestría Alcanzada', 'Logro Conquistado']
+                'senda-complete': ['Senda Completada', 'Maestría Alcanzada', 'Logro Conquistado'],
+                'atmosferas': ['Viaje Sonoro', 'Armonía Atmosférica', 'Eco de Calma']
             };
             const list = titles[cat] || ['Lúmina App', 'Momento de Luz'];
             return list[Math.floor(Math.random() * list.length)];
@@ -12260,6 +12345,12 @@ if (id === 'content-header' || id === 'side-panel') {
             if (cat === 'pausa') {
                 const title = window._lastPausaTitle || "una pausa consciente";
                 return `Me he tomado un momento de paz con la meditación "${title}" en Lúmina. 🌿 Encuentra tu centro: ${url}`;
+            }
+
+            if (cat === 'atmosferas') {
+                if (_currentAtmosferaIdx === -1) return `Explora paisajes sonoros inmersivos en Lúmina. 🎧 ${url}`;
+                const item = _atmosferaPlaylist[_currentAtmosferaIdx];
+                return `Relajándome con la atmósfera "${item.nombre}" de ${item.autor} en Lúmina. 🎧 Sintoniza tu paz: ${url}`;
             }
 
             if (cat === 'mood-state') {
@@ -12421,12 +12512,25 @@ if (id === 'content-header' || id === 'side-panel') {
                     </div>`;
                 }
                 footerEl.textContent = new Date().getFullYear();
-            } else if (cat === 'pausa') {
-                titleEl.textContent = window._lastPausaTitle || "Pausa Consciente";
-                const phrase = window._lastPausaPhrase || "Un momento para volver al presente y renovar la energía.";
-                bodyEl.innerHTML = `<div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.4rem; line-height:1.5; color:#b5833a; margin-bottom:20px;">
-                    "${phrase}"
-                </div>`;
+            } else if (cat === 'atmosferas') {
+                if (_currentAtmosferaIdx === -1) {
+                    titleEl.textContent = "Paisajes Sonoros";
+                    bodyEl.innerHTML = `<div style="font-size:0.9rem; opacity:0.8; line-height:1.6; margin-top:10px;">Descubre una colección de sonidos inmersivos diseñados para tu paz mental.</div>`;
+                } else {
+                    const item = _atmosferaPlaylist[_currentAtmosferaIdx];
+                    titleEl.textContent = item.nombre;
+                    bodyEl.innerHTML = `<div style="font-style:italic; font-family:'Playfair Display', serif; font-size:1.4rem; line-height:1.5; color:#b5833a; margin-bottom:20px;">
+                        "${item.desc || 'Una atmósfera para conectar con el presente.'}"
+                    </div>`;
+                    
+                    const extraList = document.getElementById('cap-extra-list');
+                    if (extraList) {
+                        extraList.innerHTML = `<div style="background:rgba(181,131,58,0.05); padding:15px; border-radius:15px; border:1px solid rgba(181,131,58,0.1); text-align:center;">
+                            <small style="letter-spacing:2px; font-weight:700; color:#b5833a; display:block; margin-bottom:5px; font-size:0.5rem; text-transform:uppercase;">AUTORÍA</small>
+                            <div style="font-size:0.9rem; opacity:0.8; color:#1a1a1a;">${item.autor} &mdash; ${item.categoria}</div>
+                        </div>`;
+                    }
+                }
                 footerEl.textContent = new Date().getFullYear();
             } else if (cat === 'bitacora') {
                 titleEl.textContent = "Evolución Consciente";
