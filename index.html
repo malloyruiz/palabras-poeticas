@@ -1069,6 +1069,20 @@
         [data-theme="dark"] .atm-desc-box { background: #222; color: #ccc; }
 
         /* Limpieza de Visual para Anuncios */
+        body.is-playing-ad #atm-detail-desc {
+            display: none !important;
+        }
+
+        #atm-visual-card.is-playing-ad {
+            height: 100% !important;
+            flex: 1 !important;
+            aspect-ratio: auto !important;
+            max-height: none !important;
+            margin: 0;
+            border-radius: 20px;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.8);
+        }
+
         #atm-visual-card.is-playing-ad .atm-card-actions,
         #atm-visual-card.is-playing-ad .atm-aurora-bg,
         #atm-visual-card.is-playing-ad .atm-glass-overlay,
@@ -1228,17 +1242,7 @@
             }
 
             .atm-sidebar-left {
-                flex-direction: row;
-                padding: 10px 15px;
-                justify-content: space-around;
-                border-right: none;
-                border-bottom: 1px solid rgba(255,255,255,0.05);
-                height: 60px;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                background: #000;
-                order: 0;
+                display: none !important;
             }
 
             .atm-sidebar-left .atm-logo { margin-bottom: 0; }
@@ -1319,6 +1323,66 @@
                 backdrop-filter: blur(20px);
                 border-top: 1px solid var(--card-border);
                 box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+            }
+
+            body.is-playing-ad .atm-player-bar {
+                display: none !important;
+            }
+
+            /* Espacio para que el contenido no quede tapado por el player fijo */
+            .atm-layout {
+                padding-bottom: 130px !important;
+            }
+
+            .atm-player-info { margin-bottom: 5px; }
+            .atm-player-info img { width: 40px; height: 40px; }
+            .atm-player-controls { width: 100%; }
+            
+            /* Mostrar barra de herramientas centrada en móvil */
+            .atm-toolbar-center {
+                display: flex !important;
+            }
+
+            /* Ocultar barra de extras original en móvil */
+            .atm-extra-controls {
+                display: none !important;
+            }
+            
+            .atm-mobile-visual-btn { 
+                display: block !important; 
+                width: 24px !important; 
+                height: 24px !important; 
+                color: var(--text);
+            }
+            
+            .atm-banner {
+                padding: 25px 15px;
+                height: auto;
+                min-height: 160px;
+                border-radius: 16px;
+            }
+
+            .atm-banner-actions {
+                flex-direction: column !important;
+                max-width: 350px !important;
+            }
+            .atm-banner-actions button {
+                max-width: 100% !important;
+            }
+
+            /* Publicidad en Móvil: Fullscreen Total */
+            body.is-playing-ad .atm-sidebar-right {
+                display: block !important;
+                position: fixed !important;
+                inset: 0 !important;
+                z-index: 10000 !important;
+            }
+            body.is-playing-ad .atm-visual-card {
+                height: 100vh !important;
+                aspect-ratio: auto !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+                max-width: none !important;
             }
 
             /* Espacio para que el contenido no quede tapado por el player fijo */
@@ -11571,6 +11635,7 @@ if (id === 'content-header' || id === 'side-panel') {
             _isPlayingAd = false;
             const card = document.getElementById('atm-visual-card');
             if (card) card.classList.remove('is-playing-ad');
+            document.body.classList.remove('is-playing-ad');
             document.getElementById('atm-ad-label').style.display = 'none';
             document.getElementById('atm-skip-ad').style.display = 'none';
             
@@ -11726,7 +11791,7 @@ if (id === 'content-header' || id === 'side-panel') {
             return 'night';
         }
 
-        function trackAtmosferaUsage(catName) {
+        function trackAtmosferaUsage(catName, itemName = null) {
             if (!catName || catName === 'novedades') return;
             try {
                 let stats = {};
@@ -11736,6 +11801,12 @@ if (id === 'content-header' || id === 'side-panel') {
                 }
                 const key = catName.toUpperCase();
                 stats[key] = (stats[key] || 0) + 1;
+                
+                if (itemName) {
+                    const itemKey = "ITEM:" + itemName.toUpperCase();
+                    stats[itemKey] = (stats[itemKey] || 0) + 1;
+                }
+                
                 localStorage.setItem('lumina_atm_stats', JSON.stringify(stats));
             } catch (e) { console.error("Track Usage Error:", e); }
         }
@@ -11775,11 +11846,98 @@ if (id === 'content-header' || id === 'side-panel') {
             const buildHTML = (data) => {
                 try {
                     let html = '';
+                    const isMobile = window.innerWidth <= 1024;
+                    const favs = JSON.parse(localStorage.getItem('lumina_fav_atmosferas') || '[]');
+                    const userName = localStorage.getItem('lumina_user_name') || 'Ti';
+                    
+                    const statsStr = localStorage.getItem('lumina_atm_stats');
+                    const stats = statsStr ? JSON.parse(statsStr) : {};
+
+                    // Recolectar todos los items para categorías dinámicas
+                    const allItems = [];
+                    if (data.novedades) allItems.push(...data.novedades);
+                    if (data.categorias) {
+                        for (let k in data.categorias) {
+                            if (k.toUpperCase() !== "ANUNCIOS") {
+                                allItems.push(...data.categorias[k]);
+                            }
+                        }
+                    }
+                    const uniqueItems = Array.from(new Map(allItems.filter(i => i && i.nombre).map(item => [item.nombre, item])).values());
+
+                    // --- 1. FAVORITOS (Móvil) ---
+                    if (isMobile && favs.length > 0) {
+                        html += `
+                            <div class="atm-category-row">
+                                <div class="atm-section-header">
+                                    <h2>Mis Favoritos</h2>
+                                    <span>Tus sonidos guardados</span>
+                                </div>
+                                <div class="atm-grid-wrapper">
+                                    <button class="atm-nav-arrow left" onclick="scrollAtmGrid(this, -400)">&#10094;</button>
+                                    <div class="atm-grid">
+                                        ${favs.map(atm => {
+                                            if (!atm || !atm.nombre) return '';
+                                            const safeNombre = atm.nombre.replace(/'/g, "\\'");
+                                            return `
+                                                <div class="atm-card" onclick="playAtmosferaDetail('${safeNombre}', 'favoritos')">
+                                                    <img src="${getAtmosferaCover(atm)}" alt="${atm.nombre}" loading="lazy">
+                                                    <h4>${atm.nombre}</h4>
+                                                    <p>${atm.autor || 'Lúmina'}</p>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    <button class="atm-nav-arrow right" onclick="scrollAtmGrid(this, 400)">&#10095;</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // --- 2. HECHO PARA TI (Recomendación diaria) ---
+                    const today = new Date().toISOString().split('T')[0];
+                    const dailySeed = hashCode(today);
+                    const recommended = [];
+                    const pool = [...uniqueItems];
+                    for (let i = 0; i < 6; i++) {
+                        if (pool.length === 0) break;
+                        const idx = Math.abs(seededRandom(dailySeed + i) * pool.length) % pool.length;
+                        recommended.push(pool.splice(idx, 1)[0]);
+                    }
+                    
+                    if (recommended.length > 0) {
+                        html += `
+                            <div class="atm-category-row">
+                                <div class="atm-section-header">
+                                    <h2>Hecho para ${userName}</h2>
+                                    <span>Recomendación del día</span>
+                                </div>
+                                <div class="atm-grid-wrapper">
+                                    <button class="atm-nav-arrow left" onclick="scrollAtmGrid(this, -400)">&#10094;</button>
+                                    <div class="atm-grid">
+                                        ${recommended.map(atm => {
+                                            const safeNombre = atm.nombre.replace(/'/g, "\\'");
+                                            return `
+                                                <div class="atm-card" onclick="playAtmosferaDetail('${safeNombre}', 'dynamic')">
+                                                    <img src="${getAtmosferaCover(atm)}" alt="${atm.nombre}" loading="lazy">
+                                                    <h4>${atm.nombre}</h4>
+                                                    <p>${atm.autor || 'Lúmina'}</p>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    <button class="atm-nav-arrow right" onclick="scrollAtmGrid(this, 400)">&#10095;</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // --- 3. NOVEDADES (Originalmente Lo Nuevo) ---
                     if (data.novedades && data.novedades.length > 0) {
                         html += `
                             <div class="atm-category-row">
                                 <div class="atm-section-header">
-                                    <h2>Lo Nuevo</h2>
+                                    <h2>Novedades</h2>
                                     <span>Sonidos recientes</span>
                                 </div>
                                 <div class="atm-grid-wrapper">
@@ -11802,7 +11960,41 @@ if (id === 'content-header' || id === 'side-panel') {
                             </div>
                         `;
                     }
+
+                    // --- 4. MÁS ESCUCHADOS ---
+                    const topItems = uniqueItems
+                        .filter(item => stats["ITEM:" + item.nombre.toUpperCase()])
+                        .sort((a, b) => (stats["ITEM:" + b.nombre.toUpperCase()] || 0) - (stats["ITEM:" + a.nombre.toUpperCase()] || 0))
+                        .slice(0, 10);
                     
+                    if (topItems.length > 0) {
+                        html += `
+                            <div class="atm-category-row">
+                                <div class="atm-section-header">
+                                    <h2>Más Escuchados</h2>
+                                    <span>Tus favoritos personales</span>
+                                </div>
+                                <div class="atm-grid-wrapper">
+                                    <button class="atm-nav-arrow left" onclick="scrollAtmGrid(this, -400)">&#10094;</button>
+                                    <div class="atm-grid">
+                                        ${topItems.map(atm => {
+                                            const safeNombre = atm.nombre.replace(/'/g, "\\'");
+                                            return `
+                                                <div class="atm-card" onclick="playAtmosferaDetail('${safeNombre}', 'dynamic')">
+                                                    <img src="${getAtmosferaCover(atm)}" alt="${atm.nombre}" loading="lazy">
+                                                    <h4>${atm.nombre}</h4>
+                                                    <p>${atm.autor || 'Lúmina'}</p>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    <button class="atm-nav-arrow right" onclick="scrollAtmGrid(this, 400)">&#10095;</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // --- 5. CATEGORÍAS ESTÁNDAR (Con ordenación interna) ---
                     const categories = data.categorias || {};
                     const sortedCats = Object.keys(categories).sort((a, b) => {
                         if (a.toUpperCase() === "ANUNCIOS") return 1;
@@ -11814,6 +12006,9 @@ if (id === 'content-header' || id === 'side-panel') {
                         if (catName.toUpperCase() === "ANUNCIOS") continue;
                         const items = categories[catName] || [];
                         if (items.length === 0) continue;
+
+                        // Ordenar items dentro de la categoría por uso
+                        items.sort((a, b) => (stats["ITEM:" + b.nombre.toUpperCase()] || 0) - (stats["ITEM:" + a.nombre.toUpperCase()] || 0));
 
                         html += `
                             <div class="atm-category-row">
@@ -11861,7 +12056,8 @@ if (id === 'content-header' || id === 'side-panel') {
                     console.warn("Caché de atmósferas inválida", e);
                 }
             } else {
-                container.innerHTML = '<div class="skeleton-text" style="width:100%; height:200px; border-radius:12px; margin-bottom:20px;"></div><div class="skeleton-text" style="width:100%; height:200px; border-radius:12px;"></div>';
+                // Si no hay caché, al menos mostrar Favoritos si estamos en móvil
+                container.innerHTML = buildHTML({}) + '<div class="skeleton-text" style="width:100%; height:200px; border-radius:12px; margin-bottom:20px;"></div><div class="skeleton-text" style="width:100%; height:200px; border-radius:12px;"></div>';
             }
 
             // 2. Fetch en background para actualizar si hay cambios
@@ -12064,6 +12260,7 @@ if (id === 'content-header' || id === 'side-panel') {
                 
                 const card = document.getElementById('atm-visual-card');
                 if (card) card.classList.add('is-playing-ad');
+                document.body.classList.add('is-playing-ad');
                 
                 const label = document.getElementById('atm-ad-label');
                 const skipBtn = document.getElementById('atm-skip-ad');
@@ -12168,6 +12365,9 @@ if (id === 'content-header' || id === 'side-panel') {
             
             // Iniciar Visual
             iniciarVisual(item.categoria, item.nombre);
+            
+            // Tracking de uso (Personalización)
+            if (!isAd) trackAtmosferaUsage(item.categoria, item.nombre);
             
             // Si es anuncio, mostrar botón saltar para PRO (por si acaso el flujo cambió)
             if (isAd && localStorage.getItem('lumina_pro') === 'true') {
