@@ -779,9 +779,7 @@
         .atm-fav-item img { width: 100%; height: 100%; object-fit: cover; }
         
         #atm-fav-btn.is-favorite { color: #ff4b4b !important; fill: #ff4b4b !important; opacity: 1 !important; }
-            transition: 0.3s;
-            position: relative;
-        }
+
         .atm-fav-item img {
             width: 100%;
             height: 100%;
@@ -1148,14 +1146,14 @@
             gap: 40px;
             margin-top: 12px;
             padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid var(--card-border);
             width: 100%;
         }
         .atm-toolbar-center svg {
             cursor: pointer;
             opacity: 0.6;
             transition: 0.3s;
-            color: white;
+            color: var(--text);
         }
         .atm-toolbar-center svg:hover {
             opacity: 1;
@@ -1299,9 +1297,10 @@
                 grid-template-rows: auto;
                 height: auto;
                 padding: 10px 15px;
-                background: rgba(10,10,10,0.98);
+                background: var(--modal-bg-solid);
                 backdrop-filter: blur(20px);
-                border-top: 1px solid rgba(255,255,255,0.1);
+                border-top: 1px solid var(--card-border);
+                box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
             }
 
             /* Espacio para que el contenido no quede tapado por el player fijo */
@@ -1327,7 +1326,7 @@
                 display: block !important; 
                 width: 24px !important; 
                 height: 24px !important; 
-                color: white;
+                color: var(--text);
             }
             
             .atm-banner {
@@ -5990,52 +5989,17 @@ body[data-cat="sendas"] #header-cat {
                     </p>
 
                     <div class="pausa-ambient-panel">
-                        <div style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.4; margin-bottom: 15px;">Sonido Ambiental</div>
-                        <div class="ambient-grid">
-                            <div class="ambient-item" data-amb="none" onclick="toggleAmbient('none')">
-                                <div class="ambient-icon-box">
-                                    <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-                                </div>
-                                <span class="ambient-label" style="font-size: 0.65rem;">Silencio</span>
-                            </div>
-                            <div class="ambient-item" data-amb="zen" onclick="toggleAmbient('zen')">
-                                <div class="ambient-icon-box">
-                                    <svg viewBox="0 0 24 24"><path d="M12 3c1.64 4 4 7 8 8-4 1.64-7 4-8 8-1.64-4-4-7-8-8 4-1.64 7-4 8-8z"></path></svg>
-                                </div>
-                                <span class="ambient-label" style="font-size: 0.65rem;">Zen</span>
-                            </div>
-                            <div class="ambient-item" data-amb="birds" onclick="toggleAmbient('birds')">
-                                <div class="ambient-icon-box">
-                                    <svg viewBox="0 0 24 24"><path d="M4 11c5-5 11-5 16 0-5-1-11-1-16 0zM4 15c5-5 11-5 16 0-5-1-11-1-16 0z"></path></svg>
-                                </div>
-                                <span class="ambient-label" style="font-size: 0.65rem;">Pájaros</span>
-                            </div>
-                            <div class="ambient-item" data-amb="forest" onclick="toggleAmbient('forest')">
-                                <div class="ambient-icon-box">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2l4 5h-3v4h5l-4 5h3l-5 6h-2l-5-6h3l-4-5h5V7H8l4-5z"></path></svg>
-                                </div>
-                                <span class="ambient-label" style="font-size: 0.65rem;">Bosque</span>
-                            </div>
-                            <div class="ambient-item" data-amb="ocean" onclick="toggleAmbient('ocean')">
-                                <div class="ambient-icon-box">
-                                    <svg viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
-                                </div>
-                                <span class="ambient-label" style="font-size: 0.65rem;">Océano</span>
-                            </div>
-                            <div class="ambient-item" data-amb="rain" onclick="toggleAmbient('rain')">
-                                <div class="ambient-icon-box">
-                                    <svg viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"></path><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="13" x2="12" y2="21"></line><line x1="16" y1="13" x2="16" y2="21"></line></svg>
-                                </div>
-                                <span class="ambient-label" style="font-size: 0.65rem;">Lluvia</span>
-                            </div>
-                            <div class="ambient-item" data-amb="waterfall" onclick="toggleAmbient('waterfall')">
-                                <div class="ambient-icon-box">
-                                    <svg viewBox="0 0 24 24"><path d="M8 4v16M12 6v14M16 4v16M20 6v14"></path></svg>
-                                </div>
-                                <span class="ambient-label" style="font-size: 0.65rem;">Cascada</span>
-                            </div>
+                        <div style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.4; margin-bottom: 15px;">Atmósfera de Sesión</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px;" id="pausa-atm-selector">
+                            <!-- Opciones inyectadas por JS -->
+                            <button onclick="setPausaAtmosfera(null)" id="pausa-atm-none" style="display:inline-flex; align-items:center; gap:6px; padding: 8px 18px; border-radius: 20px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text); font-size: 0.7rem; cursor: pointer; letter-spacing: 1px; transition: 0.3s;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                                Silencio
+                            </button>
                         </div>
-                        <input class="ambient-vol-slider" type="range" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; max-width: 300px; margin: 15px auto 30px; accent-color: var(--accent); height: 4px; cursor: pointer; display: block;">
+                        <p style="font-size: 0.6rem; opacity: 0.4; margin: 0; text-align: center;">
+                            <a href="#" onclick="openCategory('atmosfera'); return false;" style="color: var(--accent); text-decoration: none;">Descubrir más sonidos →</a>
+                        </p>
                     </div>
 
                     <button id="btn-start-pausa" class="btn-save" onclick="startPausaSession()" style="width: 100%; max-width: 300px; background: var(--accent); color: #fff; padding: 18px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; letter-spacing: 2px; border: none; display: block; margin: 0 auto;">INICIAR SESIÓN</button>
@@ -6116,6 +6080,10 @@ body[data-cat="sendas"] #header-cat {
                             </div>
                             <div class="atm-glass-overlay"></div>
                             
+                            <!-- UI de Publicidad -->
+                            <div id="atm-ad-label" style="display:none; position:absolute; top:20px; left:20px; z-index:20; background:rgba(0,0,0,0.6); color:#fff; padding:6px 14px; border-radius:20px; font-size:0.7rem; letter-spacing:1px; font-weight:700; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.1);">PUBLICIDAD</div>
+                            <button id="atm-skip-ad" onclick="skipAd()" style="display:none; position:absolute; top:20px; right:20px; z-index:20; background:var(--accent); color:#fff; border:none; padding:10px 20px; border-radius:30px; font-size:0.75rem; font-weight:700; cursor:pointer; box-shadow:0 10px 20px rgba(0,0,0,0.3); transition:0.3s;">SALTAR ANUNCIO</button>
+
                             <div id="atm-default-logo" style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: 5; opacity: 0.15; transition: 0.5s; pointer-events: none;">
                                 <img src="https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/icon-640px-w.png" style="width: 140px; height: 140px;">
                             </div>
@@ -8830,7 +8798,6 @@ body[data-cat="sendas"] #header-cat {
                 runSync(syncIntegrationsUI, 'Integraciones');
                 runSync(updateHeaderDate, 'Reloj');
                 runSync(createMotes, 'Motes');
-                runSync(initAmbient, 'Ambiente');
                 runSync(initAtmosferaPlayer, 'Atmosfera Player');
                 runSync(renderBitacoraTemplates, 'Bitácora');
                 runSync(updateMoodSummaryUI, 'Ánimo');
@@ -11399,59 +11366,57 @@ if (id === 'content-header' || id === 'side-panel') {
             });
         }
 
-        // --- LÓGICA DE SONIDOS DE AMBIENTE REFINADO ---
-        const AMBIENT_SOURCES = {
-            'none': '',
-            'zen': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/ambience-zen.mp3',
-            'birds': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/birds.mp3',
-            'forest': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/forest.mp3',
-            'ocean': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/ocean-waves.mp3',
-            'rain': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/rain-falling.mp3',
-            'waterfall': 'https://raw.githubusercontent.com/malloyruiz/palabras-poeticas/main/sounds/waterfall.mp3'
-        };
+        // --- LÓGICA DE SONIDOS PARA PAUSA CONSCIENTE ---
+        let _pausaSelectedAtm = null;
 
-        function toggleAmbient(type) {
-            const player = document.getElementById('ambient-player');
-            if (!player) return;
-            
-            const current = localStorage.getItem('lumina_ambient') || 'none';
-            const nextType = (current === type && type !== 'none') ? 'none' : type;
-            
-            localStorage.setItem('lumina_ambient', nextType);
-            updateAmbientUI(nextType);
-            
-            if (nextType === 'none') {
-                player.pause();
-                player.src = '';
-            } else {
-                player.src = AMBIENT_SOURCES[nextType];
-                player.load();
-                player.play().catch(e => {
-                    console.warn("Reproducción bloqueada: requiere interacción inicial.");
-                    setTimeout(() => player.play(), 50);
-                });
+        function setPausaAtmosfera(atmNombre) {
+            _pausaSelectedAtm = atmNombre;
+            document.querySelectorAll('#pausa-atm-selector button').forEach(btn => {
+                btn.style.background = 'var(--card-bg)';
+                btn.style.borderColor = 'var(--card-border)';
+                btn.style.color = 'var(--text)';
+                btn.style.fontWeight = '400';
+            });
+            const activeId = atmNombre ? ('pausa-atm-' + atmNombre.replace(/\s+/g,'-')) : 'pausa-atm-none';
+            const activeBtn = document.getElementById(activeId);
+            if (activeBtn) {
+                activeBtn.style.background = 'var(--accent)';
+                activeBtn.style.borderColor = 'var(--accent)';
+                activeBtn.style.color = '#fff';
+                activeBtn.style.fontWeight = '700';
             }
-            if (navigator.vibrate) navigator.vibrate(12);
-            pushSync();
         }
 
-        function setAmbientVolume(val) {
-            const player = document.getElementById('ambient-player');
-            if (player) player.volume = val;
-            localStorage.setItem('lumina_ambient_vol', val);
-            document.querySelectorAll('.ambient-vol-slider').forEach(s => s.value = val);
-            pushSync();
-        }
+        function renderPausaAtmosferaSelector() {
+            const container = document.getElementById('pausa-atm-selector');
+            if (!container) return;
 
-        function updateAmbientUI(activeType) {
-            document.querySelectorAll('.ambient-item').forEach(item => {
-                item.classList.remove('active');
+            if (!_atmosferaCache) {
+                container.innerHTML = `
+                    <button onclick="setPausaAtmosfera(null)" id="pausa-atm-none" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:20px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:0.7rem;cursor:pointer;letter-spacing:1px;transition:0.3s;font-weight:700;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>Silencio</button>
+                    <button onclick="openCategory('atmosfera')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:20px;border:1px solid var(--card-border);background:var(--card-bg);color:var(--accent);font-size:0.7rem;cursor:pointer;letter-spacing:1px;transition:0.3s;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Descubrir</button>
+                `;
+                return;
+            }
+
+            // Ordenar por score y tomar las top 5
+            const categories = _atmosferaCache.categorias || {};
+            const sortedCats = Object.keys(categories)
+                .filter(cat => cat.toUpperCase() !== 'ANUNCIOS')
+                .sort((a, b) => calculateAtmosferaScore(b) - calculateAtmosferaScore(a))
+                .slice(0, 5);
+
+            let html = `<button onclick="setPausaAtmosfera(null)" id="pausa-atm-none" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:20px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:0.7rem;cursor:pointer;letter-spacing:1px;transition:0.3s;font-weight:700;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>Silencio</button>`;
+            
+            sortedCats.forEach(cat => {
+                const firstItem = (categories[cat] || [])[0];
+                if (!firstItem) return;
+                const safeId = 'pausa-atm-' + cat.replace(/\s+/g, '-');
+                html += `<button onclick="setPausaAtmosfera('${firstItem.nombre.replace(/'/g, "\\'")}')" id="${safeId}" style="padding: 8px 18px; border-radius: 20px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text); font-size: 0.7rem; cursor: pointer; letter-spacing: 1px; transition: 0.3s;">${cat}</button>`;
             });
-            document.querySelectorAll(`[data-amb="${activeType}"]`).forEach(item => {
-                item.classList.add('active');
-            });
-            const activeItem = document.getElementById(`amb-${activeType}`);
-            if (activeItem) activeItem.classList.add('active');
+            
+            container.innerHTML = html;
+            _pausaSelectedAtm = null; 
         }
         let _atmosferaCache = null;
         let isAtmosferaPlaying = false;
@@ -11542,20 +11507,52 @@ if (id === 'content-header' || id === 'side-panel') {
 
         function toggleAtmosferaVisual() {
             const card = document.getElementById('atm-visual-card');
+            if (!card) return;
+            const isOpen = card.classList.contains('visual-full');
+            setAtmosferaVisual(!isOpen);
+        }
+
+        function setAtmosferaVisual(state) {
+            const card = document.getElementById('atm-visual-card');
             const sidebar = document.querySelector('.atm-sidebar-right');
             const atmUI = document.getElementById('atmosfera-ui');
             if (!card) return;
             
-            card.classList.toggle('visual-full');
-            if (sidebar) sidebar.classList.toggle('visual-full');
-            
-            const isOpen = card.classList.contains('visual-full');
-            if (atmUI) atmUI.classList.toggle('cinema-open', isOpen);
+            card.classList.toggle('visual-full', state);
+            if (sidebar) sidebar.classList.toggle('visual-full', state);
+            if (atmUI) atmUI.classList.toggle('cinema-open', state);
             
             // Forzar resize del canvas para el nuevo tamaño
             if (_currentAtmosferaIdx !== -1) {
                 const item = _atmosferaPlaylist[_currentAtmosferaIdx];
                 setTimeout(() => iniciarVisual(item.categoria, item.nombre), 50);
+            }
+        }
+
+        let _isPlayingAd = false;
+        let _pendingAtmosfera = null;
+
+        function skipAd() {
+            if (localStorage.getItem('lumina_pro') !== 'true') return;
+            startPendingAtmosfera();
+        }
+
+        function startPendingAtmosfera() {
+            _isPlayingAd = false;
+            document.getElementById('atm-ad-label').style.display = 'none';
+            document.getElementById('atm-skip-ad').style.display = 'none';
+            
+            if (_pendingAtmosfera) {
+                const item = _pendingAtmosfera;
+                _pendingAtmosfera = null;
+                
+                // Si estamos en móvil, cerramos el visual después del anuncio
+                if (window.innerWidth <= 768) {
+                    setAtmosferaVisual(false);
+                }
+                
+                console.log("Lúmina: Reanudando atmósfera pendiente:", item.nombre);
+                playAtmosferaDetail(item, true); // Pasar el objeto directamente
             }
         }
 
@@ -11568,9 +11565,18 @@ if (id === 'content-header' || id === 'side-panel') {
                 return;
             }
             
-            const ctx = canvas.getContext('2d'), seed = hashCode(nombre);
+            const ctx = canvas.getContext('2d');
             const cat = String(categoria || "").toUpperCase();
 
+            // Si es un anuncio, limpiamos y salimos
+            if (cat === "ANUNCIOS") {
+                if (_visualAnimationId) cancelAnimationFrame(_visualAnimationId);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                console.log("Lúmina: Visual desactivado para anuncio.");
+                return;
+            }
+
+            const seed = hashCode(nombre);
             // 1. Configuración Dinámica
             const speedFactor = cat.includes("ENFOQUE") ? 2.5 : (cat.includes("MEDITACI") ? 0.4 : 1);
             const particleType = cat.includes("ENFOQUE") ? 'line' : (cat.includes("LLUVIA") || cat.includes("NATURALEZA") ? 'rain' : 'dust');
@@ -11733,64 +11739,80 @@ if (id === 'content-header' || id === 'side-panel') {
 
             // Función interna para construir el HTML rápido
             const buildHTML = (data) => {
-                let html = '';
-                if (data.novedades && data.novedades.length > 0) {
-                    html += `
-                        <div class="atm-category-row">
-                            <div class="atm-section-header">
-                                <h2>Lo Nuevo</h2>
-                                <span>Sonidos recientes</span>
-                            </div>
-                            <div class="atm-grid-wrapper">
-                                <button class="atm-nav-arrow left" onclick="scrollAtmGrid(this, -400)">&#10094;</button>
-                                <div class="atm-grid">
-                                    ${data.novedades.map(atm => `
-                                        <div class="atm-card" onclick="playAtmosferaDetail('${atm.nombre.replace(/'/g, "\\'")}', 'novedades')">
-                                            <img src="${getAtmosferaCover(atm)}" alt="${atm.nombre}" loading="lazy">
-                                            <h4>${atm.nombre}</h4>
-                                            <p>${atm.autor || 'Lúmina'}</p>
-                                        </div>
-                                    `).join('')}
+                try {
+                    let html = '';
+                    if (data.novedades && data.novedades.length > 0) {
+                        html += `
+                            <div class="atm-category-row">
+                                <div class="atm-section-header">
+                                    <h2>Lo Nuevo</h2>
+                                    <span>Sonidos recientes</span>
                                 </div>
-                                <button class="atm-nav-arrow right" onclick="scrollAtmGrid(this, 400)">&#10095;</button>
+                                <div class="atm-grid-wrapper">
+                                    <button class="atm-nav-arrow left" onclick="scrollAtmGrid(this, -400)">&#10094;</button>
+                                    <div class="atm-grid">
+                                        ${data.novedades.map(atm => {
+                                            if (!atm || !atm.nombre) return '';
+                                            const safeNombre = atm.nombre.replace(/'/g, "\\'");
+                                            return `
+                                                <div class="atm-card" onclick="playAtmosferaDetail('${safeNombre}', 'novedades')">
+                                                    <img src="${getAtmosferaCover(atm)}" alt="${atm.nombre}" loading="lazy">
+                                                    <h4>${atm.nombre}</h4>
+                                                    <p>${atm.autor || 'Lúmina'}</p>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    <button class="atm-nav-arrow right" onclick="scrollAtmGrid(this, 400)">&#10095;</button>
+                                </div>
                             </div>
-                        </div>
-                    `;
-                }
-                
-                // Ordenar categorías por score
-                const categories = data.categorias || {};
-                const sortedCats = Object.keys(categories).sort((a, b) => {
-                    if (a.toUpperCase() === "ANUNCIOS") return 1;
-                    if (b.toUpperCase() === "ANUNCIOS") return -1;
-                    return calculateAtmosferaScore(b) - calculateAtmosferaScore(a);
-                });
+                        `;
+                    }
+                    
+                    const categories = data.categorias || {};
+                    const sortedCats = Object.keys(categories).sort((a, b) => {
+                        if (a.toUpperCase() === "ANUNCIOS") return 1;
+                        if (b.toUpperCase() === "ANUNCIOS") return -1;
+                        return calculateAtmosferaScore(b) - calculateAtmosferaScore(a);
+                    });
 
-                for (const catName of sortedCats) {
-                    if (catName.toUpperCase() === "ANUNCIOS") continue;
-                    html += `
-                        <div class="atm-category-row">
-                            <div class="atm-section-header">
-                                <h2>${catName}</h2>
-                                <span>Explora ${catName}</span>
-                            </div>
-                            <div class="atm-grid-wrapper">
-                                <button class="atm-nav-arrow left" onclick="scrollAtmGrid(this, -400)">&#10094;</button>
-                                <div class="atm-grid">
-                                    ${data.categorias[catName].map(atm => `
-                                        <div class="atm-card" onclick="playAtmosferaDetail('${atm.nombre.replace(/'/g, "\\'")}', '${catName.replace(/'/g, "\\'")}')">
-                                            <img src="${getAtmosferaCover(atm)}" alt="${atm.nombre}" loading="lazy">
-                                            <h4>${atm.nombre}</h4>
-                                            <p>${atm.autor || 'Lúmina'}</p>
-                                        </div>
-                                    `).join('')}
+                    for (const catName of sortedCats) {
+                        if (catName.toUpperCase() === "ANUNCIOS") continue;
+                        const items = categories[catName] || [];
+                        if (items.length === 0) continue;
+
+                        html += `
+                            <div class="atm-category-row">
+                                <div class="atm-section-header">
+                                    <h2>${catName}</h2>
+                                    <span>Explora ${catName}</span>
                                 </div>
-                                <button class="atm-nav-arrow right" onclick="scrollAtmGrid(this, 400)">&#10095;</button>
+                                <div class="atm-grid-wrapper">
+                                    <button class="atm-nav-arrow left" onclick="scrollAtmGrid(this, -400)">&#10094;</button>
+                                    <div class="atm-grid">
+                                        ${items.map(atm => {
+                                            if (!atm || !atm.nombre) return '';
+                                            const safeNombre = atm.nombre.replace(/'/g, "\\'");
+                                            const safeCat = catName.replace(/'/g, "\\'");
+                                            return `
+                                                <div class="atm-card" onclick="playAtmosferaDetail('${safeNombre}', '${safeCat}')">
+                                                    <img src="${getAtmosferaCover(atm)}" alt="${atm.nombre}" loading="lazy">
+                                                    <h4>${atm.nombre}</h4>
+                                                    <p>${atm.autor || 'Lúmina'}</p>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    <button class="atm-nav-arrow right" onclick="scrollAtmGrid(this, 400)">&#10095;</button>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    }
+                    return html;
+                } catch (err) {
+                    console.error("Lúmina: Error construyendo HTML de atmósferas", err);
+                    return `<p style="padding:20px; opacity:0.5;">Error al procesar la lista de sonidos.</p>`;
                 }
-                return html;
             };
 
             // 1. Intentar renderizar desde caché local (Carga instantánea)
@@ -11814,22 +11836,25 @@ if (id === 'content-header' || id === 'side-panel') {
                 const dataStr = await response.text();
                 
                 // Si la data cambió respecto al caché, re-renderizar
-                if (dataStr !== cachedDataStr) {
-                    const data = JSON.parse(dataStr);
-                    if (data.error) throw new Error(data.error);
-                    
-                    localStorage.setItem('lumina_atmosferas_cache', dataStr);
-                    _atmosferaCache = data;
-                    
-                    container.innerHTML = buildHTML(data) || '<p style="opacity:0.4; font-size:0.8rem; padding:20px;">Próximamente más sonidos.</p>';
-                    fetchAtmosferaBanner();
+                if (dataStr && dataStr !== cachedDataStr) {
+                    try {
+                        const data = JSON.parse(dataStr);
+                        if (data && !data.error) {
+                            localStorage.setItem('lumina_atmosferas_cache', dataStr);
+                            _atmosferaCache = data;
+                            container.innerHTML = buildHTML(data) || '<p style="opacity:0.4; font-size:0.8rem; padding:20px;">Próximamente más sonidos.</p>';
+                            fetchAtmosferaBanner();
+                        }
+                    } catch (parseErr) {
+                        console.error("Error parsing atmosphere data:", parseErr);
+                    }
                 }
                 
-                updateAtmosferaPlayUI();
+                if (typeof updateAtmosferaPlayUI === 'function') updateAtmosferaPlayUI();
             } catch (e) {
                 console.error("Atmosfera Fetch Error:", e);
                 if (!cachedDataStr) {
-                    container.innerHTML = '<p style="opacity:0.5; font-size:0.8rem; padding:20px;">Error al cargar atmósferas.</p>';
+                    container.innerHTML = '<p style="opacity:0.5; font-size:0.8rem; padding:20px;">Error al cargar atmósferas. Revisa tu conexión.</p>';
                 }
             }
         }
@@ -11923,65 +11948,139 @@ if (id === 'content-header' || id === 'side-panel') {
         let isAtmosferaShuffle = false;
         let isAtmosferaRepeat = false;
         let _currentAtmosferaIdx = -1;
+        let _currentAtmosferaItem = null;
 
-        function playAtmosferaDetail(nombre, playlistSource = null) {
+        function playAtmosferaDetail(nombreOrObj, source = null) {
             if (!_atmosferaCache) return;
-            
-            // Track usage for ranking
-            if (playlistSource) trackAtmosferaUsage(playlistSource);
 
-            if (playlistSource === 'novedades') {
-                _atmosferaPlaylist = _atmosferaCache.novedades;
-            } else if (playlistSource && _atmosferaCache.categorias[playlistSource]) {
-                _atmosferaPlaylist = _atmosferaCache.categorias[playlistSource];
+            let item = null;
+            let nombre = "";
+
+            if (typeof nombreOrObj === 'object') {
+                item = nombreOrObj;
+                nombre = item.nombre;
             } else {
-                _atmosferaPlaylist = [..._atmosferaCache.novedades];
-                for (const cat in _atmosferaCache.categorias) {
-                    _atmosferaPlaylist = _atmosferaPlaylist.concat(_atmosferaCache.categorias[cat]);
+                nombre = nombreOrObj;
+                item = _atmosferaPlaylist.find(a => a && a.nombre === nombre);
+                
+                if (!item) {
+                    let all = [];
+                    if (_atmosferaCache.novedades) all = all.concat(_atmosferaCache.novedades);
+                    for (let k in (_atmosferaCache.categorias || {})) {
+                        const items = _atmosferaCache.categorias[k];
+                        if (Array.isArray(items)) all = all.concat(items);
+                    }
+                    item = all.find(a => a && a.nombre === nombre);
                 }
             }
 
-            const idx = _atmosferaPlaylist.findIndex(a => a.nombre === nombre);
-            if (idx === -1) return;
-            _currentAtmosferaIdx = idx;
-            const item = _atmosferaPlaylist[idx];
-
-            // Actualizar UI
-            document.getElementById('atm-detail-title').innerText = item.nombre;
-            document.getElementById('atm-detail-author').innerText = `Autor: ${item.autor}`;
-            if (item.desc) {
-                document.getElementById('atm-detail-desc').innerText = item.desc;
-            } else {
-                document.getElementById('atm-detail-desc').innerText = "Esta atmósfera no tiene descripción disponible.";
+            // Actualizar playlist si venimos de una categoría o sección específica
+            if (source && typeof source === 'string') {
+                if (source === 'novedades') {
+                    _atmosferaPlaylist = _atmosferaCache.novedades || [];
+                } else if (_atmosferaCache.categorias && _atmosferaCache.categorias[source]) {
+                    _atmosferaPlaylist = _atmosferaCache.categorias[source];
+                } else if (source === 'favoritos') {
+                    _atmosferaPlaylist = JSON.parse(localStorage.getItem('lumina_fav_atmosferas') || '[]');
+                }
             }
 
-            // Ocultar logo por defecto si existe
-            const defaultLogo = document.getElementById('atm-default-logo');
-            if (defaultLogo) defaultLogo.style.opacity = '0.05';
+            if (!item) {
+                console.warn("Lúmina: No se encontró la atmósfera:", nombre);
+                return;
+            }
+
+            // Lógica de Publicidad (Frecuencia: 1 por sesión)
+            const isJump = (source === true);
+            const ads = _atmosferaCache.anuncios || [];
+            const isPro = localStorage.getItem('lumina_pro') === 'true';
             
+            const adShownInSession = sessionStorage.getItem('lumina_atm_ad_shown') === 'true';
+
+            if (!isJump && ads.length > 0 && !adShownInSession) {
+                console.log("Lúmina: Iniciando secuencia de anuncio para:", item.nombre);
+                // Marcar como mostrado en esta sesión
+                sessionStorage.setItem('lumina_atm_ad_shown', 'true');
+                // Seleccionar un anuncio al azar
+                const randomAd = ads[Math.floor(Math.random() * ads.length)];
+                _pendingAtmosfera = item;
+                _isPlayingAd = true;
+                
+                const label = document.getElementById('atm-ad-label');
+                const skipBtn = document.getElementById('atm-skip-ad');
+                if (label) label.style.display = 'block';
+                if (skipBtn && isPro) skipBtn.style.display = 'block';
+                
+                // Solo abrir modo cine en móvil para anuncios
+                if (window.innerWidth <= 1024) {
+                    setAtmosferaVisual(true);
+                }
+                playAtmosferaDetailInternal(randomAd, true); 
+            } else {
+                _isPlayingAd = false;
+                _currentAtmosferaIdx = _atmosferaPlaylist.indexOf(item);
+                playAtmosferaDetailInternal(item, false);
+            }
+        }
+
+        function playAtmosferaDetailInternal(item, isAd = false) {
+            if (!isAd) _currentAtmosferaItem = item;
+            
+            // Actualizar UI
+            document.getElementById('atm-detail-title').innerText = item.nombre;
+            document.getElementById('atm-detail-author').innerText = isAd ? (item.autor || "Publicidad Lúmina") : `Autor: ${item.autor}`;
+            
+            const finalDesc = (item.desc && item.desc.trim() !== "") 
+                ? item.desc 
+                : (isAd ? "Sigue disfrutando de Lúmina." : "Esta atmósfera no tiene descripción disponible.");
+            
+            document.getElementById('atm-detail-desc').innerText = finalDesc;
+            
+            // Log para depuración (opcional, se puede comentar luego)
+            if (isAd) console.log("Lúmina Ad Debug:", { nombre: item.nombre, desc: item.desc, autor: item.autor });
+
             const coverUrl = getAtmosferaCover(item);
             document.getElementById('atm-visual-card').style.background = `url(${coverUrl}) center/cover`;
-            
+            document.getElementById('atm-visual-card').style.backgroundSize = 'cover';
+            document.getElementById('atm-visual-card').style.backgroundPosition = 'center';
+
+            // UI Elements visibility
+            const aurora = document.querySelector('.atm-aurora-bg');
+            const glass = document.querySelector('.atm-glass-overlay');
+            const logo = document.getElementById('atm-default-logo');
+            if (aurora) aurora.style.display = isAd ? 'none' : 'block';
+            if (glass) glass.style.display = isAd ? 'none' : 'block';
+            if (logo) logo.style.opacity = isAd ? '0' : '0.15';
+
             // Barra de reproducción
             document.getElementById('atm-bar-title').innerText = item.nombre;
-            document.getElementById('atm-bar-author').innerText = item.autor;
+            document.getElementById('atm-bar-author').innerText = isAd ? "Publicidad" : item.autor;
             document.getElementById('atm-bar-cover').src = coverUrl;
 
             // Audio
             const player = document.getElementById('ambient-player');
-            player.src = getDirectStreamLink(item.link || item.url);
-            player.play().catch(e => {
-                console.error("Autoplay bloqueado o error en URL", e);
-                isAtmosferaPlaying = false;
-                updateAtmosferaPlayUI();
-            });
+            if (player) {
+                // Siempre desactivamos loop para que el evento 'ended' controle la progresión (repetir o siguiente)
+                player.loop = false;
+                player.src = getDirectStreamLink(item.link || item.url);
+                player.play().catch(e => {
+                    console.error("Autoplay bloqueado o error en URL", e);
+                    isAtmosferaPlaying = false;
+                    updateAtmosferaPlayUI();
+                });
+            }
             
             isAtmosferaPlaying = true;
             updateAtmosferaPlayUI();
-            updateFavoriteUI(); // <-- Nueva línea
+            if (!isAd) updateFavoriteUI();
             
             // Iniciar Visual
             iniciarVisual(item.categoria, item.nombre);
+            
+            // Si es anuncio, mostrar botón saltar para PRO (por si acaso el flujo cambió)
+            if (isAd && localStorage.getItem('lumina_pro') === 'true') {
+                document.getElementById('atm-skip-ad').style.display = 'block';
+            }
         }
 
         let _atmSleepTimer = null;
@@ -12071,7 +12170,12 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         function nextAtmosfera() {
-            if (_atmosferaPlaylist.length === 0 || _currentAtmosferaIdx === -1) return;
+            if (_atmosferaPlaylist.length === 0) return;
+            
+            // Si el índice es -1, intentamos recuperarlo desde el item actual
+            if (_currentAtmosferaIdx === -1 && _currentAtmosferaItem) {
+                _currentAtmosferaIdx = _atmosferaPlaylist.findIndex(a => a.nombre === _currentAtmosferaItem.nombre);
+            }
             
             let nextIdx;
             if (isAtmosferaShuffle && _atmosferaPlaylist.length > 1) {
@@ -12087,7 +12191,13 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         function prevAtmosfera() {
-            if (_atmosferaPlaylist.length === 0 || _currentAtmosferaIdx === -1) return;
+            if (_atmosferaPlaylist.length === 0) return;
+
+            // Si el índice es -1, intentamos recuperarlo desde el item actual
+            if (_currentAtmosferaIdx === -1 && _currentAtmosferaItem) {
+                _currentAtmosferaIdx = _atmosferaPlaylist.findIndex(a => a.nombre === _currentAtmosferaItem.nombre);
+            }
+
             let prevIdx = _currentAtmosferaIdx - 1;
             if (prevIdx < 0) prevIdx = _atmosferaPlaylist.length - 1;
             playAtmosferaDetail(_atmosferaPlaylist[prevIdx].nombre);
@@ -12102,8 +12212,8 @@ if (id === 'content-header' || id === 'side-panel') {
 
         // LÓGICA DE FAVORITOS (ATMÓSFERAS)
         function toggleFavoriteAtmosfera() {
-            if (_currentAtmosferaIdx === -1 || !_atmosferaPlaylist[_currentAtmosferaIdx]) return;
-            const item = _atmosferaPlaylist[_currentAtmosferaIdx];
+            if (!_currentAtmosferaItem) return;
+            const item = _currentAtmosferaItem;
             let favs = JSON.parse(localStorage.getItem('lumina_fav_atmosferas') || '[]');
             
             const existingIdx = favs.findIndex(f => f.nombre === item.nombre);
@@ -12139,16 +12249,15 @@ if (id === 'content-header' || id === 'side-panel') {
                 const cover = getAtmosferaCover(fav);
                 div.innerHTML = `<img src="${cover}" alt="${fav.nombre}" loading="lazy">`;
                 div.onclick = () => {
-                    if (_atmosferaPlaylist.length === 0) _atmosferaPlaylist = [fav];
-                    playAtmosferaDetail(fav.nombre);
+                    playAtmosferaDetail(fav.nombre, 'favoritos');
                 };
                 container.appendChild(div);
             });
         }
 
         function updateFavoriteUI() {
-            if (_currentAtmosferaIdx === -1 || !_atmosferaPlaylist[_currentAtmosferaIdx]) return;
-            const item = _atmosferaPlaylist[_currentAtmosferaIdx];
+            if (!_currentAtmosferaItem) return;
+            const item = _currentAtmosferaItem;
             const favs = JSON.parse(localStorage.getItem('lumina_fav_atmosferas') || '[]');
             const isFav = favs.some(f => f.nombre === item.nombre);
             
@@ -12183,6 +12292,10 @@ if (id === 'content-header' || id === 'side-panel') {
             });
 
             player.addEventListener('ended', () => {
+                if (_isPlayingAd) {
+                    startPendingAtmosfera();
+                    return;
+                }
                 if (isAtmosferaRepeat) {
                     player.currentTime = 0;
                     player.play();
@@ -12217,17 +12330,7 @@ if (id === 'content-header' || id === 'side-panel') {
         }
 
         function initAmbient() {
-            const player = document.getElementById('ambient-player');
-            const saved = localStorage.getItem('lumina_ambient') || 'none';
-            const vol = localStorage.getItem('lumina_ambient_vol') || '0.5';
-            const volInput = document.getElementById('ambient-vol');
-            if (volInput) volInput.value = vol;
-            setAmbientVolume(vol);
-            if (saved !== 'none' && AMBIENT_SOURCES[saved]) {
-                player.src = AMBIENT_SOURCES[saved];
-                player.load();
-            }
-            initAtmosferaPlayer();
+            // Deprecated - Lógica movida a Atmósferas y Pausa
         }
 
 
@@ -13472,6 +13575,9 @@ if (id === 'content-header' || id === 'side-panel') {
             // Ocultar botón de volver al Hub para usar el botón de volver a la lista
             const hubBack = document.getElementById('btn-back-hub');
             if (hubBack) hubBack.style.setProperty('display', 'none', 'important');
+
+            // Renderizar selector de atmósferas dinámico (Top 5)
+            if (typeof renderPausaAtmosferaSelector === 'function') renderPausaAtmosferaSelector();
         }
 
         function sharePausaLink() {
@@ -13512,6 +13618,31 @@ if (id === 'content-header' || id === 'side-panel') {
             document.getElementById('pausa-view-prep').style.display = 'none';
             document.getElementById('pausa-view-session').style.display = 'flex';
             requestWakeLock();
+
+            // Iniciar atmósfera de sesión si el usuario eligió una
+            if (_pausaSelectedAtm && _atmosferaCache) {
+                let foundItem = null;
+                // Buscar el ítem en las categorías
+                for (const cat of Object.values(_atmosferaCache.categorias || {})) {
+                    const item = cat.find(a => a.nombre === _pausaSelectedAtm);
+                    if (item) { foundItem = item; break; }
+                }
+                if (foundItem) {
+                    const player = document.getElementById('ambient-player');
+                    if (player) {
+                        const src = typeof getDirectStreamLink === 'function' 
+                            ? getDirectStreamLink(foundItem.link || foundItem.url) 
+                            : (foundItem.link || foundItem.url);
+                        player.src = src;
+                        player.loop = true;
+                        player.play().catch(e => {
+                            console.warn("Pausa: Autoplay bloqueado, reintentando...", e);
+                            setTimeout(() => player.play(), 200);
+                        });
+                        window._pausaAtmosferaActiva = true;
+                    }
+                }
+            }
             
             remainingSeconds = currentPausaTime * 60;
             updatePausaTimerUI();
@@ -13617,7 +13748,15 @@ if (id === 'content-header' || id === 'side-panel') {
 
         function forceExitPausa() {
             playSound('click');
-            toggleAmbient('none');
+            // Detener el audio de sesión directamente
+            const player = document.getElementById('ambient-player');
+            if (player) {
+                player.pause();
+                player.src = '';
+            }
+            window._pausaAtmosferaActiva = false;
+            _pausaSelectedAtm = null; 
+            
             clearInterval(pausaTimerInterval);
             clearInterval(breathInterval);
             
@@ -13682,7 +13821,16 @@ if (id === 'content-header' || id === 'side-panel') {
             addLuminaActivity(`Guardaste un hábito de paz: ${window._lastPausaTitle || "Meditación"}`, "habit");
             if (typeof syncLuminaStats === 'function') syncLuminaStats();
             pushSync(); // Sincronizar pausa
-            toggleAmbient('none');
+
+            // Detener el audio de sesión directamente
+            const player = document.getElementById('ambient-player');
+            if (player) {
+                player.pause();
+                player.src = '';
+            }
+            window._pausaAtmosferaActiva = false;
+            _pausaSelectedAtm = null;
+
             renderPausaList(); // Volver al inicio de pausas
         }
 
@@ -15027,54 +15175,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     <div class="toggle-sub" id="ui-sounds-toggle"></div>
                 </div>
 
-                <div style="text-align: left; margin-bottom: 30px;">
-                    <div style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.4; margin-bottom: 12px; text-transform: uppercase;">Sonidos Ambientales</div>
-                    <div class="ambient-grid">
-                        <div class="ambient-item" id="amb-none" onclick="toggleAmbient('none')">
-                            <div class="ambient-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-                            </div>
-                            <span class="ambient-label">Silencio</span>
-                        </div>
-                        <div class="ambient-item" id="amb-zen" onclick="toggleAmbient('zen')">
-                            <div class="ambient-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M12 3c1.64 4 4 7 8 8-4 1.64-7 4-8 8-1.64-4-4-7-8-8 4-1.64 7-4 8-8z"></path></svg>
-                            </div>
-                            <span class="ambient-label">Zen</span>
-                        </div>
-                        <div class="ambient-item" id="amb-birds" onclick="toggleAmbient('birds')">
-                            <div class="ambient-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M4 11c5-5 11-5 16 0-5-1-11-1-16 0zM4 15c5-5 11-5 16 0-5-1-11-1-16 0z"></path></svg>
-                            </div>
-                            <span class="ambient-label">Pájaros</span>
-                        </div>
-                        <div class="ambient-item" id="amb-forest" onclick="toggleAmbient('forest')">
-                            <div class="ambient-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M12 2l4 5h-3v4h5l-4 5h3l-5 6h-2l-5-6h3l-4-5h5V7H8l4-5z"></path></svg>
-                            </div>
-                            <span class="ambient-label">Bosque</span>
-                        </div>
-                        <div class="ambient-item" id="amb-ocean" onclick="toggleAmbient('ocean')">
-                            <div class="ambient-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
-                            </div>
-                            <span class="ambient-label">Océano</span>
-                        </div>
-                        <div class="ambient-item" id="amb-rain" onclick="toggleAmbient('rain')">
-                            <div class="ambient-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"></path><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="13" x2="12" y2="21"></line><line x1="16" y1="13" x2="16" y2="21"></line></svg>
-                            </div>
-                            <span class="ambient-label">Lluvia</span>
-                        </div>
-                        <div class="ambient-item" id="amb-waterfall" onclick="toggleAmbient('waterfall')">
-                            <div class="ambient-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M8 4v16M12 6v14M16 4v16M20 6v14"></path></svg>
-                            </div>
-                            <span class="ambient-label">Cascada</span>
-                        </div>
-                    </div>
-                    <input type="range" id="ambient-vol" min="0" max="1" step="0.1" value="0.5" oninput="setAmbientVolume(this.value)" style="width: 100%; margin-top: 15px; accent-color: var(--accent); height: 4px; cursor: pointer;">
-                </div>
+
 
                 <!-- SECCIÓN: APARIENCIA -->
                 <div style="text-align: left; margin-top: 15px; margin-bottom: 15px; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0.8;">APARIENCIA Y ESTILO</div>
