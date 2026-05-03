@@ -827,10 +827,18 @@
             max-width: 250px;
         }
 
+        .atm-main-scrollable {
+            grid-area: main;
+            overflow-y: auto;
+            padding-right: 10px;
+            height: 100%;
+        }
+
         .atm-content {
             grid-area: content;
             overflow-y: auto;
             padding-right: 10px;
+            padding-bottom: 30px;
         }
 
         .atm-section-header {
@@ -1059,6 +1067,16 @@
             overflow-y: auto;
         }
         [data-theme="dark"] .atm-desc-box { background: #222; color: #ccc; }
+
+        /* Limpieza de Visual para Anuncios */
+        #atm-visual-card.is-playing-ad .atm-card-actions,
+        #atm-visual-card.is-playing-ad .atm-aurora-bg,
+        #atm-visual-card.is-playing-ad .atm-glass-overlay,
+        #atm-visual-card.is-playing-ad #atm-default-logo,
+        #atm-visual-card.is-playing-ad .atm-visual-content,
+        #atm-visual-card.is-playing-ad #atm-fav-btn {
+            display: none !important;
+        }
 
         .atm-player-bar {
             grid-area: player;
@@ -4422,6 +4440,13 @@ body[data-cat="sendas"] #header-cat {
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
 
+        function formatMinutes(mins) {
+            if (mins < 60) return `${mins} min`;
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            return m === 0 ? `${h} h` : `${h} h y ${m} min`;
+        }
+
         // --- INTERCEPTOR LWW (Last-Write-Wins) ---
         let isPullingSync = false;
         const originalSetItem = localStorage.setItem;
@@ -6051,10 +6076,9 @@ body[data-cat="sendas"] #header-cat {
                             <!-- Inyectado por JS -->
                         </div>
                     </div>
-                    <!-- Centro Top: Banner -->
-                    <div class="atm-banner">BANNER</div>
-
-                    <!-- Centro Main: Content -->
+                    <!-- Centro: Banner (propio grid-area) -->
+                    <div class="atm-banner" id="atm-banner-area"></div>
+                    <!-- Centro: Contenido scrollable -->
                     <div class="atm-content" id="atmosfera-main-content">
                         <!-- Inyectado por JS: Categoría -> Grid Horizontal -->
                     </div>
@@ -8522,7 +8546,7 @@ body[data-cat="sendas"] #header-cat {
                             callbacks: {
                                 label: (ctx) => {
                                     const val = ctx.raw;
-                                    if (ctx.dataset.label === 'Minutos de Paz') return `${val} min de paz`;
+                                    if (ctx.dataset.label === 'Minutos de Paz') return `${formatMinutes(val)} de paz`;
                                     if (ctx.dataset.label === 'Reflexiones') return `${val} reflexiones`;
                                     if (ctx.dataset.label === 'Lecciones') return `${val} lecciones senda`;
                                     if (ctx.dataset.label === 'Consistencia') return (val ? 'Visitado' : 'Sin visita');
@@ -9168,7 +9192,10 @@ if (id === 'content-header' || id === 'side-panel') {
                     showSendasView('list');
                 } else if (cat === 'atmosfera') {
                     mainUI.classList.remove('has-examples');
+                    document.body.classList.add('view-atmosfera');
                     renderAtmosferaList();
+                } else {
+                    document.body.classList.remove('view-atmosfera');
                 }
 
                 // Header Label dinámico
@@ -11531,14 +11558,19 @@ if (id === 'content-header' || id === 'side-panel') {
 
         let _isPlayingAd = false;
         let _pendingAtmosfera = null;
+        let _interruptedAtmosferaTime = 0;
 
         function skipAd() {
             if (localStorage.getItem('lumina_pro') !== 'true') return;
+            // Si el PRO salta el anuncio, no le salen más en la sesión
+            sessionStorage.setItem('lumina_atm_ad_skipped', 'true');
             startPendingAtmosfera();
         }
 
         function startPendingAtmosfera() {
             _isPlayingAd = false;
+            const card = document.getElementById('atm-visual-card');
+            if (card) card.classList.remove('is-playing-ad');
             document.getElementById('atm-ad-label').style.display = 'none';
             document.getElementById('atm-skip-ad').style.display = 'none';
             
@@ -11551,8 +11583,8 @@ if (id === 'content-header' || id === 'side-panel') {
                     setAtmosferaVisual(false);
                 }
                 
-                console.log("Lúmina: Reanudando atmósfera pendiente:", item.nombre);
-                playAtmosferaDetail(item, true); // Pasar el objeto directamente
+                console.log("Lúmina: Reanudando atmósfera:", item.nombre);
+                playAtmosferaDetail(item, true); // Retomar con force=true para saltar chequeo ad inmediato
             }
         }
 
@@ -11648,8 +11680,10 @@ if (id === 'content-header' || id === 'side-panel') {
             
             try {
                 if (atm.cover && atm.cover.trim() !== '') {
-                    _atmCoverCache[key] = atm.cover;
-                    return atm.cover;
+                    let cUrl = atm.cover.trim();
+                    if (cUrl.startsWith('http://')) cUrl = cUrl.replace('http://', 'https://');
+                    _atmCoverCache[key] = cUrl;
+                    return cUrl;
                 }
                 const temp = document.createElement('canvas'); 
                 temp.width = 400; temp.height = 400;
@@ -11932,6 +11966,12 @@ if (id === 'content-header' || id === 'side-panel') {
 
         function getDirectStreamLink(url) {
             if (!url) return "";
+            
+            // Forzar HTTPS para evitar problemas de Mixed Content en PWA
+            if (url.startsWith('http://')) {
+                url = url.replace('http://', 'https://');
+            }
+
             // Google Drive
             if (url.includes('drive.google.com')) {
                 const idMatch = url.match(/[-\w]{25,}/);
@@ -11990,38 +12030,85 @@ if (id === 'content-header' || id === 'side-panel') {
                 return;
             }
 
-            // Lógica de Publicidad (Frecuencia: 1 por sesión)
-            const isJump = (source === true);
+            // Lógica de Publicidad (Frecuencia Diferenciada)
+            const isJump = (source === true); 
             const ads = _atmosferaCache.anuncios || [];
             const isPro = localStorage.getItem('lumina_pro') === 'true';
+            const adSkipped = sessionStorage.getItem('lumina_atm_ad_skipped') === 'true';
+            const now = Date.now();
+            const lastAdTime = parseInt(localStorage.getItem('lumina_atm_last_ad_time') || "0");
             
-            const adShownInSession = sessionStorage.getItem('lumina_atm_ad_shown') === 'true';
+            // Reglas: FREE cada 15 min (900,000ms), PRO cada 1 hora (3,600,000ms)
+            const adInterval = isPro ? 3600000 : 900000;
+            let shouldShowAd = (now - lastAdTime) > adInterval;
+            
+            // Si el PRO saltó anuncio en esta sesión, no más anuncios
+            if (isPro && adSkipped) shouldShowAd = false;
 
-            if (!isJump && ads.length > 0 && !adShownInSession) {
-                console.log("Lúmina: Iniciando secuencia de anuncio para:", item.nombre);
-                // Marcar como mostrado en esta sesión
-                sessionStorage.setItem('lumina_atm_ad_shown', 'true');
-                // Seleccionar un anuncio al azar
+            if (!isJump && ads.length > 0 && shouldShowAd) {
+                console.log(`Lúmina: Publicidad requerida (${isPro ? 'PRO' : 'FREE'})`);
+                
+                const player = document.getElementById('ambient-player');
+                if (player && !player.paused) {
+                    _interruptedAtmosferaTime = player.currentTime;
+                    player.pause();
+                } else {
+                    _interruptedAtmosferaTime = 0;
+                }
+                
+                localStorage.setItem('lumina_atm_last_ad_time', now.toString());
+                
                 const randomAd = ads[Math.floor(Math.random() * ads.length)];
                 _pendingAtmosfera = item;
                 _isPlayingAd = true;
                 
+                const card = document.getElementById('atm-visual-card');
+                if (card) card.classList.add('is-playing-ad');
+                
                 const label = document.getElementById('atm-ad-label');
                 const skipBtn = document.getElementById('atm-skip-ad');
-                if (label) label.style.display = 'block';
-                if (skipBtn && isPro) skipBtn.style.display = 'block';
-                
-                // Solo abrir modo cine en móvil para anuncios
-                if (window.innerWidth <= 1024) {
-                    setAtmosferaVisual(true);
+                if (label) {
+                    label.style.display = 'block';
+                    label.innerText = isPro ? "ANUNCIO (PRO)" : "ANUNCIO";
                 }
+                // Solo PRO puede saltar
+                if (skipBtn) skipBtn.style.display = isPro ? 'block' : 'none';
+                
+                if (window.innerWidth <= 1024) setAtmosferaVisual(true);
+                
                 playAtmosferaDetailInternal(randomAd, true); 
             } else {
                 _isPlayingAd = false;
                 _currentAtmosferaIdx = _atmosferaPlaylist.indexOf(item);
                 playAtmosferaDetailInternal(item, false);
+                
+                // Si venimos de una interrupción, restaurar tiempo
+                if (isJump && _interruptedAtmosferaTime > 0) {
+                    const player = document.getElementById('ambient-player');
+                    if (player) {
+                        player.currentTime = _interruptedAtmosferaTime;
+                        _interruptedAtmosferaTime = 0;
+                    }
+                }
             }
         }
+
+        // Timer para Mid-Rolls (chequeo cada 30 segundos si está sonando)
+        setInterval(() => {
+            if (!isAtmosferaPlaying || _isPlayingAd) return;
+            const isPro = localStorage.getItem('lumina_pro') === 'true';
+            if (isPro && sessionStorage.getItem('lumina_atm_ad_skipped') === 'true') return;
+            
+            const now = Date.now();
+            const lastAdTime = parseInt(localStorage.getItem('lumina_atm_last_ad_time') || "0");
+            const adInterval = isPro ? 3600000 : 900000;
+            
+            if (now - lastAdTime > adInterval) {
+                if (_currentAtmosferaItem) {
+                    playAtmosferaDetail(_currentAtmosferaItem, false);
+                }
+            }
+        }, 30000);
 
         function playAtmosferaDetailInternal(item, isAd = false) {
             if (!isAd) _currentAtmosferaItem = item;
@@ -12060,14 +12147,19 @@ if (id === 'content-header' || id === 'side-panel') {
             // Audio
             const player = document.getElementById('ambient-player');
             if (player) {
-                // Siempre desactivamos loop para que el evento 'ended' controle la progresión (repetir o siguiente)
+                // Siempre desactivamos loop para que el evento 'ended' controle la progresión
                 player.loop = false;
-                player.src = getDirectStreamLink(item.link || item.url);
-                player.play().catch(e => {
-                    console.error("Autoplay bloqueado o error en URL", e);
-                    isAtmosferaPlaying = false;
-                    updateAtmosferaPlayUI();
-                });
+                const audioLink = item.link || item.url;
+                if (audioLink) {
+                    player.src = getDirectStreamLink(audioLink);
+                    player.play().catch(e => {
+                        console.error("Autoplay bloqueado o error en URL", e);
+                        isAtmosferaPlaying = false;
+                        updateAtmosferaPlayUI();
+                    });
+                } else {
+                    console.log("Lúmina: Item sin audio (posible anuncio visual).");
+                }
             }
             
             isAtmosferaPlaying = true;
@@ -15676,7 +15768,7 @@ if (id === 'content-header' || id === 'side-panel') {
 
             <div class="gap-info-card">
                 <span class="gap-time-label" id="sch-gap-range">--:-- a --:--</span>
-                <span style="font-size: 0.7rem; letter-spacing: 1px; opacity: 0.5; text-transform: uppercase;" id="sch-gap-duration">-- min libres detectados</span>
+                <span style="font-size: 0.7rem; letter-spacing: 1px; opacity: 0.5; text-transform: uppercase;" id="sch-gap-duration">-- libres detectados</span>
             </div>
 
             <div class="schedule-controls">
@@ -17149,7 +17241,7 @@ async function checkCalendarGaps(isManual = false) {
             
             if (gap) {
                 const start = new Date(gap.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const msg = `Tienes un hueco de ${gap.duration} min a las ${start}. ¿Dedicamos un tiempo a la calma?`;
+                const msg = `Tienes un hueco de ${formatMinutes(gap.duration)} a las ${start}. ¿Dedicamos un tiempo a la calma?`;
                 injectIntegrationNews("Agenda Lúmina", msg, "#pausa", gap);
                 if (isManual) showToast('¡Hueco encontrado! Revisa Novedades.', 'success');
                 
@@ -17231,7 +17323,7 @@ function openScheduleModal(gapData) {
     const end = new Date(gapData.end);
     
     document.getElementById('sch-gap-range').innerText = `${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} a ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
-    document.getElementById('sch-gap-duration').innerText = `${gapData.duration} min libres detectados`;
+    document.getElementById('sch-gap-duration').innerText = `${formatMinutes(gapData.duration)} libres detectados`;
     
     // Default values
     const timeInput = document.getElementById('sch-time-input');
