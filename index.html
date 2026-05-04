@@ -12341,6 +12341,28 @@ if (id === 'content-header' || id === 'side-panel') {
             document.getElementById('atm-bar-author').innerText = isAd ? "Publicidad" : item.autor;
             document.getElementById('atm-bar-cover').src = coverUrl;
 
+            // Integración con Media Session API (Bluetooth/OS)
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: isAd ? "Publicidad Lúmina" : item.nombre,
+                    artist: isAd ? "Lúmina" : item.autor,
+                    album: "Lúmina — Atmósferas",
+                    artwork: [
+                        { src: coverUrl, sizes: '512x512', type: 'image/jpeg' },
+                        { src: coverUrl, sizes: '256x256', type: 'image/jpeg' }
+                    ]
+                });
+
+                try {
+                    navigator.mediaSession.setActionHandler('play', toggleAtmosferaPlay);
+                    navigator.mediaSession.setActionHandler('pause', toggleAtmosferaPlay);
+                    navigator.mediaSession.setActionHandler('previoustrack', prevAtmosfera);
+                    navigator.mediaSession.setActionHandler('nexttrack', nextAtmosfera);
+                } catch(e) {
+                    console.log("MediaSession action handlers no soportados", e);
+                }
+            }
+
             // Audio
             const player = document.getElementById('ambient-player');
             if (player) {
