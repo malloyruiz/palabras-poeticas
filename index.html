@@ -12499,8 +12499,38 @@ if (id === 'content-header' || id === 'side-panel') {
             }
         }
 
-        function nextAtmosfera() {
+        function canSkipAtmosfera() {
+            const isPro = localStorage.getItem('lumina_pro') === 'true';
+            if (isPro) return true;
+
+            const now = Date.now();
+            const oneHour = 60 * 60 * 1000;
+            
+            let skipsInfo = JSON.parse(localStorage.getItem('lumina_atm_skips') || '{"count": 0, "timestamp": 0}');
+            
+            if (now - skipsInfo.timestamp > oneHour) {
+                skipsInfo = { count: 0, timestamp: now };
+            }
+            
+            if (skipsInfo.count >= 5) {
+                showToast("Límite de 5 saltos por hora alcanzado. Hazte PRO para ilimitados.");
+                setTimeout(() => {
+                    if (typeof openPlansModal === 'function') openPlansModal();
+                }, 1500);
+                return false;
+            }
+            
+            skipsInfo.count++;
+            if (skipsInfo.count === 1) skipsInfo.timestamp = now;
+            
+            localStorage.setItem('lumina_atm_skips', JSON.stringify(skipsInfo));
+            return true;
+        }
+
+        function nextAtmosfera(isAuto = false) {
             if (_atmosferaPlaylist.length === 0) return;
+            
+            if (!isAuto && !canSkipAtmosfera()) return;
             
             // Si el índice es -1, intentamos recuperarlo desde el item actual
             if (_currentAtmosferaIdx === -1 && _currentAtmosferaItem) {
@@ -12522,6 +12552,8 @@ if (id === 'content-header' || id === 'side-panel') {
 
         function prevAtmosfera() {
             if (_atmosferaPlaylist.length === 0) return;
+
+            if (!canSkipAtmosfera()) return;
 
             // Si el índice es -1, intentamos recuperarlo desde el item actual
             if (_currentAtmosferaIdx === -1 && _currentAtmosferaItem) {
@@ -12647,7 +12679,7 @@ if (id === 'content-header' || id === 'side-panel') {
                     player.currentTime = 0;
                     player.play();
                 } else {
-                    nextAtmosfera();
+                    nextAtmosfera(true);
                 }
             });
 
