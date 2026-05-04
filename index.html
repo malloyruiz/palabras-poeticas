@@ -12354,10 +12354,26 @@ if (id === 'content-header' || id === 'side-panel') {
                 });
 
                 try {
-                    navigator.mediaSession.setActionHandler('play', toggleAtmosferaPlay);
-                    navigator.mediaSession.setActionHandler('pause', toggleAtmosferaPlay);
-                    navigator.mediaSession.setActionHandler('previoustrack', prevAtmosfera);
-                    navigator.mediaSession.setActionHandler('nexttrack', nextAtmosfera);
+                    navigator.mediaSession.setActionHandler('play', () => {
+                        const player = document.getElementById('ambient-player');
+                        if (player) { player.play(); isAtmosferaPlaying = true; updateAtmosferaPlayUI(); }
+                    });
+                    navigator.mediaSession.setActionHandler('pause', () => {
+                        const player = document.getElementById('ambient-player');
+                        if (player) { player.pause(); isAtmosferaPlaying = false; updateAtmosferaPlayUI(); }
+                    });
+                    navigator.mediaSession.setActionHandler('previoustrack', () => prevAtmosfera());
+                    navigator.mediaSession.setActionHandler('nexttrack', () => nextAtmosfera());
+                    navigator.mediaSession.setActionHandler('seekto', (details) => {
+                        const player = document.getElementById('ambient-player');
+                        if (player) {
+                            if (details.fastSeek && ('fastSeek' in player)) {
+                                player.fastSeek(details.seekTime);
+                            } else {
+                                player.currentTime = details.seekTime;
+                            }
+                        }
+                    });
                 } catch(e) {
                     console.log("MediaSession action handlers no soportados", e);
                 }
@@ -12598,6 +12614,16 @@ if (id === 'content-header' || id === 'side-panel') {
                     if (fill) fill.style.width = pct + '%';
                     if (currentTimeEl) currentTimeEl.innerText = formatTime(player.currentTime);
                     if (durationEl) durationEl.innerText = formatTime(player.duration);
+                    
+                    if ('mediaSession' in navigator && !isNaN(player.duration) && isFinite(player.duration)) {
+                        try {
+                            navigator.mediaSession.setPositionState({
+                                duration: player.duration,
+                                playbackRate: player.playbackRate,
+                                position: player.currentTime
+                            });
+                        } catch (e) {}
+                    }
                 }
             });
 
