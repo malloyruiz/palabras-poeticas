@@ -12614,22 +12614,29 @@ if (id === 'content-header' || id === 'side-panel') {
                     if (fill) fill.style.width = pct + '%';
                     if (currentTimeEl) currentTimeEl.innerText = formatTime(player.currentTime);
                     if (durationEl) durationEl.innerText = formatTime(player.duration);
-                    
-                    if ('mediaSession' in navigator && !isNaN(player.duration) && isFinite(player.duration)) {
-                        try {
-                            navigator.mediaSession.setPositionState({
-                                duration: player.duration,
-                                playbackRate: player.playbackRate,
-                                position: player.currentTime
-                            });
-                        } catch (e) {}
-                    }
                 }
             });
 
+            const updateMediaSessionPosition = () => {
+                if ('mediaSession' in navigator && player.duration && isFinite(player.duration)) {
+                    try {
+                        navigator.mediaSession.setPositionState({
+                            duration: player.duration,
+                            playbackRate: player.playbackRate || 1,
+                            position: player.currentTime
+                        });
+                    } catch (e) {}
+                }
+            };
+
             player.addEventListener('loadedmetadata', () => {
                 if (durationEl) durationEl.innerText = formatTime(player.duration);
+                updateMediaSessionPosition();
             });
+            player.addEventListener('play', updateMediaSessionPosition);
+            player.addEventListener('pause', updateMediaSessionPosition);
+            player.addEventListener('seeked', updateMediaSessionPosition);
+            player.addEventListener('ratechange', updateMediaSessionPosition);
 
             player.addEventListener('ended', () => {
                 if (_isPlayingAd) {
